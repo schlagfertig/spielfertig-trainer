@@ -1,6 +1,5 @@
 import { useState } from "react";
 import RudimentTrainer from "./embedded/RudimentTrainer.jsx";
-import DrumEditor from "./embedded/DrumEditor.jsx";
 
 export default function App() {
   const [view, setView] = useState("home");
@@ -22,12 +21,6 @@ export default function App() {
             <div className="card-lead">Sticking, Akzente, Tempo — zum Üben bereit.</div>
             <div className="card-go">Öffnen</div>
           </button>
-          <button className="card" onClick={() => setView("groove")}>
-            <div className="card-kicker">Bauen</div>
-            <div className="card-title">Groove</div>
-            <div className="card-lead">Raster, Notation, Play — Dein Beat.</div>
-            <div className="card-go">Öffnen</div>
-          </button>
         </div>
         <footer className="foot">Thomas Schuster · schlagfertig‽</footer>
       </div>
@@ -38,10 +31,6 @@ export default function App() {
     <div className="page tool">
       <header className="top">
         <button className="ghost" onClick={() => setView("home")}>Zurück</button>
-        <div className="seg">
-          <button className={view === "rudiments" ? "on" : ""} onClick={() => setView("rudiments")}>Rudiments</button>
-          <button className={view === "groove" ? "on" : ""} onClick={() => setView("groove")}>Groove</button>
-        </div>
         <div className="top-right">
           <button className="ghost" onClick={() => setPrintNonce((n) => n + 1)}>Druck</button>
           <button className={handwritten ? "ghost on" : "ghost"} onClick={() => setHandwritten((h) => !h)}>Handschrift</button>
@@ -55,9 +44,7 @@ export default function App() {
         </div>
       </div>
       <main className="main">
-        {view === "rudiments"
-          ? <RudimentTrainer handwritten={handwritten} printNonce={printNonce} />
-          : <DrumEditor handwritten={handwritten} printNonce={printNonce} />}
+        <RudimentTrainer handwritten={handwritten} printNonce={printNonce} />
       </main>
     </div>
   );
