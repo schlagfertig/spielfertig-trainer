@@ -10,7 +10,7 @@ export default function App() {
     return (
       <div className="page home">
         <header className="hero">
-          <Stamp />
+          <img className="logo" src="/logo.svg" alt="The best time for Rudiments is NOW" />
           <h1>Spielfertig</h1>
           <p className="tag">schlagfertig‽ · Zeit für guten Sound</p>
         </header>
@@ -37,7 +37,7 @@ export default function App() {
         </div>
       </header>
       <div className="brand-row">
-        <Stamp small />
+        <img className="logo small" src="/logo.svg" alt="" />
         <div>
           <div className="brand-title">Spielfertig</div>
           <div className="tag slim">schlagfertig‽ · Zeit für guten Sound</div>
@@ -47,20 +47,5 @@ export default function App() {
         <RudimentTrainer handwritten={handwritten} printNonce={printNonce} />
       </main>
     </div>
-  );
-}
-
-function Stamp({ small }) {
-  const s = small ? 56 : 112;
-  return (
-    <svg className="stamp" width={s} height={s} viewBox="0 0 112 112" aria-hidden="true">
-      <circle cx="56" cy="56" r="52" fill="none" stroke="#5CC8B8" strokeWidth="2.2" />
-      <circle cx="56" cy="56" r="42" fill="none" stroke="#5CC8B8" strokeWidth="1.1" opacity="0.75" />
-      <text x="56" y="24" textAnchor="middle" fill="#5CC8B8" fontSize="7" letterSpacing="1.6" fontFamily="Oswald,sans-serif">ZEIT FÜR GUTEN SOUND</text>
-      <ellipse cx="56" cy="68" rx="18" ry="11" fill="none" stroke="#F4F7F6" strokeWidth="1.6" />
-      <rect x="40" y="46" width="32" height="16" rx="3" fill="none" stroke="#F4F7F6" strokeWidth="1.5" />
-      <circle cx="56" cy="42" r="3.2" fill="#5CC8B8" />
-      <text x="56" y="96" textAnchor="middle" fill="#F4F7F6" fontSize="9" letterSpacing="1.2" fontFamily="Oswald,sans-serif">SCHLAGFERTIG‽</text>
-    </svg>
   );
 }
