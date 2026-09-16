@@ -3,10 +3,12 @@ const GOLD = "#e8b84b";
 const RCOL = "#5c8ee0";
 const LCOL = "#e05c5c";
 
-function beamsFor(dur) {
-  if (dur <= 0.5) return 3;
-  if (dur <= 1) return 2;
-  if (dur <= 2) return 1;
+function beamsFor(nt) {
+  if (!nt || nt.rest) return 0;
+  if (nt.tuplet === 3) return nt.dur <= 1.5 ? 2 : 1;
+  if (nt.dur <= 0.5) return 3;
+  if (nt.dur <= 1) return 2;
+  if (nt.dur <= 2) return 1;
   return 0;
 }
 
@@ -18,7 +20,7 @@ function beamGroups(notes) {
     cur = [];
   };
   notes.forEach((nt) => {
-    if (nt.rest || nt.dur >= 2) {
+    if (nt.rest || beamsFor(nt) === 0) {
       flush();
       return;
     }
@@ -94,8 +96,9 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
             <g key={i}>
               {nt.flam && (
                 <g>
-                  <ellipse cx={x - 11} cy={y + 2} rx={4} ry={3} fill={INK} transform={`rotate(-18 ${x - 11} ${y + 2})`} />
-                  <line x1={x - 8} y1={y} x2={x - 3} y2={y - 10} strokeWidth={1.2} />
+                  <ellipse cx={x - 12} cy={y + 3} rx={3.6} ry={2.6} fill={INK} transform={`rotate(-22 ${x - 12} ${y + 3})`} />
+                  <line x1={x - 10} y1={y + 1} x2={x - 10} y2={y - 14} strokeWidth={1.1} />
+                  <line x1={x - 14} y1={y - 6} x2={x - 6} y2={y - 11} strokeWidth={1.1} />
                 </g>
               )}
               {nt.drag && (
@@ -111,9 +114,8 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
               )) : null}
               <line x1={x} y1={y - 5} x2={x} y2={ey} stroke={on ? GOLD : INK} strokeWidth={1.45} />
               {nt.acc && <text x={x} y={ey - 8} textAnchor="middle" fontSize="13" fontWeight="700" fill={INK} stroke="none">></text>}
-              {!beamed.has(nt) && beamsFor(nt.dur) >= 1 && <path d={`M ${x} ${ey} C ${x + 11} ${ey + 2}, ${x + 13} ${ey + 14}, ${x + 6} ${ey + 18}`} stroke={INK} strokeWidth={1.4} />}
-              {!beamed.has(nt) && beamsFor(nt.dur) >= 2 && <path d={`M ${x} ${ey + 5} C ${x + 10} ${ey + 7}, ${x + 11} ${ey + 16}, ${x + 5} ${ey + 19}`} stroke={INK} strokeWidth={1.3} />}
-              {!beamed.has(nt) && beamsFor(nt.dur) >= 3 && <path d={`M ${x} ${ey + 10} C ${x + 9} ${ey + 12}, ${x + 10} ${ey + 18}, ${x + 4} ${ey + 20}`} stroke={INK} strokeWidth={1.2} />}
+              {!beamed.has(nt) && beamsFor(nt) >= 1 && <path d={`M ${x} ${ey} C ${x + 11} ${ey + 2}, ${x + 13} ${ey + 14}, ${x + 6} ${ey + 18}`} stroke={INK} strokeWidth={1.4} />}
+              {!beamed.has(nt) && beamsFor(nt) >= 2 && <path d={`M ${x} ${ey + 5} C ${x + 10} ${ey + 7}, ${x + 11} ${ey + 16}, ${x + 5} ${ey + 19}`} stroke={INK} strokeWidth={1.3} />}
               {nt.hand && <text x={x} y={y + 2 * lineGap + 18} textAnchor="middle" fontSize="12" fontWeight="700" fill={nt.hand === "R" ? RCOL : LCOL} stroke="none">{nt.hand}</text>}
             </g>
           );
@@ -121,21 +123,21 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
         {groups.map((g, gi) => {
           const xs = g.map((n) => x0 + n.t * stepW);
           const y0 = y - stemH;
-          const y1 = y0 + Math.min(6, (xs[xs.length - 1] - xs[0]) * 0.04);
+          const y1 = y0 + Math.min(5, (xs[xs.length - 1] - xs[0]) * 0.03);
           const yAt = (x) => y0 + ((x - xs[0]) / Math.max(1, xs[xs.length - 1] - xs[0])) * (y1 - y0);
-          const maxB = Math.max(...g.map((n) => beamsFor(n.dur)));
+          const maxB = Math.max(...g.map((n) => beamsFor(n)));
           const layers = [];
           for (let b = 0; b < maxB; b++) {
             const thick = b === 0 ? 3.1 : 2.15;
             const gap = 5;
             g.forEach((n, i) => {
-              if (beamsFor(n.dur) <= b) return;
-              const left = i > 0 && beamsFor(g[i - 1].dur) > b;
-              const right = i < g.length - 1 && beamsFor(g[i + 1].dur) > b;
+              if (beamsFor(n) <= b) return;
+              const left = i > 0 && beamsFor(g[i - 1]) > b;
+              const right = i < g.length - 1 && beamsFor(g[i + 1]) > b;
               if (left) return;
               if (right) {
                 let j = i;
-                while (j < g.length - 1 && beamsFor(g[j + 1].dur) > b) j++;
+                while (j < g.length - 1 && beamsFor(g[j + 1]) > b) j++;
                 layers.push(<line key={`${gi}-${b}-${i}`} x1={xs[i]} y1={yAt(xs[i]) + b * gap} x2={xs[j]} y2={yAt(xs[j]) + b * gap} strokeWidth={thick} />);
               } else {
                 const neighborX = i > 0 ? xs[i - 1] : (xs[i + 1] ?? xs[i] + stepW);
@@ -144,6 +146,10 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
                 layers.push(<line key={`${gi}-${b}-${i}`} x1={xs[i]} y1={yAt(xs[i]) + b * gap} x2={xs[i] + inward * hook} y2={yAt(xs[i]) + b * gap} strokeWidth={thick} />);
               }
             });
+          }
+          if (g[0].tuplet === 3) {
+            const mid = (xs[0] + xs[xs.length - 1]) / 2;
+            layers.push(<text key={`${gi}-3`} x={mid} y={y0 - 10} textAnchor="middle" fontSize="11" fontWeight="700" fill={INK} stroke="none">3</text>);
           }
           return <g key={gi}>{layers}</g>;
         })}
