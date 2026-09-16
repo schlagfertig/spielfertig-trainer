@@ -1,7 +1,9 @@
 /** PAS / Vic Firth 40. t = 16th steps, dur in 16ths (0.5 = 32nd). */
 const n = (t, dur, hand, acc = false, extra = {}) => ({ t, dur, hand, acc, ...extra });
+const rest = (t, dur) => ({ t, dur, rest: true });
 const run = (start, hands, dur = 1, accAt = []) =>
   hands.split("").map((h, i) => n(start + i * dur, dur, h, accAt.includes(i)));
+const d32 = (start, hands) => hands.split("").map((h, i) => n(start + i * 0.5, 0.5, h));
 
 export const CATS = [
   { id: "roll", label: "Roll" },
@@ -17,10 +19,10 @@ export const RUDIMENTS = [
   { id: 4, cat: "roll", label: "4. Multiple Bounce Roll", bars: 1, time: "4/4", notes: [n(0, 8, "R", true, { roll: 3 }), n(8, 8, "L", true, { roll: 3 })] },
   { id: 5, cat: "roll", label: "5. Triple Stroke Roll", bars: 1, time: "4/4", notes: run(0, "RRRLLLRRRLLLRRRL") },
   { id: 6, cat: "roll", label: "6. Double Stroke Open Roll", bars: 1, time: "4/4", notes: run(0, "RRLLRRLLRRLLRRLL") },
-  { id: 7, cat: "roll", label: "7. Five Stroke Roll", bars: 1, time: "4/4", notes: [...run(0, "RRLL", 1), n(4, 4, "R", true), ...run(8, "LLRR", 1), n(12, 4, "L", true)] },
-  { id: 8, cat: "roll", label: "8. Six Stroke Roll", bars: 1, time: "2/4", notes: [n(0, 2, "R", true), n(2, 1, "L"), n(3, 1, "L"), n(4, 1, "R", true), n(5, 1, "R", true), n(6, 2, "L", true)] },
-  { id: 9, cat: "roll", label: "9. Seven Stroke Roll", bars: 1, time: "4/4", notes: [...run(0, "RRLLRR", 1), n(6, 2, "L", true), ...run(8, "LLRRLL", 1), n(14, 2, "R", true)] },
-  { id: 10, cat: "roll", label: "10. Nine Stroke Roll", bars: 1, time: "4/4", notes: [n(0, 0.5, "R"), n(0.5, 0.5, "L"), n(1, 0.5, "R"), n(1.5, 0.5, "L"), n(2, 2, "R", true), n(4, 0.5, "L"), n(4.5, 0.5, "R"), n(5, 0.5, "L"), n(5.5, 0.5, "R"), n(6, 2, "L", true)] },
+  { id: 7, cat: "roll", label: "7. Five Stroke Roll", bars: 1, time: "4/4", notes: [...d32(0, "RRLL"), n(2, 2, "R", true), ...d32(4, "LLRR"), n(6, 2, "L", true)] },
+  { id: 8, cat: "roll", label: "8. Six Stroke Roll", bars: 1, time: "4/4", notes: [rest(0, 1), ...run(1, "LLRRL", 1, [4]), n(6, 2, "R", true), rest(8, 1), ...run(9, "LLRRL", 1, [4]), n(14, 2, "R", true)] },
+  { id: 9, cat: "roll", label: "9. Seven Stroke Roll", bars: 1, time: "4/4", notes: [rest(0, 1), ...d32(1, "LLRRLL"), n(4, 2, "R", true), rest(8, 1), ...d32(9, "RRLLRR"), n(12, 2, "L", true)] },
+  { id: 10, cat: "roll", label: "10. Nine Stroke Roll", bars: 1, time: "4/4", notes: [...d32(0, "RRLLRRLL"), n(4, 2, "R", true), ...d32(8, "LLRRLLRR"), n(12, 2, "L", true)] },
   { id: 11, cat: "roll", label: "11. Ten Stroke Roll", bars: 1, time: "4/4", notes: [...run(0, "RRLLRRLLR", 1), n(9, 7, "L", true)] },
   { id: 12, cat: "roll", label: "12. Eleven Stroke Roll", bars: 1, time: "4/4", notes: [...run(0, "RRLLRRLLRR", 1), n(10, 6, "L", true)] },
   { id: 13, cat: "roll", label: "13. Thirteen Stroke Roll", bars: 1, time: "4/4", notes: [...run(0, "RRLLRRLLRRLL", 1), n(12, 4, "R", true)] },
