@@ -18,7 +18,7 @@ function beamGroups(notes) {
     cur = [];
   };
   notes.forEach((nt) => {
-    if (nt.dur >= 2) {
+    if (nt.rest || nt.dur >= 2) {
       flush();
       return;
     }
@@ -45,6 +45,21 @@ function TimeSig({ x, y, time }) {
     <g fill={INK} stroke="none" textAnchor="middle" fontFamily="Georgia, serif" fontWeight="700">
       <text x={x} y={y - 2} fontSize="16">{n}</text>
       <text x={x} y={y + 16} fontSize="16">{d}</text>
+    </g>
+  );
+}
+
+function Rest({ x, y, dur }) {
+  if (dur >= 4) {
+    return <rect x={x - 6} y={y - 8} width={12} height={6} fill={INK} />;
+  }
+  if (dur >= 2) {
+    return <path d={`M ${x} ${y - 10} C ${x + 8} ${y - 6}, ${x + 6} ${y + 4}, ${x - 2} ${y + 8}`} stroke={INK} strokeWidth={1.6} fill="none" />;
+  }
+  return (
+    <g stroke={INK} fill={INK}>
+      <path d={`M ${x} ${y - 12} C ${x + 8} ${y - 8}, ${x + 6} ${y + 2}, ${x - 2} ${y + 6}`} strokeWidth={1.5} fill="none" />
+      <ellipse cx={x + 3} cy={y - 10} rx={3.2} ry={2.2} transform={`rotate(-25 ${x + 3} ${y - 10})`} />
     </g>
   );
 }
@@ -76,6 +91,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
         <TimeSig x={58} y={y} time={rud.time || "4/4"} />
         {notes.map((nt, i) => {
           const x = x0 + nt.t * stepW;
+          if (nt.rest) return <g key={i}><Rest x={x} y={y} dur={nt.dur} /></g>;
           const on = near(playingT, nt.t);
           const ey = y - stemH;
           return (
@@ -107,7 +123,12 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
               {!beamed.has(nt) && beamsFor(nt.dur) >= 2 && (
                 <path d={`M ${x} ${ey + 5} C ${x + 10} ${ey + 7}, ${x + 11} ${ey + 16}, ${x + 5} ${ey + 19}`} stroke={INK} strokeWidth={1.3} />
               )}
-              <text x={x} y={y + 2 * lineGap + 18} textAnchor="middle" fontSize="12" fontWeight="700" fill={nt.hand === "R" ? RCOL : LCOL} stroke="none">{nt.hand}</text>
+              {!beamed.has(nt) && beamsFor(nt.dur) >= 3 && (
+                <path d={`M ${x} ${ey + 10} C ${x + 9} ${ey + 12}, ${x + 10} ${ey + 18}, ${x + 4} ${ey + 20}`} stroke={INK} strokeWidth={1.2} />
+              )}
+              {nt.hand && (
+                <text x={x} y={y + 2 * lineGap + 18} textAnchor="middle" fontSize="12" fontWeight="700" fill={nt.hand === "R" ? RCOL : LCOL} stroke="none">{nt.hand}</text>
+              )}
             </g>
           );
         })}
@@ -124,7 +145,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
             g.forEach((n, i) => {
               if (beamsFor(n.dur) <= b) return;
               const left = i > 0 && beamsFor(g[i - 1].dur) > b;
-              const right = i < g.length - 1 && beamsFor(g[i + 1].dur) > b;
+              const right = i < g.length - 1 && beamsFor(g[j = i + 1] && g[i + 1].dur) > b;
               if (left) return;
               if (right) {
                 let j = i;
