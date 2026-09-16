@@ -5,7 +5,7 @@ const LCOL = "#e05c5c";
 
 function beamsFor(nt) {
   if (!nt || nt.rest) return 0;
-  if (nt.tuplet === 3) return nt.dur <= 1.5 ? 2 : 1;
+  if (nt.tuplet) return nt.dur <= 1.5 ? 2 : 1;
   if (nt.dur <= 0.5) return 3;
   if (nt.dur <= 1) return 2;
   if (nt.dur <= 2) return 1;
@@ -147,9 +147,9 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
               }
             });
           }
-          if (g[0].tuplet === 3) {
+          if (g[0].tuplet) {
             const mid = (xs[0] + xs[xs.length - 1]) / 2;
-            layers.push(<text key={`${gi}-3`} x={mid} y={y0 - 10} textAnchor="middle" fontSize="11" fontWeight="700" fill={INK} stroke="none">3</text>);
+            layers.push(<text key={`${gi}-tup`} x={mid} y={y0 - 10} textAnchor="middle" fontSize="11" fontWeight="700" fill={INK} stroke="none">{g[0].tuplet}</text>);
           }
           return <g key={gi}>{layers}</g>;
         })}
