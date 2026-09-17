@@ -112,10 +112,12 @@ function Accent({ x, y }) {
 }
 
 function Flag({ x, y, extra }) {
+  const body = (oy) =>
+    `M ${x} ${y + oy} L ${x + 2.6} ${y + oy - 1.15} C ${x + 13.2} ${y + oy + 0.6}, ${x + 14.4} ${y + oy + 9.4}, ${x + 6.2} ${y + oy + 18.2} C ${x + 12.6} ${y + oy + 11}, ${x + 10.2} ${y + oy + 3.6}, ${x} ${y + oy + 4.4} Z`;
   return (
-    <g fill="none" stroke={INK} strokeWidth={1.35} strokeLinecap="round">
-      <path d={`M ${x} ${y} C ${x + 10} ${y + 1.5}, ${x + 12} ${y + 11}, ${x + 5.5} ${y + 16.5}`} />
-      {extra ? <path d={`M ${x} ${y + 5} C ${x + 9} ${y + 6.5}, ${x + 10.5} ${y + 14}, ${x + 5} ${y + 17.5}`} /> : null}
+    <g fill={INK} stroke="none">
+      <path d={body(0)} />
+      {extra ? <path d={body(6.1)} /> : null}
     </g>
   );
 }
