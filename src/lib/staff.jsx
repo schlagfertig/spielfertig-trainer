@@ -193,23 +193,38 @@ function DragGrace({ x, y }) {
   );
 }
 
-function StickLine({ x, y, text, flam }) {
+function StickLine({ x, x2, y, text, flam }) {
   if (!text && !flam) return null;
-  const letters = String(text || "");
+  const letters = String(text || "").split("").filter(Boolean);
   const long = letters.length > 2;
-  const fs = long ? 8.5 : 12;
+  if (!long) {
+    return (
+      <g stroke="none">
+        {flam ? (
+          <text x={x - 8} y={y} textAnchor="middle" fontSize="8" fontWeight="700" fill={flam === "R" ? RCOL : LCOL}>
+            {flam}
+          </text>
+        ) : null}
+        <text x={x + (flam ? 4 : 0)} y={y} textAnchor="middle" fontSize="12" fontWeight="700">
+          {letters.map((ch, i) => (
+            <tspan key={i} fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>{ch}</tspan>
+          ))}
+        </text>
+      </g>
+    );
+  }
+  const right = x2 != null && x2 > x ? x2 : x + Math.max(56, letters.length * 7);
   return (
     <g stroke="none">
-      {flam ? (
-        <text x={x - (long ? 0 : 8)} y={y} textAnchor="middle" fontSize="8" fontWeight="700" fill={flam === "R" ? RCOL : LCOL}>
-          {flam}
-        </text>
-      ) : null}
-      <text x={x + (flam && !long ? 4 : 0)} y={y} textAnchor="middle" fontSize={fs} fontWeight="700">
-        {letters.split("").map((ch, i) => (
-          <tspan key={i} fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>{ch}</tspan>
-        ))}
-      </text>
+      {letters.map((ch, i) => {
+        const t = letters.length === 1 ? 0 : i / (letters.length - 1);
+        const xx = x + t * (right - x);
+        return (
+          <text key={i} x={xx} y={y} textAnchor="middle" fontSize="10" fontWeight="700" fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>
+            {ch}
+          </text>
+        );
+      })}
     </g>
   );
 }
@@ -228,9 +243,8 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const lineGap = 8;
   const ny = y - lineGap / 2;
   const rows = rud.sticking && rud.sticking[1] ? 2 : 1;
-  const longStick = (rud.sticking || []).some((row) => String(row).length > 8 || (Array.isArray(row) && row.some((s) => String(s).length > 2)));
   const h0 = y + 2 * lineGap + 18;
-  const viewH = rows === 2 ? (longStick ? 176 : 168) : 148;
+  const viewH = rows === 2 ? 168 : 148;
   const groups = beamGroups(notes);
   const beamed = new Set();
   groups.forEach((g) => g.forEach((n) => beamed.add(n)));
@@ -245,6 +259,15 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
     if (!row) return nt.hand;
     if (Array.isArray(row)) return row[i];
     return row[i];
+  };
+  const endXFor = (i, row) => {
+    let xEnd = x0 + sounded[i].t * stepW;
+    for (let j = i + 1; j < sounded.length; j++) {
+      const tok = tokenAt(row || primary, j, sounded[j]);
+      if (tok && String(tok).length > 2) break;
+      xEnd = x0 + sounded[j].t * stepW;
+    }
+    return xEnd;
   };
 
   return (
@@ -307,10 +330,11 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
           const bot = secondary ? tokenAt(secondary, i, nt) : null;
           const flamTop = nt.flam ? String(nt.flam) : null;
           const flamBot = flamTop ? flipHand(flamTop) : null;
+          const xEnd = String(top || "").length > 2 ? endXFor(i, primary) : x;
           return (
             <g key={`h-${i}`}>
-              <StickLine x={x} y={h0} text={top} flam={flamTop} />
-              {bot ? <StickLine x={x} y={h0 + 16} text={bot} flam={flamBot} /> : null}
+              <StickLine x={x} x2={xEnd} y={h0} text={top} flam={flamTop} />
+              {bot ? <StickLine x={x} x2={xEnd} y={h0 + 16} text={bot} flam={flamBot} /> : null}
             </g>
           );
         })}
