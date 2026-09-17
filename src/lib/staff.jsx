@@ -120,6 +120,33 @@ function Flag({ x, y, extra }) {
   );
 }
 
+function DragGrace({ x, y }) {
+  const hy = y + 1.6;
+  const g1 = x - 21.5;
+  const g2 = x - 13.4;
+  const rx = 2.85;
+  const ry = 1.95;
+  const sx1 = g1 + 2.55;
+  const sx2 = g2 + 2.55;
+  const top = hy - 17.5;
+  return (
+    <g stroke={INK} fill={INK}>
+      <ellipse cx={g1} cy={hy} rx={rx} ry={ry} stroke="none" transform={`rotate(${HEAD_ROT} ${g1} ${hy})`} />
+      <ellipse cx={g2} cy={hy} rx={rx} ry={ry} stroke="none" transform={`rotate(${HEAD_ROT} ${g2} ${hy})`} />
+      <line x1={sx1} y1={hy - 1.4} x2={sx1} y2={top} strokeWidth={1.05} fill="none" />
+      <line x1={sx2} y1={hy - 1.4} x2={sx2} y2={top} strokeWidth={1.05} fill="none" />
+      <line x1={sx1} y1={top} x2={sx2} y2={top} strokeWidth={1.85} fill="none" />
+      <line x1={sx1} y1={top + 3.15} x2={sx2} y2={top + 3.15} strokeWidth={1.65} fill="none" />
+      <path
+        d={`M ${g1 - 1} ${hy - 8} C ${g1 + 4} ${top - 8}, ${x - 6} ${top - 6}, ${x - 1} ${y - 8}`}
+        fill="none"
+        strokeWidth={1.15}
+        strokeLinecap="round"
+      />
+    </g>
+  );
+}
+
 function Hand({ x, y, h }) {
   if (!h) return null;
   return (
@@ -135,7 +162,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const minDur = sounded.reduce((m, nt) => Math.min(m, nt.dur || 1), 4);
   const steps = stepsFromTime(rud.time, rud.bars || 1);
   const stepW = minDur <= 0.5 ? 26 : 24;
-  const x0 = 96;
+  const x0 = 108;
   const w = x0 + steps * stepW + 28;
   const y = 60;
   const lineGap = 8;
@@ -183,12 +210,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
                   <path d={`M ${x - 10.2} ${y - 11} C ${x - 4} ${y - 10}, ${x - 3.2} ${y - 4.5}, ${x - 7.2} ${y - 2}`} strokeWidth={1.05} />
                 </g>
               )}
-              {nt.drag && (
-                <g fill={INK} stroke="none">
-                  <ellipse cx={x - 16.2} cy={y + 2.2} rx={2.95} ry={2.05} transform={`rotate(${HEAD_ROT} ${x - 16.2} ${y + 2.2})`} />
-                  <ellipse cx={x - 10.4} cy={y + 2.2} rx={2.95} ry={2.05} transform={`rotate(${HEAD_ROT} ${x - 10.4} ${y + 2.2})`} />
-                </g>
-              )}
+              {nt.drag && <DragGrace x={x} y={y} />}
               <ellipse
                 cx={x}
                 cy={y}
