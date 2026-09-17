@@ -260,14 +260,9 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
     if (Array.isArray(row)) return row[i];
     return row[i];
   };
-  const endXFor = (i, row) => {
-    let xEnd = x0 + sounded[i].t * stepW;
-    for (let j = i + 1; j < sounded.length; j++) {
-      const tok = tokenAt(row || primary, j, sounded[j]);
-      if (tok && String(tok).length > 2) break;
-      xEnd = x0 + sounded[j].t * stepW;
-    }
-    return xEnd;
+  const endXFor = (i) => {
+    if (i + 1 < sounded.length) return x0 + sounded[i + 1].t * stepW;
+    return x0 + sounded[i].t * stepW + stepW * 2;
   };
 
   return (
@@ -330,7 +325,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
           const bot = secondary ? tokenAt(secondary, i, nt) : null;
           const flamTop = nt.flam ? String(nt.flam) : null;
           const flamBot = flamTop ? flipHand(flamTop) : null;
-          const xEnd = String(top || "").length > 2 ? endXFor(i, primary) : x;
+          const xEnd = String(top || "").length > 2 ? endXFor(i) : x;
           return (
             <g key={`h-${i}`}>
               <StickLine x={x} x2={xEnd} y={h0} text={top} flam={flamTop} />
