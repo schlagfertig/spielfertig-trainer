@@ -44,8 +44,32 @@ function noiseHit(c, t, dur, gain, hp) {
   n.stop(t + dur + 0.02);
 }
 
+/** Click from the setlist app: short 2200 + 900 Hz tick. */
+export function playClick(c, t, downbeat = false) {
+  const osc1 = c.createOscillator();
+  const g1 = c.createGain();
+  osc1.connect(g1);
+  g1.connect(c.destination);
+  osc1.frequency.setValueAtTime(downbeat ? 2400 : 2200, t);
+  g1.gain.setValueAtTime(0.0001, t);
+  g1.gain.exponentialRampToValueAtTime(downbeat ? 1 : 0.9, t + 0.001);
+  g1.gain.exponentialRampToValueAtTime(0.001, t + 0.022);
+  osc1.start(t);
+  osc1.stop(t + 0.025);
+  const osc2 = c.createOscillator();
+  const g2 = c.createGain();
+  osc2.connect(g2);
+  g2.connect(c.destination);
+  osc2.frequency.setValueAtTime(downbeat ? 1100 : 900, t);
+  g2.gain.setValueAtTime(0.0001, t);
+  g2.gain.exponentialRampToValueAtTime(downbeat ? 0.62 : 0.5, t + 0.001);
+  g2.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+  osc2.start(t);
+  osc2.stop(t + 0.045);
+}
+
 export function playMetronome(c, downbeat, t) {
-  tone(c, t, downbeat ? 1320 : 990, downbeat ? 0.07 : 0.055, "square", downbeat ? 0.09 : 0.06);
+  playClick(c, t, downbeat);
 }
 
 export function playStick(c, hand, t, accent) {
@@ -83,13 +107,13 @@ export function playKit(c, voice, t, accent) {
 export function startCountIn({ ctx, bpm, beats = 4, onBeat, onDone }) {
   let cancelled = false;
   const beatSec = 60 / Math.max(30, Math.min(260, bpm));
-  const t0 = ctx.currentTime + 0.12;
+  const t0 = ctx.currentTime + 0.02;
   const timers = [];
   for (let i = 0; i < beats; i++) {
-    playMetronome(ctx, i === 0, t0 + i * beatSec);
-    timers.push(window.setTimeout(() => { if (!cancelled) onBeat?.(i); }, (0.12 + i * beatSec) * 1000));
+    playClick(ctx, t0 + i * beatSec, i === 0);
+    timers.push(window.setTimeout(() => { if (!cancelled) onBeat?.(i); }, Math.max(0, (t0 + i * beatSec - ctx.currentTime) * 1000)));
   }
-  timers.push(window.setTimeout(() => { if (!cancelled) onDone?.(); }, (0.12 + beats * beatSec) * 1000));
+  timers.push(window.setTimeout(() => { if (!cancelled) onDone?.(); }, Math.max(0, (t0 + beats * beatSec - ctx.currentTime) * 1000)));
   return () => {
     cancelled = true;
     timers.forEach((id) => window.clearTimeout(id));

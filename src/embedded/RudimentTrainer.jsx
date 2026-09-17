@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { CATS, RUDIMENTS, rudimentDuration } from "../lib/rudiments.js";
 import { RudimentStaff } from "../lib/staff.jsx";
 import { TempoControl } from "../lib/tempo.jsx";
-import { playMetronome, playStick, startCountIn, unlockAudio } from "../lib/audio.js";
+import { playClick, playStick, unlockAudio } from "../lib/audio.js";
 import { deliverPng, printElement, tilesToPng } from "../lib/print.js";
 
 const INK = "#161a1d";
@@ -62,30 +62,57 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
 
   function startLoop() {
     const ctx = unlockAudio();
-    const notes = rud.notes;
+    const notes = (rud.notes || []).filter((nt) => !nt.rest);
     const steps = rudimentDuration(rud);
     let cancelled = false;
-    const run = () => {
-      const stepMs = 60000 / bpmRef.current / 4;
-      const t0 = ctx.currentTime + 0.06;
-      notes.forEach((nt) => {
-        const t = t0 + nt.t * (stepMs / 1000);
-        if (hearRef.current === "hands") playStick(ctx, nt.hand, t, nt.acc);
-        else if (nt.t % 4 === 0) playMetronome(ctx, nt.t % 16 === 0, t);
-      });
-      for (let s = 0; s < steps; s++) window.setTimeout(() => { if (!cancelled) setPlayT(s); }, 60 + s * stepMs);
-      const loop = window.setTimeout(() => {
-        if (cancelled) return;
-        if (rampRef.current) setBpm((p) => Math.min(rampCapRef.current, 260, p + rampStepRef.current));
-        run();
-      }, 60 + steps * stepMs);
-      stopRef.current = () => { cancelled = true; window.clearTimeout(loop); };
+    let timer = 0;
+    const stepSec = () => 60 / Math.max(30, bpmRef.current) / 4;
+    const events = () => {
+      if (hearRef.current === "click") {
+        const ev = [];
+        for (let s = 0; s < steps; s += 4) ev.push({ t: s, kind: "click", down: s % 16 === 0 });
+        return ev;
+      }
+      return notes.map((nt) => ({ t: nt.t, kind: "stick", nt }));
+    };
+    let list = events();
+    if (!list.length) list = [{ t: 0, kind: "click", down: true }];
+    let evIndex = 0;
+    let cycleStart = ctx.currentTime + 0.02;
+    if (countIn) {
+      const beat = 60 / Math.max(30, bpmRef.current);
+      for (let i = 0; i < 4; i++) playClick(ctx, cycleStart + i * beat, i === 0);
+      cycleStart += 4 * beat;
+    }
+    const schedule = () => {
+      if (cancelled) return;
+      const horizon = ctx.currentTime + 0.16;
+      while (!cancelled) {
+        const ev = list[evIndex];
+        const when = cycleStart + ev.t * stepSec();
+        if (when >= horizon) break;
+        if (when >= ctx.currentTime - 0.02) {
+          if (ev.kind === "click") playClick(ctx, when, ev.down);
+          else playStick(ctx, ev.nt.hand, when, ev.nt.acc);
+          const delay = Math.max(0, (when - ctx.currentTime) * 1000);
+          window.setTimeout(() => { if (!cancelled) setPlayT(ev.t); }, delay);
+        }
+        evIndex += 1;
+        if (evIndex >= list.length) {
+          evIndex = 0;
+          cycleStart += steps * stepSec();
+          list = events();
+          if (rampRef.current) setBpm((p) => Math.min(rampCapRef.current, 260, p + rampStepRef.current));
+        }
+      }
+      timer = window.setTimeout(schedule, 25);
     };
     setPlaying(true);
-    if (countIn) {
-      const cancelIn = startCountIn({ ctx, bpm: bpmRef.current, onDone: () => { if (!cancelled) run(); } });
-      stopRef.current = () => { cancelled = true; cancelIn?.(); };
-    } else run();
+    schedule();
+    stopRef.current = () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
   }
 
   async function doPrint(mode) {
@@ -145,7 +172,7 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
             <button className={hear === "hands" ? "on" : ""} onClick={() => setHear("hands")}>L / R</button>
             <button className={hear === "click" ? "on" : ""} onClick={() => setHear("click")}>Nur Click</button>
           </div>
-          <span style={{ fontSize: 11, color: DIM }}>{hear === "hands" ? "Rechts höher, links tiefer" : "Nur das Tempo — Du spielst die Noten"}</span>
+          <span style={{ fontSize: 11, color: DIM }}>{hear === "hands" ? "Rechts höher, links tiefer" : "Setlist-Click — Du spielst die Noten"}</span>
         </div>
         <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <label className="check"><input type="checkbox" checked={rampOn} onChange={(e) => setRampOn(e.target.checked)} />Tempo-Trainer</label>
