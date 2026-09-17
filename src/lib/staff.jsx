@@ -168,6 +168,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const w = x0 + steps * stepW + 28;
   const y = 60;
   const lineGap = 8;
+  const ny = y - lineGap / 2;
   const rows = rud.sticking && rud.sticking[1] ? 2 : 1;
   const h0 = y + 2 * lineGap + 18;
   const viewH = rows === 2 ? 168 : 148;
@@ -176,7 +177,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   groups.forEach((g) => g.forEach((n) => beamed.add(n)));
   const near = (a, b) => Math.abs(a - b) < 0.05;
   const stemX = (x) => x + STEM_DX;
-  const stemTop = y - STEM_H;
+  const stemTop = ny - STEM_H;
   const primary = rud.sticking && rud.sticking[0];
   const secondary = rud.sticking && rud.sticking[1];
   const { n: beats } = parseTime(rud.time);
@@ -198,7 +199,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
         <TimeSig x={58} y={y} gap={lineGap} time={rud.time || "4/4"} />
         {notes.map((nt, i) => {
           const x = x0 + nt.t * stepW;
-          if (nt.rest) return <g key={i}><Rest x={x} y={y} dur={nt.dur} /></g>;
+          if (nt.rest) return <g key={i}><Rest x={x} y={ny} dur={nt.dur} /></g>;
           const on = near(playingT, nt.t);
           const sx = stemX(x);
           const ink = on ? GOLD : INK;
@@ -207,25 +208,25 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
             <g key={i}>
               {nt.flam && (
                 <g>
-                  <ellipse cx={x - 13} cy={y + 2.4} rx={3.15} ry={2.15} fill={INK} stroke="none" transform={`rotate(${HEAD_ROT} ${x - 13} ${y + 2.4})`} />
-                  <line x1={x - 10.2} y1={y + 0.6} x2={x - 10.2} y2={y - 11} strokeWidth={1.05} />
-                  <path d={`M ${x - 10.2} ${y - 11} C ${x - 4} ${y - 10}, ${x - 3.2} ${y - 4.5}, ${x - 7.2} ${y - 2}`} strokeWidth={1.05} />
+                  <ellipse cx={x - 13} cy={ny + 2.4} rx={3.15} ry={2.15} fill={INK} stroke="none" transform={`rotate(${HEAD_ROT} ${x - 13} ${ny + 2.4})`} />
+                  <line x1={x - 10.2} y1={ny + 0.6} x2={x - 10.2} y2={ny - 11} strokeWidth={1.05} />
+                  <path d={`M ${x - 10.2} ${ny - 11} C ${x - 4} ${ny - 10}, ${x - 3.2} ${ny - 4.5}, ${x - 7.2} ${ny - 2}`} strokeWidth={1.05} />
                 </g>
               )}
-              {nt.drag && <DragGrace x={x} y={y} />}
+              {nt.drag && <DragGrace x={x} y={ny} />}
               <ellipse
                 cx={x}
-                cy={y}
+                cy={ny}
                 rx={HEAD_RX}
                 ry={HEAD_RY}
                 fill={ink}
                 stroke={ink}
                 strokeWidth={0.35}
-                transform={`rotate(${HEAD_ROT} ${x} ${y})`}
+                transform={`rotate(${HEAD_ROT} ${x} ${ny})`}
               />
-              {nt.dur === 3 && <circle cx={x + 8.6} cy={y + 0.6} r={1.45} fill={INK} stroke="none" />}
-              <line x1={sx} y1={y - 2.15} x2={sx} y2={stemTop} stroke={ink} strokeWidth={1.25} />
-              {nt.roll ? <Tremolo sx={sx} y0={y - 6} y1={stemTop + 2} count={nt.roll} /> : null}
+              {nt.dur === 3 && <circle cx={x + 8.6} cy={ny + 0.6} r={1.45} fill={INK} stroke="none" />}
+              <line x1={sx} y1={ny - 2.15} x2={sx} y2={stemTop} stroke={ink} strokeWidth={1.25} />
+              {nt.roll ? <Tremolo sx={sx} y0={ny - 6} y1={stemTop + 2} count={nt.roll} /> : null}
               {nt.acc && <Accent x={x + 1} y={accY} />}
               {!beamed.has(nt) && beamsFor(nt) >= 1 && <Flag x={sx} y={stemTop} extra={beamsFor(nt) >= 2} />}
             </g>
