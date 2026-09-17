@@ -22,7 +22,7 @@ export function stepsFromTime(time, bars = 1) {
 }
 
 function beamsFor(nt) {
-  if (!nt || nt.rest) return 0;
+  if (!nt || nt.rest || nt.whole || (nt.dur || 0) >= 16) return 0;
   if (nt.beams != null) return nt.beams;
   if (nt.tuplet) return nt.dur <= 1.2 ? 2 : 1;
   if (nt.dur <= 0.5) return 3;
@@ -67,16 +67,6 @@ function PercClef({ x, y }) {
     <g fill={INK} stroke="none">
       <rect x={x} y={y - 12} width={3.4} height={24} rx={0.4} />
       <rect x={x + 7.2} y={y - 12} width={3.4} height={24} rx={0.4} />
-    </g>
-  );
-}
-
-function TimeSig({ x, y, gap, time }) {
-  const { n, d } = parseTime(time);
-  return (
-    <g fill={INK} stroke="none" textAnchor="middle" dominantBaseline="middle" fontFamily="Georgia, 'Times New Roman', serif" fontWeight="700">
-      <text x={x} y={y - gap} fontSize="19">{n}</text>
-      <text x={x} y={y + gap} fontSize="19">{d}</text>
     </g>
   );
 }
@@ -237,8 +227,9 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const ornamented = notes.some((nt) => nt.flam || nt.drag);
   const quarterW = ornamented ? 152 : minDur <= 0.5 ? 144 : 140;
   const stepW = quarterW / 4;
-  const x0 = 108;
-  const w = x0 + steps * stepW + 28;
+  const x0 = 72;
+  const compact = sounded.length <= 2 && minDur >= 8;
+  const w = compact ? x0 + 140 : x0 + steps * stepW + 28;
   const y = 60;
   const lineGap = 8;
   const ny = y - lineGap / 2;
@@ -278,16 +269,16 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
           return <line key={`bar-${i}`} x1={bx} y1={y - 2 * lineGap} x2={bx} y2={y + 2 * lineGap} strokeWidth={1.35} />;
         })}
         <PercClef x={28} y={y} />
-        <TimeSig x={58} y={y} gap={lineGap} time={rud.time || "4/4"} />
         {notes.map((nt, i) => {
-          const x = x0 + nt.t * stepW;
+          const x = compact ? x0 + 36 : x0 + nt.t * stepW;
           if (nt.rest) return <g key={i}><Rest x={x} y={ny} dur={nt.dur} /></g>;
           const on = near(playingT, nt.t);
           const sx = stemX(x);
           const ink = on ? GOLD : INK;
+          const whole = nt.whole || nt.dur >= 16;
           const accY = beamed.has(nt) || nt.roll ? stemTop - (nt.roll ? 11 : 7) : stemTop - 7;
           const next = notes.slice(i + 1).find((n) => !n.rest);
-          const x2 = next ? x0 + next.t * stepW : x;
+          const x2 = next ? (compact ? x0 + 36 : x0 + next.t * stepW) : x;
           return (
             <g key={i}>
               {nt.flam && <FlamGrace x={x} y={ny} />}
@@ -303,10 +294,10 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
                 transform={`rotate(${HEAD_ROT} ${x} ${ny})`}
               />
               {(nt.dur === 3 || nt.dur === 6 || nt.dot) && <circle cx={x + 8.6} cy={ny + 0.6} r={1.45} fill={INK} stroke="none" />}
-              <line x1={sx} y1={ny - 2.15} x2={sx} y2={stemTop} stroke={ink} strokeWidth={1.35} />
-              {nt.roll ? <Tremolo sx={sx} y0={ny - 6} y1={stemTop + 2} count={nt.roll} /> : null}
-              {nt.acc && <Accent x={x + 1} y={accY} />}
-              {!beamed.has(nt) && !nt.roll && beamsFor(nt) >= 1 && <Flag x={sx} y={stemTop} extra={beamsFor(nt) >= 2} />}
+              {!whole && <line x1={sx} y1={ny - 2.15} x2={sx} y2={stemTop} stroke={ink} strokeWidth={1.35} />}
+              {nt.roll ? <Tremolo sx={whole ? x : sx} y0={whole ? ny - 22 : ny - 6} y1={whole ? ny - 8 : stemTop + 2} count={nt.roll} /> : null}
+              {nt.acc && <Accent x={x + 1} y={whole ? ny - 28 : accY} />}
+              {!whole && !beamed.has(nt) && !nt.roll && beamsFor(nt) >= 1 && <Flag x={sx} y={stemTop} extra={beamsFor(nt) >= 2} />}
               {nt.tie && next && (
                 <path
                   d={`M ${x + 6} ${ny + 9} C ${x + 14} ${ny + 18}, ${x2 - 14} ${ny + 18}, ${x2 - 6} ${ny + 9}`}
@@ -320,7 +311,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
           );
         })}
         {sounded.map((nt, i) => {
-          const x = x0 + nt.t * stepW;
+          const x = compact ? x0 + 36 : x0 + nt.t * stepW;
           const top = tokenAt(primary, i, nt);
           const bot = secondary ? tokenAt(secondary, i, nt) : null;
           const flamTop = nt.flam ? String(nt.flam) : null;
@@ -363,9 +354,10 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
           }
           if (g[0].tuplet) {
             const mid = (xs[0] + xs[xs.length - 1]) / 2;
+            const label = g[0].tuplet === 6 ? "(6)" : String(g[0].tuplet);
             layers.push(
               <text key={`${gi}-tup`} x={mid} y={y0 - 11} textAnchor="middle" fontSize="11" fontWeight="700" fill={INK} stroke="none">
-                {g[0].tuplet}
+                {label}
               </text>
             );
           }
