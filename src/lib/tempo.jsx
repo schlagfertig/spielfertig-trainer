@@ -36,16 +36,18 @@ export function TempoControl({ bpm, setBpm, min = 30, max = 260 }) {
   }
 
   function nudge(delta) {
-    setBpm((p) => clamp((Number(p) || min) + delta, min, max));
+    const cur = Number(bpm);
+    const base = Number.isFinite(cur) ? cur : min;
+    setBpm(clamp(base + delta, min, max));
   }
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
       <span style={{ fontSize: 12, color: DIM }}>Tempo</span>
       <button type="button" className="nudge" onClick={() => nudge(-5)} aria-label="5 BPM langsamer">−5</button>
-      <input type="range" min={min} max={max} value={bpm} onChange={(e) => setBpm(Number(e.target.value))} aria-label="Tempo" style={{ width: 120, accentColor: TEAL }} />
+      <input type="range" min={min} max={max} value={Number.isFinite(Number(bpm)) ? bpm : min} onChange={(e) => setBpm(Number(e.target.value))} aria-label="Tempo" style={{ width: 120, accentColor: TEAL }} />
       <button type="button" className="nudge" onClick={() => nudge(5)} aria-label="5 BPM schneller">+5</button>
-      <input type="text" inputMode="numeric" pattern="[0-9]*" aria-label="Tempo in BPM" value={focused ? draft : String(bpm)} onFocus={() => { setFocused(true); setDraft(String(bpm)); }} onChange={(e) => onDraft(e.target.value)} onBlur={() => { setFocused(false); commit(draft); }} onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }} style={{ width: 52, textAlign: "center", fontSize: 16, fontWeight: 700, color: TEAL, background: INK, border: "1px solid " + LINE, borderRadius: 8, padding: "6px 4px" }} />
+      <input type="text" inputMode="numeric" pattern="[0-9]*" aria-label="Tempo in BPM" value={focused ? draft : String(Number.isFinite(Number(bpm)) ? bpm : "")} onFocus={() => { setFocused(true); setDraft(String(bpm)); }} onChange={(e) => onDraft(e.target.value)} onBlur={() => { setFocused(false); commit(draft); }} onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }} style={{ width: 52, textAlign: "center", fontSize: 16, fontWeight: 700, color: TEAL, background: INK, border: "1px solid " + LINE, borderRadius: 8, padding: "6px 4px" }} />
       <span style={{ fontSize: 11, color: DIM, fontWeight: 700 }}>BPM</span>
     </div>
   );
