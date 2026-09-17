@@ -3,7 +3,7 @@ import { CATS, RUDIMENTS, rudimentDuration } from "../lib/rudiments.js";
 import { RudimentStaff } from "../lib/staff.jsx";
 import { TempoControl } from "../lib/tempo.jsx";
 import { playMetronome, playStick, startCountIn, unlockAudio } from "../lib/audio.js";
-import { deliverPng, printElement, svgToPng } from "../lib/print.js";
+import { deliverPng, printElement, tilesToPng } from "../lib/print.js";
 
 const INK = "#161a1d";
 const LINE = "#2f383d";
@@ -16,22 +16,29 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
   const [hear, setHear] = useState("hands");
   const [countIn, setCountIn] = useState(true);
   const [rampOn, setRampOn] = useState(false);
-  const [rampStep, setRampStep] = useState(4);
+  const [rampStep, setRampStep] = useState(2);
+  const [rampCap, setRampCap] = useState(160);
   const [playing, setPlaying] = useState(false);
   const [playT, setPlayT] = useState(-1);
   const [printOpen, setPrintOpen] = useState(false);
   const [picked, setPicked] = useState([16]);
   const [perPage, setPerPage] = useState(6);
   const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState("");
   const stopRef = useRef(null);
+  const lastPrint = useRef(printNonce);
   const bpmRef = useRef(bpm); bpmRef.current = bpm;
   const hearRef = useRef(hear); hearRef.current = hear;
   const rampRef = useRef(rampOn); rampRef.current = rampOn;
   const rampStepRef = useRef(rampStep); rampStepRef.current = rampStep;
+  const rampCapRef = useRef(rampCap); rampCapRef.current = rampCap;
   const list = RUDIMENTS.filter((r) => r.cat === cat);
-  const rud = RUDIMENTS.find((r) => r.id === sel) || RUDIMENTS[15];
+  const rud = RUDIMENTS.find((r) => r.id === sel) || list[0] || RUDIMENTS[0];
 
-  useEffect(() => { if (printNonce) setPrintOpen(true); }, [printNonce]);
+  useEffect(() => {
+    if (printNonce && printNonce !== lastPrint.current) setPrintOpen(true);
+    lastPrint.current = printNonce;
+  }, [printNonce]);
   useEffect(() => () => stopRef.current?.(), []);
 
   function stop() {
@@ -39,6 +46,18 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
     stopRef.current = null;
     setPlaying(false);
     setPlayT(-1);
+  }
+
+  function pickCat(id) {
+    stop();
+    setCat(id);
+    const first = RUDIMENTS.find((r) => r.cat === id);
+    if (first) setSel(first.id);
+  }
+
+  function pickRud(id) {
+    if (id !== sel) stop();
+    setSel(id);
   }
 
   function startLoop() {
@@ -57,7 +76,7 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
       for (let s = 0; s < steps; s++) window.setTimeout(() => { if (!cancelled) setPlayT(s); }, 60 + s * stepMs);
       const loop = window.setTimeout(() => {
         if (cancelled) return;
-        if (rampRef.current) setBpm((p) => Math.min(260, p + rampStepRef.current));
+        if (rampRef.current) setBpm((p) => Math.min(rampCapRef.current, 260, p + rampStepRef.current));
         run();
       }, 60 + steps * stepMs);
       stopRef.current = () => { cancelled = true; window.clearTimeout(loop); };
@@ -71,17 +90,25 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
 
   async function doPrint(mode) {
     setBusy(true);
+    setNote("");
     const host = document.getElementById("print-host");
     if (!host) { setBusy(false); return; }
     const tiles = RUDIMENTS.filter((r) => picked.includes(r.id))
       .map((r) => ({ r, svg: host.querySelector(`[data-print="${r.id}"] svg`) }))
       .filter((x) => x.svg);
-    if (mode === "print") {
-      const cols = perPage <= 4 ? 1 : 2;
-      printElement(`<div class="sheet" style="grid-template-columns:repeat(${cols},1fr)">` +
-        tiles.map(({ r, svg }) => `<div style="border:2px solid #5CC8B8;border-radius:12px;padding:10px;background:#1c2226"><div style="font-family:Oswald,sans-serif;font-weight:700;color:#5CC8B8">${r.label}</div>${svg.outerHTML}</div>`).join("") + `</div>`);
-    } else if (tiles[0]) {
-      await deliverPng(await svgToPng(tiles[0].svg, 2), "rudiment.png", mode);
+    try {
+      if (mode === "print") {
+        const cols = perPage <= 4 ? 1 : 2;
+        const ok = printElement(`<div class="sheet" style="grid-template-columns:repeat(${cols},1fr)">` +
+          tiles.map(({ r, svg }) => `<div style="border:2px solid #5CC8B8;border-radius:12px;padding:10px;background:#1c2226"><div style="font-family:Oswald,sans-serif;font-weight:700;color:#5CC8B8">${r.label}</div>${svg.outerHTML}</div>`).join("") + `</div>`);
+        setNote(ok ? "Druckdialog geöffnet." : "Popup blockiert — bitte Popups erlauben.");
+      } else {
+        const canvas = await tilesToPng(tiles, 2);
+        const ok = await deliverPng(canvas, "spielfertig-rudiments.png", mode);
+        setNote(ok ? (mode === "share" ? "Geteilt oder gespeichert." : "PNG gespeichert.") : "Abgebrochen.");
+      }
+    } catch {
+      setNote("Konnte das Blatt nicht erzeugen.");
     }
     setBusy(false);
   }
@@ -90,12 +117,12 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
     <div>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
         {CATS.map((c) => (
-          <button key={c.id} className={cat === c.id ? "chip on" : "chip"} onClick={() => setCat(c.id)}>{c.label} ({RUDIMENTS.filter((r) => r.cat === c.id).length})</button>
+          <button key={c.id} className={cat === c.id ? "chip on" : "chip"} onClick={() => pickCat(c.id)}>{c.label} ({RUDIMENTS.filter((r) => r.cat === c.id).length})</button>
         ))}
       </div>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
         {list.map((r) => (
-          <button key={r.id} className={sel === r.id ? "chip on" : "chip"} onClick={() => setSel(r.id)}>{r.label}</button>
+          <button key={r.id} className={sel === r.id ? "chip on" : "chip"} onClick={() => pickRud(r.id)}>{r.label}</button>
         ))}
       </div>
       <div className="staff-card">
@@ -104,10 +131,10 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
         <div style={{ display: "flex", gap: 16, marginTop: 8, fontSize: 11 }}>
           <span style={{ color: "#5c8ee0", fontWeight: 700 }}>R = rechts</span>
           <span style={{ color: "#e05c5c", fontWeight: 700 }}>L = links</span>
-          <span style={{ color: DIM }}>> = Akzent</span>
+          <span style={{ color: DIM }}>&gt; = Akzent</span>
         </div>
       </div>
-      <div className="panel">
+      <div className="panel dock">
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <TempoControl bpm={bpm} setBpm={setBpm} min={30} max={260} />
           <label className="check"><input type="checkbox" checked={countIn} onChange={(e) => setCountIn(e.target.checked)} />Einzählen</label>
@@ -121,16 +148,21 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
           <span style={{ fontSize: 11, color: DIM }}>{hear === "hands" ? "Rechts höher, links tiefer" : "Nur das Tempo — Du spielst die Noten"}</span>
         </div>
         <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-          <label className="check"><input type="checkbox" checked={rampOn} onChange={(e) => setRampOn(e.target.checked)} />Tempo-Trainer: automatisch schneller</label>
+          <label className="check"><input type="checkbox" checked={rampOn} onChange={(e) => setRampOn(e.target.checked)} />Tempo-Trainer</label>
           {rampOn && (
             <span style={{ fontSize: 12, color: DIM }}>
-              +<input type="number" min={1} max={20} value={rampStep} onChange={(e) => setRampStep(Number(e.target.value))} style={{ width: 46, margin: "0 6px", background: INK, border: "1px solid " + LINE, color: "#fff", borderRadius: 5, padding: "3px 5px" }} />BPM je Durchlauf
+              +
+              <input type="number" min={1} max={12} value={rampStep} onChange={(e) => setRampStep(Math.max(1, Math.min(12, Number(e.target.value) || 1)))} style={{ width: 46, margin: "0 6px", background: INK, border: "1px solid " + LINE, color: "#fff", borderRadius: 5, padding: "3px 5px" }} />
+              BPM je Durchlauf · Ziel
+              <input type="number" min={40} max={260} value={rampCap} onChange={(e) => setRampCap(Math.max(40, Math.min(260, Number(e.target.value) || 160)))} style={{ width: 56, margin: "0 6px", background: INK, border: "1px solid " + LINE, color: "#fff", borderRadius: 5, padding: "3px 5px" }} />
+              BPM
             </span>
           )}
         </div>
-        <div style={{ marginTop: 14, display: "flex", gap: 10, flexWrap: "wrap" }}>
+        <div style={{ marginTop: 14, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
           <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : startLoop())}>{playing ? "Stop" : "Play"}</button>
           <button className="ghost" onClick={() => setPrintOpen(true)}>Drucken</button>
+          {rampOn ? <span style={{ fontSize: 11, color: DIM }}>{bpm} → {rampCap} BPM</span> : null}
         </div>
       </div>
       {printOpen && (
@@ -162,6 +194,7 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
               <button className="ghost" disabled={busy || !picked.length} onClick={() => doPrint("save")}>Speichern</button>
               <button className="ghost" onClick={() => setPrintOpen(false)}>Schließen</button>
             </div>
+            {note ? <p style={{ color: "#5cc8b8", fontSize: 12, margin: "10px 0 0" }}>{note}</p> : <p style={{ color: DIM, fontSize: 12, margin: "10px 0 0" }}>Teilen nutzt das System-Menü, sonst wird ein PNG gespeichert.</p>}
           </div>
         </div>
       )}
