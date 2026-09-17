@@ -11,8 +11,19 @@ const STEM_H = 31;
 const BEAM_W = 2.35;
 const BEAM_GAP = 3.55;
 
+export function parseTime(time) {
+  const [n, d] = String(time || "4/4").split("/").map(Number);
+  return { n: n || 4, d: d || 4 };
+}
+
+export function stepsFromTime(time, bars = 1) {
+  const { n, d } = parseTime(time);
+  return bars * n * (16 / d);
+}
+
 function beamsFor(nt) {
   if (!nt || nt.rest) return 0;
+  if (nt.beams != null) return nt.beams;
   if (nt.tuplet) return nt.dur <= 1.2 ? 2 : 1;
   if (nt.dur <= 0.5) return 3;
   if (nt.dur <= 1) return 2;
@@ -55,12 +66,12 @@ function PercClef({ x, y }) {
   );
 }
 
-function TimeSig({ x, y, time }) {
-  const [n, d] = String(time || "4/4").split("/");
+function TimeSig({ x, y, gap, time }) {
+  const { n, d } = parseTime(time);
   return (
-    <g fill={INK} stroke="none" textAnchor="middle" fontFamily="Georgia, 'Times New Roman', serif" fontWeight="700">
-      <text x={x} y={y - 1} fontSize="17">{n}</text>
-      <text x={x} y={y + 15} fontSize="17">{d}</text>
+    <g fill={INK} stroke="none" textAnchor="middle" dominantBaseline="middle" fontFamily="Georgia, 'Times New Roman', serif" fontWeight="700">
+      <text x={x} y={y - gap} fontSize="19">{n}</text>
+      <text x={x} y={y + gap} fontSize="19">{d}</text>
     </g>
   );
 }
@@ -122,11 +133,10 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const notes = rud.notes || [];
   const sounded = notes.filter((nt) => !nt.rest);
   const minDur = sounded.reduce((m, nt) => Math.min(m, nt.dur || 1), 4);
-  const lastT = notes.reduce((m, nt) => Math.max(m, nt.t + (nt.dur || 0)), 8);
-  const steps = Math.max(8, Math.ceil(lastT + 0.25));
-  const stepW = minDur <= 0.5 ? 26 : 23;
-  const x0 = 78;
-  const w = x0 + steps * stepW + 36;
+  const steps = stepsFromTime(rud.time, rud.bars || 1);
+  const stepW = minDur <= 0.5 ? 26 : 24;
+  const x0 = 96;
+  const w = x0 + steps * stepW + 28;
   const y = 60;
   const lineGap = 8;
   const rows = rud.sticking && rud.sticking[1] ? 2 : 1;
@@ -140,6 +150,8 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const stemTop = y - STEM_H;
   const primary = rud.sticking && rud.sticking[0];
   const secondary = rud.sticking && rud.sticking[1];
+  const { n: beats } = parseTime(rud.time);
+  const barW = beats * (16 / parseTime(rud.time).d) * stepW;
 
   return (
     <svg id={svgId} viewBox={`0 0 ${w} ${viewH}`} width="100%" role="img" aria-label={rud.label}>
@@ -149,8 +161,12 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
         ))}
         <line x1={22} y1={y - 2 * lineGap} x2={22} y2={y + 2 * lineGap} strokeWidth={2} />
         <line x1={w - 16} y1={y - 2 * lineGap} x2={w - 16} y2={y + 2 * lineGap} strokeWidth={2} />
+        {Array.from({ length: Math.max(0, (rud.bars || 1) - 1) }, (_, i) => {
+          const bx = x0 + (i + 1) * barW;
+          return <line key={`bar-${i}`} x1={bx} y1={y - 2 * lineGap} x2={bx} y2={y + 2 * lineGap} strokeWidth={1.35} />;
+        })}
         <PercClef x={28} y={y} />
-        <TimeSig x={56} y={y} time={rud.time || "4/4"} />
+        <TimeSig x={58} y={y} gap={lineGap} time={rud.time || "4/4"} />
         {notes.map((nt, i) => {
           const x = x0 + nt.t * stepW;
           if (nt.rest) return <g key={i}><Rest x={x} y={y} dur={nt.dur} /></g>;
