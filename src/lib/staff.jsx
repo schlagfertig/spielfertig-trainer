@@ -8,8 +8,8 @@ const HEAD_RY = 3.4;
 const HEAD_ROT = -22;
 const STEM_DX = 4.55;
 const STEM_H = 31;
-const BEAM_W = 2.35;
-const BEAM_GAP = 3.55;
+const BEAM_W = 3.2;
+const BEAM_GAP = 4.05;
 
 export function parseTime(time) {
   const [n, d] = String(time || "4/4").split("/").map(Number);
@@ -57,6 +57,11 @@ function beamGroups(notes) {
   return groups.filter((g) => g.length >= 2);
 }
 
+function flipHand(h) {
+  if (!h) return h;
+  return String(h).replace(/R/g, "x").replace(/L/g, "R").replace(/x/g, "L");
+}
+
 function PercClef({ x, y }) {
   return (
     <g fill={INK} stroke="none">
@@ -91,14 +96,14 @@ function Rest({ x, y, dur }) {
 
 function Tremolo({ sx, y0, y1, count }) {
   const mid = (y0 + y1) / 2 + 1;
-  const span = 13.5;
-  const ang = (-30 * Math.PI) / 180;
+  const span = 14.5;
+  const ang = (-32 * Math.PI) / 180;
   const dx = Math.cos(ang) * (span / 2);
   const dy = Math.sin(ang) * (span / 2);
-  const step = 4.15;
+  const step = 4.35;
   const start = mid - ((count - 1) * step) / 2;
   return (
-    <g stroke={INK} strokeWidth={2.15} strokeLinecap="butt">
+    <g stroke={INK} strokeWidth={2.45} strokeLinecap="butt">
       {Array.from({ length: count }, (_, k) => {
         const cy = start + k * step;
         return <line key={k} x1={sx - dx} y1={cy - dy} x2={sx + dx} y2={cy + dy} />;
@@ -133,15 +138,15 @@ function SlimFlag({ x, y, extra }) {
   const body = (oy) => {
     const t = y + oy;
     return `M ${x} ${t}
-      C ${x + 0.35} ${t + 0.08}, ${x + 6.6} ${t + 1.1}, ${x + 7.6} ${t + 7.4}
-      C ${x + 8.15} ${t + 10.8}, ${x + 6.4} ${t + 14.6}, ${x + 4.7} ${t + 17.2}
-      C ${x + 7.1} ${t + 12.4}, ${x + 6.4} ${t + 6.2}, ${x} ${t + 3.6}
+      C ${x + 0.2} ${t + 0.05}, ${x + 4.2} ${t + 0.85}, ${x + 4.85} ${t + 6.4}
+      C ${x + 5.25} ${t + 9.4}, ${x + 4.15} ${t + 12.8}, ${x + 2.95} ${t + 15.1}
+      C ${x + 4.55} ${t + 10.6}, ${x + 4.15} ${t + 5.2}, ${x} ${t + 3.05}
       Z`;
   };
   return (
     <g fill={INK} stroke="none">
       <path d={body(0)} />
-      {extra ? <path d={body(4.6)} /> : null}
+      {extra ? <path d={body(4.4)} /> : null}
     </g>
   );
 }
@@ -154,9 +159,9 @@ function FlamGrace({ x, y }) {
   return (
     <g stroke={INK} fill={INK}>
       <ellipse cx={hx} cy={hy} rx={2.7} ry={1.85} stroke="none" transform={`rotate(${HEAD_ROT} ${hx} ${hy})`} />
-      <line x1={sx} y1={hy - 1.1} x2={sx} y2={top} strokeWidth={0.95} fill="none" />
+      <line x1={sx} y1={hy - 1.1} x2={sx} y2={top} strokeWidth={0.9} fill="none" />
       <SlimFlag x={sx} y={top} />
-      <line x1={sx - 4.2} y1={top + 8.6} x2={sx + 5.8} y2={top + 1.4} strokeWidth={1.1} fill="none" strokeLinecap="round" />
+      <line x1={sx - 3.8} y1={top + 8.4} x2={sx + 5.2} y2={top + 1.3} strokeWidth={1.05} fill="none" strokeLinecap="round" />
     </g>
   );
 }
@@ -174,8 +179,8 @@ function DragGrace({ x, y }) {
     <g stroke={INK} fill={INK}>
       <ellipse cx={g1} cy={hy} rx={rx} ry={ry} stroke="none" transform={`rotate(${HEAD_ROT} ${g1} ${hy})`} />
       <ellipse cx={g2} cy={hy} rx={rx} ry={ry} stroke="none" transform={`rotate(${HEAD_ROT} ${g2} ${hy})`} />
-      <line x1={sx1} y1={hy - 1.2} x2={sx1} y2={top} strokeWidth={0.95} fill="none" />
-      <line x1={sx2} y1={hy - 1.2} x2={sx2} y2={top} strokeWidth={0.95} fill="none" />
+      <line x1={sx1} y1={hy - 1.2} x2={sx1} y2={top} strokeWidth={0.9} fill="none" />
+      <line x1={sx2} y1={hy - 1.2} x2={sx2} y2={top} strokeWidth={0.9} fill="none" />
       <SlimFlag x={sx1} y={top} extra />
       <SlimFlag x={sx2} y={top} extra />
       <path
@@ -188,12 +193,24 @@ function DragGrace({ x, y }) {
   );
 }
 
-function Hand({ x, y, h }) {
-  if (!h) return null;
+function StickLine({ x, y, text, flam }) {
+  if (!text && !flam) return null;
+  const letters = String(text || "");
+  const long = letters.length > 2;
+  const fs = long ? 8.5 : 12;
   return (
-    <text x={x} y={y} textAnchor="middle" fontSize="12" fontWeight="700" fill={h === "R" ? RCOL : LCOL} stroke="none">
-      {h}
-    </text>
+    <g stroke="none">
+      {flam ? (
+        <text x={x - (long ? 0 : 8)} y={y} textAnchor="middle" fontSize="8" fontWeight="700" fill={flam === "R" ? RCOL : LCOL}>
+          {flam}
+        </text>
+      ) : null}
+      <text x={x + (flam && !long ? 4 : 0)} y={y} textAnchor="middle" fontSize={fs} fontWeight="700">
+        {letters.split("").map((ch, i) => (
+          <tspan key={i} fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>{ch}</tspan>
+        ))}
+      </text>
+    </g>
   );
 }
 
@@ -211,8 +228,9 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const lineGap = 8;
   const ny = y - lineGap / 2;
   const rows = rud.sticking && rud.sticking[1] ? 2 : 1;
+  const longStick = (rud.sticking || []).some((row) => String(row).length > 8 || (Array.isArray(row) && row.some((s) => String(s).length > 2)));
   const h0 = y + 2 * lineGap + 18;
-  const viewH = rows === 2 ? 168 : 148;
+  const viewH = rows === 2 ? (longStick ? 176 : 168) : 148;
   const groups = beamGroups(notes);
   const beamed = new Set();
   groups.forEach((g) => g.forEach((n) => beamed.add(n)));
@@ -223,6 +241,11 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const secondary = rud.sticking && rud.sticking[1];
   const { n: beats } = parseTime(rud.time);
   const barW = beats * (16 / parseTime(rud.time).d) * stepW;
+  const tokenAt = (row, i, nt) => {
+    if (!row) return nt.hand;
+    if (Array.isArray(row)) return row[i];
+    return row[i];
+  };
 
   return (
     <svg id={svgId} viewBox={`0 0 ${w} ${viewH}`} width="100%" role="img" aria-label={rud.label}>
@@ -245,6 +268,8 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
           const sx = stemX(x);
           const ink = on ? GOLD : INK;
           const accY = beamed.has(nt) || nt.roll ? stemTop - (nt.roll ? 11 : 7) : stemTop - 7;
+          const next = notes.slice(i + 1).find((n) => !n.rest);
+          const x2 = next ? x0 + next.t * stepW : x;
           return (
             <g key={i}>
               {nt.flam && <FlamGrace x={x} y={ny} />}
@@ -259,22 +284,33 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
                 strokeWidth={0.35}
                 transform={`rotate(${HEAD_ROT} ${x} ${ny})`}
               />
-              {nt.dur === 3 && <circle cx={x + 8.6} cy={ny + 0.6} r={1.45} fill={INK} stroke="none" />}
-              <line x1={sx} y1={ny - 2.15} x2={sx} y2={stemTop} stroke={ink} strokeWidth={1.25} />
+              {(nt.dur === 3 || nt.dur === 6 || nt.dot) && <circle cx={x + 8.6} cy={ny + 0.6} r={1.45} fill={INK} stroke="none" />}
+              <line x1={sx} y1={ny - 2.15} x2={sx} y2={stemTop} stroke={ink} strokeWidth={1.35} />
               {nt.roll ? <Tremolo sx={sx} y0={ny - 6} y1={stemTop + 2} count={nt.roll} /> : null}
               {nt.acc && <Accent x={x + 1} y={accY} />}
-              {!beamed.has(nt) && beamsFor(nt) >= 1 && <Flag x={sx} y={stemTop} extra={beamsFor(nt) >= 2} />}
+              {!beamed.has(nt) && !nt.roll && beamsFor(nt) >= 1 && <Flag x={sx} y={stemTop} extra={beamsFor(nt) >= 2} />}
+              {nt.tie && next && (
+                <path
+                  d={`M ${x + 6} ${ny + 9} C ${x + 14} ${ny + 18}, ${x2 - 14} ${ny + 18}, ${x2 - 6} ${ny + 9}`}
+                  fill="none"
+                  stroke={INK}
+                  strokeWidth={1.2}
+                  strokeLinecap="round"
+                />
+              )}
             </g>
           );
         })}
         {sounded.map((nt, i) => {
           const x = x0 + nt.t * stepW;
-          const top = primary ? primary[i] : nt.hand;
-          const bot = secondary ? secondary[i] : null;
+          const top = tokenAt(primary, i, nt);
+          const bot = secondary ? tokenAt(secondary, i, nt) : null;
+          const flamTop = nt.flam ? String(nt.flam) : null;
+          const flamBot = flamTop ? flipHand(flamTop) : null;
           return (
             <g key={`h-${i}`}>
-              <Hand x={x} y={h0} h={top} />
-              {bot ? <Hand x={x} y={h0 + 16} h={bot} /> : null}
+              <StickLine x={x} y={h0} text={top} flam={flamTop} />
+              {bot ? <StickLine x={x} y={h0 + 16} text={bot} flam={flamBot} /> : null}
             </g>
           );
         })}
