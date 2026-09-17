@@ -56,18 +56,23 @@ button { font-family: inherit; }
 }
 .top-right { margin-left: auto; display: flex; gap: 6px; }
 .main { max-width: 880px; margin: 0 auto; padding-bottom: 8px; }
-.chip, .ghost, .play, .seg button, .more-btn {
+.chip, .ghost, .play, .seg button, .more-btn, .nudge {
   background: transparent; color: var(--dim); border: 1px solid var(--line);
   border-radius: 8px; padding: 7px 10px; font-weight: 700; font-size: 12px; cursor: pointer;
 }
+.nudge { min-width: 44px; font-size: 14px; color: var(--teal); }
 .chip.on, .seg button.on, .ghost.on, .more-btn.on { background: var(--teal); color: #06120f; border-color: var(--teal); }
-.tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 14px 0 10px; }
-.tabs .chip { text-align: center; padding: 8px 4px; }
-.chip-row {
-  display: flex; gap: 6px; overflow-x: auto; padding: 0 0 10px;
-  -webkit-overflow-scrolling: touch;
+.pick { display: flex; align-items: center; gap: 8px; margin: 14px 0 12px; }
+.rud-select {
+  flex: 1;
+  min-width: 0;
+  background: var(--panel);
+  color: var(--txt);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font: 700 14px Figtree, sans-serif;
 }
-.chip-row .chip { flex: 0 0 auto; white-space: nowrap; }
 .seg { display: flex; background: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 3px; gap: 3px; }
 .seg button { border: 0; }
 .play { background: #1a2e1a; color: #5cc478; border: 2px solid #5cc478; padding: 12px 26px; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; }

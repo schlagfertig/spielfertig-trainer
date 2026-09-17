@@ -11,7 +11,6 @@ const LINE = "#2f383d";
 const DIM = "#8a969c";
 
 export default function RudimentTrainer({ handwritten, printNonce }) {
-  const [cat, setCat] = useState("diddle");
   const [sel, setSel] = useState(16);
   const [bpm, setBpm] = useState(80);
   const [hear, setHear] = useState("click");
@@ -35,8 +34,8 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
   const rampRef = useRef(rampOn); rampRef.current = rampOn;
   const rampStepRef = useRef(rampStep); rampStepRef.current = rampStep;
   const rampCapRef = useRef(rampCap); rampCapRef.current = rampCap;
-  const list = RUDIMENTS.filter((r) => r.cat === cat);
-  const rud = RUDIMENTS.find((r) => r.id === sel) || list[0] || RUDIMENTS[0];
+  const rud = RUDIMENTS.find((r) => r.id === sel) || RUDIMENTS[0];
+  const idx = Math.max(0, RUDIMENTS.findIndex((r) => r.id === rud.id));
 
   useEffect(() => {
     if (printNonce && printNonce !== lastPrint.current) setPrintOpen(true);
@@ -52,16 +51,14 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
     setBeat(false);
   }
 
-  function pickCat(id) {
-    stop();
-    setCat(id);
-    const first = RUDIMENTS.find((r) => r.cat === id);
-    if (first) setSel(first.id);
-  }
-
   function pickRud(id) {
     if (id !== sel) stop();
     setSel(id);
+  }
+
+  function stepRud(dir) {
+    const next = RUDIMENTS[idx + dir];
+    if (next) pickRud(next.id);
   }
 
   function pulse(when, ctx) {
@@ -158,15 +155,18 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
 
   return (
     <div>
-      <div className="tabs">
-        {CATS.map((c) => (
-          <button key={c.id} className={cat === c.id ? "chip on" : "chip"} onClick={() => pickCat(c.id)}>{c.label}</button>
-        ))}
-      </div>
-      <div className="chip-row">
-        {list.map((r) => (
-          <button key={r.id} className={sel === r.id ? "chip on" : "chip"} onClick={() => pickRud(r.id)}>{r.label.replace(/^\d+\.\s*/, "")}</button>
-        ))}
+      <div className="pick">
+        <button type="button" className="ghost" disabled={idx <= 0} onClick={() => stepRud(-1)} aria-label="Vorheriges Rudiment">‹</button>
+        <select className="rud-select" value={rud.id} onChange={(e) => pickRud(Number(e.target.value))} aria-label="Rudiment wählen">
+          {CATS.map((c) => (
+            <optgroup key={c.id} label={c.label}>
+              {RUDIMENTS.filter((r) => r.cat === c.id).map((r) => (
+                <option key={r.id} value={r.id}>{r.label}</option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+        <button type="button" className="ghost" disabled={idx >= RUDIMENTS.length - 1} onClick={() => stepRud(1)} aria-label="Nächstes Rudiment">›</button>
       </div>
       <div className={handwritten ? "staff-card hand" : "staff-card"}>
         <div className="staff-label">{rud.label}</div>
@@ -176,7 +176,7 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
       <div className="panel dock">
         <div className="dock-main">
           <MetronomeDial bpm={bpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={96} now />
-          <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : startLoop())}>{playing ? "Stop" : "Play"}</button>
+          <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : startLoop())}>{playing ? "Stop" : "Start"}</button>
           <button className={more ? "more-btn on" : "more-btn"} onClick={() => setMore((v) => !v)}>{more ? "Weniger" : "Optionen"}</button>
         </div>
         <div className="dock-tempo">
