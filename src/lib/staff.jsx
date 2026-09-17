@@ -10,6 +10,8 @@ const STEM_DX = 4.55;
 const STEM_H = 31;
 const BEAM_W = 3.2;
 const BEAM_GAP = 4.05;
+const PRINT = "Figtree, sans-serif";
+const SCRIPT = "Segoe Script, Bradley Hand, Snell Roundhand, cursive";
 
 export function parseTime(time) {
   const [n, d] = String(time || "4/4").split("/").map(Number);
@@ -183,19 +185,20 @@ function DragGrace({ x, y }) {
   );
 }
 
-function StickLine({ x, x2, y, text, flam }) {
+function StickLine({ x, x2, y, text, flam, handwritten }) {
   if (!text && !flam) return null;
   const letters = String(text || "").split("").filter(Boolean);
   const long = letters.length > 2;
+  const font = handwritten ? SCRIPT : PRINT;
   if (!long) {
     return (
-      <g stroke="none">
+      <g stroke="none" fontFamily={font}>
         {flam ? (
           <text x={x - 8} y={y} textAnchor="middle" fontSize="8" fontWeight="700" fill={flam === "R" ? RCOL : LCOL}>
             {flam}
           </text>
         ) : null}
-        <text x={x + (flam ? 4 : 0)} y={y} textAnchor="middle" fontSize="12" fontWeight="700">
+        <text x={x + (flam ? 4 : 0)} y={y} textAnchor="middle" fontSize={handwritten ? 14 : 12} fontWeight="700">
           {letters.map((ch, i) => (
             <tspan key={i} fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>{ch}</tspan>
           ))}
@@ -205,12 +208,12 @@ function StickLine({ x, x2, y, text, flam }) {
   }
   const right = x2 != null && x2 > x ? x2 : x + Math.max(56, letters.length * 7);
   return (
-    <g stroke="none">
+    <g stroke="none" fontFamily={font}>
       {letters.map((ch, i) => {
         const t = letters.length === 1 ? 0 : i / (letters.length - 1);
         const xx = x + t * (right - x);
         return (
-          <text key={i} x={xx} y={y} textAnchor="middle" fontSize="10" fontWeight="700" fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>
+          <text key={i} x={xx} y={y} textAnchor="middle" fontSize={handwritten ? 13 : 10} fontWeight="700" fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>
             {ch}
           </text>
         );
@@ -319,8 +322,8 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
           const xEnd = String(top || "").length > 2 ? endXFor(i) : x;
           return (
             <g key={`h-${i}`}>
-              <StickLine x={x} x2={xEnd} y={h0} text={top} flam={flamTop} />
-              {bot ? <StickLine x={x} x2={xEnd} y={h0 + 16} text={bot} flam={flamBot} /> : null}
+              <StickLine x={x} x2={xEnd} y={h0} text={top} flam={flamTop} handwritten={handwritten} />
+              {bot ? <StickLine x={x} x2={xEnd} y={h0 + 16} text={bot} flam={flamBot} handwritten={handwritten} /> : null}
             </g>
           );
         })}
