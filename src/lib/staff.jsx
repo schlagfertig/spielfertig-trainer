@@ -129,37 +129,55 @@ function Flag({ x, y, extra, scale = 1 }) {
   );
 }
 
+function SlimFlag({ x, y, extra }) {
+  const body = (oy) => {
+    const t = y + oy;
+    return `M ${x} ${t}
+      C ${x + 0.35} ${t + 0.08}, ${x + 6.6} ${t + 1.1}, ${x + 7.6} ${t + 7.4}
+      C ${x + 8.15} ${t + 10.8}, ${x + 6.4} ${t + 14.6}, ${x + 4.7} ${t + 17.2}
+      C ${x + 7.1} ${t + 12.4}, ${x + 6.4} ${t + 6.2}, ${x} ${t + 3.6}
+      Z`;
+  };
+  return (
+    <g fill={INK} stroke="none">
+      <path d={body(0)} />
+      {extra ? <path d={body(4.6)} /> : null}
+    </g>
+  );
+}
+
 function FlamGrace({ x, y }) {
-  const hx = x - 13.2;
-  const hy = y + 2.3;
-  const sx = hx + 2.45;
-  const top = hy - 15;
+  const hx = x - 16.8;
+  const hy = y + 2.6;
+  const sx = hx + 2.35;
+  const top = hy - 16.5;
   return (
     <g stroke={INK} fill={INK}>
-      <ellipse cx={hx} cy={hy} rx={3.05} ry={2.1} stroke="none" transform={`rotate(${HEAD_ROT} ${hx} ${hy})`} />
-      <line x1={sx} y1={hy - 1.2} x2={sx} y2={top} strokeWidth={1.05} fill="none" />
-      <Flag x={sx} y={top} scale={0.58} />
+      <ellipse cx={hx} cy={hy} rx={2.85} ry={1.95} stroke="none" transform={`rotate(${HEAD_ROT} ${hx} ${hy})`} />
+      <line x1={sx} y1={hy - 1.15} x2={sx} y2={top} strokeWidth={0.95} fill="none" />
+      <SlimFlag x={sx} y={top} />
+      <line x1={sx - 4.6} y1={top + 9.2} x2={sx + 6.4} y2={top + 1.6} strokeWidth={1.15} fill="none" strokeLinecap="round" />
     </g>
   );
 }
 
 function DragGrace({ x, y }) {
-  const hy = y + 1.7;
-  const g1 = x - 22.4;
-  const g2 = x - 13.8;
-  const rx = 2.85;
-  const ry = 1.95;
-  const sx1 = g1 + 2.5;
-  const sx2 = g2 + 2.5;
-  const top = hy - 16.2;
+  const hy = y + 1.8;
+  const g1 = x - 23.2;
+  const g2 = x - 14.6;
+  const rx = 2.7;
+  const ry = 1.85;
+  const sx1 = g1 + 2.4;
+  const sx2 = g2 + 2.4;
+  const top = hy - 16.5;
   return (
     <g stroke={INK} fill={INK}>
       <ellipse cx={g1} cy={hy} rx={rx} ry={ry} stroke="none" transform={`rotate(${HEAD_ROT} ${g1} ${hy})`} />
       <ellipse cx={g2} cy={hy} rx={rx} ry={ry} stroke="none" transform={`rotate(${HEAD_ROT} ${g2} ${hy})`} />
-      <line x1={sx1} y1={hy - 1.3} x2={sx1} y2={top} strokeWidth={1.05} fill="none" />
-      <line x1={sx2} y1={hy - 1.3} x2={sx2} y2={top} strokeWidth={1.05} fill="none" />
-      <Flag x={sx1} y={top} extra scale={0.48} />
-      <Flag x={sx2} y={top} extra scale={0.48} />
+      <line x1={sx1} y1={hy - 1.2} x2={sx1} y2={top} strokeWidth={0.95} fill="none" />
+      <line x1={sx2} y1={hy - 1.2} x2={sx2} y2={top} strokeWidth={0.95} fill="none" />
+      <SlimFlag x={sx1} y={top} extra />
+      <SlimFlag x={sx2} y={top} extra />
       <path
         d={`M ${g1 - 1} ${hy - 8} C ${g1 + 5} ${top - 7}, ${x - 6} ${top - 5}, ${x - 1} ${y - 8}`}
         fill="none"
