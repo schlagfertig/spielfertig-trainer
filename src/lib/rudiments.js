@@ -10,23 +10,24 @@ const trip = (beat, hands, accAt = [], extraFn) =>
   hands.split("").map((h, i) => n(beat * 4 + i * T3, T3, h, accAt.includes(i), { tuplet: 3, ...(extraFn ? extraFn(h, i) : {}) }));
 const six = (beat, hands, accAt = [], extra = {}) =>
   hands.split("").map((h, i) => n(beat * 4 + i * T6, T6, h, accAt.includes(i), { tuplet: 6, ...extra }));
-const flip = (s) => s.replace(/R/g, "x").replace(/L/g, "R").replace(/x/g, "L");
+const flip = (s) => String(s).replace(/R/g, "x").replace(/L/g, "R").replace(/x/g, "L");
 const dual = (s) => [s, flip(s)];
+const dualTok = (arr) => [arr, arr.map(flip)];
 const swiss = (beat, hand) => {
   const oth = hand === "R" ? "L" : "R";
   return trip(beat, hand + hand + oth, [0], (h, i) => (i === 0 ? { flam: oth } : {}));
 };
 const flamTap = (start, gR, gL) => [
-  n(start, 2, "R", true, { flam: "L", g: gR }),
-  n(start + 2, 2, "R", false, { g: gR }),
-  n(start + 4, 2, "L", true, { flam: "R", g: gL }),
-  n(start + 6, 2, "L", false, { g: gL }),
+  n(start, 1, "R", true, { flam: "L", g: gR }),
+  n(start + 1, 1, "R", false, { g: gR }),
+  n(start + 2, 1, "L", true, { flam: "R", g: gL }),
+  n(start + 3, 1, "L", false, { g: gL }),
 ];
 const invFlamTap = (start, g1, g2) => [
-  n(start, 2, "R", true, { g: g1 }),
-  n(start + 2, 2, "L", true, { flam: "R", g: g1 }),
-  n(start + 4, 2, "L", true, { g: g2 }),
-  n(start + 6, 2, "R", true, { flam: "L", g: g2 }),
+  n(start, 1, "R", true, { g: g1 }),
+  n(start + 1, 1, "L", true, { flam: "R", g: g1 }),
+  n(start + 2, 1, "L", true, { g: g2 }),
+  n(start + 3, 1, "R", true, { flam: "L", g: g2 }),
 ];
 const flamAcc = (beat, hand) => {
   const oth = hand === "R" ? "L" : "R";
@@ -75,27 +76,27 @@ export const RUDIMENTS = [
   { id: 6, cat: "roll", label: "6. Double Stroke Open Roll", bars: 1, time: "4/4", notes: run(0, "RRLLRRLLRRLLRRLL"), sticking: dual("RRLLRRLLRRLLRRLL") },
   { id: 7, cat: "roll", label: "7. Five Stroke Roll", bars: 1, time: "2/4", notes: [...d32(0, "RRLL"), n(2, 2, "R", true), ...d32(4, "LLRR"), n(6, 2, "L", true)] },
   { id: 8, cat: "roll", label: "8. Six Stroke Roll", bars: 1, time: "4/4", notes: [...sixStroke(0, 1, "R"), ...sixStroke(8, 2, "L")], sticking: dual("RLLRRLRLRRLL") },
-  { id: 9, cat: "roll", label: "9. Seven Stroke Roll", bars: 1, time: "4/4", notes: [rest(0, 1), ...d32(1, "LLRRLL"), n(4, 2, "R", true), rest(8, 1), ...d32(9, "RRLLRR"), n(12, 2, "L", true)] },
-  { id: 10, cat: "roll", label: "10. Nine Stroke Roll", bars: 1, time: "4/4", notes: [...d32(0, "RRLLRRLL"), n(4, 2, "R", true), ...d32(8, "LLRRLLRR"), n(12, 2, "L", true)] },
-  { id: 11, cat: "roll", label: "11. Ten Stroke Roll", bars: 1, time: "4/4", notes: [...d32(0, "RRLLRRLLR"), n(4.5, 2, "L", true), ...d32(8, "LLRRLLRRL"), n(12.5, 2, "R", true)] },
-  { id: 12, cat: "roll", label: "12. Eleven Stroke Roll", bars: 1, time: "4/4", notes: [...d32(0, "RRLLRRLLRR"), n(5, 2, "L", true), ...d32(8, "LLRRLLRRLL"), n(13, 2, "R", true)] },
-  { id: 13, cat: "roll", label: "13. Thirteen Stroke Roll", bars: 1, time: "4/4", notes: [...d32(0, "RRLLRRLLRRLL"), n(6, 2, "R", true), ...d32(8, "LLRRLLRRLLRR"), n(14, 2, "L", true)] },
-  { id: 14, cat: "roll", label: "14. Fifteen Stroke Roll", bars: 1, time: "4/4", notes: [...d32(0, "RRLLRRLLRRLLRR"), n(7, 2, "L", true)] },
-  { id: 15, cat: "roll", label: "15. Seventeen Stroke Roll", bars: 1, time: "4/4", notes: [...d32(0, "RRLLRRLLRRLLRRLL"), n(8, 8, "R", true)] },
+  { id: 9, cat: "roll", label: "9. Seven Stroke Roll", bars: 1, time: "4/4", notes: [n(0, 2, "L", false, { roll: 3, tie: true }), n(2, 2, "R", true), rest(4, 4), n(8, 2, "R", false, { roll: 3, tie: true }), n(10, 2, "L", true), rest(12, 4)], sticking: dualTok(["LLRRLL", "R", "RRLLRR", "L"]) },
+  { id: 10, cat: "roll", label: "10. Nine Stroke Roll", bars: 1, time: "4/4", notes: [n(0, 2, "R", false, { roll: 3, tie: true }), n(2, 2, "R", true), n(4, 2, "L", false, { roll: 3, tie: true }), n(6, 2, "L", true), n(8, 2, "R", false, { roll: 3, tie: true }), n(10, 2, "R", true), n(12, 2, "L", false, { roll: 3, tie: true }), n(14, 2, "L", true)], sticking: dualTok(["RRLLRRLL", "R", "LLRRLLRR", "L", "RRLLRRLL", "R", "LLRRLLRR", "L"]) },
+  { id: 11, cat: "roll", label: "11. Ten Stroke Roll", bars: 1, time: "4/4", notes: [n(0, 2, "R", false, { roll: 3, tie: true }), n(2, 1, "R", true, { g: 1 }), n(3, 1, "L", true, { g: 1 }), rest(4, 4), n(8, 2, "L", false, { roll: 3, tie: true }), n(10, 1, "L", true, { g: 2 }), n(11, 1, "R", true, { g: 2 }), rest(12, 4)], sticking: dualTok(["RRLLRRLLR", "R", "L", "LLRRLLRRL", "L", "R"]) },
+  { id: 12, cat: "roll", label: "12. Eleven Stroke Roll", bars: 1, time: "4/4", notes: [n(0, 2, "R", false, { roll: 3, tie: true }), n(2, 1, "R"), n(3, 1, "L", true), rest(4, 4), n(8, 2, "L", false, { roll: 3, tie: true }), n(10, 1, "L"), n(11, 1, "R", true), rest(12, 4)], sticking: dualTok(["RRLLRRLLRR", "R", "L", "LLRRLLRRLL", "L", "R"]) },
+  { id: 13, cat: "roll", label: "13. Thirteen Stroke Roll", bars: 1, time: "4/4", notes: [n(0, 6, "R", false, { roll: 3, tie: true }), n(6, 2, "R", true), n(8, 6, "L", false, { roll: 3, tie: true }), n(14, 2, "L", true)], sticking: dualTok(["RRLLRRLLRRLL", "R", "LLRRLLRRLLRR", "L"]) },
+  { id: 14, cat: "roll", label: "14. Fifteen Stroke Roll", bars: 1, time: "4/4", notes: [n(0, 6, "R", false, { roll: 3, tie: true }), n(6, 1, "R"), n(7, 1, "L", true), rest(8, 8)], sticking: dualTok(["RRLLRRLLRRLLRR", "R", "L"]) },
+  { id: 15, cat: "roll", label: "15. Seventeen Stroke Roll", bars: 1, time: "4/4", notes: [n(0, 8, "R", false, { roll: 3, tie: true }), n(8, 4, "R", true), rest(12, 4)], sticking: dualTok(["RRLLRRLLRRLLRRLL", "R"]) },
   { id: 16, cat: "diddle", label: "16. Single Paradiddle", bars: 1, time: "4/4", notes: [...run(0, "RLRR", 1, [0], { g: 1 }), ...run(4, "LRLL", 1, [0], { g: 2 }), ...run(8, "RLRR", 1, [0], { g: 3 }), ...run(12, "LRLL", 1, [0], { g: 4 })], sticking: dual("RLRRLRLLRLRRLRLL") },
   { id: 17, cat: "diddle", label: "17. Double Paradiddle", bars: 1, time: "3/4", notes: [...run(0, "RLRLRR", 1, [0], { g: 1 }), ...run(6, "RLRLRR", 1, [0], { g: 2 })], sticking: dual("RLRLRRRLRLRR") },
   { id: 18, cat: "diddle", label: "18. Triple Paradiddle", bars: 1, time: "4/4", notes: [...run(0, "RLRLRLRR", 1, [0], { g: 1 }), ...run(8, "RLRLRLRR", 1, [0], { g: 2 })], sticking: dual("RLRLRLRRRLRLRLRR") },
   { id: 19, cat: "diddle", label: "19. Paradiddle-Diddle", bars: 1, time: "3/4", notes: [...run(0, "RLRRLL", 1, [0], { g: 1 }), ...run(6, "RLRRLL", 1, [0], { g: 2 })], sticking: dual("RLRRLLRLRRLL") },
   { id: 20, cat: "flam", label: "20. Flam", bars: 1, time: "4/4", notes: [n(0, 4, "R", true, { flam: "L" }), n(4, 4, "L", true, { flam: "R" }), n(8, 4, "R", true, { flam: "L" }), n(12, 4, "L", true, { flam: "R" })], sticking: dual("RLRL") },
   { id: 21, cat: "flam", label: "21. Flam Accent", bars: 1, time: "4/4", notes: [...flamAcc(0, "R"), ...flamAcc(1, "L"), ...flamAcc(2, "R"), ...flamAcc(3, "L")], sticking: dual("RLRLRLRLRLRL") },
-  { id: 22, cat: "flam", label: "22. Flam Tap", bars: 1, time: "4/4", notes: [...flamTap(0, 1, 2), ...flamTap(8, 3, 4)], sticking: dual("RRLLRRLL") },
+  { id: 22, cat: "flam", label: "22. Flam Tap", bars: 1, time: "4/4", notes: [...flamTap(0, 1, 2), ...flamTap(4, 3, 4), ...flamTap(8, 5, 6), ...flamTap(12, 7, 8)], sticking: dual("RRLRLRLLRRLRLRLL") },
   { id: 23, cat: "flam", label: "23. Flamacue", bars: 1, time: "4/4", notes: [n(0, 1, "R", false, { flam: "L" }), n(1, 1, "L", true), n(2, 1, "R"), n(3, 1, "L"), n(4, 4, "R", true, { flam: "L" }), n(8, 1, "L", false, { flam: "R" }), n(9, 1, "R", true), n(10, 1, "L"), n(11, 1, "R"), n(12, 4, "L", true, { flam: "R" })] },
   { id: 24, cat: "flam", label: "24. Flam Paradiddle", bars: 1, time: "4/4", notes: [n(0, 1, "R", true, { flam: "L" }), n(1, 1, "L"), n(2, 1, "R"), n(3, 1, "R"), n(4, 1, "L", true, { flam: "R" }), n(5, 1, "R"), n(6, 1, "L"), n(7, 1, "L"), n(8, 1, "R", true, { flam: "L" }), n(9, 1, "L"), n(10, 1, "R"), n(11, 1, "R"), n(12, 1, "L", true, { flam: "R" }), n(13, 1, "R"), n(14, 1, "L"), n(15, 1, "L")], sticking: dual("RLRRLRLLRLRRLRLL") },
   { id: 25, cat: "flam", label: "25. Single Flammed Mill", bars: 1, time: "4/4", notes: [n(0, 1, "R", true, { flam: "L" }), n(1, 1, "R"), n(2, 1, "L"), n(3, 1, "R"), n(4, 1, "L", true, { flam: "R" }), n(5, 1, "L"), n(6, 1, "R"), n(7, 1, "L"), n(8, 1, "R", true, { flam: "L" }), n(9, 1, "R"), n(10, 1, "L"), n(11, 1, "R"), n(12, 1, "L", true, { flam: "R" }), n(13, 1, "L"), n(14, 1, "R"), n(15, 1, "L")], sticking: dual("RRLRLRLLRRLRLRLL") },
   { id: 26, cat: "flam", label: "26. Flam Paradiddle-Diddle", bars: 1, time: "3/4", notes: [n(0, 1, "R", true, { flam: "L" }), n(1, 1, "L"), n(2, 1, "R"), n(3, 1, "R"), n(4, 1, "L"), n(5, 1, "L"), n(6, 1, "R", true, { flam: "L" }), n(7, 1, "L"), n(8, 1, "R"), n(9, 1, "R"), n(10, 1, "L"), n(11, 1, "L")], sticking: dual("RLRRLLRLRRLL") },
-  { id: 27, cat: "flam", label: "27. Pataflafla", bars: 1, time: "4/4", notes: [n(0, 1, "R", true, { flam: "L" }), n(1, 1, "L"), n(2, 1, "R"), n(3, 1, "L", true, { flam: "R" }), n(4, 1, "L", true, { flam: "R" }), n(5, 1, "R"), n(6, 1, "L"), n(7, 1, "R", true, { flam: "L" }), n(8, 1, "R", true, { flam: "L" }), n(9, 1, "L"), n(10, 1, "R"), n(11, 1, "L", true, { flam: "R" }), n(12, 4, "R", true, { flam: "L" })] },
+  { id: 27, cat: "flam", label: "27. Pataflafla", bars: 1, time: "4/4", notes: [n(0, 1, "R", true, { flam: "L" }), n(1, 1, "L"), n(2, 1, "R"), n(3, 1, "L", true, { flam: "R" }), n(4, 1, "L", true, { flam: "R" }), n(5, 1, "R"), n(6, 1, "L"), n(7, 1, "R", true, { flam: "L" }), n(8, 1, "R", true, { flam: "L" }), n(9, 1, "L"), n(10, 1, "R"), n(11, 1, "L", true, { flam: "R" }), n(12, 4, "R", true, { flam: "L" })], sticking: dual("RLRLRLLRRRLRL") },
   { id: 28, cat: "flam", label: "28. Swiss Army Triplet", bars: 1, time: "4/4", notes: [...swiss(0, "R"), ...swiss(1, "R"), ...swiss(2, "R"), ...swiss(3, "R")], sticking: dual("RRLRRLRRLRRL") },
-  { id: 29, cat: "flam", label: "29. Inverted Flam Tap", bars: 1, time: "4/4", notes: [...invFlamTap(0, 1, 2), ...invFlamTap(8, 3, 4)], sticking: dual("RLLRRLLR") },
+  { id: 29, cat: "flam", label: "29. Inverted Flam Tap", bars: 1, time: "4/4", notes: [...invFlamTap(0, 1, 2), ...invFlamTap(4, 3, 4), ...invFlamTap(8, 5, 6), ...invFlamTap(12, 7, 8)], sticking: dual("RLLRRLLRRLLRRLLR") },
   { id: 30, cat: "flam", label: "30. Flam Drag", bars: 1, time: "4/4", notes: [...flamDrag(0, "R"), ...flamDrag(1, "L"), ...flamDrag(2, "R"), ...flamDrag(3, "L")] },
   { id: 31, cat: "drag", label: "31. Drag", bars: 1, time: "4/4", notes: [n(0, 4, "R", true, { drag: "L" }), n(4, 4, "L", true, { drag: "R" }), n(8, 4, "R", true, { drag: "L" }), n(12, 4, "L", true, { drag: "R" })], sticking: dual("RLRL") },
   { id: 32, cat: "drag", label: "32. Single Drag Tap", bars: 1, time: "4/4", notes: [n(0, 2, "R", false, { drag: "L" }), n(2, 2, "L", true), n(4, 2, "L", false, { drag: "R" }), n(6, 2, "R", true), n(8, 2, "R", false, { drag: "L" }), n(10, 2, "L", true), n(12, 2, "L", false, { drag: "R" }), n(14, 2, "R", true)] },
