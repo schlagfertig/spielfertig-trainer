@@ -111,36 +111,57 @@ function Accent({ x, y }) {
   return <path d={`M ${x - 5.6} ${y} L ${x + 5.6} ${y} L ${x} ${y + 3.9} Z`} fill={INK} stroke="none" />;
 }
 
-function Flag({ x, y, extra }) {
-  const body = (oy) =>
-    `M ${x} ${y + oy} L ${x + 2.6} ${y + oy - 1.15} C ${x + 13.2} ${y + oy + 0.6}, ${x + 14.4} ${y + oy + 9.4}, ${x + 6.2} ${y + oy + 18.2} C ${x + 12.6} ${y + oy + 11}, ${x + 10.2} ${y + oy + 3.6}, ${x} ${y + oy + 4.4} Z`;
+function Flag({ x, y, extra, scale = 1 }) {
+  const s = scale;
+  const body = (oy) => {
+    const t = y + oy * s;
+    return `M ${x} ${t}
+      C ${x + 1.1 * s} ${t + 0.15 * s}, ${x + 12.2 * s} ${t + 2.4 * s}, ${x + 15.4 * s} ${t + 13.6 * s}
+      C ${x + 16.8 * s} ${t + 19.8 * s}, ${x + 14.2 * s} ${t + 26.4 * s}, ${x + 11.2 * s} ${t + 31.2 * s}
+      C ${x + 14.6 * s} ${t + 23.2 * s}, ${x + 13.4 * s} ${t + 13.2 * s}, ${x} ${t + 7.2 * s}
+      Z`;
+  };
   return (
     <g fill={INK} stroke="none">
       <path d={body(0)} />
-      {extra ? <path d={body(6.1)} /> : null}
+      {extra ? <path d={body(6.4)} /> : null}
+    </g>
+  );
+}
+
+function FlamGrace({ x, y }) {
+  const hx = x - 13.2;
+  const hy = y + 2.3;
+  const sx = hx + 2.45;
+  const top = hy - 15;
+  return (
+    <g stroke={INK} fill={INK}>
+      <ellipse cx={hx} cy={hy} rx={3.05} ry={2.1} stroke="none" transform={`rotate(${HEAD_ROT} ${hx} ${hy})`} />
+      <line x1={sx} y1={hy - 1.2} x2={sx} y2={top} strokeWidth={1.05} fill="none" />
+      <Flag x={sx} y={top} scale={0.58} />
     </g>
   );
 }
 
 function DragGrace({ x, y }) {
-  const hy = y + 1.6;
-  const g1 = x - 21.5;
-  const g2 = x - 13.4;
+  const hy = y + 1.7;
+  const g1 = x - 22.4;
+  const g2 = x - 13.8;
   const rx = 2.85;
   const ry = 1.95;
-  const sx1 = g1 + 2.55;
-  const sx2 = g2 + 2.55;
-  const top = hy - 17.5;
+  const sx1 = g1 + 2.5;
+  const sx2 = g2 + 2.5;
+  const top = hy - 16.2;
   return (
     <g stroke={INK} fill={INK}>
       <ellipse cx={g1} cy={hy} rx={rx} ry={ry} stroke="none" transform={`rotate(${HEAD_ROT} ${g1} ${hy})`} />
       <ellipse cx={g2} cy={hy} rx={rx} ry={ry} stroke="none" transform={`rotate(${HEAD_ROT} ${g2} ${hy})`} />
-      <line x1={sx1} y1={hy - 1.4} x2={sx1} y2={top} strokeWidth={1.05} fill="none" />
-      <line x1={sx2} y1={hy - 1.4} x2={sx2} y2={top} strokeWidth={1.05} fill="none" />
-      <line x1={sx1} y1={top} x2={sx2} y2={top} strokeWidth={1.85} fill="none" />
-      <line x1={sx1} y1={top + 3.15} x2={sx2} y2={top + 3.15} strokeWidth={1.65} fill="none" />
+      <line x1={sx1} y1={hy - 1.3} x2={sx1} y2={top} strokeWidth={1.05} fill="none" />
+      <line x1={sx2} y1={hy - 1.3} x2={sx2} y2={top} strokeWidth={1.05} fill="none" />
+      <Flag x={sx1} y={top} extra scale={0.48} />
+      <Flag x={sx2} y={top} extra scale={0.48} />
       <path
-        d={`M ${g1 - 1} ${hy - 8} C ${g1 + 4} ${top - 8}, ${x - 6} ${top - 6}, ${x - 1} ${y - 8}`}
+        d={`M ${g1 - 1} ${hy - 8} C ${g1 + 5} ${top - 7}, ${x - 6} ${top - 5}, ${x - 1} ${y - 8}`}
         fill="none"
         strokeWidth={1.15}
         strokeLinecap="round"
@@ -206,13 +227,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
           const accY = beamed.has(nt) || nt.roll ? stemTop - (nt.roll ? 11 : 7) : stemTop - 7;
           return (
             <g key={i}>
-              {nt.flam && (
-                <g>
-                  <ellipse cx={x - 13} cy={ny + 2.4} rx={3.15} ry={2.15} fill={INK} stroke="none" transform={`rotate(${HEAD_ROT} ${x - 13} ${ny + 2.4})`} />
-                  <line x1={x - 10.2} y1={ny + 0.6} x2={x - 10.2} y2={ny - 11} strokeWidth={1.05} />
-                  <path d={`M ${x - 10.2} ${ny - 11} C ${x - 4} ${ny - 10}, ${x - 3.2} ${ny - 4.5}, ${x - 7.2} ${ny - 2}`} strokeWidth={1.05} />
-                </g>
-              )}
+              {nt.flam && <FlamGrace x={x} y={ny} />}
               {nt.drag && <DragGrace x={x} y={ny} />}
               <ellipse
                 cx={x}
