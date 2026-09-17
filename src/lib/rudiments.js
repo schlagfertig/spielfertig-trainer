@@ -78,7 +78,7 @@ export const RUDIMENTS = [
   { id: 16, cat: "diddle", label: "16. Single Paradiddle", bars: 1, time: "4/4", notes: [...run(0, "RLRR", 1, [0], { g: 1 }), ...run(4, "LRLL", 1, [0], { g: 2 }), ...run(8, "RLRR", 1, [0], { g: 3 }), ...run(12, "LRLL", 1, [0], { g: 4 })], sticking: dual("RLRRLRLLRLRRLRLL") },
   { id: 17, cat: "diddle", label: "17. Double Paradiddle", bars: 1, time: "3/4", notes: [...run(0, "RLRLRR", 1, [0], { g: 1 }), ...run(6, "LRLRLL", 1, [0], { g: 2 })], sticking: dual("RLRLRRLRLRLL") },
   { id: 18, cat: "diddle", label: "18. Triple Paradiddle", bars: 1, time: "4/4", notes: [...run(0, "RLRLRLRR", 1, [0], { g: 1 }), ...run(8, "LRLRLLRR", 1, [0], { g: 2 })], sticking: dual("RLRLRLRRLRLRLLRR") },
-  { id: 19, cat: "diddle", label: "19. Paradiddle-Diddle", bars: 1, time: "3/4", notes: [...run(0, "RLRRLL", 1, [0], { g: 1 }), ...run(6, "LRLLRR", 1, [0], { g: 2 })], sticking: dual("RLRRLLLRLLRR") },
+  { id: 19, cat: "diddle", label: "19. Paradiddle-Diddle", bars: 1, time: "3/4", notes: [...run(0, "RLRRLL", 1, [0], { g: 1 }), ...run(6, "RLRRLL", 1, [0], { g: 2 })], sticking: dual("RLRRLLRLRRLL") },
   { id: 20, cat: "flam", label: "20. Flam", bars: 1, time: "4/4", notes: [n(0, 4, "R", true, { flam: "L" }), n(4, 4, "L", true, { flam: "R" }), n(8, 4, "R", true, { flam: "L" }), n(12, 4, "L", true, { flam: "R" })], sticking: dual("RLRL") },
   { id: 21, cat: "flam", label: "21. Flam Accent", bars: 1, time: "4/4", notes: [...flamAcc(0, "R"), ...flamAcc(1, "L"), ...flamAcc(2, "R"), ...flamAcc(3, "L")], sticking: dual("RLRLRLRLRLRL") },
   { id: 22, cat: "flam", label: "22. Flam Tap", bars: 1, time: "4/4", notes: [...flamTap(0, 1, 2), ...flamTap(4, 3, 4), ...flamTap(8, 5, 6), ...flamTap(12, 7, 8)], sticking: dual("RRLRLRLLRRLRLRLL") },
