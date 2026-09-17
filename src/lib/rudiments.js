@@ -81,7 +81,7 @@ export const RUDIMENTS = [
   { id: 12, cat: "roll", label: "12. Eleven Stroke Roll", bars: 1, time: "4/4", notes: [...d32(0, "RRLLRRLLRR"), n(5, 2, "L", true), ...d32(8, "LLRRLLRRLL"), n(13, 2, "R", true)] },
   { id: 13, cat: "roll", label: "13. Thirteen Stroke Roll", bars: 1, time: "4/4", notes: [...d32(0, "RRLLRRLLRRLL"), n(6, 2, "R", true), ...d32(8, "LLRRLLRRLLRR"), n(14, 2, "L", true)] },
   { id: 14, cat: "roll", label: "14. Fifteen Stroke Roll", bars: 1, time: "4/4", notes: [...d32(0, "RRLLRRLLRRLLRR"), n(7, 2, "L", true)] },
-  { id: 15, cat: "roll", label: "15. Seventeen Stroke Roll", bars: 2, time: "4/4", notes: [...d32(0, "RRLLRRLLRRLLRRLL"), n(8, 8, "R", true, { roll: 3 })] },
+  { id: 15, cat: "roll", label: "15. Seventeen Stroke Roll", bars: 1, time: "4/4", notes: [...d32(0, "RRLLRRLLRRLLRRLL"), n(8, 8, "R", true)] },
   { id: 16, cat: "diddle", label: "16. Single Paradiddle", bars: 1, time: "4/4", notes: [...run(0, "RLRR", 1, [0], { g: 1 }), ...run(4, "LRLL", 1, [0], { g: 2 }), ...run(8, "RLRR", 1, [0], { g: 3 }), ...run(12, "LRLL", 1, [0], { g: 4 })], sticking: dual("RLRRLRLLRLRRLRLL") },
   { id: 17, cat: "diddle", label: "17. Double Paradiddle", bars: 1, time: "3/4", notes: [...run(0, "RLRLRR", 1, [0], { g: 1 }), ...run(6, "RLRLRR", 1, [0], { g: 2 })], sticking: dual("RLRLRRRLRLRR") },
   { id: 18, cat: "diddle", label: "18. Triple Paradiddle", bars: 1, time: "4/4", notes: [...run(0, "RLRLRLRR", 1, [0], { g: 1 }), ...run(8, "RLRLRLRR", 1, [0], { g: 2 })], sticking: dual("RLRLRLRRRLRLRLRR") },
