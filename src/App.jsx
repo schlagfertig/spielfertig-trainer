@@ -32,7 +32,7 @@ export default function App() {
       <header className="top">
         <button className="ghost" onClick={() => setView("home")}>Zurück</button>
         <div className="top-right">
-          <button className="ghost" onClick={() => setPrintNonce((n) => n + 1)}>Druck</button>
+          <button className="ghost" onClick={() => setPrintNonce((n) => n + 1)}>Drucken</button>
           <button className={handwritten ? "ghost on" : "ghost"} onClick={() => setHandwritten((h) => !h)}>Handschrift</button>
         </div>
       </header>
