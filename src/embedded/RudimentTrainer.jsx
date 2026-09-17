@@ -14,7 +14,7 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
   const [cat, setCat] = useState("diddle");
   const [sel, setSel] = useState(16);
   const [bpm, setBpm] = useState(80);
-  const [hear, setHear] = useState("hands");
+  const [hear, setHear] = useState("click");
   const [countIn, setCountIn] = useState(true);
   const [rampOn, setRampOn] = useState(false);
   const [rampStep, setRampStep] = useState(2);
@@ -184,7 +184,7 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
         </div>
         {more && (
           <div className="more">
-            <label className="check"><input type="checkbox" checked={countIn} onChange={(e) => setCountIn(e.target.checked)} />4 Schläge ein//zählen</label>
+            <label className="check"><input type="checkbox" checked={countIn} onChange={(e) => setCountIn(e.target.checked)} />4 Schläge einzählen</label>
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
               <span style={{ fontSize: 12, color: DIM }}>Hören</span>
               <div className="seg">
