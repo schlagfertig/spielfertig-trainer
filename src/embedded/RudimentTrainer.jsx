@@ -22,6 +22,7 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
   const [playing, setPlaying] = useState(false);
   const [playT, setPlayT] = useState(-1);
   const [beat, setBeat] = useState(false);
+  const [more, setMore] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
   const [picked, setPicked] = useState([16]);
   const [perPage, setPerPage] = useState(6);
@@ -86,8 +87,8 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
       }
       return notes.map((nt) => ({ t: nt.t, kind: "stick", nt }));
     };
-    let list = events();
-    if (!list.length) list = [{ t: 0, kind: "click", down: true }];
+    let listEv = events();
+    if (!listEv.length) listEv = [{ t: 0, kind: "click", down: true }];
     let evIndex = 0;
     let cycleStart = ctx.currentTime + 0.02;
     if (countIn) {
@@ -102,7 +103,7 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
       if (cancelled) return;
       const horizon = ctx.currentTime + 0.16;
       while (!cancelled) {
-        const ev = list[evIndex];
+        const ev = listEv[evIndex];
         const when = cycleStart + ev.t * stepSec();
         if (when >= horizon) break;
         if (when >= ctx.currentTime - 0.02) {
@@ -113,10 +114,10 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
           if (ev.kind === "click" || Math.abs((ev.t || 0) % 4) < 0.08) pulse(when, ctx);
         }
         evIndex += 1;
-        if (evIndex >= list.length) {
+        if (evIndex >= listEv.length) {
           evIndex = 0;
           cycleStart += steps * stepSec();
-          list = events();
+          listEv = events();
           if (rampRef.current) setBpm((p) => Math.min(rampCapRef.current, 260, p + rampStepRef.current));
         }
       }
@@ -157,60 +158,51 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
 
   return (
     <div>
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+      <div className="tabs">
         {CATS.map((c) => (
-          <button key={c.id} className={cat === c.id ? "chip on" : "chip"} onClick={() => pickCat(c.id)}>{c.label} ({RUDIMENTS.filter((r) => r.cat === c.id).length})</button>
+          <button key={c.id} className={cat === c.id ? "chip on" : "chip"} onClick={() => pickCat(c.id)}>{c.label}</button>
         ))}
       </div>
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+      <div className="chip-row">
         {list.map((r) => (
-          <button key={r.id} className={sel === r.id ? "chip on" : "chip"} onClick={() => pickRud(r.id)}>{r.label}</button>
+          <button key={r.id} className={sel === r.id ? "chip on" : "chip"} onClick={() => pickRud(r.id)}>{r.label.replace(/^\d+\.\s*/, "")}</button>
         ))}
       </div>
-      <div className="staff-card">
+      <div className={handwritten ? "staff-card hand" : "staff-card"}>
         <div className="staff-label">{rud.label}</div>
         <RudimentStaff rud={rud} handwritten={handwritten} playingT={playT} svgId="rud-live" />
-        <div style={{ display: "flex", gap: 16, marginTop: 8, fontSize: 11 }}>
-          <span style={{ color: "#5c8ee0", fontWeight: 700 }}>R = rechts</span>
-          <span style={{ color: "#e05c5c", fontWeight: 700 }}>L = links</span>
-          <span style={{ color: DIM }}>&gt; = Akzent</span>
-        </div>
+        <div className="staff-hint">R blau · L rot · Kreis unten startet den Click</div>
       </div>
       <div className="panel dock">
-        <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-          <MetronomeDial bpm={bpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={104} now />
-          <div style={{ flex: 1, minWidth: 220 }}>
-            <TempoControl bpm={bpm} setBpm={setBpm} min={30} max={260} />
-            <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-              <label className="check"><input type="checkbox" checked={countIn} onChange={(e) => setCountIn(e.target.checked)} />Einzählen</label>
-            </div>
-          </div>
-        </div>
-        <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 12, color: DIM }}>Hören</span>
-          <div className="seg">
-            <button className={hear === "hands" ? "on" : ""} onClick={() => setHear("hands")}>L / R</button>
-            <button className={hear === "click" ? "on" : ""} onClick={() => setHear("click")}>Nur Click</button>
-          </div>
-          <span style={{ fontSize: 11, color: DIM }}>{hear === "hands" ? "Rechts höher, links tiefer" : "Setlist-Click — Du spielst die Noten"}</span>
-        </div>
-        <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-          <label className="check"><input type="checkbox" checked={rampOn} onChange={(e) => setRampOn(e.target.checked)} />Tempo-Trainer</label>
-          {rampOn && (
-            <span style={{ fontSize: 12, color: DIM }}>
-              +
-              <input type="number" min={1} max={12} value={rampStep} onChange={(e) => setRampStep(Math.max(1, Math.min(12, Number(e.target.value) || 1)))} style={{ width: 46, margin: "0 6px", background: INK, border: "1px solid " + LINE, color: "#fff", borderRadius: 5, padding: "3px 5px" }} />
-              BPM je Durchlauf · Ziel
-              <input type="number" min={40} max={260} value={rampCap} onChange={(e) => setRampCap(Math.max(40, Math.min(260, Number(e.target.value) || 160)))} style={{ width: 56, margin: "0 6px", background: INK, border: "1px solid " + LINE, color: "#fff", borderRadius: 5, padding: "3px 5px" }} />
-              BPM
-            </span>
-          )}
-        </div>
-        <div style={{ marginTop: 14, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+        <div className="dock-main">
+          <MetronomeDial bpm={bpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={96} now />
           <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : startLoop())}>{playing ? "Stop" : "Play"}</button>
-          <button className="ghost" onClick={() => setPrintOpen(true)}>Drucken</button>
-          {rampOn ? <span style={{ fontSize: 11, color: DIM }}>{bpm} → {rampCap} BPM</span> : null}
+          <button className={more ? "more-btn on" : "more-btn"} onClick={() => setMore((v) => !v)}>{more ? "Weniger" : "Optionen"}</button>
         </div>
+        <div className="dock-tempo">
+          <TempoControl bpm={bpm} setBpm={setBpm} min={30} max={260} />
+        </div>
+        {more && (
+          <div className="more">
+            <label className="check"><input type="checkbox" checked={countIn} onChange={(e) => setCountIn(e.target.checked)} />4 Schläge ein//zählen</label>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 12, color: DIM }}>Hören</span>
+              <div className="seg">
+                <button className={hear === "hands" ? "on" : ""} onClick={() => setHear("hands")}>L / R</button>
+                <button className={hear === "click" ? "on" : ""} onClick={() => setHear("click")}>Nur Click</button>
+              </div>
+            </div>
+            <label className="check"><input type="checkbox" checked={rampOn} onChange={(e) => setRampOn(e.target.checked)} />Tempo steigern</label>
+            {rampOn && (
+              <span style={{ fontSize: 12, color: DIM }}>
+                +
+                <input type="number" min={1} max={12} value={rampStep} onChange={(e) => setRampStep(Math.max(1, Math.min(12, Number(e.target.value) || 1)))} style={{ width: 46, margin: "0 6px", background: INK, border: "1px solid " + LINE, color: "#fff", borderRadius: 5, padding: "3px 5px" }} />
+                BPM je Durchlauf · bis
+                <input type="number" min={40} max={260} value={rampCap} onChange={(e) => setRampCap(Math.max(40, Math.min(260, Number(e.target.value) || 160)))} style={{ width: 56, margin: "0 6px", background: INK, border: "1px solid " + LINE, color: "#fff", borderRadius: 5, padding: "3px 5px" }} />
+              </span>
+            )}
+          </div>
+        )}
       </div>
       {printOpen && (
         <div className="modal" onClick={() => setPrintOpen(false)}>

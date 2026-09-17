@@ -18,7 +18,7 @@ export default function App() {
           <button className="card" onClick={() => setView("rudiments")}>
             <div className="card-kicker">Üben</div>
             <div className="card-title">Rudiments</div>
-            <div className="card-lead">Sticking, Akzente, Tempo — zum Üben bereit.</div>
+            <div className="card-lead">40 PAS-Rudiments. Notation, Click, Tempo.</div>
             <div className="card-go">Öffnen</div>
           </button>
         </div>
@@ -31,18 +31,12 @@ export default function App() {
     <div className="page tool">
       <header className="top">
         <button className="ghost" onClick={() => setView("home")}>Zurück</button>
+        <div className="top-title">Rudiments</div>
         <div className="top-right">
-          <button className="ghost" onClick={() => setPrintNonce((n) => n + 1)}>Drucken</button>
           <button className={handwritten ? "ghost on" : "ghost"} onClick={() => setHandwritten((h) => !h)}>Handschrift</button>
+          <button className="ghost" onClick={() => setPrintNonce((n) => n + 1)}>Drucken</button>
         </div>
       </header>
-      <div className="brand-row">
-        <img className="logo small" src="/logo.svg" alt="" />
-        <div>
-          <div className="brand-title">Spielfertig</div>
-          <div className="tag slim">schlagfertig‽ · Zeit für guten Sound</div>
-        </div>
-      </div>
       <main className="main">
         <RudimentTrainer handwritten={handwritten} printNonce={printNonce} />
       </main>
