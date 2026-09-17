@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { CATS, RUDIMENTS, rudimentDuration } from "../lib/rudiments.js";
 import { RudimentStaff } from "../lib/staff.jsx";
 import { TempoControl } from "../lib/tempo.jsx";
+import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, playStick, unlockAudio } from "../lib/audio.js";
 import { deliverPng, printElement, tilesToPng } from "../lib/print.js";
 
@@ -20,6 +21,7 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
   const [rampCap, setRampCap] = useState(160);
   const [playing, setPlaying] = useState(false);
   const [playT, setPlayT] = useState(-1);
+  const [beat, setBeat] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
   const [picked, setPicked] = useState([16]);
   const [perPage, setPerPage] = useState(6);
@@ -46,6 +48,7 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
     stopRef.current = null;
     setPlaying(false);
     setPlayT(-1);
+    setBeat(false);
   }
 
   function pickCat(id) {
@@ -58,6 +61,14 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
   function pickRud(id) {
     if (id !== sel) stop();
     setSel(id);
+  }
+
+  function pulse(when, ctx) {
+    const delay = Math.max(0, (when - ctx.currentTime) * 1000);
+    window.setTimeout(() => {
+      setBeat(true);
+      window.setTimeout(() => setBeat(false), 80);
+    }, delay);
   }
 
   function startLoop() {
@@ -80,9 +91,12 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
     let evIndex = 0;
     let cycleStart = ctx.currentTime + 0.02;
     if (countIn) {
-      const beat = 60 / Math.max(30, bpmRef.current);
-      for (let i = 0; i < 4; i++) playClick(ctx, cycleStart + i * beat, i === 0);
-      cycleStart += 4 * beat;
+      const beatSec = 60 / Math.max(30, bpmRef.current);
+      for (let i = 0; i < 4; i++) {
+        playClick(ctx, cycleStart + i * beatSec, i === 0);
+        pulse(cycleStart + i * beatSec, ctx);
+      }
+      cycleStart += 4 * beatSec;
     }
     const schedule = () => {
       if (cancelled) return;
@@ -96,6 +110,7 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
           else playStick(ctx, ev.nt.hand, when, ev.nt.acc);
           const delay = Math.max(0, (when - ctx.currentTime) * 1000);
           window.setTimeout(() => { if (!cancelled) setPlayT(ev.t); }, delay);
+          if (ev.kind === "click" || Math.abs((ev.t || 0) % 4) < 0.08) pulse(when, ctx);
         }
         evIndex += 1;
         if (evIndex >= list.length) {
@@ -162,9 +177,14 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
         </div>
       </div>
       <div className="panel dock">
-        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-          <TempoControl bpm={bpm} setBpm={setBpm} min={30} max={260} />
-          <label className="check"><input type="checkbox" checked={countIn} onChange={(e) => setCountIn(e.target.checked)} />Einzählen</label>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+          <MetronomeDial bpm={bpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={104} now />
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <TempoControl bpm={bpm} setBpm={setBpm} min={30} max={260} />
+            <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <label className="check"><input type="checkbox" checked={countIn} onChange={(e) => setCountIn(e.target.checked)} />Einzählen</label>
+            </div>
+          </div>
         </div>
         <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <span style={{ fontSize: 12, color: DIM }}>Hören</span>
