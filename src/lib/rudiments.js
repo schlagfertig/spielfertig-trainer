@@ -42,6 +42,18 @@ const ss4 = (start, g) => [
   n(start + 2, 1, "R", false, { tuplet: 3, g, beams: 2 }),
   n(start + 3, 1, "L", false, { tuplet: 3, g, beams: 1 }),
 ];
+const sixStroke = (start, g, lead = "R") => {
+  const a = lead;
+  const b = lead === "R" ? "L" : "R";
+  return [
+    n(start, 2, a, true, { g, beams: 1 }),
+    n(start + 2, 1, b, false, { g, beams: 2 }),
+    n(start + 3, 1, b, false, { g, beams: 2 }),
+    n(start + 4, 1, a, false, { g, beams: 2 }),
+    n(start + 5, 1, a, false, { g, beams: 2 }),
+    n(start + 6, 2, b, true, { g, beams: 1 }),
+  ];
+};
 
 export const CATS = [
   { id: "roll", label: "Roll" },
@@ -52,13 +64,13 @@ export const CATS = [
 
 export const RUDIMENTS = [
   { id: 1, cat: "roll", label: "1. Single Stroke Roll", bars: 1, time: "2/4", notes: [...d32(0, "RLRLRLRL"), ...d32(4, "RLRLRLRL")], sticking: dual("RLRLRLRLRLRLRLRL") },
-  { id: 2, cat: "roll", label: "2. Single Stroke Four", bars: 1, time: "2/4", notes: [...ss4(0, 1), ...ss4(4, 2)], sticking: dual("RLRLRLRL") },
+  { id: 2, cat: "roll", label: "2. Single Stroke Four", bars: 1, time: "4/4", notes: [...ss4(0, 1), ...ss4(8, 2)], sticking: dual("RLRLRLRL") },
   { id: 3, cat: "roll", label: "3. Single Stroke Seven", bars: 1, time: "2/4", notes: [...six(0, "RLRLRL", [], { g: 1 }), n(4, 2, "R", true)], sticking: dual("RLRLRLR") },
   { id: 4, cat: "roll", label: "4. Multiple Bounce Roll", bars: 1, time: "4/4", notes: [n(0, 8, "R", true, { roll: 3 }), n(8, 8, "L", true, { roll: 3 })], sticking: dual("RL") },
   { id: 5, cat: "roll", label: "5. Triple Stroke Roll", bars: 1, time: "4/4", notes: [...trip(0, "RRR", [0]), ...trip(1, "LLL", [0]), ...trip(2, "RRR", [0]), ...trip(3, "LLL", [0])], sticking: dual("RRRLLLRRRLLL") },
   { id: 6, cat: "roll", label: "6. Double Stroke Open Roll", bars: 1, time: "4/4", notes: run(0, "RRLLRRLLRRLLRRLL"), sticking: dual("RRLLRRLLRRLLRRLL") },
   { id: 7, cat: "roll", label: "7. Five Stroke Roll", bars: 1, time: "2/4", notes: [...d32(0, "RRLL"), n(2, 2, "R", true), ...d32(4, "LLRR"), n(6, 2, "L", true)] },
-  { id: 8, cat: "roll", label: "8. Six Stroke Roll", bars: 1, time: "4/4", notes: [rest(0, 1), ...run(1, "LLRRL", 1, [4]), n(6, 2, "R", true), rest(8, 1), ...run(9, "LLRRL", 1, [4]), n(14, 2, "R", true)] },
+  { id: 8, cat: "roll", label: "8. Six Stroke Roll", bars: 1, time: "4/4", notes: [...sixStroke(0, 1, "R"), ...sixStroke(8, 2, "L")], sticking: dual("RLLRRLRLRRLL") },
   { id: 9, cat: "roll", label: "9. Seven Stroke Roll", bars: 1, time: "4/4", notes: [rest(0, 1), ...d32(1, "LLRRLL"), n(4, 2, "R", true), rest(8, 1), ...d32(9, "RRLLRR"), n(12, 2, "L", true)] },
   { id: 10, cat: "roll", label: "10. Nine Stroke Roll", bars: 1, time: "4/4", notes: [...d32(0, "RRLLRRLL"), n(4, 2, "R", true), ...d32(8, "LLRRLLRR"), n(12, 2, "L", true)] },
   { id: 11, cat: "roll", label: "11. Ten Stroke Roll", bars: 1, time: "4/4", notes: [...d32(0, "RRLLRRLLR"), n(4.5, 2, "L", true), ...d32(8, "LLRRLLRRL"), n(12.5, 2, "R", true)] },
