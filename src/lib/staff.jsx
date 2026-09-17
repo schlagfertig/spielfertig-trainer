@@ -231,8 +231,8 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const quarterW = ornamented ? 152 : minDur <= 0.5 ? 144 : 140;
   const stepW = quarterW / 4;
   const x0 = 72;
-  const compact = sounded.length <= 2 && minDur >= 8;
-  const w = compact ? x0 + 140 : x0 + steps * stepW + 28;
+  const soloWhole = sounded.length === 1 && !!(sounded[0].whole || sounded[0].dur >= 8 && sounded[0].roll);
+  const w = x0 + Math.max(steps * stepW, soloWhole ? 240 : 0) + 28;
   const y = 60;
   const lineGap = 8;
   const ny = y - lineGap / 2;
@@ -258,6 +258,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
     if (i + 1 < sounded.length) return x0 + sounded[i + 1].t * stepW;
     return x0 + sounded[i].t * stepW + stepW * 2;
   };
+  const noteX = (nt) => (soloWhole ? x0 + (Math.max(steps * stepW, 240) / 2) : x0 + nt.t * stepW);
 
   return (
     <svg id={svgId} viewBox={`0 0 ${w} ${viewH}`} width="100%" role="img" aria-label={rud.label}>
@@ -273,7 +274,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
         })}
         <PercClef x={28} y={y} />
         {notes.map((nt, i) => {
-          const x = compact ? x0 + 36 : x0 + nt.t * stepW;
+          const x = noteX(nt);
           if (nt.rest) return <g key={i}><Rest x={x} y={ny} dur={nt.dur} /></g>;
           const on = near(playingT, nt.t);
           const sx = stemX(x);
@@ -281,7 +282,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
           const whole = nt.whole || nt.dur >= 16;
           const accY = beamed.has(nt) || nt.roll ? stemTop - (nt.roll ? 11 : 7) : stemTop - 7;
           const next = notes.slice(i + 1).find((n) => !n.rest);
-          const x2 = next ? (compact ? x0 + 36 : x0 + next.t * stepW) : x;
+          const x2 = next ? noteX(next) : x;
           return (
             <g key={i}>
               {nt.flam && <FlamGrace x={x} y={ny} />}
@@ -289,17 +290,17 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
               <ellipse
                 cx={x}
                 cy={ny}
-                rx={HEAD_RX}
-                ry={HEAD_RY}
-                fill={ink}
+                rx={whole ? 6.2 : HEAD_RX}
+                ry={whole ? 4.1 : HEAD_RY}
+                fill={whole ? "none" : ink}
                 stroke={ink}
-                strokeWidth={0.35}
+                strokeWidth={whole ? 1.7 : 0.35}
                 transform={`rotate(${HEAD_ROT} ${x} ${ny})`}
               />
               {(nt.dur === 3 || nt.dur === 6 || nt.dot) && <circle cx={x + 8.6} cy={ny + 0.6} r={1.45} fill={INK} stroke="none" />}
               {!whole && <line x1={sx} y1={ny - 2.15} x2={sx} y2={stemTop} stroke={ink} strokeWidth={1.35} />}
-              {nt.roll ? <Tremolo sx={whole ? x : sx} y0={whole ? ny - 22 : ny - 6} y1={whole ? ny - 8 : stemTop + 2} count={nt.roll} /> : null}
-              {nt.acc && <Accent x={x + 1} y={whole ? ny - 28 : accY} />}
+              {nt.roll ? <Tremolo sx={whole ? x : sx} y0={whole ? ny - 24 : ny - 6} y1={whole ? ny - 10 : stemTop + 2} count={nt.roll} /> : null}
+              {nt.acc && <Accent x={x + 1} y={whole ? ny - 30 : accY} />}
               {!whole && !beamed.has(nt) && !nt.roll && beamsFor(nt) >= 1 && <Flag x={sx} y={stemTop} extra={beamsFor(nt) >= 2} />}
               {nt.tie && next && (
                 <path
@@ -314,7 +315,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
           );
         })}
         {sounded.map((nt, i) => {
-          const x = compact ? x0 + 36 : x0 + nt.t * stepW;
+          const x = noteX(nt);
           const top = tokenAt(primary, i, nt);
           const bot = secondary ? tokenAt(secondary, i, nt) : null;
           const flamTop = nt.flam ? String(nt.flam) : null;
