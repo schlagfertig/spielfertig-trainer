@@ -52,7 +52,7 @@ export const CATS = [
 
 export const RUDIMENTS = [
   { id: 1, cat: "roll", label: "1. Single Stroke Roll", bars: 1, time: "2/4", notes: [...d32(0, "RLRLRLRL"), ...d32(4, "RLRLRLRL")], sticking: dual("RLRLRLRLRLRLRLRL") },
-  { id: 2, cat: "roll", label: "2. Single Stroke Four", bars: 1, time: "2/4", notes: [...ss4(0, 1), ...ss4(8, 2)], sticking: dual("RLRLRLRL") },
+  { id: 2, cat: "roll", label: "2. Single Stroke Four", bars: 1, time: "4/4", notes: [...ss4(0, 1), ...ss4(8, 2)], sticking: dual("RLRLRLRL") },
   { id: 3, cat: "roll", label: "3. Single Stroke Seven", bars: 1, time: "4/4", notes: [...six(0, "RLRLRL", [], { g: 1 }), n(4, 2, "R", true, { g: 1 }), ...six(2, "RLRLRL", [], { g: 2 }), n(12, 2, "R", true, { g: 2 })], sticking: dual("RLRLRLRRLRLRLR") },
   { id: 4, cat: "roll", label: "4. Multiple Bounce Roll", bars: 1, time: "4/4", notes: [n(0, 8, "R", true, { roll: 3 }), n(8, 8, "L", true, { roll: 3 })], sticking: dual("RL") },
   { id: 5, cat: "roll", label: "5. Triple Stroke Roll", bars: 1, time: "4/4", notes: [...trip(0, "RRR", [0]), ...trip(1, "LLL", [0]), ...trip(2, "RRR", [0]), ...trip(3, "LLL", [0])], sticking: dual("RRRLLLRRRLLL") },
@@ -72,7 +72,7 @@ export const RUDIMENTS = [
   { id: 19, cat: "diddle", label: "19. Paradiddle-Diddle", bars: 1, time: "4/4", notes: [...run(0, "RLRRLL", 1, [0], { g: 1 }), ...run(6, "RLRRLL", 1, [0], { g: 2 })], sticking: dual("RLRRLLRLRRLL") },
   { id: 20, cat: "flam", label: "20. Flam", bars: 1, time: "4/4", notes: [n(0, 4, "R", true, { flam: "L" }), n(4, 4, "L", true, { flam: "R" }), n(8, 4, "R", true, { flam: "L" }), n(12, 4, "L", true, { flam: "R" })], sticking: dual("RLRL") },
   { id: 21, cat: "flam", label: "21. Flam Accent", bars: 1, time: "4/4", notes: [...flamAcc(0, "R"), ...flamAcc(1, "L"), ...flamAcc(2, "R"), ...flamAcc(3, "L")], sticking: dual("RLRLRLRLRLRL") },
-  { id: 22, cat: "flam", label: "22. Flam Tap", bars: 1, time: "4/4", notes: [...flamTap(0), ...flamTap(4), ...flamTap(8), ...flamTap(12)], sticking: dual("RRLRLRLRRRLRLRLR".slice(0, 16)) },
+  { id: 22, cat: "flam", label: "22. Flam Tap", bars: 1, time: "4/4", notes: [...flamTap(0), ...flamTap(4), ...flamTap(8), ...flamTap(12)], sticking: dual("RRLRLRLRRRLRLR") },
   { id: 23, cat: "flam", label: "23. Flamacue", bars: 1, time: "4/4", notes: [n(0, 1, "R", false, { flam: "L" }), n(1, 1, "L", true), n(2, 1, "R"), n(3, 1, "L"), n(4, 4, "R", true, { flam: "L" }), n(8, 1, "L", false, { flam: "R" }), n(9, 1, "R", true), n(10, 1, "L"), n(11, 1, "R"), n(12, 4, "L", true, { flam: "R" })] },
   { id: 24, cat: "flam", label: "24. Flam Paradiddle", bars: 1, time: "4/4", notes: [n(0, 1, "R", true, { flam: "L" }), n(1, 1, "L"), n(2, 1, "R"), n(3, 1, "R"), n(4, 1, "L", true, { flam: "R" }), n(5, 1, "R"), n(6, 1, "L"), n(7, 1, "L"), n(8, 1, "R", true, { flam: "L" }), n(9, 1, "L"), n(10, 1, "R"), n(11, 1, "R"), n(12, 1, "L", true, { flam: "R" }), n(13, 1, "R"), n(14, 1, "L"), n(15, 1, "L")], sticking: dual("RLRRLRLLRLRRLRLL") },
   { id: 25, cat: "flam", label: "25. Single Flammed Mill", bars: 1, time: "4/4", notes: [n(0, 1, "R", true, { flam: "L" }), n(1, 1, "R"), n(2, 1, "L"), n(3, 1, "R"), n(4, 1, "L", true, { flam: "R" }), n(5, 1, "L"), n(6, 1, "R"), n(7, 1, "L"), n(8, 1, "R", true, { flam: "L" }), n(9, 1, "R"), n(10, 1, "L"), n(11, 1, "R"), n(12, 1, "L", true, { flam: "R" }), n(13, 1, "L"), n(14, 1, "R"), n(15, 1, "L")], sticking: dual("RRLRLRLLRRLRLRLL") },
