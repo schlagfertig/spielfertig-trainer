@@ -104,6 +104,26 @@ function Tremolo({ sx, y0, y1, count }) {
   );
 }
 
+function WholeHead({ x, y, ink }) {
+  return (
+    <path
+      fill={ink}
+      fillRule="evenodd"
+      stroke="none"
+      d={`M ${x - 7.6} ${y}
+        C ${x - 7.6} ${y - 4.7}, ${x - 4.3} ${y - 4.55}, ${x} ${y - 4.55}
+        C ${x + 4.3} ${y - 4.55}, ${x + 7.6} ${y - 4.7}, ${x + 7.6} ${y}
+        C ${x + 7.6} ${y + 4.7}, ${x + 4.3} ${y + 4.55}, ${x} ${y + 4.55}
+        C ${x - 4.3} ${y + 4.55}, ${x - 7.6} ${y + 4.7}, ${x - 7.6} ${y} Z
+        M ${x - 4.05} ${y}
+        C ${x - 4.05} ${y - 3.8}, ${x - 2.35} ${y - 3.7}, ${x} ${y - 3.7}
+        C ${x + 2.35} ${y - 3.7}, ${x + 4.05} ${y - 3.8}, ${x + 4.05} ${y}
+        C ${x + 4.05} ${y + 3.8}, ${x + 2.35} ${y + 3.7}, ${x} ${y + 3.7}
+        C ${x - 2.35} ${y + 3.7}, ${x - 4.05} ${y + 3.8}, ${x - 4.05} ${y} Z`}
+    />
+  );
+}
+
 function Accent({ x, y }) {
   return <path d={`M ${x - 5.6} ${y} L ${x + 5.6} ${y} L ${x} ${y + 3.9} Z`} fill={INK} stroke="none" />;
 }
@@ -231,7 +251,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const quarterW = ornamented ? 152 : minDur <= 0.5 ? 144 : 140;
   const stepW = quarterW / 4;
   const x0 = 72;
-  const soloWhole = sounded.length === 1 && !!(sounded[0].whole || sounded[0].dur >= 8 && sounded[0].roll);
+  const soloWhole = sounded.length === 1 && !!(sounded[0].whole || (sounded[0].dur >= 8 && sounded[0].roll));
   const w = x0 + Math.max(steps * stepW, soloWhole ? 240 : 0) + 28;
   const y = 60;
   const lineGap = 8;
@@ -287,16 +307,20 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
             <g key={i}>
               {nt.flam && <FlamGrace x={x} y={ny} />}
               {nt.drag && <DragGrace x={x} y={ny} />}
-              <ellipse
-                cx={x}
-                cy={ny}
-                rx={whole ? 6.2 : HEAD_RX}
-                ry={whole ? 4.1 : HEAD_RY}
-                fill={whole ? "none" : ink}
-                stroke={ink}
-                strokeWidth={whole ? 1.7 : 0.35}
-                transform={`rotate(${HEAD_ROT} ${x} ${ny})`}
-              />
+              {whole ? (
+                <WholeHead x={x} y={ny} ink={ink} />
+              ) : (
+                <ellipse
+                  cx={x}
+                  cy={ny}
+                  rx={HEAD_RX}
+                  ry={HEAD_RY}
+                  fill={ink}
+                  stroke={ink}
+                  strokeWidth={0.35}
+                  transform={`rotate(${HEAD_ROT} ${x} ${ny})`}
+                />
+              )}
               {(nt.dur === 3 || nt.dur === 6 || nt.dot) && <circle cx={x + 8.6} cy={ny + 0.6} r={1.45} fill={INK} stroke="none" />}
               {!whole && <line x1={sx} y1={ny - 2.15} x2={sx} y2={stemTop} stroke={ink} strokeWidth={1.35} />}
               {nt.roll ? <Tremolo sx={whole ? x : sx} y0={whole ? ny - 24 : ny - 6} y1={whole ? ny - 10 : stemTop + 2} count={nt.roll} /> : null}
