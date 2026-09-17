@@ -203,7 +203,8 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const minDur = sounded.reduce((m, nt) => Math.min(m, nt.dur || 1), 4);
   const steps = stepsFromTime(rud.time, rud.bars || 1);
   const ornamented = notes.some((nt) => nt.flam || nt.drag);
-  const stepW = minDur <= 0.5 ? 28 : ornamented ? 32 : 25;
+  const quarterW = ornamented ? 152 : minDur <= 0.5 ? 144 : 140;
+  const stepW = quarterW / 4;
   const x0 = 108;
   const w = x0 + steps * stepW + 28;
   const y = 60;
