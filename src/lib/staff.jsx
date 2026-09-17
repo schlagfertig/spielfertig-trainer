@@ -147,24 +147,24 @@ function SlimFlag({ x, y, extra }) {
 }
 
 function FlamGrace({ x, y }) {
-  const hx = x - 16.8;
-  const hy = y + 2.6;
-  const sx = hx + 2.35;
-  const top = hy - 16.5;
+  const hx = x - 11.2;
+  const hy = y + 2.4;
+  const sx = hx + 2.3;
+  const top = hy - 15.5;
   return (
     <g stroke={INK} fill={INK}>
-      <ellipse cx={hx} cy={hy} rx={2.85} ry={1.95} stroke="none" transform={`rotate(${HEAD_ROT} ${hx} ${hy})`} />
-      <line x1={sx} y1={hy - 1.15} x2={sx} y2={top} strokeWidth={0.95} fill="none" />
+      <ellipse cx={hx} cy={hy} rx={2.7} ry={1.85} stroke="none" transform={`rotate(${HEAD_ROT} ${hx} ${hy})`} />
+      <line x1={sx} y1={hy - 1.1} x2={sx} y2={top} strokeWidth={0.95} fill="none" />
       <SlimFlag x={sx} y={top} />
-      <line x1={sx - 4.6} y1={top + 9.2} x2={sx + 6.4} y2={top + 1.6} strokeWidth={1.15} fill="none" strokeLinecap="round" />
+      <line x1={sx - 4.2} y1={top + 8.6} x2={sx + 5.8} y2={top + 1.4} strokeWidth={1.1} fill="none" strokeLinecap="round" />
     </g>
   );
 }
 
 function DragGrace({ x, y }) {
   const hy = y + 1.8;
-  const g1 = x - 23.2;
-  const g2 = x - 14.6;
+  const g1 = x - 20.4;
+  const g2 = x - 12.6;
   const rx = 2.7;
   const ry = 1.85;
   const sx1 = g1 + 2.4;
@@ -202,7 +202,8 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const sounded = notes.filter((nt) => !nt.rest);
   const minDur = sounded.reduce((m, nt) => Math.min(m, nt.dur || 1), 4);
   const steps = stepsFromTime(rud.time, rud.bars || 1);
-  const stepW = minDur <= 0.5 ? 26 : 24;
+  const ornamented = notes.some((nt) => nt.flam || nt.drag);
+  const stepW = minDur <= 0.5 ? 28 : ornamented ? 32 : 25;
   const x0 = 108;
   const w = x0 + steps * stepW + 28;
   const y = 60;
