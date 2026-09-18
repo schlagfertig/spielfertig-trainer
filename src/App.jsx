@@ -2,6 +2,7 @@ import { useState } from "react";
 import RudimentTrainer from "./embedded/RudimentTrainer.jsx";
 import ClickTrainer from "./embedded/ClickTrainer.jsx";
 import { Help } from "./lib/Help.jsx";
+import { LOGO_SRC } from "./logoSrc.js";
 
 export default function App() {
   const [view, setView] = useState("home");
@@ -13,7 +14,7 @@ export default function App() {
       <div className="page home">
         <div className="home-help"><Help topic="home" /></div>
         <header className="hero">
-          <img className="logo" src="/logo.svg" alt="schlagfertig‽" />
+          <img className="logo" src={LOGO_SRC} alt="schlagfertig‽" />
           <h1>Spielfertig</h1>
           <p className="tag">schlagfertig‽ · Zeit für guten Sound</p>
         </header>
