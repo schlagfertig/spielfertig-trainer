@@ -5,7 +5,6 @@ import { Help } from "./lib/Help.jsx";
 
 export default function App() {
   const [view, setView] = useState("home");
-  const [handwritten, setHandwritten] = useState(false);
   const [printNonce, setPrintNonce] = useState(0);
 
   if (view === "home") {
@@ -44,10 +43,7 @@ export default function App() {
         <div className="top-title">{click ? "Click-Trainer" : "Rudiments"}</div>
         <div className="top-right">
           {!click && (
-            <>
-              <button className={handwritten ? "ghost on" : "ghost"} onClick={() => setHandwritten((h) => !h)}>Handschrift</button>
-              <button className="ghost" onClick={() => setPrintNonce((n) => n + 1)}>Drucken</button>
-            </>
+            <button className="ghost" onClick={() => setPrintNonce((n) => n + 1)}>Drucken</button>
           )}
           <Help topic={click ? "click" : "rudiments"} />
         </div>
@@ -55,7 +51,7 @@ export default function App() {
       <main className="main">
         {click
           ? <ClickTrainer />
-          : <RudimentTrainer handwritten={handwritten} printNonce={printNonce} />}
+          : <RudimentTrainer printNonce={printNonce} />}
       </main>
     </div>
   );

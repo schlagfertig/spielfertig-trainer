@@ -11,7 +11,7 @@ const COPY = {
     ["Kreis", "Tipp = Start/Stop. Im Uhrzeigersinn schneller, zurück langsamer."],
     ["−5 / +5", "Grobe Sprünge. Das Feld daneben ist das genaue BPM."],
     ["Optionen", "Einzählen, Nur Click oder L/R, Tempo je Durchlauf anheben."],
-    ["Handschrift", "Wechselt das Notenpapier. Drucken legt ein DIN-A4-Blatt."],
+    ["Drucken", "Legt ein DIN-A4-Blatt mit den gewählten Rudiments."],
   ],
   click: [
     ["Kreis", "Tipp = Start/Stop. Drehen stellt das Tempo in 1-BPM-Schritten."],
