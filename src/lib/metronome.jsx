@@ -1,26 +1,94 @@
+import { useRef } from "react";
+
 const TEAL = "#5cc8b8";
 const TEAL_GLOW = "rgba(92,200,184,0.45)";
+const RAD_PER_BPM = (10 * Math.PI) / 180;
 
-export function MetronomeDial({ bpm, beat, active, onToggle, size = 112, now = true }) {
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, Math.round(n)));
+}
+
+function angleOf(el, ev) {
+  const r = el.getBoundingClientRect();
+  return Math.atan2(ev.clientY - (r.top + r.height / 2), ev.clientX - (r.left + r.width / 2));
+}
+
+function wrap(d) {
+  if (d > Math.PI) return d - Math.PI * 2;
+  if (d < -Math.PI) return d + Math.PI * 2;
+  return d;
+}
+
+export function MetronomeDial({
+  bpm,
+  setBpm,
+  min = 30,
+  max = 260,
+  beat,
+  active,
+  onToggle,
+  size = 112,
+  now = true,
+}) {
   const paint = TEAL;
   const large = size >= 72;
   const fill = now
     ? (beat ? "#fff" : paint)
     : (beat ? "rgba(92,200,184,0.32)" : active ? "rgba(92,200,184,0.12)" : "transparent");
-  const ring = now
-    ? (beat ? "#fff" : paint)
-    : (beat ? "#fff" : active ? TEAL : "#2a2a2a");
-  const num = now
-    ? (beat ? paint : "#000")
-    : (beat ? "#fff" : active ? TEAL : "#8a969c");
+  const ring = now ? (beat ? "#fff" : paint) : (beat ? "#fff" : active ? TEAL : "#2a2a2a");
+  const num = now ? (beat ? paint : "#000") : (beat ? "#fff" : active ? TEAL : "#8a969c");
   const labelCol = now ? (beat ? paint : "#000") : (active || beat ? TEAL : "#8a969c");
   const bpmSize = Math.max(12, Math.round(size * (large ? 0.36 : 0.34)));
   const labelSize = Math.max(8, Math.round(size * 0.11));
+  const drag = useRef(null);
+
+  function onPointerDown(e) {
+    if (!setBpm) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    drag.current = {
+      last: angleOf(e.currentTarget, e),
+      acc: 0,
+      moved: 0,
+      x: e.clientX,
+      y: e.clientY,
+      bpm: Number(bpm) || min,
+    };
+  }
+
+  function onPointerMove(e) {
+    const d = drag.current;
+    if (!d || !setBpm) return;
+    const ang = angleOf(e.currentTarget, e);
+    const delta = wrap(ang - d.last);
+    d.last = ang;
+    d.acc += delta;
+    d.moved += Math.hypot(e.clientX - d.x, e.clientY - d.y);
+    d.x = e.clientX;
+    d.y = e.clientY;
+    if (Math.abs(d.acc) >= RAD_PER_BPM) {
+      const steps = Math.trunc(d.acc / RAD_PER_BPM);
+      d.acc -= steps * RAD_PER_BPM;
+      d.bpm = clamp(d.bpm + steps, min, max);
+      setBpm(d.bpm);
+    }
+  }
+
+  function onPointerUp(e) {
+    const d = drag.current;
+    drag.current = null;
+    try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* already released */ }
+    if (!d) return;
+    if (d.moved < 8) onToggle?.();
+  }
+
   return (
     <button
       type="button"
-      onClick={onToggle}
-      title={(active ? "Click aus" : "Click an") + " (" + bpm + " BPM)"}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      title={(active ? "Click aus" : "Click an") + " (" + bpm + " BPM). Drehen ändert das Tempo."}
       aria-label={active ? "Metronom stoppen" : "Metronom starten"}
       style={{
         background: fill,
@@ -28,7 +96,9 @@ export function MetronomeDial({ bpm, beat, active, onToggle, size = 112, now = t
         borderRadius: "50%",
         width: size,
         height: size,
-        cursor: "pointer",
+        cursor: setBpm ? "grab" : "pointer",
+        touchAction: "none",
+        userSelect: "none",
         padding: 0,
         display: "flex",
         alignItems: "center",
@@ -45,7 +115,7 @@ export function MetronomeDial({ bpm, beat, active, onToggle, size = 112, now = t
         flexShrink: 0,
       }}
     >
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", lineHeight: 1, pointerEvents: "none" }}>
         <div style={{
           color: num,
           fontSize: bpmSize,
