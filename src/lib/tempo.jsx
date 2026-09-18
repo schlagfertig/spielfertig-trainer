@@ -37,7 +37,7 @@ export function TempoControl({ bpm, setBpm, min = 30, max = 260, hideNudge = fal
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-      <span style={{ fontSize: 12, color: DIM }}>Start</span>
+      <span style={{ fontSize: 12, color: DIM }}>Tempo</span>
       <input type="range" min={min} max={max} value={Number.isFinite(Number(bpm)) ? bpm : min} onChange={(e) => setBpm(Number(e.target.value))} aria-label="Tempo" style={{ width: 140, accentColor: TEAL }} />
       {!hideNudge && (
         <>
