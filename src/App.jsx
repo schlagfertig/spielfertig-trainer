@@ -1,6 +1,7 @@
 import { useState } from "react";
 import RudimentTrainer from "./embedded/RudimentTrainer.jsx";
 import ClickTrainer from "./embedded/ClickTrainer.jsx";
+import { Help } from "./lib/Help.jsx";
 
 export default function App() {
   const [view, setView] = useState("home");
@@ -10,6 +11,7 @@ export default function App() {
   if (view === "home") {
     return (
       <div className="page home">
+        <div className="home-help"><Help topic="home" /></div>
         <header className="hero">
           <img className="logo" src="/logo.svg" alt="The best time for Rudiments is NOW" />
           <h1>Spielfertig</h1>
@@ -40,12 +42,15 @@ export default function App() {
       <header className="top">
         <button className="ghost" onClick={() => setView("home")}>Zurück</button>
         <div className="top-title">{click ? "Click-Trainer" : "Rudiments"}</div>
-        {!click && (
-          <div className="top-right">
-            <button className={handwritten ? "ghost on" : "ghost"} onClick={() => setHandwritten((h) => !h)}>Handschrift</button>
-            <button className="ghost" onClick={() => setPrintNonce((n) => n + 1)}>Drucken</button>
-          </div>
-        )}
+        <div className="top-right">
+          {!click && (
+            <>
+              <button className={handwritten ? "ghost on" : "ghost"} onClick={() => setHandwritten((h) => !h)}>Handschrift</button>
+              <button className="ghost" onClick={() => setPrintNonce((n) => n + 1)}>Drucken</button>
+            </>
+          )}
+          <Help topic={click ? "click" : "rudiments"} />
+        </div>
       </header>
       <main className="main">
         {click
