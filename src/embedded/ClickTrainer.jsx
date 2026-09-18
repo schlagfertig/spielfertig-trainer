@@ -102,27 +102,40 @@ export default function ClickTrainer() {
     if (!playingRef.current) setStartBpm(v);
   }
 
+  const atCap = bpm >= cap;
+
   return (
     <div>
       <p style={{ color: DIM, fontSize: 14, margin: "12px 0 16px" }}>
         Click starten. Alle paar Sekunden wird das Tempo angehoben — Du bleibst am Pad.
       </p>
       <div className="panel dock" style={{ position: "static", margin: "0 0 14px", borderRadius: 12, boxShadow: "none" }}>
-        <div className="dock-main" style={{ justifyContent: "center", gap: 18 }}>
+        <div className="dial-row">
+          <button type="button" className="nudge-lg" onClick={() => setDial(bpm - 5)} aria-label="5 BPM langsamer">−5</button>
           <MetronomeDial bpm={bpm} setBpm={setDial} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={132} now />
+          <button type="button" className="nudge-lg" onClick={() => setDial(bpm + 5)} aria-label="5 BPM schneller">+5</button>
+        </div>
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
           <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
             {playing ? "Stop" : "Start"}
           </button>
         </div>
         {playing ? (
-          <p style={{ textAlign: "center", color: "#5cc8b8", fontSize: 13, margin: "12px 0 0" }}>
-            {bpm} BPM{bpm < cap ? ` · in ${Math.ceil(left)}s +${step}` : " · Ziel erreicht"}
-          </p>
+          <div className="count">
+            {atCap ? (
+              <span className="count-done">Ziel</span>
+            ) : (
+              <>
+                <span className="count-num">{Math.max(0, Math.ceil(left))}</span>
+                <span className="count-unit">Sek. bis +{step}</span>
+              </>
+            )}
+          </div>
         ) : null}
       </div>
       <div className="panel">
         <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 12 }}>Einstellung</div>
-        <TempoControl bpm={startBpm} setBpm={setStart} min={30} max={260} />
+        <TempoControl bpm={startBpm} setBpm={setStart} min={30} max={260} hideNudge />
         <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
           <label className="field">
             <span>Alle</span>
