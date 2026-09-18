@@ -175,12 +175,16 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
       </div>
       <div className="panel dock">
         <div className="dock-main">
-          <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={96} now />
+          <div className="dial-row">
+            <button type="button" className="nudge-lg" onClick={() => setBpm(Math.max(30, bpm - 5))} aria-label="5 BPM langsamer">−5</button>
+            <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={96} now />
+            <button type="button" className="nudge-lg" onClick={() => setBpm(Math.min(260, bpm + 5))} aria-label="5 BPM schneller">+5</button>
+          </div>
           <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : startLoop())}>{playing ? "Stop" : "Start"}</button>
           <button className={more ? "more-btn on" : "more-btn"} onClick={() => setMore((v) => !v)}>{more ? "Weniger" : "Optionen"}</button>
         </div>
         <div className="dock-tempo">
-          <TempoControl bpm={bpm} setBpm={setBpm} min={30} max={260} />
+          <TempoControl bpm={bpm} setBpm={setBpm} min={30} max={260} hideNudge />
         </div>
         {more && (
           <div className="more">
