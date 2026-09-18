@@ -113,7 +113,6 @@ button { font-family: inherit; }
 .play.stop { background: #3a1a1a; color: #e05c5c; border-color: #e05c5c; }
 .panel, .staff-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin: 0 0 12px; }
 .staff-card { background: #fff; color: #161a1d; }
-.staff-card.hand { background: #f4eee3; }
 .staff-label { font-size: 13px; font-weight: 800; color: #334; margin-bottom: 6px; }
 .staff-hint { margin-top: 8px; font-size: 11px; color: #6a7378; }
 .check { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #bbb; cursor: pointer; }
