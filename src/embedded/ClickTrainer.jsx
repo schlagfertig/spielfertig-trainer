@@ -25,10 +25,12 @@ export default function ClickTrainer() {
   const everyRef = useRef(10);
   const stepRef = useRef(4);
   const capRef = useRef(160);
+  const playingRef = useRef(false);
   bpmRef.current = bpm;
   everyRef.current = everySec;
   stepRef.current = step;
   capRef.current = cap;
+  playingRef.current = playing;
 
   useEffect(() => () => stopRef.current?.(), []);
 
@@ -90,7 +92,14 @@ export default function ClickTrainer() {
   function setStart(n) {
     const v = clamp(n, 30, 260);
     setStartBpm(v);
-    if (!playing) setBpm(v);
+    if (!playingRef.current) setBpm(v);
+  }
+
+  function setDial(n) {
+    const v = clamp(n, 30, 260);
+    setBpm(v);
+    bpmRef.current = v;
+    if (!playingRef.current) setStartBpm(v);
   }
 
   return (
@@ -100,9 +109,9 @@ export default function ClickTrainer() {
       </p>
       <div className="panel dock" style={{ position: "static", margin: "0 0 14px", borderRadius: 12, boxShadow: "none" }}>
         <div className="dock-main" style={{ justifyContent: "center", gap: 18 }}>
-          <MetronomeDial bpm={bpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={132} now />
+          <MetronomeDial bpm={bpm} setBpm={setDial} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={132} now />
           <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
-            {playing ? "Stop" : "Play"}
+            {playing ? "Stop" : "Start"}
           </button>
         </div>
         {playing ? (
