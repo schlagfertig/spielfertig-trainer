@@ -10,7 +10,7 @@ const INK = "#161a1d";
 const LINE = "#2f383d";
 const DIM = "#8a969c";
 
-export default function RudimentTrainer({ handwritten, printNonce }) {
+export default function RudimentTrainer({ printNonce }) {
   const [sel, setSel] = useState(16);
   const [bpm, setBpm] = useState(80);
   const [hear, setHear] = useState("click");
@@ -168,9 +168,9 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
         </select>
         <button type="button" className="ghost" disabled={idx >= RUDIMENTS.length - 1} onClick={() => stepRud(1)} aria-label="Nächstes Rudiment">›</button>
       </div>
-      <div className={handwritten ? "staff-card hand" : "staff-card"}>
+      <div className="staff-card">
         <div className="staff-label">{rud.label}</div>
-        <RudimentStaff rud={rud} handwritten={handwritten} playingT={playT} svgId="rud-live" />
+        <RudimentStaff rud={rud} playingT={playT} svgId="rud-live" />
         <div className="staff-hint">R blau · L rot · Kreis drehen ändert das Tempo</div>
       </div>
       <div className="panel dock">
@@ -228,7 +228,7 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
             </div>
             <div id="print-host" style={{ position: "absolute", left: -9999, top: 0 }}>
               {RUDIMENTS.filter((r) => picked.includes(r.id)).map((r) => (
-                <div key={r.id} data-print={r.id}><RudimentStaff rud={r} handwritten={handwritten} /></div>
+                <div key={r.id} data-print={r.id}><RudimentStaff rud={r} /></div>
               ))}
             </div>
             <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
