@@ -1,9 +1,0 @@
-import { P1 } from "./p1.js";
-import { P2 } from "./p2.js";
-import { P3 } from "./p3.js";
-import { P4 } from "./p4.js";
-import { P5 } from "./p5.js";
-import { P6 } from "./p6.js";
-import { P7 } from "./p7.js";
-import { P8 } from "./p8.js";
-export const LOGO_SRC = "data:image/jpeg;base64," + P1 + P2 + P3 + P4 + P5 + P6 + P7 + P8;
