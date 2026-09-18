@@ -13,7 +13,7 @@ export default function App() {
       <div className="page home">
         <div className="home-help"><Help topic="home" /></div>
         <header className="hero">
-          <img className="logo" src="/logo.svg" alt="The best time for Rudiments is NOW" />
+          <img className="logo" src="/logo.svg" alt="schlagfertig‽" />
           <h1>Spielfertig</h1>
           <p className="tag">schlagfertig‽ · Zeit für guten Sound</p>
         </header>
