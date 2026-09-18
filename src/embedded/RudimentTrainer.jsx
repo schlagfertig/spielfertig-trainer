@@ -171,11 +171,11 @@ export default function RudimentTrainer({ handwritten, printNonce }) {
       <div className={handwritten ? "staff-card hand" : "staff-card"}>
         <div className="staff-label">{rud.label}</div>
         <RudimentStaff rud={rud} handwritten={handwritten} playingT={playT} svgId="rud-live" />
-        <div className="staff-hint">R blau · L rot · Kreis unten startet den Click</div>
+        <div className="staff-hint">R blau · L rot · Kreis drehen ändert das Tempo</div>
       </div>
       <div className="panel dock">
         <div className="dock-main">
-          <MetronomeDial bpm={bpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={96} now />
+          <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={96} now />
           <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : startLoop())}>{playing ? "Stop" : "Start"}</button>
           <button className={more ? "more-btn on" : "more-btn"} onClick={() => setMore((v) => !v)}>{more ? "Weniger" : "Optionen"}</button>
         </div>
