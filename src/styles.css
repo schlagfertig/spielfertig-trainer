@@ -12,7 +12,8 @@ html, body, #root { margin: 0; min-height: 100%; background: var(--ink); color: 
 body { font-family: Figtree, sans-serif; -webkit-font-smoothing: antialiased; }
 button { font-family: inherit; }
 .page { min-height: 100dvh; padding: 16px 14px 28px; }
-.home { max-width: 640px; margin: 0 auto; }
+.home { max-width: 640px; margin: 0 auto; position: relative; }
+.home-help { position: absolute; top: 4px; right: 4px; }
 .hero { text-align: center; padding: 12px 0 10px; }
 .logo { display: block; margin: 0 auto; width: min(380px, 88vw); height: auto; background: #000; }
 .hero h1 {
@@ -54,7 +55,7 @@ button { font-family: inherit; }
   text-transform: uppercase;
   font-size: 16px;
 }
-.top-right { margin-left: auto; display: flex; gap: 6px; }
+.top-right { margin-left: auto; display: flex; gap: 6px; align-items: center; }
 .main { max-width: 880px; margin: 0 auto; padding-bottom: 8px; }
 .chip, .ghost, .play, .seg button, .more-btn, .nudge {
   background: transparent; color: var(--dim); border: 1px solid var(--line);
@@ -62,6 +63,18 @@ button { font-family: inherit; }
 }
 .nudge { min-width: 44px; font-size: 14px; color: var(--teal); }
 .chip.on, .seg button.on, .ghost.on, .more-btn.on { background: var(--teal); color: #06120f; border-color: var(--teal); }
+.help-dot {
+  width: 32px; height: 32px; padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--teal);
+  background: transparent;
+  color: var(--teal);
+  font: 800 16px Figtree, sans-serif;
+  cursor: pointer;
+}
+.help-list { list-style: none; margin: 0 0 16px; padding: 0; }
+.help-list li { color: var(--dim); font-size: 14px; line-height: 1.45; margin: 0 0 10px; }
+.help-list strong { display: block; color: var(--txt); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 2px; }
 .pick { display: flex; align-items: center; gap: 8px; margin: 14px 0 12px; }
 .rud-select {
   flex: 1;
