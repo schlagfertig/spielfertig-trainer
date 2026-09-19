@@ -23,6 +23,11 @@ export function stepsFromTime(time, bars = 1) {
   return bars * n * (16 / d);
 }
 
+function pulseFromTime(time) {
+  const { n, d } = parseTime(time);
+  return d === 8 && n % 3 === 0 ? 6 : 4;
+}
+
 function beamsFor(nt) {
   if (!nt || nt.rest || nt.whole || (nt.dur || 0) >= 16) return 0;
   if (nt.beams != null) return nt.beams;
@@ -33,7 +38,7 @@ function beamsFor(nt) {
   return 0;
 }
 
-function beamGroups(notes) {
+function beamGroups(notes, pulse = 4) {
   const groups = [];
   let cur = [];
   const flush = () => {
@@ -47,8 +52,8 @@ function beamGroups(notes) {
     }
     if (cur.length) {
       const sameG = nt.g != null && cur[0].g != null && nt.g === cur[0].g;
-      const beat = Math.floor(nt.t / 4 + 1e-6);
-      const curBeat = Math.floor(cur[0].t / 4 + 1e-6);
+      const beat = Math.floor(nt.t / pulse + 1e-6);
+      const curBeat = Math.floor(cur[0].t / pulse + 1e-6);
       if (nt.g != null || cur[0].g != null) {
         if (!sameG) flush();
       } else if (beat !== curBeat) flush();
@@ -78,6 +83,15 @@ function PercClef({ x, y }) {
     <g fill={INK} stroke="none">
       <rect x={x} y={y - 12} width={3.4} height={24} rx={0.4} />
       <rect x={x + 7.2} y={y - 12} width={3.4} height={24} rx={0.4} />
+    </g>
+  );
+}
+
+function TimeSig({ x, y, n, d }) {
+  return (
+    <g fill={INK} stroke="none" fontFamily="Oswald, sans-serif" fontWeight="700" textAnchor="middle">
+      <text x={x} y={y - 1} fontSize="15">{n}</text>
+      <text x={x} y={y + 15} fontSize="15">{d}</text>
     </g>
   );
 }
@@ -256,10 +270,11 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const sounded = notes.filter((nt) => !nt.rest);
   const minDur = sounded.reduce((m, nt) => Math.min(m, nt.dur || 1), 4);
   const steps = stepsFromTime(rud.time, rud.bars || 1);
+  const pulse = pulseFromTime(rud.time);
   const ornamented = notes.some((nt) => nt.flam || nt.drag);
   const quarterW = ornamented ? 152 : minDur <= 0.5 ? 144 : 140;
   const stepW = quarterW / 4;
-  const x0 = 72;
+  const x0 = 88;
   const soloWhole = sounded.length === 1 && !!(sounded[0].whole || (sounded[0].dur >= 8 && sounded[0].roll));
   const w = x0 + Math.max(steps * stepW, soloWhole ? 240 : 0) + 28;
   const y = 60;
@@ -268,7 +283,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const rows = rud.sticking && rud.sticking[1] ? 2 : 1;
   const h0 = y + 2 * lineGap + 18;
   const viewH = rows === 2 ? 168 : 148;
-  const groups = beamGroups(notes);
+  const groups = beamGroups(notes, pulse);
   const beamed = new Set();
   groups.forEach((g) => g.forEach((n) => beamed.add(n)));
   const near = (a, b) => Math.abs(a - b) < 0.05;
@@ -276,8 +291,8 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const stemTop = ny - STEM_H;
   const primary = rud.sticking && rud.sticking[0];
   const secondary = rud.sticking && rud.sticking[1];
-  const { n: beats } = parseTime(rud.time);
-  const barW = beats * (16 / parseTime(rud.time).d) * stepW;
+  const parsed = parseTime(rud.time);
+  const barW = parsed.n * (16 / parsed.d) * stepW;
   const tokenAt = (row, i, nt) => {
     if (!row) return nt.hand;
     if (Array.isArray(row)) return row[i];
@@ -301,7 +316,11 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
           const bx = x0 + (i + 1) * barW;
           return <line key={`bar-${i}`} x1={bx} y1={y - 2 * lineGap} x2={bx} y2={y + 2 * lineGap} strokeWidth={1.35} />;
         })}
+        {pulse === 6 ? (
+          <line x1={x0 + 6 * stepW} y1={y - 2 * lineGap} x2={x0 + 6 * stepW} y2={y + 2 * lineGap} strokeWidth={0.7} strokeDasharray="2 3" />
+        ) : null}
         <PercClef x={28} y={y} />
+        <TimeSig x={54} y={y} n={parsed.n} d={parsed.d} />
         {notes.map((nt, i) => {
           const x = noteX(nt);
           if (nt.rest) return <g key={i}><Rest x={x} y={ny} dur={nt.dur} /></g>;
