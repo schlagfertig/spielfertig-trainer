@@ -3,7 +3,7 @@ import { CATS, RUDIMENTS, meterPulse, rudimentDuration } from "../lib/rudiments.
 import { RudimentStaff } from "../lib/staff.jsx";
 import { TempoControl } from "../lib/tempo.jsx";
 import { MetronomeDial } from "../lib/metronome.jsx";
-import { playClick, playStick, unlockAudio } from "../lib/audio.js";
+import { playClick, playSnare, playStick, unlockAudio } from "../lib/audio.js";
 import { deliverPng, printElement, sheetHtml, tilesToPng } from "../lib/print.js";
 
 const INK = "#161a1d";
@@ -13,7 +13,7 @@ const DIM = "#8a969c";
 export default function RudimentTrainer({ printNonce }) {
   const [sel, setSel] = useState(16);
   const [bpm, setBpm] = useState(80);
-  const [hear, setHear] = useState("click");
+  const [hear, setHear] = useState("snare");
   const [countIn, setCountIn] = useState(true);
   const [rampOn, setRampOn] = useState(false);
   const [rampStep, setRampStep] = useState(2);
@@ -92,7 +92,8 @@ export default function RudimentTrainer({ printNonce }) {
         for (let s = 0; s < steps; s += meter.pulse) ev.push({ t: s, kind: "click", down: s % meter.bar < 0.01 });
         return ev;
       }
-      return notes.map((nt) => ({ t: nt.t, kind: "stick", nt }));
+      const kind = hearRef.current === "hands" ? "stick" : "snare";
+      return notes.map((nt) => ({ t: nt.t, kind, nt }));
     };
     let listEv = events();
     if (!listEv.length) listEv = [{ t: 0, kind: "click", down: true }];
@@ -115,7 +116,8 @@ export default function RudimentTrainer({ printNonce }) {
         if (when >= horizon) break;
         if (when >= ctx.currentTime - 0.02) {
           if (ev.kind === "click") playClick(ctx, when, ev.down);
-          else playStick(ctx, ev.nt.hand, when, ev.nt.acc);
+          else if (ev.kind === "stick") playStick(ctx, ev.nt.hand, when, ev.nt.acc);
+          else playSnare(ctx, when, ev.nt.acc);
           const delay = Math.max(0, (when - ctx.currentTime) * 1000);
           window.setTimeout(() => { if (!cancelled) setPlayT(ev.t); }, delay);
           if (ev.kind === "click" || Math.abs((ev.t || 0) % meter.pulse) < 0.08) pulse(when, ctx);
@@ -225,6 +227,7 @@ export default function RudimentTrainer({ printNonce }) {
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
               <span style={{ fontSize: 12, color: DIM }}>Hören</span>
               <div className="seg">
+                <button className={hear === "snare" ? "on" : ""} onClick={() => setHear("snare")}>Snare</button>
                 <button className={hear === "hands" ? "on" : ""} onClick={() => setHear("hands")}>L / R</button>
                 <button className={hear === "click" ? "on" : ""} onClick={() => setHear("click")}>Nur Click</button>
               </div>
