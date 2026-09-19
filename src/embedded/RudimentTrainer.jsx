@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { CATS, RUDIMENTS, rudimentDuration } from "../lib/rudiments.js";
+import { CATS, RUDIMENTS, meterPulse, rudimentDuration } from "../lib/rudiments.js";
 import { RudimentStaff } from "../lib/staff.jsx";
 import { TempoControl } from "../lib/tempo.jsx";
 import { MetronomeDial } from "../lib/metronome.jsx";
@@ -82,13 +82,14 @@ export default function RudimentTrainer({ printNonce }) {
     const ctx = unlockAudio();
     const notes = (rud.notes || []).filter((nt) => !nt.rest);
     const steps = rudimentDuration(rud);
+    const meter = meterPulse(rud.time);
     let cancelled = false;
     let timer = 0;
     const stepSec = () => 60 / Math.max(30, bpmRef.current) / 4;
     const events = () => {
       if (hearRef.current === "click") {
         const ev = [];
-        for (let s = 0; s < steps; s += 4) ev.push({ t: s, kind: "click", down: s % 16 === 0 });
+        for (let s = 0; s < steps; s += meter.pulse) ev.push({ t: s, kind: "click", down: s % meter.bar < 0.01 });
         return ev;
       }
       return notes.map((nt) => ({ t: nt.t, kind: "stick", nt }));
@@ -98,12 +99,12 @@ export default function RudimentTrainer({ printNonce }) {
     let evIndex = 0;
     let cycleStart = ctx.currentTime + 0.02;
     if (countIn) {
-      const beatSec = 60 / Math.max(30, bpmRef.current);
+      const pulseSec = stepSec() * meter.pulse;
       for (let i = 0; i < 4; i++) {
-        playClick(ctx, cycleStart + i * beatSec, i === 0);
-        pulse(cycleStart + i * beatSec, ctx);
+        playClick(ctx, cycleStart + i * pulseSec, i === 0);
+        pulse(cycleStart + i * pulseSec, ctx);
       }
-      cycleStart += 4 * beatSec;
+      cycleStart += 4 * pulseSec;
     }
     const schedule = () => {
       if (cancelled) return;
@@ -117,7 +118,7 @@ export default function RudimentTrainer({ printNonce }) {
           else playStick(ctx, ev.nt.hand, when, ev.nt.acc);
           const delay = Math.max(0, (when - ctx.currentTime) * 1000);
           window.setTimeout(() => { if (!cancelled) setPlayT(ev.t); }, delay);
-          if (ev.kind === "click" || Math.abs((ev.t || 0) % 4) < 0.08) pulse(when, ctx);
+          if (ev.kind === "click" || Math.abs((ev.t || 0) % meter.pulse) < 0.08) pulse(when, ctx);
         }
         evIndex += 1;
         if (evIndex >= listEv.length) {
