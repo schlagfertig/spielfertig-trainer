@@ -4,7 +4,7 @@ import { RudimentStaff } from "../lib/staff.jsx";
 import { TempoControl } from "../lib/tempo.jsx";
 import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, playStick, unlockAudio } from "../lib/audio.js";
-import { deliverPng, printElement, tilesToPng } from "../lib/print.js";
+import { deliverPng, printElement, sheetHtml, tilesToPng } from "../lib/print.js";
 
 const INK = "#161a1d";
 const LINE = "#2f383d";
@@ -28,7 +28,7 @@ export default function RudimentTrainer({ printNonce }) {
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
   const stopRef = useRef(null);
-  const lastPrint = useRef(printNonce);
+  const lastPrint = useRef(printNonce || 0);
   const bpmRef = useRef(bpm); bpmRef.current = bpm;
   const hearRef = useRef(hear); hearRef.current = hear;
   const rampRef = useRef(rampOn); rampRef.current = rampOn;
@@ -38,10 +38,19 @@ export default function RudimentTrainer({ printNonce }) {
   const idx = Math.max(0, RUDIMENTS.findIndex((r) => r.id === rud.id));
 
   useEffect(() => {
-    if (printNonce && printNonce !== lastPrint.current) setPrintOpen(true);
+    if (!printNonce || printNonce === lastPrint.current) return;
     lastPrint.current = printNonce;
-  }, [printNonce]);
+    setPrintOpen(true);
+    setNote("");
+    setPicked((p) => (p.includes(sel) ? p : [...p, sel]));
+  }, [printNonce, sel]);
   useEffect(() => () => stopRef.current?.(), []);
+
+  function closePrint() {
+    setPrintOpen(false);
+    setNote("");
+    setBusy(false);
+  }
 
   function stop() {
     stopRef.current?.();
@@ -128,27 +137,50 @@ export default function RudimentTrainer({ printNonce }) {
     };
   }
 
-  async function doPrint(mode) {
-    setBusy(true);
-    setNote("");
+  function gatherTiles() {
     const host = document.getElementById("print-host");
-    if (!host) { setBusy(false); return; }
-    const tiles = RUDIMENTS.filter((r) => picked.includes(r.id))
+    if (!host) return [];
+    return RUDIMENTS.filter((r) => picked.includes(r.id))
       .map((r) => ({ r, svg: host.querySelector(`[data-print="${r.id}"] svg`) }))
       .filter((x) => x.svg);
+  }
+
+  async function savePng(tiles, reason) {
+    const canvas = await tilesToPng(tiles, 2, perPage);
+    const result = await deliverPng(canvas, "spielfertig-rudiments.png", "save");
+    if (result) setNote(reason || "PNG gespeichert.");
+    else setNote("Speichern abgebrochen.");
+    return result;
+  }
+
+  async function doPrint(mode) {
+    setBusy(true);
+    setNote(mode === "print" ? "Blatt wird erzeugt…" : "");
+    const tiles = gatherTiles();
+    if (!tiles.length) {
+      setNote("Keine Notation zum Export.");
+      setBusy(false);
+      return;
+    }
     try {
       if (mode === "print") {
-        const cols = perPage <= 4 ? 1 : 2;
-        const ok = printElement(`<div class="sheet" style="grid-template-columns:repeat(${cols},1fr)">` +
-          tiles.map(({ r, svg }) => `<div style="border:2px solid #5CC8B8;border-radius:12px;padding:10px;background:#1c2226"><div style="font-family:Oswald,sans-serif;font-weight:700;color:#5CC8B8">${r.label}</div>${svg.outerHTML}</div>`).join("") + `</div>`);
-        setNote(ok ? "Druckdialog geöffnet." : "Popup blockiert — bitte Popups erlauben.");
+        const printed = printElement(sheetHtml(tiles, perPage));
+        if (printed) {
+          setNote("Druckdialog geöffnet. Falls nichts kommt: Popups erlauben oder Speichern nutzen.");
+        } else {
+          await savePng(tiles, "Popup blockiert — Blatt als PNG gespeichert.");
+        }
+      } else if (mode === "share") {
+        const canvas = await tilesToPng(tiles, 2, perPage);
+        const result = await deliverPng(canvas, "spielfertig-rudiments.png", "share");
+        if (result === "share") setNote("Geteilt.");
+        else if (result === "save") setNote("Teilen nicht verfügbar — PNG gespeichert.");
+        else setNote("Abgebrochen.");
       } else {
-        const canvas = await tilesToPng(tiles, 2);
-        const ok = await deliverPng(canvas, "spielfertig-rudiments.png", mode);
-        setNote(ok ? (mode === "share" ? "Geteilt oder gespeichert." : "PNG gespeichert.") : "Abgebrochen.");
+        await savePng(tiles);
       }
     } catch {
-      setNote("Konnte das Blatt nicht erzeugen.");
+      setNote("Konnte das Blatt nicht erzeugen. Bitte erneut versuchen.");
     }
     setBusy(false);
   }
@@ -209,14 +241,18 @@ export default function RudimentTrainer({ printNonce }) {
         )}
       </div>
       {printOpen && (
-        <div className="modal" onClick={() => setPrintOpen(false)}>
+        <div className="modal" onClick={closePrint}>
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="modal-head">Rudiments drucken</div>
-            <p style={{ color: DIM, fontSize: 13 }}>Wähle die Blätter. Hochformat DIN A4.</p>
+            <p style={{ color: DIM, fontSize: 13 }}>Auswahl und Layout. Hochformat DIN A4.</p>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", margin: "10px 0" }}>
               {[4, 6, 10, 12].map((n) => (
-                <button key={n} className={perPage === n ? "chip on" : "chip"} onClick={() => setPerPage(n)}>{n} / Seite</button>
+                <button key={n} type="button" className={perPage === n ? "chip on" : "chip"} onClick={() => setPerPage(n)}>{n} / Seite</button>
               ))}
+            </div>
+            <div style={{ display: "flex", gap: 8, margin: "0 0 8px" }}>
+              <button type="button" className="ghost" onClick={() => setPicked(RUDIMENTS.map((r) => r.id))}>Alle</button>
+              <button type="button" className="ghost" onClick={() => setPicked([sel])}>Nur aktuelles</button>
             </div>
             <div style={{ maxHeight: 240, overflow: "auto", display: "flex", flexDirection: "column", gap: 4 }}>
               {RUDIMENTS.map((r) => (
@@ -226,18 +262,18 @@ export default function RudimentTrainer({ printNonce }) {
                 </label>
               ))}
             </div>
-            <div id="print-host" style={{ position: "absolute", left: -9999, top: 0 }}>
+            <div id="print-host" aria-hidden="true" style={{ position: "absolute", left: 0, top: 0, width: 720, overflow: "hidden", clipPath: "inset(100%)" }}>
               {RUDIMENTS.filter((r) => picked.includes(r.id)).map((r) => (
                 <div key={r.id} data-print={r.id}><RudimentStaff rud={r} /></div>
               ))}
             </div>
             <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
-              <button className="play" disabled={busy || !picked.length} onClick={() => doPrint("print")}>Drucken</button>
+              <button className="play" disabled={busy || !picked.length} onClick={() => doPrint("print")}>{busy ? "…" : "Drucken"}</button>
               <button className="ghost" disabled={busy || !picked.length} onClick={() => doPrint("share")}>Teilen</button>
               <button className="ghost" disabled={busy || !picked.length} onClick={() => doPrint("save")}>Speichern</button>
-              <button className="ghost" onClick={() => setPrintOpen(false)}>Schließen</button>
+              <button className="ghost" onClick={closePrint}>Schließen</button>
             </div>
-            {note ? <p style={{ color: "#5cc8b8", fontSize: 12, margin: "10px 0 0" }}>{note}</p> : <p style={{ color: DIM, fontSize: 12, margin: "10px 0 0" }}>Teilen nutzt das System-Menü, sonst wird ein PNG gespeichert.</p>}
+            {note ? <p style={{ color: "#5cc8b8", fontSize: 12, margin: "10px 0 0" }}>{note}</p> : <p style={{ color: DIM, fontSize: 12, margin: "10px 0 0" }}>Drucken öffnet den Systemdialog. Blockiert das Handy das Popup, wird automatisch ein PNG gespeichert.</p>}
           </div>
         </div>
       )}

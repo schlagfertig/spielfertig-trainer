@@ -7,6 +7,11 @@ export default function App() {
   const [view, setView] = useState("home");
   const [printNonce, setPrintNonce] = useState(0);
 
+  function goHome() {
+    setPrintNonce(0);
+    setView("home");
+  }
+
   if (view === "home") {
     return (
       <div className="page home">
@@ -39,7 +44,7 @@ export default function App() {
   return (
     <div className="page tool">
       <header className="top">
-        <button className="ghost" onClick={() => setView("home")}>Zurück</button>
+        <button className="ghost" onClick={goHome}>Zurück</button>
         <div className="top-title">{click ? "Click-Trainer" : "Rudiments"}</div>
         <div className="top-right">
           {!click && (
