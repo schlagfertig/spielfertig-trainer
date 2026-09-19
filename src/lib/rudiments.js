@@ -59,11 +59,13 @@ export const CATS = [
   { id: "drag", label: "Drag" },
 ];
 
+const SS32 = "RLRLRLRLRLRLRLRLRLRLRLRLRLRLRLRL";
+
 export const RUDIMENTS = [
-  { id: 1, cat: "roll", label: "1. Single Stroke Roll", bars: 1, time: "2/4", notes: [n(0, 8, "R", false, { roll: 3, whole: true })], sticking: dualTok(["R"]) },
+  { id: 1, cat: "roll", label: "1. Single Stroke Roll", bars: 2, time: "4/4", notes: [n(0, 8, "R", true, { roll: 3 }), n(8, 8, "L", true, { roll: 3 }), ...d32(16, SS32)], sticking: dual("RL" + SS32) },
   { id: 2, cat: "roll", label: "2. Single Stroke Four", bars: 1, time: "2/4", notes: [...ss4(0, 1), ...ss4(4, 2)], sticking: dual("RLRLRLRL") },
   { id: 3, cat: "roll", label: "3. Single Stroke Seven", bars: 1, time: "2/4", notes: [...six(0, "RLRLRL", [], { g: 1 }), n(4, 2, "R", true)], sticking: dual("RLRLRLR") },
-  { id: 4, cat: "roll", label: "4. Multiple Bounce Roll", bars: 1, time: "4/4", notes: [n(0, 8, "R", true, { roll: 3 }), n(8, 8, "L", true, { roll: 3 })], sticking: dual("RL") },
+  { id: 4, cat: "roll", label: "4. Multiple Bounce Roll", bars: 1, time: "2/4", notes: [n(0, 8, "R", false, { roll: 3, whole: true })], sticking: dualTok(["R"]) },
   { id: 5, cat: "roll", label: "5. Triple Stroke Roll", bars: 1, time: "4/4", notes: [...trip(0, "RRR", [0]), ...trip(1, "LLL", [0]), ...trip(2, "RRR", [0]), ...trip(3, "LLL", [0])], sticking: dual("RRRLLLRRRLLL") },
   { id: 6, cat: "roll", label: "6. Double Stroke Open Roll", bars: 1, time: "4/4", notes: run(0, "RRLLRRLLRRLLRRLL"), sticking: dual("RRLLRRLLRRLLRRLL") },
   { id: 7, cat: "roll", label: "7. Five Stroke Roll", bars: 1, time: "2/4", notes: [...d32(0, "RRLL"), n(2, 2, "R", true), ...d32(4, "LLRR"), n(6, 2, "L", true)] },
