@@ -1,14 +1,25 @@
 let ctx;
+let noiseBuf;
 
 export function unlockAudio() {
   const c = getCtx();
   if (c.state === "suspended") c.resume();
+  warmNoise(c);
   return c;
 }
 
 export function getCtx() {
   if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
   return ctx;
+}
+
+function warmNoise(c) {
+  if (noiseBuf && noiseBuf.sampleRate === c.sampleRate) return noiseBuf;
+  const len = Math.floor(c.sampleRate * 0.22);
+  noiseBuf = c.createBuffer(1, len, c.sampleRate);
+  const data = noiseBuf.getChannelData(0);
+  for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+  return noiseBuf;
 }
 
 function tone(c, t, freq, dur, type, gain) {
@@ -27,15 +38,12 @@ function tone(c, t, freq, dur, type, gain) {
 
 function noiseHit(c, t, dur, gain, hp) {
   const n = c.createBufferSource();
-  const buf = c.createBuffer(1, Math.floor(c.sampleRate * dur), c.sampleRate);
-  const data = buf.getChannelData(0);
-  for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 1.6);
-  n.buffer = buf;
+  n.buffer = warmNoise(c);
   const f = c.createBiquadFilter();
   f.type = "highpass";
   f.frequency.value = hp;
   const g = c.createGain();
-  g.gain.setValueAtTime(gain, t);
+  g.gain.setValueAtTime(Math.max(0.0001, gain), t);
   g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
   n.connect(f);
   f.connect(g);
@@ -52,7 +60,7 @@ export function playClick(c, t, downbeat = false) {
   g1.connect(c.destination);
   osc1.frequency.setValueAtTime(downbeat ? 2400 : 2200, t);
   g1.gain.setValueAtTime(0.0001, t);
-  g1.gain.exponentialRampToValueAtTime(downbeat ? 1 : 0.9, t + 0.001);
+  g1.gain.exponentialRampToValueAtTime(downbeat ? 0.55 : 0.42, t + 0.001);
   g1.gain.exponentialRampToValueAtTime(0.001, t + 0.022);
   osc1.start(t);
   osc1.stop(t + 0.025);
@@ -62,7 +70,7 @@ export function playClick(c, t, downbeat = false) {
   g2.connect(c.destination);
   osc2.frequency.setValueAtTime(downbeat ? 1100 : 900, t);
   g2.gain.setValueAtTime(0.0001, t);
-  g2.gain.exponentialRampToValueAtTime(downbeat ? 0.62 : 0.5, t + 0.001);
+  g2.gain.exponentialRampToValueAtTime(downbeat ? 0.34 : 0.26, t + 0.001);
   g2.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
   osc2.start(t);
   osc2.stop(t + 0.045);
@@ -74,33 +82,82 @@ export function playMetronome(c, downbeat, t) {
 
 export function playStick(c, hand, t, accent) {
   const high = hand === "R";
-  tone(c, t, high ? 420 : 280, accent ? 0.12 : 0.09, "triangle", accent ? 0.22 : 0.12);
-  noiseHit(c, t, accent ? 0.08 : 0.05, accent ? 0.12 : 0.06, high ? 1800 : 900);
+  tone(c, t, high ? 420 : 280, accent ? 0.12 : 0.09, "triangle", accent ? 0.18 : 0.1);
+  noiseHit(c, t, accent ? 0.08 : 0.05, accent ? 0.1 : 0.05, high ? 1800 : 900);
+}
+
+/** Short snare: body + wires. Accent is clearly louder, peaks stay under clip. */
+export function playSnare(c, t, accent = false) {
+  const a = accent ? 1.75 : 1;
+  const dur = accent ? 0.13 : 0.085;
+  const body = c.createOscillator();
+  const bg = c.createGain();
+  body.type = "triangle";
+  body.frequency.setValueAtTime(205, t);
+  body.frequency.exponentialRampToValueAtTime(118, t + 0.055);
+  bg.gain.setValueAtTime(0.0001, t);
+  bg.gain.exponentialRampToValueAtTime(0.16 * a, t + 0.003);
+  bg.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  body.connect(bg);
+  bg.connect(c.destination);
+  body.start(t);
+  body.stop(t + dur + 0.02);
+
+  const src = c.createBufferSource();
+  src.buffer = warmNoise(c);
+  const hp = c.createBiquadFilter();
+  hp.type = "highpass";
+  hp.frequency.value = 850;
+  const bp = c.createBiquadFilter();
+  bp.type = "bandpass";
+  bp.frequency.value = 3100;
+  bp.Q.value = 0.85;
+  const ng = c.createGain();
+  ng.gain.setValueAtTime(0.0001, t);
+  ng.gain.exponentialRampToValueAtTime(0.2 * a, t + 0.002);
+  ng.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  src.connect(hp);
+  hp.connect(bp);
+  bp.connect(ng);
+  ng.connect(c.destination);
+  src.start(t);
+  src.stop(t + dur + 0.02);
+
+  const click = c.createOscillator();
+  const cg = c.createGain();
+  click.type = "square";
+  click.frequency.setValueAtTime(760, t);
+  cg.gain.setValueAtTime(0.0001, t);
+  cg.gain.exponentialRampToValueAtTime(0.06 * a, t + 0.001);
+  cg.gain.exponentialRampToValueAtTime(0.0001, t + 0.014);
+  click.connect(cg);
+  cg.connect(c.destination);
+  click.start(t);
+  click.stop(t + 0.02);
 }
 
 export function playKit(c, voice, t, accent) {
   const a = accent ? 1.25 : 1;
   if (voice === "BD") {
-    tone(c, t, 62, 0.18, "sine", 0.28 * a);
-    tone(c, t, 48, 0.14, "triangle", 0.1 * a);
+    tone(c, t, 62, 0.18, "sine", 0.22 * a);
+    tone(c, t, 48, 0.14, "triangle", 0.08 * a);
   } else if (voice === "SN") {
-    tone(c, t, 190, 0.08, "triangle", 0.16 * a);
-    noiseHit(c, t, 0.12, 0.2 * a, 1200);
+    playSnare(c, t, !!accent);
   } else if (voice === "HH") {
-    noiseHit(c, t, 0.04, 0.1 * a, 5000);
-    tone(c, t, 7800, 0.03, "square", 0.03 * a);
+    noiseHit(c, t, 0.04, 0.08 * a, 5000);
+    tone(c, t, 7800, 0.03, "square", 0.025 * a);
   } else if (voice === "CY") {
-    noiseHit(c, t, 0.45, 0.12 * a, 2400);
-    tone(c, t, 420, 0.3, "triangle", 0.04 * a);
+    noiseHit(c, t, 0.45, 0.1 * a, 2400);
+    tone(c, t, 420, 0.3, "triangle", 0.035 * a);
   } else if (voice === "HF") {
-    noiseHit(c, t, 0.03, 0.08 * a, 3000);
-    tone(c, t, 240, 0.04, "square", 0.04 * a);
+    noiseHit(c, t, 0.03, 0.07 * a, 3000);
+    tone(c, t, 240, 0.04, "square", 0.035 * a);
   } else if (voice === "T1") {
-    tone(c, t, 220, 0.14, "sine", 0.2 * a);
+    tone(c, t, 220, 0.14, "sine", 0.16 * a);
   } else if (voice === "T2") {
-    tone(c, t, 170, 0.16, "sine", 0.2 * a);
+    tone(c, t, 170, 0.16, "sine", 0.16 * a);
   } else if (voice === "FT") {
-    tone(c, t, 120, 0.18, "sine", 0.22 * a);
+    tone(c, t, 120, 0.18, "sine", 0.18 * a);
   }
 }
 
