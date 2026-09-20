@@ -139,7 +139,7 @@ const ratTriple = (start, lead, g) => {
     n(start + 4, T6, lead, false, { drag: oth, tuplet: 3, g: g + 10, beams: 2 }),
     n(start + 4 + T6, T6, oth, false, { tuplet: 3, g: g + 10, beams: 2 }),
     n(start + 4 + 2 * T6, T6, lead, false, { tuplet: 3, g: g + 10, beams: 2 }),
-    n(start + 6, 2, oth, true, { g: g + 20, beams: 1 }),
+    n(start + 6, 2, oth, true, { g: g + 10, beams: 1 }),
   ];
 };
 
