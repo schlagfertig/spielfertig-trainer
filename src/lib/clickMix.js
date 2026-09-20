@@ -47,6 +47,10 @@ export function layerGain(mix, id) {
   return (pct(mix[id], 0) / 100) * (pct(mix.master, 0) / 100);
 }
 
+export function extrasOn(mix) {
+  return (mix.off || 0) > 0 || (mix.sixteenth || 0) > 0 || (mix.triplet || 0) > 0;
+}
+
 export function createMixClock() {
   let n16 = 0;
   let n3 = 0;
@@ -62,19 +66,30 @@ export function createMixClock() {
     fill(ctx, horizon, bpm, mix, onQuarter) {
       const beat = 60 / Math.max(30, bpm);
       const g = (id) => layerGain(mix, id);
+      const earliest = ctx.currentTime - 0.02;
+      while (t16 < earliest) {
+        n16 += 1;
+        t16 += beat / 4;
+      }
+      while (t3 < earliest) {
+        n3 += 1;
+        t3 += beat / 3;
+      }
       while (t16 < horizon) {
         const slot = n16 % 4;
         const bar = n16 % 16;
-        if (g("beat") > 0.008 && bar === 0) playClickLayer(ctx, t16, "beat", g("beat"));
-        if (g("quarter") > 0.008 && slot === 0) playClickLayer(ctx, t16, "quarter", g("quarter"));
-        if (g("off") > 0.008 && slot === 2) playClickLayer(ctx, t16, "off", g("off"));
-        if (g("sixteenth") > 0.008 && (slot === 1 || slot === 3)) playClickLayer(ctx, t16, "sixteenth", g("sixteenth"));
-        if (slot === 0) onQuarter?.(t16);
+        if (t16 >= earliest) {
+          if (g("beat") > 0.008 && bar === 0) playClickLayer(ctx, t16, "beat", g("beat"));
+          if (g("quarter") > 0.008 && slot === 0) playClickLayer(ctx, t16, "quarter", g("quarter"));
+          if (g("off") > 0.008 && slot === 2) playClickLayer(ctx, t16, "off", g("off"));
+          if (g("sixteenth") > 0.008 && (slot === 1 || slot === 3)) playClickLayer(ctx, t16, "sixteenth", g("sixteenth"));
+          if (slot === 0) onQuarter?.(t16);
+        }
         n16 += 1;
         t16 += beat / 4;
       }
       while (t3 < horizon) {
-        if (g("triplet") > 0.008) playClickLayer(ctx, t3, "triplet", g("triplet"));
+        if (t3 >= earliest && g("triplet") > 0.008) playClickLayer(ctx, t3, "triplet", g("triplet"));
         n3 += 1;
         t3 += beat / 3;
       }
