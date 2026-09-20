@@ -49,6 +49,7 @@ const EXERCISES = PATTERNS.map((hands, i) => ({
 }));
 
 const BAR_CHOICES = [2, 4, 8];
+const EMPTY_STICK = [Array(16).fill("")];
 
 function clamp(v, min, max) {
   return Math.max(min, Math.min(max, Math.round(v)));
@@ -249,7 +250,7 @@ export default function StickControl() {
             ))}
           </select>
         </div>
-        <RudimentStaff rud={ex} playingT={playT} svgId="stick-live" hideTime hideSticking />
+        <RudimentStaff rud={{ ...ex, sticking: EMPTY_STICK }} playingT={playT} svgId="stick-live" hideTime />
         <Hands hands={ex.hands} playT={playT} />
         {preview && peek ? (
           <div style={{ marginTop: 10, padding: 8, background: "#eef1f2", borderRadius: 8 }}>
