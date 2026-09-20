@@ -4,7 +4,7 @@ import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
 import { loadSession, saveSession } from "../lib/session.js";
 import { ClickAdvanced } from "../lib/ClickAdvanced.jsx";
-import { createMixClock, readMix } from "../lib/clickMix.js";
+import { createMixClock, extrasOn, readMix, writeMix } from "../lib/clickMix.js";
 
 const INK = "#161a1d";
 const LINE = "#2f383d";
@@ -35,6 +35,10 @@ function readClickSession() {
   };
 }
 
+function useMixNow(mix, flipped) {
+  return flipped || extrasOn(mix);
+}
+
 export default function ClickTrainer() {
   // Stop setzt Live-BPM auf startBpm zurück — Ramp-Stand wird nicht behalten.
   const init = useRef(readClickSession()).current;
@@ -46,6 +50,7 @@ export default function ClickTrainer() {
   const [step, setStep] = useState(init.step);
   const [cap, setCap] = useState(init.cap);
   const [mix, setMix] = useState(() => readMix());
+  const [flipped, setFlipped] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [beat, setBeat] = useState(false);
   const [left, setLeft] = useState(0);
@@ -59,6 +64,7 @@ export default function ClickTrainer() {
   const playingRef = useRef(false);
   const modeRef = useRef(mode);
   const mixRef = useRef(mix);
+  const flippedRef = useRef(flipped);
   bpmRef.current = bpm;
   everyRef.current = everySec;
   stepRef.current = step;
@@ -66,6 +72,7 @@ export default function ClickTrainer() {
   playingRef.current = playing;
   modeRef.current = mode;
   mixRef.current = mix;
+  flippedRef.current = flipped;
 
   useEffect(() => {
     saveSession("click", { mode, mins, startBpm, everySec, step, cap });
@@ -107,6 +114,7 @@ export default function ClickTrainer() {
     let bumpAt = ctx.currentTime + everyRef.current;
     const clock = createMixClock();
     clock.reset(next);
+    let engine = useMixNow(mixRef.current, flippedRef.current) ? "mix" : "simple";
     setBpm(startBpm);
     bpmRef.current = startBpm;
     setPlaying(true);
@@ -141,16 +149,33 @@ export default function ClickTrainer() {
         finish();
         return;
       }
-      if (!sixteenth && now >= bumpAt - 0.001) {
-        const nextBpm = clamp(bpmRef.current + stepRef.current, 30, Math.min(260, capRef.current));
-        bpmRef.current = nextBpm;
-        setBpm(nextBpm);
-        bumpAt += everyRef.current;
+      if (!sixteenth) {
+        while (bumpAt < now - 0.05) bumpAt += everyRef.current;
+        if (now >= bumpAt - 0.001) {
+          const nextBpm = clamp(bpmRef.current + stepRef.current, 30, Math.min(260, capRef.current));
+          bpmRef.current = nextBpm;
+          setBpm(nextBpm);
+          bumpAt += everyRef.current;
+        }
+      }
+      const wantMix = useMixNow(mixRef.current, flippedRef.current);
+      if (wantMix && engine !== "mix") {
+        clock.reset(Math.max(now + 0.02, next));
+        engine = "mix";
+      } else if (!wantMix && engine !== "simple") {
+        next = Math.max(now + 0.02, next);
+        engine = "simple";
       }
       const horizon = now + 0.16;
-      if (mixRef.current.advanced) {
+      if (engine === "mix") {
         clock.fill(ctx, horizon, bpmRef.current, mixRef.current, pulse);
+        next = horizon;
       } else {
+        while (next < now - 0.02) {
+          const beatSec = 60 / Math.max(30, bpmRef.current);
+          next += sixteenth ? beatSec / 4 : beatSec;
+          beatN += 1;
+        }
         while (next < horizon && !cancelled) {
           if (sixteenth && next >= endAt) {
             finish();
@@ -194,6 +219,11 @@ export default function ClickTrainer() {
     setDone("");
   }
 
+  function flip(on) {
+    setFlipped(on);
+    writeMix({ ...mixRef.current, advanced: on || extrasOn(mixRef.current) });
+  }
+
   const atCap = mode === "ramp" && bpm >= cap;
   const sixteenth = mode === "sixteenth";
 
@@ -208,44 +238,53 @@ export default function ClickTrainer() {
         <button type="button" className={mode === "ramp" ? "on" : ""} onClick={() => pickMode("ramp")}>Tempo steigern</button>
         <button type="button" className={sixteenth ? "on" : ""} onClick={() => pickMode("sixteenth")}>16tel · Min</button>
       </div>
-      <div className="panel dock" style={{ position: "static", margin: "0 0 14px", borderRadius: 12, boxShadow: "none" }}>
-        <div className="dial-row">
-          <button type="button" className="nudge-lg" onClick={() => setDial(bpm - 5)} aria-label="5 BPM langsamer">−5</button>
-          <MetronomeDial bpm={bpm} setBpm={setDial} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={132} now />
-          <button type="button" className="nudge-lg" onClick={() => setDial(bpm + 5)} aria-label="5 BPM schneller">+5</button>
-        </div>
-        <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
-          <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
-            {playing ? "Stop" : "Start"}
-          </button>
-        </div>
-        {playing && sixteenth ? (
-          <div className="count">
-            <span className="count-num">{fmtLeft(left)}</span>
-            <span className="count-unit">Minuten übrig</span>
+      <div className="panel dock metro-flip" style={{ position: "static", margin: "0 0 14px", borderRadius: 12, boxShadow: "none" }}>
+        <div className={flipped ? "metro-inner is-back" : "metro-inner"}>
+          <div className="metro-face metro-front">
+            <div className="dial-row">
+              <button type="button" className="nudge-lg" onClick={() => setDial(bpm - 5)} aria-label="5 BPM langsamer">−5</button>
+              <MetronomeDial bpm={bpm} setBpm={setDial} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={132} now />
+              <button type="button" className="nudge-lg" onClick={() => setDial(bpm + 5)} aria-label="5 BPM schneller">+5</button>
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 14 }}>
+              <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
+                {playing ? "Stop" : "Start"}
+              </button>
+              <button type="button" className="ghost" onClick={() => flip(true)}>Erweitert</button>
+            </div>
+            {playing && sixteenth ? (
+              <div className="count">
+                <span className="count-num">{fmtLeft(left)}</span>
+                <span className="count-unit">Minuten übrig</span>
+              </div>
+            ) : null}
+            {playing && !sixteenth ? (
+              <div className="count">
+                {atCap ? (
+                  <span className="count-done">Ziel</span>
+                ) : (
+                  <>
+                    <span className="count-num">{Math.max(0, Math.ceil(left))}</span>
+                    <span className="count-unit">Sek. bis +{step}</span>
+                  </>
+                )}
+              </div>
+            ) : null}
+            {done ? <p style={{ color: "#5cc8b8", textAlign: "center", fontSize: 14, margin: "12px 0 0" }}>{done}</p> : null}
+            {bgHint ? <p style={{ color: "#e8b84b", textAlign: "center", fontSize: 12, margin: "10px 0 0" }}>App im Hintergrund — der Click kann pausieren. Zurückkommen und ggf. neu starten.</p> : null}
           </div>
-        ) : null}
-        {playing && !sixteenth ? (
-          <div className="count">
-            {atCap ? (
-              <span className="count-done">Ziel</span>
-            ) : (
-              <>
-                <span className="count-num">{Math.max(0, Math.ceil(left))}</span>
-                <span className="count-unit">Sek. bis +{step}</span>
-              </>
-            )}
+          <div className="metro-face metro-back">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+              <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8" }}>Click-Mixer</div>
+              <button type="button" className="ghost" onClick={() => flip(false)}>Metronom</button>
+            </div>
+            <ClickAdvanced mix={mix} setMix={setMix} slidersOnly />
           </div>
-        ) : null}
-        {done ? <p style={{ color: "#5cc8b8", textAlign: "center", fontSize: 14, margin: "12px 0 0" }}>{done}</p> : null}
-        {bgHint ? <p style={{ color: "#e8b84b", textAlign: "center", fontSize: 12, margin: "10px 0 0" }}>App im Hintergrund — der Click kann pausieren. Zurückkommen und ggf. neu starten.</p> : null}
+        </div>
       </div>
       <div className="panel">
         <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 12 }}>Einstellung</div>
         <TempoControl bpm={startBpm} setBpm={setStart} min={30} max={260} hideNudge />
-        <div style={{ marginTop: 16 }}>
-          <ClickAdvanced mix={mix} setMix={setMix} />
-        </div>
         {sixteenth ? (
           <>
             <div style={{ marginTop: 16, fontSize: 13, color: DIM }}>Dauer</div>
@@ -289,6 +328,19 @@ export default function ClickTrainer() {
           width: 64px; text-align: center; font-weight: 700; font-size: 16px; color: #5cc8b8;
           background: ${INK}; border: 1px solid ${LINE}; border-radius: 8px; padding: 7px 4px;
         }
+        .metro-flip { perspective: 1000px; }
+        .metro-inner {
+          display: grid;
+          transition: transform .45s ease;
+          transform-style: preserve-3d;
+        }
+        .metro-inner.is-back { transform: rotateY(180deg); }
+        .metro-face {
+          grid-area: 1 / 1;
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+        }
+        .metro-back { transform: rotateY(180deg); }
       `}</style>
     </div>
   );
