@@ -1,6 +1,7 @@
 import { useRef } from "react";
 
 const TEAL = "#5cc8b8";
+const INK = "#161a1d";
 const TEAL_GLOW = "rgba(92,200,184,0.45)";
 const RAD_PER_BPM = (10 * Math.PI) / 180;
 
@@ -27,17 +28,15 @@ export function MetronomeDial({
   beat,
   active,
   onToggle,
-  size = 112,
+  size = 124,
   now = true,
 }) {
-  const paint = TEAL;
   const large = size >= 72;
-  const fill = now
-    ? (beat ? "#fff" : paint)
-    : (beat ? "rgba(92,200,184,0.32)" : active ? "rgba(92,200,184,0.12)" : "transparent");
-  const ring = now ? (beat ? "#fff" : paint) : (beat ? "#fff" : active ? TEAL : "#2a2a2a");
-  const num = now ? (beat ? paint : "#000") : (beat ? "#fff" : active ? TEAL : "#8a969c");
-  const labelCol = now ? (beat ? paint : "#000") : (active || beat ? TEAL : "#8a969c");
+  const on = !!active;
+  const fill = beat ? "#fff" : on ? TEAL : INK;
+  const ring = beat ? "#fff" : TEAL;
+  const num = beat ? TEAL : on ? INK : TEAL;
+  const labelCol = num;
   const bpmSize = Math.max(12, Math.round(size * (large ? 0.36 : 0.34)));
   const labelSize = Math.max(8, Math.round(size * 0.11));
   const drag = useRef(null);
@@ -92,7 +91,7 @@ export function MetronomeDial({
       aria-label={active ? "Metronom stoppen" : "Metronom starten"}
       style={{
         background: fill,
-        border: (large ? 3 : 2) + "px solid " + ring,
+        border: (large ? 3.5 : 2.5) + "px solid " + ring,
         borderRadius: "50%",
         width: size,
         height: size,
@@ -104,14 +103,12 @@ export function MetronomeDial({
         alignItems: "center",
         justifyContent: "center",
         boxShadow: beat
-          ? "0 0 24px 7px " + paint
-          : now
-            ? "0 0 16px 3px " + paint
-            : active
-              ? "0 0 12px 3px " + TEAL_GLOW
-              : "none",
+          ? "0 0 24px 7px " + TEAL
+          : on
+            ? "0 0 16px 3px " + TEAL_GLOW
+            : "none",
         transform: beat ? "scale(1.07)" : "scale(1)",
-        transition: "transform .05s linear, background .05s linear, box-shadow .05s linear, border-color .05s linear",
+        transition: "transform .05s linear, background .05s linear, box-shadow .05s linear, border-color .05s linear, color .05s linear",
         flexShrink: 0,
       }}
     >
@@ -133,7 +130,7 @@ export function MetronomeDial({
             textTransform: "uppercase",
             marginTop: 4,
             opacity: 0.85,
-          }}>{now ? (active ? "Now" : "BPM") : "BPM"}</div>
+          }}>{now && on ? "Now" : "BPM"}</div>
         )}
       </div>
     </button>
