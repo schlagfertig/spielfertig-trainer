@@ -21,6 +21,7 @@ button { font-family: inherit; }
   width: min(380px, 88vw);
   height: auto;
   background: transparent;
+  mix-blend-mode: lighten;
 }
 .hero h1 {
   font-family: Oswald, sans-serif;
