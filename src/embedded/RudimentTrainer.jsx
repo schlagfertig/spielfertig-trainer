@@ -12,14 +12,26 @@ const INK = "#161a1d";
 const LINE = "#2f383d";
 const DIM = "#8a969c";
 const HEAR_OK = ["snare", "hands", "click"];
+const GOALS = [
+  { id: "free", label: "Frei" },
+  { id: "l8", loops: 8, label: "8 Loops" },
+  { id: "l16", loops: 16, label: "16 Loops" },
+  { id: "t120", sec: 120, label: "2 Min" },
+];
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, Math.round(n)));
 }
 
+function fmt(sec) {
+  const s = Math.max(0, Math.ceil(sec));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+}
+
 function readRudimentSession() {
   const s = loadSession("rudiments", {});
   const sel = RUDIMENTS.some((r) => r.id === Number(s.sel)) ? Number(s.sel) : 16;
+  const goalId = GOALS.some((g) => g.id === s.goalId) ? s.goalId : "free";
   return {
     sel,
     bpm: clamp(Number(s.bpm) || 80, 30, 260),
@@ -29,6 +41,7 @@ function readRudimentSession() {
     rampBars: clamp(Number(s.rampBars) || 2, 1, 8),
     rampStep: clamp(Number(s.rampStep) || 2, 1, 12),
     rampCap: clamp(Number(s.rampCap) || 160, 40, 260),
+    goalId,
   };
 }
 
@@ -42,12 +55,15 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
   const [rampBars, setRampBars] = useState(init.rampBars);
   const [rampStep, setRampStep] = useState(init.rampStep);
   const [rampCap, setRampCap] = useState(init.rampCap);
+  const [goalId, setGoalId] = useState(init.goalId);
   const [mix, setMix] = useState(() => readMix());
   const [flipped, setFlipped] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [playT, setPlayT] = useState(-1);
   const [beat, setBeat] = useState(false);
   const [loopN, setLoopN] = useState(0);
+  const [leftSec, setLeftSec] = useState(0);
+  const [done, setDone] = useState("");
   const [printOpen, setPrintOpen] = useState(false);
   const [picked, setPicked] = useState([init.sel]);
   const [perPage, setPerPage] = useState(6);
@@ -69,10 +85,11 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
   const meterNow = meterPulse(rud.time);
   const beatsInBar = Math.max(1, Math.round(meterNow.bar / meterNow.pulse));
   const beatN = playT < 0 ? -1 : Math.floor((playT + 1e-4) / meterNow.pulse) % beatsInBar;
+  const goal = GOALS.find((g) => g.id === goalId) || GOALS[0];
 
   useEffect(() => {
-    saveSession("rudiments", { sel, bpm, hear, countIn, rampOn, rampBars, rampStep, rampCap });
-  }, [sel, bpm, hear, countIn, rampOn, rampBars, rampStep, rampCap]);
+    saveSession("rudiments", { sel, bpm, hear, countIn, rampOn, rampBars, rampStep, rampCap, goalId });
+  }, [sel, bpm, hear, countIn, rampOn, rampBars, rampStep, rampCap, goalId]);
   useEffect(() => {
     if (!printNonce || printNonce === lastPrint.current) return;
     lastPrint.current = printNonce;
@@ -98,11 +115,13 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
     setPlayT(-1);
     setBeat(false);
     setLoopN(0);
+    setLeftSec(0);
   }
 
   function pickRud(id) {
     if (id !== sel) stop();
     setSel(id);
+    setDone("");
   }
 
   function stepRud(dir) {
@@ -124,13 +143,18 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
   }
 
   function startLoop() {
+    stop();
+    setDone("");
     const ctx = unlockAudio();
     const notes = (rud.notes || []).filter((nt) => !nt.rest);
     const steps = rudimentDuration(rud);
     const meter = meterPulse(rud.time);
     const barsEach = Math.max(1, rud.bars || 1);
+    const targetLoops = goal.loops || 0;
+    const endAt = goal.sec ? ctx.currentTime + goal.sec : Infinity;
     let cancelled = false;
     let timer = 0;
+    let loopsDone = 1;
     const stepSec = () => 60 / Math.max(30, bpmRef.current) / 4;
     const events = () => {
       if (hearRef.current === "click") {
@@ -154,16 +178,34 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
       cycleStart += 4 * pulseSec;
     }
     const origin = cycleStart;
-    const useMix = hearRef.current === "click" && mixRef.current.advanced;
     const clock = createMixClock();
-    if (useMix) clock.reset(cycleStart);
+    if (hearRef.current === "click" && mixRef.current.advanced) clock.reset(cycleStart);
     let barsAcc = 0;
     let rampAt = cycleStart + rampBarsRef.current * meter.bar * stepSec();
     const bump = () => setBpm((p) => Math.min(rampCapRef.current, 260, p + rampStepRef.current));
     setLoopN(1);
+    if (goal.sec) setLeftSec(goal.sec);
+
+    const finishOk = () => {
+      if (cancelled) return;
+      cancelled = true;
+      window.clearTimeout(timer);
+      stopRef.current = null;
+      setPlaying(false);
+      setPlayT(-1);
+      setBeat(false);
+      setLeftSec(0);
+      setDone("Ziel gehalten — weiter so.");
+    };
+
     const schedule = () => {
       if (cancelled) return;
-      const horizon = ctx.currentTime + 0.16;
+      const now = ctx.currentTime;
+      if (goal.sec && now >= endAt) {
+        finishOk();
+        return;
+      }
+      const horizon = now + 0.16;
       if (hearRef.current === "click" && mixRef.current.advanced) {
         clock.fill(ctx, horizon, bpmRef.current, mixRef.current, (when) => {
           pulse(when, ctx);
@@ -172,8 +214,13 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
           window.setTimeout(() => { if (!cancelled) setPlayT(t16); }, Math.max(0, (when - ctx.currentTime) * 1000));
         });
         const period = Math.max(0.08, steps * stepSec());
-        setLoopN(1 + Math.floor(Math.max(0, ctx.currentTime - origin) / period));
-        if (rampRef.current && ctx.currentTime >= rampAt) {
+        loopsDone = 1 + Math.floor(Math.max(0, now - origin) / period);
+        setLoopN(loopsDone);
+        if (targetLoops && loopsDone > targetLoops) {
+          finishOk();
+          return;
+        }
+        if (rampRef.current && now >= rampAt) {
           bump();
           rampAt += rampBarsRef.current * meter.bar * stepSec();
         }
@@ -182,10 +229,14 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
           const ev = listEv[evIndex];
           const when = cycleStart + ev.t * stepSec();
           if (when >= horizon) break;
-          if (when >= ctx.currentTime - 0.02) {
+          if (goal.sec && when >= endAt) {
+            finishOk();
+            return;
+          }
+          if (when >= now - 0.02) {
             if (ev.kind === "click") playClick(ctx, when, ev.down);
             else playOrnament(ctx, ev.nt, when, ev.kind === "stick" ? "stick" : "snare", stepSec());
-            const delay = Math.max(0, (when - ctx.currentTime) * 1000);
+            const delay = Math.max(0, (when - now) * 1000);
             window.setTimeout(() => { if (!cancelled) setPlayT(ev.t); }, delay);
             if (ev.kind === "click" || Math.abs((ev.t || 0) % meter.pulse) < 0.08) pulse(when, ctx);
           }
@@ -195,7 +246,12 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
             cycleStart += steps * stepSec();
             listEv = events();
             barsAcc += barsEach;
-            setLoopN((n) => n + 1);
+            loopsDone += 1;
+            setLoopN(loopsDone);
+            if (targetLoops && loopsDone > targetLoops) {
+              finishOk();
+              return;
+            }
             if (rampRef.current && barsAcc >= rampBarsRef.current) {
               barsAcc = 0;
               bump();
@@ -203,6 +259,7 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
           }
         }
       }
+      if (goal.sec) setLeftSec(Math.max(0, endAt - ctx.currentTime));
       timer = window.setTimeout(schedule, 25);
     };
     setPlaying(true);
@@ -295,10 +352,20 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
               <span key={i} className={playing && beatN === i ? "on" : ""}>{i + 1}</span>
             ))}
           </div>
-          <div className="beat-loop">{playing ? `Loop ${loopN}` : "Loop —"}</div>
+          <div className="beat-loop">
+            {playing && goal.sec ? fmt(leftSec) : playing ? `Loop ${loopN}${goal.loops ? "/" + goal.loops : ""}` : "Loop —"}
+          </div>
         </div>
+        {done ? <div className="goal-done">{done}</div> : null}
         {stage ? null : <div className="staff-hint">Aktueller Schlag oben markiert · R blau · L rot</div>}
       </div>
+      {stage ? null : (
+        <div className="seg" style={{ margin: "0 0 12px", width: "fit-content", maxWidth: "100%", flexWrap: "wrap" }}>
+          {GOALS.map((g) => (
+            <button key={g.id} type="button" className={goalId === g.id ? "on" : ""} onClick={() => !playing && setGoalId(g.id)}>{g.label}</button>
+          ))}
+        </div>
+      )}
       <div className="metro-shell rud-metro">
         <div className="panel dock metro-face">
           {flipped ? (
