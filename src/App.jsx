@@ -3,6 +3,7 @@ import RudimentTrainer from "./embedded/RudimentTrainer.jsx";
 import ClickTrainer from "./embedded/ClickTrainer.jsx";
 import PyramidTrainer from "./embedded/PyramidTrainer.jsx";
 import StickControl from "./embedded/StickControl.jsx";
+import Archive from "./embedded/Archive.jsx";
 import { Help } from "./lib/Help.jsx";
 
 const META = {
@@ -10,23 +11,27 @@ const META = {
   click: { title: "Click-Trainer", help: "click" },
   pyramid: { title: "Rhythmuspyramide", help: "pyramid" },
   stick: { title: "Stick Control", help: "stick" },
+  archive: { title: "Noten", help: "archive" },
 };
 
 export default function App() {
   const [view, setView] = useState("home");
   const [printNonce, setPrintNonce] = useState(0);
   const [stage, setStage] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const viewRef = useRef(view);
   viewRef.current = view;
 
   function goHome() {
     setPrintNonce(0);
     setStage(false);
+    setSheetOpen(false);
     setView("home");
   }
 
   function open(next) {
     setStage(false);
+    setSheetOpen(false);
     setView(next);
     try { window.history.pushState({ sf: next }, ""); } catch { /* ignore */ }
   }
@@ -60,6 +65,10 @@ export default function App() {
       const dy = Math.abs(t.clientY - startY);
       if (dx > 72 && dy < 56) {
         tracking = false;
+        if (sheetOpen) {
+          setSheetOpen(false);
+          return;
+        }
         if (stage) {
           setStage(false);
           return;
@@ -81,7 +90,7 @@ export default function App() {
       window.removeEventListener("touchend", onEnd);
       window.removeEventListener("touchcancel", onEnd);
     };
-  }, [view, stage]);
+  }, [view, stage, sheetOpen]);
 
   if (view === "home") {
     return (
@@ -117,6 +126,12 @@ export default function App() {
             <div className="card-lead">Single-Beat-Kombinationen. Kurze Challenge.</div>
             <div className="card-go">Öffnen</div>
           </button>
+          <button className="card" onClick={() => open("archive")}>
+            <div className="card-kicker">Eigene Blätter</div>
+            <div className="card-title">Noten</div>
+            <div className="card-lead">Fotos und PDFs lokal ablegen und währenddessen aufschlagen.</div>
+            <div className="card-go">Öffnen</div>
+          </button>
         </div>
         <footer className="foot">Thomas Schuster · schlagfertig‽</footer>
       </div>
@@ -124,6 +139,7 @@ export default function App() {
   }
 
   const meta = META[view] || META.rudiments;
+  const practice = view === "rudiments" || view === "stick" || view === "click" || view === "pyramid";
   return (
     <div className={stage ? "page tool stage" : "page tool"}>
       <header className="top">
@@ -134,6 +150,9 @@ export default function App() {
         )}
         <div className="top-title">{meta.title}</div>
         <div className="top-right">
+          {practice && !stage && (
+            <button className="ghost" onClick={() => setSheetOpen(true)}>Blatt</button>
+          )}
           {view === "rudiments" && !stage && (
             <button className="ghost" onClick={() => setPrintNonce((n) => n + 1)}>Drucken</button>
           )}
@@ -147,8 +166,10 @@ export default function App() {
         {view === "click" ? <ClickTrainer />
           : view === "pyramid" ? <PyramidTrainer />
           : view === "stick" ? <StickControl />
+          : view === "archive" ? <Archive />
           : <RudimentTrainer printNonce={printNonce} stage={stage} />}
       </main>
+      {sheetOpen ? <Archive overlay onClose={() => setSheetOpen(false)} /> : null}
     </div>
   );
 }
