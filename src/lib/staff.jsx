@@ -287,11 +287,11 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
   const ornamented = notes.some((nt) => nt.flam || nt.drag);
   const quarterW = hideTime ? 58 : (ornamented ? 152 : minDur <= 0.5 ? 144 : 140);
   const stepW = quarterW / 4;
-  const x0 = hideTime ? 28 : 88;
+  const x0 = hideTime ? 44 : 88;
   const pack = hideTime ? 0.92 : 1;
   const cluster = 8;
   const soloWhole = sounded.length === 1 && !!(sounded[0].whole || (sounded[0].dur >= 8 && sounded[0].roll));
-  const w = x0 + Math.max(steps * stepW, soloWhole ? 240 : 0) + (hideTime ? 10 : 18);
+  const w = x0 + Math.max(steps * stepW, soloWhole ? 240 : 0) + (hideTime ? 14 : 18);
   const y = hideTime ? 36 : 58;
   const lineGap = hideTime ? 7.2 : 8.5;
   const ny = y - lineGap / 2;
@@ -315,7 +315,12 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
     const inset = (slotW - inner) / 2;
     return x0 + g * slotW + inset + local * stepW * pack;
   };
-  const barX = (t16) => x0 + t16 * stepW;
+  const barX = (t16) => {
+    const left = sounded.filter((nt) => nt.t < t16 - 1e-4).at(-1);
+    const right = sounded.find((nt) => nt.t >= t16 - 1e-4);
+    if (left && right) return (noteX(left) + noteX(right)) / 2;
+    return x0 + t16 * stepW;
+  };
   const tokenAt = (row, i, nt) => {
     if (!row) return nt.hand;
     if (Array.isArray(row)) return row[i];
