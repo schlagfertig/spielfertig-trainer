@@ -229,21 +229,7 @@ export default function RudimentTrainer({ printNonce }) {
 
   return (
     <div>
-      <div className="pick">
-        <button type="button" className="ghost" disabled={idx <= 0} onClick={() => stepRud(-1)} aria-label="Vorheriges Rudiment">‹</button>
-        <select className="rud-select" value={rud.id} onChange={(e) => pickRud(Number(e.target.value))} aria-label="Rudiment wählen">
-          {CATS.map((c) => (
-            <optgroup key={c.id} label={c.label}>
-              {RUDIMENTS.filter((r) => r.cat === c.id).map((r) => (
-                <option key={r.id} value={r.id}>{r.label}</option>
-              ))}
-            </optgroup>
-          ))}
-        </select>
-        <button type="button" className="ghost" disabled={idx >= RUDIMENTS.length - 1} onClick={() => stepRud(1)} aria-label="Nächstes Rudiment">›</button>
-      </div>
       <div className="staff-card">
-        <div className="staff-label">{rud.label}</div>
         <RudimentStaff rud={rud} playingT={playT} svgId="rud-live" />
         <div className="staff-hint">R blau · L rot · Kreis drehen ändert das Tempo</div>
       </div>
@@ -283,6 +269,22 @@ export default function RudimentTrainer({ printNonce }) {
             )}
           </div>
         )}
+        <div className="rud-nav">
+          <button type="button" className="rud-arrow" disabled={idx <= 0} onClick={() => stepRud(-1)} aria-label="Vorheriges Rudiment">‹</button>
+          <div className="rud-now">
+            <div className="rud-now-name">{rud.label}</div>
+            <select className="rud-now-select" value={rud.id} onChange={(e) => pickRud(Number(e.target.value))} aria-label="Rudiment wählen">
+              {CATS.map((c) => (
+                <optgroup key={c.id} label={c.label}>
+                  {RUDIMENTS.filter((r) => r.cat === c.id).map((r) => (
+                    <option key={r.id} value={r.id}>{r.label}</option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </div>
+          <button type="button" className="rud-arrow" disabled={idx >= RUDIMENTS.length - 1} onClick={() => stepRud(1)} aria-label="Nächstes Rudiment">›</button>
+        </div>
       </div>
       {printOpen && (
         <div className="modal" onClick={closePrint}>
