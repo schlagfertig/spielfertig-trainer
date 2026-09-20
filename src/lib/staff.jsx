@@ -158,7 +158,16 @@ function WholeHead({ x, y, ink }) {
 }
 
 function Accent({ x, y }) {
-  return <path d={`M ${x - 5.6} ${y} L ${x + 5.6} ${y} L ${x} ${y + 3.9} Z`} fill={INK} stroke="none" />;
+  return (
+    <path
+      d={`M ${x - 4.4} ${y - 3.1} L ${x + 4.6} ${y} L ${x - 4.4} ${y + 3.1}`}
+      fill="none"
+      stroke={INK}
+      strokeWidth={1.45}
+      strokeLinejoin="miter"
+      strokeLinecap="butt"
+    />
+  );
 }
 
 function Flag({ x, y, extra, scale = 1 }) {
