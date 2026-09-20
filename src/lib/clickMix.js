@@ -15,7 +15,7 @@ export const MIX_LAYERS = [
   { id: "quarter", label: "Viertel", sub: "1 2 3 4" },
   { id: "off", label: "Achtel +", sub: "und" },
   { id: "sixteenth", label: "16tel e/a", sub: "e + a" },
-  { id: "triplet", label: "Triolen", sub: "3" },
+  { id: "triplet", label: "Triolen", sub: "2 + 3" },
   { id: "beat", label: "BEAT", sub: "1" },
   { id: "master", label: "Master", sub: "gesamt" },
 ];
@@ -63,7 +63,7 @@ export function createMixClock() {
       t16 = t0;
       t3 = t0;
     },
-    fill(ctx, horizon, bpm, mix, onTick) {
+    fill(ctx, horizon, bpm, mix, onQuarter) {
       const beat = 60 / Math.max(30, bpm);
       const g = (id) => layerGain(mix, id);
       const earliest = ctx.currentTime - 0.02;
@@ -79,20 +79,19 @@ export function createMixClock() {
         const slot = n16 % 4;
         const bar = n16 % 16;
         if (t16 >= earliest) {
-          let hit = false;
-          if (g("beat") > 0.008 && bar === 0) { playClickLayer(ctx, t16, "beat", g("beat")); hit = true; }
-          if (g("quarter") > 0.008 && slot === 0) { playClickLayer(ctx, t16, "quarter", g("quarter")); hit = true; }
-          if (g("off") > 0.008 && slot === 2) { playClickLayer(ctx, t16, "off", g("off")); hit = true; }
-          if (g("sixteenth") > 0.008 && (slot === 1 || slot === 3)) { playClickLayer(ctx, t16, "sixteenth", g("sixteenth")); hit = true; }
-          if (hit) onTick?.(t16);
+          if (g("beat") > 0.008 && bar === 0) playClickLayer(ctx, t16, "beat", g("beat"));
+          if (g("quarter") > 0.008 && slot === 0) playClickLayer(ctx, t16, "quarter", g("quarter"));
+          if (g("off") > 0.008 && slot === 2) playClickLayer(ctx, t16, "off", g("off"));
+          if (g("sixteenth") > 0.008 && (slot === 1 || slot === 3)) playClickLayer(ctx, t16, "sixteenth", g("sixteenth"));
+          if (slot === 0) onQuarter?.(t16);
         }
         n16 += 1;
         t16 += beat / 4;
       }
       while (t3 < horizon) {
-        if (t3 >= earliest && g("triplet") > 0.008) {
+        // First of each triplet sits on the quarter — skip, Viertel/BEAT cover it.
+        if (t3 >= earliest && g("triplet") > 0.008 && n3 % 3 !== 0) {
           playClickLayer(ctx, t3, "triplet", g("triplet"));
-          onTick?.(t3);
         }
         n3 += 1;
         t3 += beat / 3;
