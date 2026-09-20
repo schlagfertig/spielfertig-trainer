@@ -100,8 +100,8 @@ function TimeSig({ x, y, n, d }) {
   }
   return (
     <g fill={INK} stroke="none" fontFamily="Oswald, sans-serif" fontWeight="700" textAnchor="middle">
-      <text x={x} y={y - 1} fontSize="18">{n}</text>
-      <text x={x} y={y + 17} fontSize="18">{d}</text>
+      <text x={x} y={y - 1} fontSize="20">{n}</text>
+      <text x={x} y={y + 19} fontSize="20">{d}</text>
     </g>
   );
 }
@@ -250,11 +250,11 @@ function StickLine({ x, x2, y, text, flam, handwritten }) {
     return (
       <g stroke="none" fontFamily={font}>
         {flam ? (
-          <text x={x - 10} y={y} textAnchor="middle" fontSize="13" fontWeight="800" fill={flam === "R" ? RCOL : LCOL}>
+          <text x={x - 11} y={y} textAnchor="middle" fontSize="15" fontWeight="800" fill={flam === "R" ? RCOL : LCOL}>
             {flam}
           </text>
         ) : null}
-        <text x={x + (flam ? 5 : 0)} y={y} textAnchor="middle" fontSize={handwritten ? 19 : 18} fontWeight="800">
+        <text x={x + (flam ? 5 : 0)} y={y} textAnchor="middle" fontSize={handwritten ? 22 : 21} fontWeight="800">
           {letters.map((ch, i) => (
             <tspan key={i} fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>{ch}</tspan>
           ))}
@@ -269,7 +269,7 @@ function StickLine({ x, x2, y, text, flam, handwritten }) {
         const t = letters.length === 1 ? 0 : i / (letters.length - 1);
         const xx = x + t * (right - x);
         return (
-          <text key={i} x={xx} y={y} textAnchor="middle" fontSize={handwritten ? 17 : 16} fontWeight="800" fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>
+          <text key={i} x={xx} y={y} textAnchor="middle" fontSize={handwritten ? 20 : 19} fontWeight="800" fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>
             {ch}
           </text>
         );
@@ -293,8 +293,8 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
   const y = 58;
   const lineGap = 9.5;
   const ny = y - lineGap / 2;
-  const h0 = y + 2 * lineGap + 28;
-  const viewH = 160;
+  const h0 = y + 2 * lineGap + 34;
+  const viewH = 176;
   const groups = beamGroups(notes, pulse);
   const beamed = new Set();
   groups.forEach((g) => g.forEach((note) => beamed.add(note)));
@@ -420,7 +420,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
             const mid = (xs[0] + xs[xs.length - 1]) / 2;
             const label = g[0].tuplet === 6 ? "(6)" : String(g[0].tuplet);
             layers.push(
-              <text key={`${gi}-tup`} x={mid} y={y0 - 12} textAnchor="middle" fontSize="14" fontWeight="800" fill={INK} stroke="none">
+              <text key={`${gi}-tup`} x={mid} y={y0 - 12} textAnchor="middle" fontSize="16" fontWeight="800" fill={INK} stroke="none">
                 {label}
               </text>
             );
