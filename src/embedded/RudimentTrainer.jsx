@@ -32,7 +32,7 @@ function readRudimentSession() {
   };
 }
 
-export default function RudimentTrainer({ printNonce }) {
+export default function RudimentTrainer({ printNonce, stage = false }) {
   const init = useRef(readRudimentSession()).current;
   const [sel, setSel] = useState(init.sel);
   const [bpm, setBpm] = useState(init.bpm);
@@ -81,6 +81,9 @@ export default function RudimentTrainer({ printNonce }) {
     setPicked((p) => (p.includes(sel) ? p : [...p, sel]));
   }, [printNonce, sel]);
   useEffect(() => () => stopRef.current?.(), []);
+  useEffect(() => {
+    if (stage) setFlipped(false);
+  }, [stage]);
 
   function closePrint() {
     setPrintOpen(false);
@@ -294,7 +297,7 @@ export default function RudimentTrainer({ printNonce }) {
           </div>
           <div className="beat-loop">{playing ? `Loop ${loopN}` : "Loop —"}</div>
         </div>
-        <div className="staff-hint">Aktueller Schlag oben markiert · R blau · L rot</div>
+        {stage ? null : <div className="staff-hint">Aktueller Schlag oben markiert · R blau · L rot</div>}
       </div>
       <div className="metro-shell rud-metro">
         <div className="panel dock metro-face">
@@ -316,31 +319,37 @@ export default function RudimentTrainer({ printNonce }) {
             <div key="front" className="metro-swap">
               <div className="dial-row">
                 <button type="button" className="nudge-lg" onClick={() => setBpm(Math.max(30, bpm - 5))} aria-label="5 BPM langsamer">−5</button>
-                <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={96} now />
+                <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={stage ? 136 : 96} now />
                 <button type="button" className="nudge-lg" onClick={() => setBpm(Math.min(260, bpm + 5))} aria-label="5 BPM schneller">+5</button>
               </div>
-              <label className="check" style={{ marginTop: 10 }}>
-                <input type="checkbox" checked={rampOn} onChange={(e) => setRampOn(e.target.checked)} />Tempo steigern
-              </label>
-              {rampOn ? (
-                <div style={{ fontSize: 12, color: DIM, marginTop: 8, lineHeight: 1.7 }}>
-                  alle
-                  <input type="number" min={1} max={8} value={rampBars} onChange={(e) => setRampBars(clamp(Number(e.target.value) || 2, 1, 8))} style={field} />
-                  Takte um
-                  <input type="number" min={1} max={12} value={rampStep} onChange={(e) => setRampStep(clamp(Number(e.target.value) || 2, 1, 12))} style={field} />
-                  BPM · bis
-                  <input type="number" min={40} max={260} value={rampCap} onChange={(e) => setRampCap(clamp(Number(e.target.value) || 160, 40, 260))} style={{ ...field, width: 56 }} />
-                </div>
-              ) : null}
+              {stage ? null : (
+                <>
+                  <label className="check" style={{ marginTop: 10 }}>
+                    <input type="checkbox" checked={rampOn} onChange={(e) => setRampOn(e.target.checked)} />Tempo steigern
+                  </label>
+                  {rampOn ? (
+                    <div style={{ fontSize: 12, color: DIM, marginTop: 8, lineHeight: 1.7 }}>
+                      alle
+                      <input type="number" min={1} max={8} value={rampBars} onChange={(e) => setRampBars(clamp(Number(e.target.value) || 2, 1, 8))} style={field} />
+                      Takte um
+                      <input type="number" min={1} max={12} value={rampStep} onChange={(e) => setRampStep(clamp(Number(e.target.value) || 2, 1, 12))} style={field} />
+                      BPM · bis
+                      <input type="number" min={40} max={260} value={rampCap} onChange={(e) => setRampCap(clamp(Number(e.target.value) || 160, 40, 260))} style={{ ...field, width: 56 }} />
+                    </div>
+                  ) : null}
+                </>
+              )}
               <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
                 <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : startLoop())}>{playing ? "Stop" : "Start"}</button>
               </div>
             </div>
           )}
         </div>
-        <button type="button" className={flipped ? "metro-side on" : "metro-side"} onClick={() => flip(!flipped)}>
-          {flipped ? "Metronom" : "Erweitert"}
-        </button>
+        {stage ? null : (
+          <button type="button" className={flipped ? "metro-side on" : "metro-side"} onClick={() => flip(!flipped)}>
+            {flipped ? "Metronom" : "Erweitert"}
+          </button>
+        )}
       </div>
       <div className="rud-nav">
         <button type="button" className="rud-half prev" disabled={!prevRud} onClick={() => stepRud(-1)} aria-label={prevRud ? "Vorheriges: " + prevRud.label : "Kein vorheriges Rudiment"}>
