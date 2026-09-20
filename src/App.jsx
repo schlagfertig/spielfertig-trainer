@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import RudimentTrainer from "./embedded/RudimentTrainer.jsx";
 import ClickTrainer from "./embedded/ClickTrainer.jsx";
 import PyramidTrainer from "./embedded/PyramidTrainer.jsx";
@@ -15,11 +15,66 @@ const META = {
 export default function App() {
   const [view, setView] = useState("home");
   const [printNonce, setPrintNonce] = useState(0);
+  const viewRef = useRef(view);
+  viewRef.current = view;
 
   function goHome() {
     setPrintNonce(0);
     setView("home");
   }
+
+  function open(next) {
+    setView(next);
+    try { window.history.pushState({ sf: next }, ""); } catch { /* ignore */ }
+  }
+
+  useEffect(() => {
+    function onPop() {
+      if (viewRef.current !== "home") goHome();
+    }
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  useEffect(() => {
+    if (view === "home") return undefined;
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+    function onStart(e) {
+      const t = e.changedTouches?.[0];
+      if (!t) return;
+      if (t.clientX > 32) return;
+      startX = t.clientX;
+      startY = t.clientY;
+      tracking = true;
+    }
+    function onMove(e) {
+      if (!tracking) return;
+      const t = e.changedTouches?.[0];
+      if (!t) return;
+      const dx = t.clientX - startX;
+      const dy = Math.abs(t.clientY - startY);
+      if (dx > 72 && dy < 56) {
+        tracking = false;
+        if (window.history.state?.sf) window.history.back();
+        else goHome();
+      }
+    }
+    function onEnd() {
+      tracking = false;
+    }
+    window.addEventListener("touchstart", onStart, { passive: true });
+    window.addEventListener("touchmove", onMove, { passive: true });
+    window.addEventListener("touchend", onEnd);
+    window.addEventListener("touchcancel", onEnd);
+    return () => {
+      window.removeEventListener("touchstart", onStart);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onEnd);
+      window.removeEventListener("touchcancel", onEnd);
+    };
+  }, [view]);
 
   if (view === "home") {
     return (
@@ -31,28 +86,28 @@ export default function App() {
           <p className="tag">schlagfertig‽ · Zeit für guten Sound</p>
         </header>
         <div className="cards">
-          <button className="card" onClick={() => setView("rudiments")}>
+          <button className="card" onClick={() => open("rudiments")}>
             <div className="card-kicker">Üben</div>
             <div className="card-title">Rudiments</div>
             <div className="card-lead">40 PAS-Rudiments. Notation, Click, Tempo.</div>
             <div className="card-go">Öffnen</div>
           </button>
-          <button className="card" onClick={() => setView("click")}>
+          <button className="card" onClick={() => open("click")}>
             <div className="card-kicker">Tempo</div>
             <div className="card-title">Click-Trainer</div>
             <div className="card-lead">Starttempo wählen. Alle X Sekunden um Y BPM schneller.</div>
             <div className="card-go">Öffnen</div>
           </button>
-          <button className="card" onClick={() => setView("pyramid")}>
+          <button className="card" onClick={() => open("pyramid")}>
             <div className="card-kicker">Subdivision</div>
             <div className="card-title">Rhythmuspyramide</div>
             <div className="card-lead">4tel bis 32tel auf und ab. Ohne Septole.</div>
             <div className="card-go">Öffnen</div>
           </button>
-          <button className="card" onClick={() => setView("stick")}>
+          <button className="card" onClick={() => open("stick")}>
             <div className="card-kicker">Technik</div>
             <div className="card-title">Stick Control</div>
-            <div className="card-lead">Singles, Doubles, Paradiddle. Kurze Challenge.</div>
+            <div className="card-lead">Single-Beat-Kombinationen. Kurze Challenge.</div>
             <div className="card-go">Öffnen</div>
           </button>
         </div>
@@ -65,7 +120,7 @@ export default function App() {
   return (
     <div className="page tool">
       <header className="top">
-        <button className="ghost" onClick={goHome}>Zurück</button>
+        <button className="ghost" onClick={() => (window.history.state?.sf ? window.history.back() : goHome())}>Zurück</button>
         <div className="top-title">{meta.title}</div>
         <div className="top-right">
           {view === "rudiments" && (
