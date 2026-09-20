@@ -74,6 +74,14 @@ const pata = (start, lead, g) => {
     n(start + 3, 1, oth, true, { flam: lead, g }),
   ];
 };
+const ddt = (start, lead, g) => {
+  const oth = lead === "R" ? "L" : "R";
+  return [
+    n(start, 3, lead, false, { drag: oth, dot: true, g, beams: 1 }),
+    n(start + 3, 1, lead, false, { drag: oth, g, beams: 2 }),
+    n(start + 4, 2, oth, true, { g, beams: 1 }),
+  ];
+};
 const ratSingle = (start, lead, g) => {
   const oth = lead === "R" ? "L" : "R";
   return [
@@ -158,7 +166,7 @@ export const RUDIMENTS = [
   { id: 30, cat: "flam", label: "30. Flam Drag", bars: 1, time: "2/4", notes: [...flamDrag8(0, "R", 1), ...flamDrag8(1, "L", 2)], sticking: dualTok(["R", "L", "L", "R", "L", "R", "R", "L"]) },
   { id: 31, cat: "drag", label: "31. Drag", bars: 1, time: "2/4", notes: [n(0, 2, "R", true, { drag: "L", g: 1 }), n(2, 2, "L", true, { drag: "R", g: 1 }), n(4, 2, "R", true, { drag: "L", g: 2 }), n(6, 2, "L", true, { drag: "R", g: 2 })], sticking: dual("RLRL") },
   { id: 32, cat: "drag", label: "32. Single Drag Tap", bars: 1, time: "2/4", notes: [n(0, 2, "R", false, { drag: "L", g: 1 }), n(2, 2, "L", true, { g: 1 }), n(4, 2, "L", false, { drag: "R", g: 2 }), n(6, 2, "R", true, { g: 2 })] },
-  { id: 33, cat: "drag", label: "33. Double Drag Tap", bars: 1, time: "2/4", notes: [n(0, 2, "R", false, { drag: "L", g: 1 }), n(2, 2, "R", false, { drag: "L", g: 1 }), n(4, 4, "L", true)] },
+  { id: 33, cat: "drag", label: "33. Double Drag Tap", bars: 1, time: "6/8", notes: [...ddt(0, "R", 1), ...ddt(6, "L", 2)], sticking: dualTok(["LLR", "LLR", "L", "RRL", "RRL", "R"]) },
   { id: 34, cat: "drag", label: "34. Lesson 25", bars: 1, time: "2/4", notes: [n(0, 1, "R", false, { drag: "L", g: 1 }), n(1, 1, "L", false, { g: 1 }), n(2, 2, "R", true, { g: 1 }), n(4, 1, "L", false, { drag: "R", g: 2 }), n(5, 1, "R", false, { g: 2 }), n(6, 2, "L", true, { g: 2 })] },
   { id: 35, cat: "drag", label: "35. Single Dragadiddle", bars: 1, time: "2/4", notes: [n(0, 1, "R", true, { drag: "L", g: 1 }), n(1, 1, "L", false, { g: 1 }), n(2, 1, "R", false, { g: 1 }), n(3, 1, "R", false, { g: 1 }), n(4, 1, "L", true, { drag: "R", g: 2 }), n(5, 1, "R", false, { g: 2 }), n(6, 1, "L", false, { g: 2 }), n(7, 1, "L", false, { g: 2 })], sticking: dual("RLRRLRLL") },
   { id: 36, cat: "drag", label: "36. Drag Paradiddle #1", bars: 2, time: "2/4", notes: [
