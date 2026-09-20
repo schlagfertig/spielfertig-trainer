@@ -9,7 +9,6 @@ const DIM = "#8a969c";
 const n = (t, dur, hand, acc = false, extra = {}) => ({ t, dur, hand, acc, ...extra });
 const run8ths = (hands) =>
   hands.split("").map((h, i) => n(i * 2, 2, h, false, { g: Math.floor(i / 2) + 1 }));
-const dual = (s) => [s, s.replace(/R/g, "x").replace(/L/g, "R").replace(/x/g, "L")];
 
 const PATTERNS = [
   "RLRLRLRLRLRLRLRL",
@@ -44,7 +43,7 @@ const EXERCISES = PATTERNS.map((hands, i) => ({
   time: "2/2",
   bars: 2,
   notes: run8ths(hands),
-  sticking: dual(hands),
+  sticking: [hands],
 }));
 
 const CHALLENGES = [
@@ -192,7 +191,7 @@ export default function StickControl() {
   return (
     <div>
       <p style={{ color: DIM, fontSize: 16, fontWeight: 600, margin: "12px 0 16px" }}>
-        Single-Beat-Kombinationen. Alla breve, zwei Takte Achtel. Tempo = Viertel.
+        Single-Beat-Kombinationen. Tempo = Viertel.
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 6, marginBottom: 12 }}>
         {EXERCISES.map((e) => (
@@ -202,8 +201,8 @@ export default function StickControl() {
         ))}
       </div>
       <div className="staff-card">
-        <div className="staff-label">Nr. {ex.id} · Alla breve · 2 Takte</div>
-        <RudimentStaff rud={ex} playingT={playT} svgId="stick-live" />
+        <div className="staff-label">Nr. {ex.id}</div>
+        <RudimentStaff rud={ex} playingT={playT} svgId="stick-live" hideTime />
       </div>
       <div className="seg" style={{ margin: "0 0 12px", width: "fit-content" }}>
         <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>Üben</button>
@@ -244,7 +243,7 @@ export default function StickControl() {
       <div className="panel">
         <TempoControl bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} min={30} max={200} hideNudge />
         <p style={{ color: DIM, fontSize: 15, fontWeight: 600, margin: "14px 0 0" }}>
-          Alla breve, zwei Takte Achtel. BPM zählt die Viertel. Click auf jeder Viertel, Eins betont.
+          BPM zählt die Viertel. Click auf jeder Viertel, Eins betont.
         </p>
       </div>
     </div>
