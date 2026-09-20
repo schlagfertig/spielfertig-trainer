@@ -82,6 +82,36 @@ const ddt = (start, lead, g) => {
     n(start + 4, 2, oth, true, { g, beams: 1 }),
   ];
 };
+const dragadiddle = (start, lead, g) => {
+  const oth = lead === "R" ? "L" : "R";
+  return [
+    n(start, 0.5, lead, true, { g, beams: 3 }),
+    n(start + 0.5, 0.5, lead, false, { g, beams: 3 }),
+    n(start + 1, 1, oth, false, { g, beams: 2 }),
+    n(start + 2, 1, lead, false, { g, beams: 2 }),
+    n(start + 3, 1, lead, false, { g, beams: 2 }),
+  ];
+};
+const dp1 = (start, lead, g) => {
+  const oth = lead === "R" ? "L" : "R";
+  return [
+    n(start, 2, lead, true, { g, beams: 1 }),
+    n(start + 2, 1, lead, false, { drag: oth, g, beams: 2 }),
+    n(start + 3, 1, oth, false, { g, beams: 2 }),
+    n(start + 4, 1, lead, false, { g, beams: 2 }),
+    n(start + 5, 1, lead, false, { g, beams: 2 }),
+  ];
+};
+const dp2 = (start, lead, g) => {
+  const oth = lead === "R" ? "L" : "R";
+  return [
+    n(start, 2, lead, true, { g, beams: 1 }),
+    n(start + 2, 1, lead, false, { drag: oth, g, beams: 2 }),
+    n(start + 3, 1, oth, false, { g, beams: 2 }),
+    n(start + 4, 1, lead, false, { g, beams: 2 }),
+    n(start + 5, 1, lead, false, { g, beams: 2 }),
+  ];
+};
 const ratSingle = (start, lead, g) => {
   const oth = lead === "R" ? "L" : "R";
   return [
@@ -168,12 +198,9 @@ export const RUDIMENTS = [
   { id: 32, cat: "drag", label: "32. Single Drag Tap", bars: 1, time: "2/4", notes: [n(0, 2, "R", false, { drag: "L", g: 1 }), n(2, 2, "L", true, { g: 1 }), n(4, 2, "L", false, { drag: "R", g: 2 }), n(6, 2, "R", true, { g: 2 })] },
   { id: 33, cat: "drag", label: "33. Double Drag Tap", bars: 1, time: "6/8", notes: [...ddt(0, "R", 1), ...ddt(6, "L", 2)], sticking: dualTok(["LLR", "LLR", "L", "RRL", "RRL", "R"]) },
   { id: 34, cat: "drag", label: "34. Lesson 25", bars: 1, time: "2/4", notes: [n(0, 1, "R", false, { drag: "L", g: 1 }), n(1, 1, "L", false, { g: 1 }), n(2, 2, "R", true, { g: 1 }), n(4, 1, "L", false, { drag: "R", g: 2 }), n(5, 1, "R", false, { g: 2 }), n(6, 2, "L", true, { g: 2 })] },
-  { id: 35, cat: "drag", label: "35. Single Dragadiddle", bars: 1, time: "2/4", notes: [n(0, 1, "R", true, { drag: "L", g: 1 }), n(1, 1, "L", false, { g: 1 }), n(2, 1, "R", false, { g: 1 }), n(3, 1, "R", false, { g: 1 }), n(4, 1, "L", true, { drag: "R", g: 2 }), n(5, 1, "R", false, { g: 2 }), n(6, 1, "L", false, { g: 2 }), n(7, 1, "L", false, { g: 2 })], sticking: dual("RLRRLRLL") },
-  { id: 36, cat: "drag", label: "36. Drag Paradiddle #1", bars: 2, time: "2/4", notes: [
-    n(0, 2, "R", true, { drag: "L", g: 1 }), n(2, 1, "R", false, { drag: "L", g: 1 }), n(3, 1, "L", false, { g: 1 }), n(4, 1, "R", false, { g: 1 }), n(5, 1, "R", false, { g: 1 }),
-    n(8, 2, "L", true, { drag: "R", g: 2 }), n(10, 1, "L", false, { drag: "R", g: 2 }), n(11, 1, "R", false, { g: 2 }), n(12, 1, "L", false, { g: 2 }), n(13, 1, "L", false, { g: 2 }),
-  ], sticking: dualTok(["R", "LLR", "L", "R", "R", "L", "RRL", "R", "L", "L"]) },
-  { id: 37, cat: "drag", label: "37. Drag Paradiddle #2", bars: 1, time: "4/4", notes: [n(0, 2, "R", true, { drag: "L" }), n(2, 2, "R", false, { drag: "L" }), n(4, 1, "L"), n(5, 1, "R"), n(6, 1, "R"), n(7, 1, "L"), n(8, 2, "L", true, { drag: "R" }), n(10, 2, "L", false, { drag: "R" }), n(12, 1, "R"), n(13, 1, "L"), n(14, 1, "L"), n(15, 1, "R")] },
+  { id: 35, cat: "drag", label: "35. Single Dragadiddle", bars: 1, time: "2/4", notes: [...dragadiddle(0, "R", 1), ...dragadiddle(4, "L", 2)], sticking: dual("RRLRRLLRLL") },
+  { id: 36, cat: "drag", label: "36. Drag Paradiddle #1", bars: 2, time: "2/4", notes: [...dp1(0, "R", 1), ...dp1(8, "L", 2)], sticking: dualTok(["R", "LLR", "L", "R", "R", "L", "RRL", "R", "L", "L"]) },
+  { id: 37, cat: "drag", label: "37. Drag Paradiddle #2", bars: 1, time: "4/4", notes: [...dp2(0, "R", 1), ...dp2(8, "L", 2)], sticking: dualTok(["R", "LLR", "L", "R", "R", "L", "RRL", "R", "L", "L"]) },
   { id: 38, cat: "drag", label: "38. Single Ratamacue", bars: 1, time: "2/4", notes: [...ratSingle(0, "R", 1), ...ratSingle(4, "L", 2)], sticking: dualTok(["LLR", "L", "R", "L", "RRL", "R", "L", "R"]) },
   { id: 39, cat: "drag", label: "39. Double Ratamacue", bars: 2, time: "2/4", notes: [...ratDouble(0, "R", 1), ...ratDouble(8, "L", 2)], sticking: dualTok(["LLR", "LLR", "L", "R", "L", "RRL", "RRL", "R", "L", "R"]) },
   { id: 40, cat: "drag", label: "40. Triple Ratamacue", bars: 2, time: "2/4", notes: [...ratTriple(0, "R", 1), ...ratTriple(8, "L", 2)], sticking: dualTok(["LLR", "LLR", "LLR", "L", "R", "L", "RRL", "RRL", "RRL", "R", "L", "R"]) },
