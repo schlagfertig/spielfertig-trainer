@@ -59,7 +59,7 @@ export function TempoControl({ bpm, setBpm, min = 30, max = 260, hideNudge = fal
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-      <span style={{ fontSize: 12, color: DIM }}>Tempo</span>
+      <span style={{ fontSize: 15, color: DIM }}>Tempo</span>
       <input type="range" min={min} max={max} value={safe} onChange={(e) => slide(Number(e.target.value))} aria-label="Tempo" style={{ width: 140, accentColor: TEAL }} />
       {!hideNudge && (
         <>
@@ -77,9 +77,9 @@ export function TempoControl({ bpm, setBpm, min = 30, max = 260, hideNudge = fal
         onChange={(e) => onDraft(e.target.value)}
         onBlur={() => { setFocused(false); commit(draft); }}
         onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
-        style={{ width: 52, textAlign: "center", fontSize: 16, fontWeight: 700, color: TEAL, background: INK, border: "1px solid " + LINE, borderRadius: 8, padding: "6px 4px" }}
+        style={{ width: 58, textAlign: "center", fontSize: 18, fontWeight: 700, color: TEAL, background: INK, border: "1px solid " + LINE, borderRadius: 8, padding: "7px 4px" }}
       />
-      <span style={{ fontSize: 11, color: DIM, fontWeight: 700 }}>BPM</span>
+      <span style={{ fontSize: 14, color: DIM, fontWeight: 700 }}>BPM</span>
     </div>
   );
 }
