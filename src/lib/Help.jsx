@@ -4,6 +4,7 @@ const COPY = {
   home: [
     ["Rudiments", "40 PAS-Übungen. Notation lesen, Click hören, Tempo halten."],
     ["Click-Trainer", "Metronom: Tempo steigern oder 16tel für x Minuten."],
+    ["Rhythmuspyramide", "Subdivisionen auf und ab. Ohne Septole."],
     ["Kreis", "Tippen startet. Drehen ändert das Tempo fein."],
   ],
   rudiments: [
@@ -18,6 +19,12 @@ const COPY = {
     ["Tempo steigern", "Starttempo, alle X Sekunden +Y BPM bis zum Ziel."],
     ["16tel · Min", "Feste 16tel für 1/2/5/10 Min. BPM = Viertel, Viertel betont."],
     ["Hintergrund", "Mobile kann den Click pausieren — Tab offen lassen."],
+  ],
+  pyramid: [
+    ["Stufen", "4tel → 4tel-Triole → 16tel → Quintole → 16tel-Sextole → 32tel."],
+    ["Septole", "Bewusst weggelassen (MVP)."],
+    ["Richtung", "nur auf, nur ab, oder auf und wieder ab."],
+    ["Click", "Subdivision durchgehend, Viertel betont. Stufe wechselt ohne Pause."],
   ],
 };
 
