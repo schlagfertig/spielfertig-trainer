@@ -100,8 +100,8 @@ function TimeSig({ x, y, n, d }) {
   }
   return (
     <g fill={INK} stroke="none" fontFamily="Oswald, sans-serif" fontWeight="700" textAnchor="middle">
-      <text x={x} y={y - 1} fontSize="15">{n}</text>
-      <text x={x} y={y + 15} fontSize="15">{d}</text>
+      <text x={x} y={y - 1} fontSize="18">{n}</text>
+      <text x={x} y={y + 17} fontSize="18">{d}</text>
     </g>
   );
 }
@@ -250,11 +250,11 @@ function StickLine({ x, x2, y, text, flam, handwritten }) {
     return (
       <g stroke="none" fontFamily={font}>
         {flam ? (
-          <text x={x - 8} y={y} textAnchor="middle" fontSize="8" fontWeight="700" fill={flam === "R" ? RCOL : LCOL}>
+          <text x={x - 9} y={y} textAnchor="middle" fontSize="11" fontWeight="700" fill={flam === "R" ? RCOL : LCOL}>
             {flam}
           </text>
         ) : null}
-        <text x={x + (flam ? 4 : 0)} y={y} textAnchor="middle" fontSize={handwritten ? 14 : 12} fontWeight="700">
+        <text x={x + (flam ? 5 : 0)} y={y} textAnchor="middle" fontSize={handwritten ? 16 : 15} fontWeight="700">
           {letters.map((ch, i) => (
             <tspan key={i} fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>{ch}</tspan>
           ))}
@@ -262,14 +262,14 @@ function StickLine({ x, x2, y, text, flam, handwritten }) {
       </g>
     );
   }
-  const right = x2 != null && x2 > x ? x2 : x + Math.max(56, letters.length * 7);
+  const right = x2 != null && x2 > x ? x2 : x + Math.max(56, letters.length * 8);
   return (
     <g stroke="none" fontFamily={font}>
       {letters.map((ch, i) => {
         const t = letters.length === 1 ? 0 : i / (letters.length - 1);
         const xx = x + t * (right - x);
         return (
-          <text key={i} x={xx} y={y} textAnchor="middle" fontSize={handwritten ? 13 : 10} fontWeight="700" fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>
+          <text key={i} x={xx} y={y} textAnchor="middle" fontSize={handwritten ? 15 : 13} fontWeight="700" fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>
             {ch}
           </text>
         );
@@ -294,8 +294,8 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const lineGap = 8;
   const ny = y - lineGap / 2;
   const rows = rud.sticking && rud.sticking[1] ? 2 : 1;
-  const h0 = y + 2 * lineGap + 18;
-  const viewH = rows === 2 ? 168 : 148;
+  const h0 = y + 2 * lineGap + 22;
+  const viewH = rows === 2 ? 184 : 160;
   const groups = beamGroups(notes, pulse);
   const beamed = new Set();
   groups.forEach((g) => g.forEach((note) => beamed.add(note)));
@@ -389,7 +389,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
           return (
             <g key={`h-${i}`}>
               <StickLine x={x} x2={xEnd} y={h0} text={top} flam={flamTop} handwritten={handwritten} />
-              {bot ? <StickLine x={x} x2={xEnd} y={h0 + 16} text={bot} flam={flamBot} handwritten={handwritten} /> : null}
+              {bot ? <StickLine x={x} x2={xEnd} y={h0 + 20} text={bot} flam={flamBot} handwritten={handwritten} /> : null}
             </g>
           );
         })}
@@ -425,7 +425,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
             const mid = (xs[0] + xs[xs.length - 1]) / 2;
             const label = g[0].tuplet === 6 ? "(6)" : String(g[0].tuplet);
             layers.push(
-              <text key={`${gi}-tup`} x={mid} y={y0 - 11} textAnchor="middle" fontSize="11" fontWeight="700" fill={INK} stroke="none">
+              <text key={`${gi}-tup`} x={mid} y={y0 - 12} textAnchor="middle" fontSize="13" fontWeight="700" fill={INK} stroke="none">
                 {label}
               </text>
             );
