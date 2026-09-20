@@ -3,6 +3,8 @@ import { TempoControl } from "../lib/tempo.jsx";
 import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
 import { loadSession, saveSession } from "../lib/session.js";
+import { ClickAdvanced } from "../lib/ClickAdvanced.jsx";
+import { createMixClock, readMix } from "../lib/clickMix.js";
 
 const INK = "#161a1d";
 const LINE = "#2f383d";
@@ -35,7 +37,6 @@ function readClickSession() {
 
 export default function ClickTrainer() {
   // Stop setzt Live-BPM auf startBpm zurück — Ramp-Stand wird nicht behalten.
-  // Persistiert: Starttempo, Modus, Dauer, Ramp-Parameter. Playback nie.
   const init = useRef(readClickSession()).current;
   const [mode, setMode] = useState(init.mode);
   const [mins, setMins] = useState(init.mins);
@@ -44,6 +45,7 @@ export default function ClickTrainer() {
   const [everySec, setEverySec] = useState(init.everySec);
   const [step, setStep] = useState(init.step);
   const [cap, setCap] = useState(init.cap);
+  const [mix, setMix] = useState(() => readMix());
   const [playing, setPlaying] = useState(false);
   const [beat, setBeat] = useState(false);
   const [left, setLeft] = useState(0);
@@ -56,12 +58,14 @@ export default function ClickTrainer() {
   const capRef = useRef(init.cap);
   const playingRef = useRef(false);
   const modeRef = useRef(mode);
+  const mixRef = useRef(mix);
   bpmRef.current = bpm;
   everyRef.current = everySec;
   stepRef.current = step;
   capRef.current = cap;
   playingRef.current = playing;
   modeRef.current = mode;
+  mixRef.current = mix;
 
   useEffect(() => {
     saveSession("click", { mode, mins, startBpm, everySec, step, cap });
@@ -101,6 +105,8 @@ export default function ClickTrainer() {
     const sixteenth = modeRef.current === "sixteenth";
     const endAt = sixteenth ? ctx.currentTime + mins * 60 : Infinity;
     let bumpAt = ctx.currentTime + everyRef.current;
+    const clock = createMixClock();
+    clock.reset(next);
     setBpm(startBpm);
     bpmRef.current = startBpm;
     setPlaying(true);
@@ -135,24 +141,28 @@ export default function ClickTrainer() {
         finish();
         return;
       }
+      if (!sixteenth && now >= bumpAt - 0.001) {
+        const nextBpm = clamp(bpmRef.current + stepRef.current, 30, Math.min(260, capRef.current));
+        bpmRef.current = nextBpm;
+        setBpm(nextBpm);
+        bumpAt += everyRef.current;
+      }
       const horizon = now + 0.16;
-      while (next < horizon && !cancelled) {
-        if (sixteenth && next >= endAt) {
-          finish();
-          return;
+      if (mixRef.current.advanced) {
+        clock.fill(ctx, horizon, bpmRef.current, mixRef.current, pulse);
+      } else {
+        while (next < horizon && !cancelled) {
+          if (sixteenth && next >= endAt) {
+            finish();
+            return;
+          }
+          const quarter = beatN % 4 === 0;
+          playClick(ctx, next, quarter);
+          if (quarter) pulse(next);
+          const beatSec = 60 / Math.max(30, bpmRef.current);
+          next += sixteenth ? beatSec / 4 : beatSec;
+          beatN += 1;
         }
-        if (!sixteenth && (now >= bumpAt - 0.001 || next >= bumpAt)) {
-          const nextBpm = clamp(bpmRef.current + stepRef.current, 30, Math.min(260, capRef.current));
-          bpmRef.current = nextBpm;
-          setBpm(nextBpm);
-          bumpAt += everyRef.current;
-        }
-        const quarter = sixteenth ? beatN % 4 === 0 : beatN % 4 === 0;
-        playClick(ctx, next, quarter);
-        if (quarter) pulse(next);
-        const beatSec = 60 / Math.max(30, bpmRef.current);
-        next += sixteenth ? beatSec / 4 : beatSec;
-        beatN += 1;
       }
       if (sixteenth) setLeft(Math.max(0, endAt - ctx.currentTime));
       else setLeft(Math.max(0, bumpAt - ctx.currentTime));
@@ -233,6 +243,9 @@ export default function ClickTrainer() {
       <div className="panel">
         <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 12 }}>Einstellung</div>
         <TempoControl bpm={startBpm} setBpm={setStart} min={30} max={260} hideNudge />
+        <div style={{ marginTop: 16 }}>
+          <ClickAdvanced mix={mix} setMix={setMix} />
+        </div>
         {sixteenth ? (
           <>
             <div style={{ marginTop: 16, fontSize: 13, color: DIM }}>Dauer</div>
