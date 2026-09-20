@@ -305,7 +305,6 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const primary = rud.sticking && rud.sticking[0];
   const secondary = rud.sticking && rud.sticking[1];
   const parsed = parseTime(rud.time);
-  const barW = parsed.n * (16 / parsed.d) * stepW;
   const barX = (t16) => x0 + t16 * stepW - stepW * 0.42;
   const tokenAt = (row, i, nt) => {
     if (!row) return nt.hand;
@@ -330,9 +329,6 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
           const bx = barX((i + 1) * parsed.n * (16 / parsed.d));
           return <line key={`bar-${i}`} x1={bx} y1={y - 2 * lineGap} x2={bx} y2={y + 2 * lineGap} strokeWidth={1.35} />;
         })}
-        {parsed.n === 2 && parsed.d === 2 ? (
-          <line x1={barX(8)} y1={y - 2 * lineGap} x2={barX(8)} y2={y + 2 * lineGap} strokeWidth={1.35} />
-        ) : null}
         {pulse === 6 ? (
           <line x1={barX(6)} y1={y - 2 * lineGap} x2={barX(6)} y2={y + 2 * lineGap} strokeWidth={0.7} strokeDasharray="2 3" />
         ) : null}
