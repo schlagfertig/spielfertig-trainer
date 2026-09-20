@@ -182,7 +182,7 @@ export default function ClickTrainer() {
           }
           const quarter = beatN % 4 === 0;
           playClick(ctx, next, quarter);
-          pulse(next);
+          if (quarter) pulse(next);
           const beatSec = 60 / Math.max(30, bpmRef.current);
           next += sixteenth ? beatSec / 4 : beatSec;
           beatN += 1;
