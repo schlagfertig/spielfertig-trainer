@@ -285,13 +285,13 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
   const steps = stepsFromTime(rud.time, rud.bars || 1);
   const pulse = pulseFromTime(rud.time);
   const ornamented = notes.some((nt) => nt.flam || nt.drag);
-  const quarterW = hideTime ? (ornamented ? 118 : minDur <= 0.5 ? 110 : 114) : (ornamented ? 152 : minDur <= 0.5 ? 144 : 140);
+  const quarterW = hideTime ? (ornamented ? 96 : minDur <= 0.5 ? 90 : 92) : (ornamented ? 152 : minDur <= 0.5 ? 144 : 140);
   const stepW = quarterW / 4;
-  const x0 = hideTime ? 46 : 88;
-  const pack = hideTime ? 0.7 : 1;
+  const x0 = hideTime ? 40 : 88;
+  const pack = hideTime ? 0.9 : 1;
   const cluster = 8;
   const soloWhole = sounded.length === 1 && !!(sounded[0].whole || (sounded[0].dur >= 8 && sounded[0].roll));
-  const w = x0 + Math.max(steps * stepW, soloWhole ? 240 : 0) + 18;
+  const w = x0 + Math.max(steps * stepW, soloWhole ? 240 : 0) + 12;
   const y = 62;
   const lineGap = 12.5;
   const ny = y - lineGap / 2;
@@ -330,10 +330,10 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
     <svg id={svgId} viewBox={`0 0 ${w} ${viewH}`} width="100%" role="img" aria-label={rud.label}>
       <g stroke={INK} fill="none" strokeLinecap="butt" strokeLinejoin="miter">
         {[-2, -1, 0, 1, 2].map((i) => (
-          <line key={i} x1={16} y1={y + i * lineGap} x2={w - 10} y2={y + i * lineGap} strokeWidth={1.25} />
+          <line key={i} x1={14} y1={y + i * lineGap} x2={w - 8} y2={y + i * lineGap} strokeWidth={1.25} />
         ))}
-        <line x1={16} y1={y - 2 * lineGap} x2={16} y2={y + 2 * lineGap} strokeWidth={2.3} />
-        <line x1={w - 10} y1={y - 2 * lineGap} x2={w - 10} y2={y + 2 * lineGap} strokeWidth={2.3} />
+        <line x1={14} y1={y - 2 * lineGap} x2={14} y2={y + 2 * lineGap} strokeWidth={2.3} />
+        <line x1={w - 8} y1={y - 2 * lineGap} x2={w - 8} y2={y + 2 * lineGap} strokeWidth={2.3} />
         {Array.from({ length: Math.max(0, (rud.bars || 1) - 1) }, (_, i) => {
           const bx = barX((i + 1) * parsed.n * (16 / parsed.d));
           return <line key={`bar-${i}`} x1={bx} y1={y - 2 * lineGap} x2={bx} y2={y + 2 * lineGap} strokeWidth={1.6} />;
@@ -341,7 +341,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
         {pulse === 6 ? (
           <line x1={barX(6)} y1={y - 2 * lineGap} x2={barX(6)} y2={y + 2 * lineGap} strokeWidth={0.7} strokeDasharray="2 3" />
         ) : null}
-        <PercClef x={20} y={y} />
+        <PercClef x={18} y={y} />
         {hideTime ? null : <TimeSig x={54} y={y} n={parsed.n} d={parsed.d} />}
         {notes.map((nt, i) => {
           const x = noteX(nt);
