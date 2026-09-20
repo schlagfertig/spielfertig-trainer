@@ -7,15 +7,15 @@ import { playClick, playSnare, unlockAudio } from "../lib/audio.js";
 const DIM = "#8a969c";
 
 const n = (t, dur, hand, acc = false) => ({ t, dur, hand, acc });
-const run = (hands) => hands.split("").map((h, i) => n(i, 1, h, i % 4 === 0));
+const run8 = (hands) => hands.split("").map((h, i) => n(i * 2, 2, h, i % 4 === 0, { g: Math.floor(i / 4) + 1 }));
 const dual = (s) => [s, s.replace(/R/g, "x").replace(/L/g, "R").replace(/x/g, "L")];
 
-// Generische Stickings, keine Buch-Transkription.
+// Generische Stickings, alla breve / Achtel. Keine Buch-Transkription.
 // TODO Tom: Liste freigeben / tauschen, wenn eigene Exercises kommen.
 const EXERCISES = [
-  { id: "singles", label: "Singles", time: "4/4", bars: 1, notes: run("RLRLRLRLRLRLRLRL"), sticking: dual("RLRLRLRLRLRLRLRL") },
-  { id: "doubles", label: "Doubles", time: "4/4", bars: 1, notes: run("RRLLRRLLRRLLRRLL"), sticking: dual("RRLLRRLLRRLLRRLL") },
-  { id: "paradiddle", label: "Paradiddle", time: "4/4", bars: 1, notes: run("RLRRLRLLRLRRLRLL"), sticking: dual("RLRRLRLLRLRRLRLL") },
+  { id: "singles", label: "Singles", time: "2/2", bars: 1, notes: run8("RLRLRLRL"), sticking: dual("RLRLRLRL") },
+  { id: "doubles", label: "Doubles", time: "2/2", bars: 1, notes: run8("RRLLRRLL"), sticking: dual("RRLLRRLL") },
+  { id: "paradiddle", label: "Paradiddle", time: "2/2", bars: 1, notes: run8("RLRRLRLL"), sticking: dual("RLRRLRLL") },
 ];
 
 const CHALLENGES = [
@@ -126,7 +126,7 @@ export default function StickControl() {
           playSnare(ctx, when, nt.acc);
           const delay = Math.max(0, (when - now) * 1000);
           window.setTimeout(() => { if (!cancelled) setPlayT(nt.t); }, delay);
-          if (nt.t % 4 < 0.08) pulse(when);
+          if (nt.t % 8 < 0.08) pulse(when);
         }
         evIndex += 1;
         if (evIndex >= notes.length) {
@@ -156,7 +156,7 @@ export default function StickControl() {
   return (
     <div>
       <p style={{ color: DIM, fontSize: 14, margin: "12px 0 16px" }}>
-        Drei generische Stickings. Keine Buch-Übungen.
+        Drei generische Stickings in alla breve, als Achtel. Keine Buch-Übungen.
       </p>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
         {EXERCISES.map((e) => (
@@ -164,7 +164,7 @@ export default function StickControl() {
         ))}
       </div>
       <div className="staff-card">
-        <div className="staff-label">{ex.label}</div>
+        <div className="staff-label">{ex.label} · alla breve</div>
         <RudimentStaff rud={ex} playingT={playT} svgId="stick-live" />
       </div>
       <div className="seg" style={{ margin: "0 0 12px", width: "fit-content" }}>
@@ -206,7 +206,7 @@ export default function StickControl() {
       <div className="panel">
         <TempoControl bpm={bpm} setBpm={(n) => setBpm(clamp(n, 30, 200))} min={30} max={200} hideNudge />
         <p style={{ color: DIM, fontSize: 12, margin: "14px 0 0" }}>
-          Challenge zählt als Erfolg, wenn du durchhältst. Abbrechen = kein Erfolg.
+          Alla breve, Achtel. BPM ist der Halbe-Puls. Challenge zählt als Erfolg, wenn du durchhältst.
         </p>
       </div>
     </div>
