@@ -150,10 +150,10 @@ export const CATS = [
   { id: "drag", label: "Drag" },
 ];
 
-const SS32 = "RLRLRLRLRLRLRLRLRLRLRLRLRLRLRLRL";
+const SS16 = "RLRLRLRLRLRLRLRL";
 
 export const RUDIMENTS = [
-  { id: 1, cat: "roll", label: "1. Single Stroke Roll", bars: 1, time: "4/4", notes: [...d32(0, SS32)], sticking: dual(SS32) },
+  { id: 1, cat: "roll", label: "1. Single Stroke Roll", bars: 1, time: "2/4", notes: [...d32(0, SS16)], sticking: dual(SS16) },
   { id: 2, cat: "roll", label: "2. Single Stroke Four", bars: 2, time: "2/4", notes: [...ss4(0, 1), ...ss4(8, 2)], sticking: dual("RLRLRLRL") },
   { id: 3, cat: "roll", label: "3. Single Stroke Seven", bars: 1, time: "2/4", notes: [...six(0, "RLRLRL", [], { g: 1 }), n(4, 2, "R", true)], sticking: dual("RLRLRLR") },
   { id: 4, cat: "roll", label: "4. Multiple Bounce Roll", bars: 1, time: "2/4", notes: [n(0, 8, "R", false, { roll: 3, whole: true })], sticking: dualTok(["R"]) },
