@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { TempoControl } from "../lib/tempo.jsx";
 import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
+import { loadSession, saveSession } from "../lib/session.js";
 
 const INK = "#161a1d";
 const LINE = "#2f383d";
@@ -19,24 +20,40 @@ function fmtLeft(sec) {
   return `${m}:${String(r).padStart(2, "0")}`;
 }
 
+function readClickSession() {
+  const s = loadSession("click", {});
+  const startBpm = clamp(Number(s.startBpm) || 80, 30, 260);
+  return {
+    mode: s.mode === "sixteenth" ? "sixteenth" : "ramp",
+    mins: MINS.includes(Number(s.mins)) ? Number(s.mins) : 2,
+    startBpm,
+    everySec: clamp(Number(s.everySec) || 10, 2, 60),
+    step: clamp(Number(s.step) || 4, 1, 20),
+    cap: clamp(Number(s.cap) || 160, 40, 260),
+  };
+}
+
 export default function ClickTrainer() {
-  const [mode, setMode] = useState("ramp");
-  const [mins, setMins] = useState(2);
-  const [startBpm, setStartBpm] = useState(80);
-  const [bpm, setBpm] = useState(80);
-  const [everySec, setEverySec] = useState(10);
-  const [step, setStep] = useState(4);
-  const [cap, setCap] = useState(160);
+  // Stop setzt Live-BPM auf startBpm zurück — Ramp-Stand wird nicht behalten.
+  // Persistiert: Starttempo, Modus, Dauer, Ramp-Parameter. Playback nie.
+  const init = useRef(readClickSession()).current;
+  const [mode, setMode] = useState(init.mode);
+  const [mins, setMins] = useState(init.mins);
+  const [startBpm, setStartBpm] = useState(init.startBpm);
+  const [bpm, setBpm] = useState(init.startBpm);
+  const [everySec, setEverySec] = useState(init.everySec);
+  const [step, setStep] = useState(init.step);
+  const [cap, setCap] = useState(init.cap);
   const [playing, setPlaying] = useState(false);
   const [beat, setBeat] = useState(false);
   const [left, setLeft] = useState(0);
   const [done, setDone] = useState("");
   const [bgHint, setBgHint] = useState(false);
   const stopRef = useRef(null);
-  const bpmRef = useRef(80);
-  const everyRef = useRef(10);
-  const stepRef = useRef(4);
-  const capRef = useRef(160);
+  const bpmRef = useRef(init.startBpm);
+  const everyRef = useRef(init.everySec);
+  const stepRef = useRef(init.step);
+  const capRef = useRef(init.cap);
   const playingRef = useRef(false);
   const modeRef = useRef(mode);
   bpmRef.current = bpm;
@@ -46,6 +63,9 @@ export default function ClickTrainer() {
   playingRef.current = playing;
   modeRef.current = mode;
 
+  useEffect(() => {
+    saveSession("click", { mode, mins, startBpm, everySec, step, cap });
+  }, [mode, mins, startBpm, everySec, step, cap]);
   useEffect(() => () => stopRef.current?.(), []);
   useEffect(() => {
     const onVis = () => {
