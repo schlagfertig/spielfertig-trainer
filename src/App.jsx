@@ -150,8 +150,8 @@ export default function App() {
         )}
         <div className="top-title">{meta.title}</div>
         <div className="top-right">
-          {practice && !stage && (
-            <button className="ghost" onClick={() => setSheetOpen(true)}>Blatt</button>
+          {practice && (
+            <button className={sheetOpen ? "ghost on" : "ghost"} onClick={() => setSheetOpen((v) => !v)}>Blatt</button>
           )}
           {view === "rudiments" && !stage && (
             <button className="ghost" onClick={() => setPrintNonce((n) => n + 1)}>Drucken</button>
