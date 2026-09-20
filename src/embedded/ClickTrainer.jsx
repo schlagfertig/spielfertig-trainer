@@ -40,7 +40,6 @@ function useMixNow(mix, flipped) {
 }
 
 export default function ClickTrainer() {
-  // Stop setzt Live-BPM auf startBpm zurück — Ramp-Stand wird nicht behalten.
   const init = useRef(readClickSession()).current;
   const [mode, setMode] = useState(init.mode);
   const [mins, setMins] = useState(init.mins);
@@ -330,17 +329,14 @@ export default function ClickTrainer() {
         }
         .metro-flip { perspective: 1000px; }
         .metro-inner {
-          display: grid;
+          position: relative;
           transition: transform .45s ease;
           transform-style: preserve-3d;
         }
         .metro-inner.is-back { transform: rotateY(180deg); }
-        .metro-face {
-          grid-area: 1 / 1;
-          backface-visibility: hidden;
-          -webkit-backface-visibility: hidden;
-        }
-        .metro-back { transform: rotateY(180deg); }
+        .metro-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+        .metro-inner:not(.is-back) .metro-back { display: none; }
+        .metro-inner.is-back .metro-front { display: none; }
       `}</style>
     </div>
   );
