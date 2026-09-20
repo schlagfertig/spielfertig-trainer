@@ -202,8 +202,8 @@ export const RUDIMENTS = [
   { id: 36, cat: "drag", label: "36. Drag Paradiddle #1", bars: 2, time: "2/4", notes: [...dp1(0, "R", 1), ...dp1(8, "L", 2)], sticking: dualTok(["R", "LLR", "L", "R", "R", "L", "RRL", "R", "L", "L"]) },
   { id: 37, cat: "drag", label: "37. Drag Paradiddle #2", bars: 1, time: "4/4", notes: [...dp2(0, "R", 1), ...dp2(8, "L", 2)], sticking: dualTok(["R", "LLR", "L", "R", "R", "L", "RRL", "R", "L", "L"]) },
   { id: 38, cat: "drag", label: "38. Single Ratamacue", bars: 1, time: "2/4", notes: [...ratSingle(0, "R", 1), ...ratSingle(4, "L", 2)], sticking: dualTok(["LLR", "L", "R", "L", "RRL", "R", "L", "R"]) },
-  { id: 39, cat: "drag", label: "39. Double Ratamacue", bars: 2, time: "2/4", notes: [...ratDouble(0, "R", 1), ...ratDouble(8, "L", 2)], sticking: dualTok(["LLR", "LLR", "L", "R", "L", "RRL", "RRL", "R", "L", "R"]) },
-  { id: 40, cat: "drag", label: "40. Triple Ratamacue", bars: 2, time: "2/4", notes: [...ratTriple(0, "R", 1), ...ratTriple(8, "L", 2)], sticking: dualTok(["LLR", "LLR", "LLR", "L", "R", "L", "RRL", "RRL", "RRL", "R", "L", "R"]) },
+  { id: 39, cat: "drag", label: "39. Double Ratamacue", bars: 1, time: "6/8", notes: [...ratDouble(0, "R", 1), ...ratDouble(6, "L", 2)], sticking: dualTok(["LLR", "LLR", "L", "R", "L", "RRL", "RRL", "R", "L", "R"]) },
+  { id: 40, cat: "drag", label: "40. Triple Ratamacue", bars: 1, time: "4/4", notes: [...ratTriple(0, "R", 1), ...ratTriple(8, "L", 2)], sticking: dualTok(["LLR", "LLR", "LLR", "L", "R", "L", "RRL", "RRL", "RRL", "R", "L", "R"]) },
 ];
 
 export function rudimentDuration(rud) {
