@@ -8,7 +8,7 @@ const DIM = "#8a969c";
 
 const n = (t, dur, hand, acc = false, extra = {}) => ({ t, dur, hand, acc, ...extra });
 const run8ths = (hands) =>
-  hands.split("").map((h, i) => n(i * 2, 2, h, false, { g: Math.floor(i / 2) + 1 }));
+  hands.split("").map((h, i) => n(i * 2, 2, h, false, { g: Math.floor(i / 4) + 1 }));
 
 const PATTERNS = [
   "RLRLRLRLRLRLRLRL",
