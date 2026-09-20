@@ -250,11 +250,11 @@ function StickLine({ x, x2, y, text, flam, handwritten }) {
     return (
       <g stroke="none" fontFamily={font}>
         {flam ? (
-          <text x={x - 9} y={y} textAnchor="middle" fontSize="11" fontWeight="700" fill={flam === "R" ? RCOL : LCOL}>
+          <text x={x - 10} y={y} textAnchor="middle" fontSize="12" fontWeight="800" fill={flam === "R" ? RCOL : LCOL}>
             {flam}
           </text>
         ) : null}
-        <text x={x + (flam ? 5 : 0)} y={y} textAnchor="middle" fontSize={handwritten ? 16 : 15} fontWeight="700">
+        <text x={x + (flam ? 5 : 0)} y={y} textAnchor="middle" fontSize={handwritten ? 18 : 17} fontWeight="800">
           {letters.map((ch, i) => (
             <tspan key={i} fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>{ch}</tspan>
           ))}
@@ -262,14 +262,14 @@ function StickLine({ x, x2, y, text, flam, handwritten }) {
       </g>
     );
   }
-  const right = x2 != null && x2 > x ? x2 : x + Math.max(56, letters.length * 8);
+  const right = x2 != null && x2 > x ? x2 : x + Math.max(56, letters.length * 9);
   return (
     <g stroke="none" fontFamily={font}>
       {letters.map((ch, i) => {
         const t = letters.length === 1 ? 0 : i / (letters.length - 1);
         const xx = x + t * (right - x);
         return (
-          <text key={i} x={xx} y={y} textAnchor="middle" fontSize={handwritten ? 15 : 13} fontWeight="700" fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>
+          <text key={i} x={xx} y={y} textAnchor="middle" fontSize={handwritten ? 16 : 15} fontWeight="800" fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>
             {ch}
           </text>
         );
@@ -294,8 +294,8 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const lineGap = 8;
   const ny = y - lineGap / 2;
   const rows = rud.sticking && rud.sticking[1] ? 2 : 1;
-  const h0 = y + 2 * lineGap + 22;
-  const viewH = rows === 2 ? 184 : 160;
+  const h0 = y + 2 * lineGap + 24;
+  const viewH = rows === 2 ? 190 : 166;
   const groups = beamGroups(notes, pulse);
   const beamed = new Set();
   groups.forEach((g) => g.forEach((note) => beamed.add(note)));
@@ -306,6 +306,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const secondary = rud.sticking && rud.sticking[1];
   const parsed = parseTime(rud.time);
   const barW = parsed.n * (16 / parsed.d) * stepW;
+  const barX = (t16) => x0 + t16 * stepW - stepW * 0.42;
   const tokenAt = (row, i, nt) => {
     if (!row) return nt.hand;
     if (Array.isArray(row)) return row[i];
@@ -326,11 +327,14 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
         <line x1={22} y1={y - 2 * lineGap} x2={22} y2={y + 2 * lineGap} strokeWidth={2} />
         <line x1={w - 16} y1={y - 2 * lineGap} x2={w - 16} y2={y + 2 * lineGap} strokeWidth={2} />
         {Array.from({ length: Math.max(0, (rud.bars || 1) - 1) }, (_, i) => {
-          const bx = x0 + (i + 1) * barW;
+          const bx = barX((i + 1) * parsed.n * (16 / parsed.d));
           return <line key={`bar-${i}`} x1={bx} y1={y - 2 * lineGap} x2={bx} y2={y + 2 * lineGap} strokeWidth={1.35} />;
         })}
+        {parsed.n === 2 && parsed.d === 2 ? (
+          <line x1={barX(8)} y1={y - 2 * lineGap} x2={barX(8)} y2={y + 2 * lineGap} strokeWidth={1.35} />
+        ) : null}
         {pulse === 6 ? (
-          <line x1={x0 + 6 * stepW} y1={y - 2 * lineGap} x2={x0 + 6 * stepW} y2={y + 2 * lineGap} strokeWidth={0.7} strokeDasharray="2 3" />
+          <line x1={barX(6)} y1={y - 2 * lineGap} x2={barX(6)} y2={y + 2 * lineGap} strokeWidth={0.7} strokeDasharray="2 3" />
         ) : null}
         <PercClef x={28} y={y} />
         <TimeSig x={54} y={y} n={parsed.n} d={parsed.d} />
@@ -389,7 +393,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
           return (
             <g key={`h-${i}`}>
               <StickLine x={x} x2={xEnd} y={h0} text={top} flam={flamTop} handwritten={handwritten} />
-              {bot ? <StickLine x={x} x2={xEnd} y={h0 + 20} text={bot} flam={flamBot} handwritten={handwritten} /> : null}
+              {bot ? <StickLine x={x} x2={xEnd} y={h0 + 22} text={bot} flam={flamBot} handwritten={handwritten} /> : null}
             </g>
           );
         })}
@@ -425,7 +429,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
             const mid = (xs[0] + xs[xs.length - 1]) / 2;
             const label = g[0].tuplet === 6 ? "(6)" : String(g[0].tuplet);
             layers.push(
-              <text key={`${gi}-tup`} x={mid} y={y0 - 12} textAnchor="middle" fontSize="13" fontWeight="700" fill={INK} stroke="none">
+              <text key={`${gi}-tup`} x={mid} y={y0 - 12} textAnchor="middle" fontSize="14" fontWeight="800" fill={INK} stroke="none">
                 {label}
               </text>
             );
