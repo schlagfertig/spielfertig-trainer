@@ -3,22 +3,21 @@ import { useState } from "react";
 const COPY = {
   home: [
     ["Rudiments", "40 PAS-Übungen. Notation lesen, Click hören, Tempo halten."],
-    ["Click-Trainer", "Nur Metronom. Starttempo, dann alle X Sekunden +Y BPM."],
+    ["Click-Trainer", "Metronom: Tempo steigern oder 16tel für x Minuten."],
     ["Kreis", "Tippen startet. Drehen ändert das Tempo fein."],
   ],
   rudiments: [
     ["Liste", "Eine Übung wählen. ‹ › blättert ohne Menü."],
     ["Kreis", "Tipp = Start/Stop. Im Uhrzeigersinn schneller, zurück langsamer."],
     ["−5 / +5", "Grobe Sprünge. Das Feld daneben ist das genaue BPM."],
-    ["Optionen", "Einzählen, Nur Click oder L/R, Tempo je Durchlauf anheben."],
+    ["Optionen", "Einzählen, Snare / L/R / Nur Click, Tempo je Durchlauf anheben."],
     ["Drucken", "Legt ein DIN-A4-Blatt mit den gewählten Rudiments."],
   ],
   click: [
     ["Kreis", "Tipp = Start/Stop. Drehen stellt das Tempo in 1-BPM-Schritten."],
-    ["Start", "Das Tempo, mit dem der Click loslegt."],
-    ["Alle … Sekunden", "Nach dieser Zeit kommt der nächste Sprung."],
-    ["um … BPM", "Wie weit jeder Sprung geht."],
-    ["bis … BPM", "Hier hört der Trainer auf zu steigern."],
+    ["Tempo steigern", "Starttempo, alle X Sekunden +Y BPM bis zum Ziel."],
+    ["16tel · Min", "Feste 16tel für 1/2/5/10 Min. BPM = Viertel, Viertel betont."],
+    ["Hintergrund", "Mobile kann den Click pausieren — Tab offen lassen."],
   ],
 };
 
