@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { RudimentStaff } from "../lib/staff.jsx";
 import { TempoControl } from "../lib/tempo.jsx";
 import { MetronomeDial } from "../lib/metronome.jsx";
-import { playClick, playSnare, unlockAudio } from "../lib/audio.js";
+import { playClick, unlockAudio } from "../lib/audio.js";
 
 const DIM = "#8a969c";
 
@@ -158,11 +158,14 @@ export default function StickControl() {
           return;
         }
         if (when >= now - 0.02) {
-          playSnare(ctx, when, nt.acc);
-          if (nt.t % 4 < 0.08) playClick(ctx, when, nt.t % 8 < 0.08);
+          // Stick Control: only quarter-note click (BPM = quarter). No advanced mix, no 8th grid.
+          const onQuarter = nt.t % 4 < 0.08;
+          if (onQuarter) {
+            playClick(ctx, when, nt.t % 16 < 0.08);
+            pulse(when);
+          }
           const delay = Math.max(0, (when - now) * 1000);
           window.setTimeout(() => { if (!cancelled) setPlayT(nt.t); }, delay);
-          if (nt.t % 4 < 0.08) pulse(when);
         }
         evIndex += 1;
         if (evIndex >= notes.length) {
@@ -191,7 +194,7 @@ export default function StickControl() {
   return (
     <div>
       <p style={{ color: DIM, fontSize: 16, fontWeight: 600, margin: "12px 0 16px" }}>
-        Single-Beat-Kombinationen. Tempo = Viertel.
+        Single-Beat-Kombinationen. Tempo = Viertel. Click nur auf die Viertel.
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 6, marginBottom: 12 }}>
         {EXERCISES.map((e) => (
@@ -243,7 +246,7 @@ export default function StickControl() {
       <div className="panel">
         <TempoControl bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} min={30} max={200} hideNudge />
         <p style={{ color: DIM, fontSize: 15, fontWeight: 600, margin: "14px 0 0" }}>
-          BPM zählt die Viertel. Click auf jeder Viertel, Eins betont.
+          BPM = Viertel. Kein Erweitert-Mix — nur Viertel-Click, Eins im Takt betont.
         </p>
       </div>
     </div>
