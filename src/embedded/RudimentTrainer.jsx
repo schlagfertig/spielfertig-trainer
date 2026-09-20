@@ -47,6 +47,7 @@ export default function RudimentTrainer({ printNonce }) {
   const [playing, setPlaying] = useState(false);
   const [playT, setPlayT] = useState(-1);
   const [beat, setBeat] = useState(false);
+  const [loopN, setLoopN] = useState(0);
   const [printOpen, setPrintOpen] = useState(false);
   const [picked, setPicked] = useState([init.sel]);
   const [perPage, setPerPage] = useState(6);
@@ -65,6 +66,9 @@ export default function RudimentTrainer({ printNonce }) {
   const idx = Math.max(0, RUDIMENTS.findIndex((r) => r.id === rud.id));
   const prevRud = RUDIMENTS[idx - 1];
   const nextRud = RUDIMENTS[idx + 1];
+  const meterNow = meterPulse(rud.time);
+  const beatsInBar = Math.max(1, Math.round(meterNow.bar / meterNow.pulse));
+  const beatN = playT < 0 ? -1 : Math.floor((playT + 1e-4) / meterNow.pulse) % beatsInBar;
 
   useEffect(() => {
     saveSession("rudiments", { sel, bpm, hear, countIn, rampOn, rampBars, rampStep, rampCap });
@@ -90,6 +94,7 @@ export default function RudimentTrainer({ printNonce }) {
     setPlaying(false);
     setPlayT(-1);
     setBeat(false);
+    setLoopN(0);
   }
 
   function pickRud(id) {
@@ -145,17 +150,26 @@ export default function RudimentTrainer({ printNonce }) {
       }
       cycleStart += 4 * pulseSec;
     }
+    const origin = cycleStart;
     const useMix = hearRef.current === "click" && mixRef.current.advanced;
     const clock = createMixClock();
     if (useMix) clock.reset(cycleStart);
     let barsAcc = 0;
     let rampAt = cycleStart + rampBarsRef.current * meter.bar * stepSec();
     const bump = () => setBpm((p) => Math.min(rampCapRef.current, 260, p + rampStepRef.current));
+    setLoopN(1);
     const schedule = () => {
       if (cancelled) return;
       const horizon = ctx.currentTime + 0.16;
       if (hearRef.current === "click" && mixRef.current.advanced) {
-        clock.fill(ctx, horizon, bpmRef.current, mixRef.current, (when) => pulse(when, ctx));
+        clock.fill(ctx, horizon, bpmRef.current, mixRef.current, (when) => {
+          pulse(when, ctx);
+          const elapsed = Math.max(0, when - origin);
+          const t16 = (elapsed / stepSec()) % steps;
+          window.setTimeout(() => { if (!cancelled) setPlayT(t16); }, Math.max(0, (when - ctx.currentTime) * 1000));
+        });
+        const period = Math.max(0.08, steps * stepSec());
+        setLoopN(1 + Math.floor(Math.max(0, ctx.currentTime - origin) / period));
         if (rampRef.current && ctx.currentTime >= rampAt) {
           bump();
           rampAt += rampBarsRef.current * meter.bar * stepSec();
@@ -178,6 +192,7 @@ export default function RudimentTrainer({ printNonce }) {
             cycleStart += steps * stepSec();
             listEv = events();
             barsAcc += barsEach;
+            setLoopN((n) => n + 1);
             if (rampRef.current && barsAcc >= rampBarsRef.current) {
               barsAcc = 0;
               bump();
@@ -271,7 +286,15 @@ export default function RudimentTrainer({ printNonce }) {
           </select>
         </div>
         <RudimentStaff rud={rud} playingT={playT} svgId="rud-live" />
-        <div className="staff-hint">R blau · L rot · Kreis drehen ändert das Tempo</div>
+        <div className="beat-track" aria-live="polite">
+          <div className="beat-cells">
+            {Array.from({ length: beatsInBar }, (_, i) => (
+              <span key={i} className={playing && beatN === i ? "on" : ""}>{i + 1}</span>
+            ))}
+          </div>
+          <div className="beat-loop">{playing ? `Loop ${loopN}` : "Loop —"}</div>
+        </div>
+        <div className="staff-hint">Aktueller Schlag oben markiert · R blau · L rot</div>
       </div>
       <div className="metro-shell rud-metro">
         <div className="panel dock metro-face">
