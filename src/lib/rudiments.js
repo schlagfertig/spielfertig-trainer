@@ -170,7 +170,7 @@ export const RUDIMENTS = [
   { id: 15, cat: "roll", label: "15. Seventeen Stroke Roll", bars: 1, time: "2/4", notes: [n(0, 8, "R", false, { roll: 3, tie: true }), n(8, 4, "R", true)], sticking: dualTok(["RRLLRRLLRRLLRRLLR", ""]) },
   { id: 16, cat: "diddle", label: "16. Single Paradiddle", bars: 1, time: "2/4", notes: [...run(0, "RLRR", 1, [0], { g: 1 }), ...run(4, "LRLL", 1, [0], { g: 2 })], sticking: dual("RLRRLRLL") },
   { id: 17, cat: "diddle", label: "17. Double Paradiddle", bars: 1, time: "6/8", notes: [...run(0, "RLRLRR", 1, [0], { g: 1 }), ...run(6, "LRLRLL", 1, [0], { g: 2 })], sticking: dual("RLRLRRLRLRLL") },
-  { id: 18, cat: "diddle", label: "18. Triple Paradiddle", bars: 1, time: "4/4", notes: [...run(0, "RLRLRLRR", 1, [0], { g: 1 }), ...run(8, "LRLRLLRR", 1, [0], { g: 2 })], sticking: dual("RLRLRLRRLRLRLLRR") },
+  { id: 18, cat: "diddle", label: "18. Triple Paradiddle", bars: 1, time: "4/4", notes: [...run(0, "RLRLRLRR", 1, [0], { g: 1 }), ...run(8, "LRLRLRLL", 1, [0], { g: 2 })], sticking: dual("RLRLRLRRLRLRLRLL") },
   { id: 19, cat: "diddle", label: "19. Paradiddle-Diddle", bars: 1, time: "6/8", notes: [...run(0, "RLRRLL", 1, [0], { g: 1 }), ...run(6, "RLRRLL", 1, [0], { g: 2 })], sticking: dual("RLRRLLRLRRLL") },
   { id: 20, cat: "flam", label: "20. Flam", bars: 1, time: "4/4", notes: [
     n(0, 2, "R", true, { flam: "L", g: 1 }), n(2, 2, "L", true, { flam: "R", g: 1 }),
