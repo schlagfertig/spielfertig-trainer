@@ -1,6 +1,7 @@
 import { useState } from "react";
 import RudimentTrainer from "./embedded/RudimentTrainer.jsx";
 import ClickTrainer from "./embedded/ClickTrainer.jsx";
+import PyramidTrainer from "./embedded/PyramidTrainer.jsx";
 import { Help } from "./lib/Help.jsx";
 
 export default function App() {
@@ -34,29 +35,34 @@ export default function App() {
             <div className="card-lead">Starttempo wählen. Alle X Sekunden um Y BPM schneller.</div>
             <div className="card-go">Öffnen</div>
           </button>
+          <button className="card" onClick={() => setView("pyramid")}>
+            <div className="card-kicker">Subdivision</div>
+            <div className="card-title">Rhythmuspyramide</div>
+            <div className="card-lead">4tel bis 32tel auf und ab. Ohne Septole.</div>
+            <div className="card-go">Öffnen</div>
+          </button>
         </div>
         <footer className="foot">Thomas Schuster · schlagfertig‽</footer>
       </div>
     );
   }
 
-  const click = view === "click";
+  const title = view === "click" ? "Click-Trainer" : view === "pyramid" ? "Rhythmuspyramide" : "Rudiments";
+  const help = view === "click" ? "click" : view === "pyramid" ? "pyramid" : "rudiments";
   return (
     <div className="page tool">
       <header className="top">
         <button className="ghost" onClick={goHome}>Zurück</button>
-        <div className="top-title">{click ? "Click-Trainer" : "Rudiments"}</div>
+        <div className="top-title">{title}</div>
         <div className="top-right">
-          {!click && (
+          {view === "rudiments" && (
             <button className="ghost" onClick={() => setPrintNonce((n) => n + 1)}>Drucken</button>
           )}
-          <Help topic={click ? "click" : "rudiments"} />
+          <Help topic={help} />
         </div>
       </header>
       <main className="main">
-        {click
-          ? <ClickTrainer />
-          : <RudimentTrainer printNonce={printNonce} />}
+        {view === "click" ? <ClickTrainer /> : view === "pyramid" ? <PyramidTrainer /> : <RudimentTrainer printNonce={printNonce} />}
       </main>
     </div>
   );
