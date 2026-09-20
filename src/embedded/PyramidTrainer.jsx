@@ -9,7 +9,8 @@ const BARS = [1, 2, 4];
 
 const STAGES = [
   { id: "q", label: "4tel", perBeat: 1 },
-  { id: "qt", label: "4tel-Triole", perBeat: 3, tuplet: 3 },
+  { id: "e", label: "8tel", perBeat: 2 },
+  { id: "et", label: "8el-Triole", perBeat: 3, tuplet: 3 },
   { id: "s16", label: "16tel", perBeat: 4 },
   { id: "q5", label: "Quintole", perBeat: 5, tuplet: 5 },
   { id: "sx", label: "16tel-Sextole", perBeat: 6, tuplet: 6 },
