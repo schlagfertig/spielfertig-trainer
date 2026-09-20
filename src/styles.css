@@ -30,7 +30,7 @@ button { font-family: inherit; }
   margin: 12px 0 6px;
   font-size: 40px;
 }
-.tag { color: var(--teal); letterSpacing: 0.04em; margin: 0; }
+.tag { color: var(--teal); letter-spacing: 0.04em; margin: 0; }
 .cards { display: grid; gap: 14px; margin-top: 24px; }
 .card {
   text-align: left;
