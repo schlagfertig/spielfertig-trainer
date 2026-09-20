@@ -15,15 +15,18 @@ const META = {
 export default function App() {
   const [view, setView] = useState("home");
   const [printNonce, setPrintNonce] = useState(0);
+  const [stage, setStage] = useState(false);
   const viewRef = useRef(view);
   viewRef.current = view;
 
   function goHome() {
     setPrintNonce(0);
+    setStage(false);
     setView("home");
   }
 
   function open(next) {
+    setStage(false);
     setView(next);
     try { window.history.pushState({ sf: next }, ""); } catch { /* ignore */ }
   }
@@ -57,6 +60,10 @@ export default function App() {
       const dy = Math.abs(t.clientY - startY);
       if (dx > 72 && dy < 56) {
         tracking = false;
+        if (stage) {
+          setStage(false);
+          return;
+        }
         if (window.history.state?.sf) window.history.back();
         else goHome();
       }
@@ -74,7 +81,7 @@ export default function App() {
       window.removeEventListener("touchend", onEnd);
       window.removeEventListener("touchcancel", onEnd);
     };
-  }, [view]);
+  }, [view, stage]);
 
   if (view === "home") {
     return (
@@ -118,22 +125,29 @@ export default function App() {
 
   const meta = META[view] || META.rudiments;
   return (
-    <div className="page tool">
+    <div className={stage ? "page tool stage" : "page tool"}>
       <header className="top">
-        <button className="ghost" onClick={() => (window.history.state?.sf ? window.history.back() : goHome())}>Zurück</button>
+        {stage ? (
+          <button className="ghost" onClick={() => setStage(false)}>Pad aus</button>
+        ) : (
+          <button className="ghost" onClick={() => (window.history.state?.sf ? window.history.back() : goHome())}>Zurück</button>
+        )}
         <div className="top-title">{meta.title}</div>
         <div className="top-right">
-          {view === "rudiments" && (
+          {view === "rudiments" && !stage && (
             <button className="ghost" onClick={() => setPrintNonce((n) => n + 1)}>Drucken</button>
           )}
-          <Help topic={meta.help} />
+          {view === "rudiments" && (
+            <button className={stage ? "ghost on" : "ghost"} onClick={() => setStage((v) => !v)}>{stage ? "Pad aus" : "Pad"}</button>
+          )}
+          {!stage && <Help topic={meta.help} />}
         </div>
       </header>
       <main className="main">
         {view === "click" ? <ClickTrainer />
           : view === "pyramid" ? <PyramidTrainer />
           : view === "stick" ? <StickControl />
-          : <RudimentTrainer printNonce={printNonce} />}
+          : <RudimentTrainer printNonce={printNonce} stage={stage} />}
       </main>
     </div>
   );
