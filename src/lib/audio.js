@@ -77,18 +77,15 @@ function tick(c, t, f1, f2, g1, g2, d1 = 0.022, d2 = 0.04) {
   }
 }
 
-/** Click from the setlist app: short 2200 + 900 Hz tick. */
 export function playClick(c, t, downbeat = false) {
   playClickLayer(c, t, downbeat ? "beat" : "quarter", downbeat ? 1 : 0.78);
 }
 
-/** Distinct, gain-scaled voices for the RW100-style mixer. */
 export function playClickLayer(c, t, voice, amp) {
   const a = Math.max(0, Math.min(1, amp));
   if (a < 0.008) return;
   if (voice === "beat") tick(c, t, 2500, 1180, 0.48 * a, 0.3 * a, 0.024, 0.046);
-  else if (voice === "off") tick(c, t, 2050, 0, 0.26 * a, 0, 0.016, 0.016);
-  else if (voice === "sixteenth") tick(c, t, 3100, 0, 0.18 * a, 0, 0.012, 0.012);
+  else if (voice === "off" || voice === "sixteenth") tick(c, t, 2050, 0, 0.22 * a, 0, 0.014, 0.014);
   else if (voice === "triplet") tick(c, t, 1560, 640, 0.28 * a, 0.14 * a, 0.02, 0.034);
   else tick(c, t, 1880, 820, 0.36 * a, 0.2 * a, 0.02, 0.038);
 }
@@ -103,7 +100,6 @@ export function playStick(c, hand, t, accent) {
   noiseHit(c, t, accent ? 0.08 : 0.05, accent ? 0.1 : 0.05, high ? 1800 : 900);
 }
 
-/** Short snare: body + wires. Accent is clearly louder, peaks stay under clip. */
 export function playSnare(c, t, accent = false) {
   const a = accent ? 1.75 : 1;
   const dur = accent ? 0.13 : 0.085;
