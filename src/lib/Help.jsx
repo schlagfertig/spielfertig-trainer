@@ -5,14 +5,16 @@ const COPY = {
     ["Rudiments", "40 PAS-Übungen. Notation lesen, Click hören, Tempo halten."],
     ["Click-Trainer", "Metronom: Tempo steigern oder 16tel für x Minuten."],
     ["Rhythmuspyramide", "Subdivisionen auf und ab. Ohne Septole."],
-    ["Stick Control", "Drei generische Stickings plus kurze Challenge."],
+    ["Stick Control", "Single-Beat-Kombinationen plus kurze Challenge."],
+    ["Noten", "Eigene Fotos/PDFs nur auf diesem Gerät. Beim Üben über Blatt."],
     ["Kreis", "Tippen startet. Drehen ändert das Tempo fein."],
   ],
   rudiments: [
     ["Liste", "Eine Übung wählen. ‹ › blättert ohne Menü."],
     ["Kreis", "Tipp = Start/Stop. Im Uhrzeigersinn schneller, zurück langsamer."],
-    ["−5 / +5", "Grobe Sprünge. Das Feld daneben ist das genaue BPM."],
-    ["Optionen", "Einzählen, Snare / L/R / Nur Click, Tempo je Durchlauf anheben."],
+    ["Ziel", "Frei, 8/16 Loops oder 2 Minuten. Tempo steigern bleibt extra."],
+    ["Pad", "Große Notation + großer Click fürs Tablet."],
+    ["Blatt", "Eigenes Foto/PDF aufschlagen, Click läuft weiter."],
     ["Drucken", "Legt ein DIN-A4-Blatt mit den gewählten Rudiments."],
   ],
   click: [
@@ -22,16 +24,21 @@ const COPY = {
     ["Hintergrund", "Mobile kann den Click pausieren — Tab offen lassen."],
   ],
   pyramid: [
-    ["Stufen", "4tel → 4tel-Triole → 16tel → Quintole → 16tel-Sextole → 32tel."],
+    ["Stufen", "4tel → 8tel → 8el-Triole → 16tel → Quintole → 16tel-Sextole → 32tel."],
     ["Septole", "Bewusst weggelassen (MVP)."],
     ["Richtung", "nur auf, nur ab, oder auf und wieder ab."],
     ["Click", "Subdivision durchgehend, Viertel betont. Stufe wechselt ohne Pause."],
   ],
   stick: [
-    ["Exercises", "Singles, Doubles, Paradiddle — generisch, kein Buch."],
-    ["Takt", "2/4 über zwei Takte. Achtel, BPM = Viertel. Click auf der Viertel."],
+    ["Exercises", "Stone Single-Beat 1–24. Alla breve, zwei Takte."],
+    ["Takt", "BPM = Viertel. Click nur auf der Viertel."],
     ["Üben", "Endlosschleife zum Warmhalten."],
     ["Challenge", "1/2 Min oder 8/16 Takte durchhalten. Stoppen zählt nicht."],
+  ],
+  archive: [
+    ["Lokal", "Dateien bleiben im Browser dieses Geräts. Kein Upload in die Cloud."],
+    ["Format", "Foto oder PDF, bis 12 MB."],
+    ["Üben", "In Rudiments u. a. über Blatt öffnen — Playback läuft weiter."],
   ],
 };
 
