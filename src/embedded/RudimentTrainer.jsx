@@ -6,6 +6,8 @@ import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, playSnare, playStick, unlockAudio } from "../lib/audio.js";
 import { deliverPng, printElement, sheetHtml, tilesToPng } from "../lib/print.js";
 import { loadSession, saveSession } from "../lib/session.js";
+import { ClickAdvanced } from "../lib/ClickAdvanced.jsx";
+import { createMixClock, readMix } from "../lib/clickMix.js";
 
 const INK = "#161a1d";
 const LINE = "#2f383d";
@@ -39,6 +41,7 @@ export default function RudimentTrainer({ printNonce }) {
   const [rampOn, setRampOn] = useState(init.rampOn);
   const [rampStep, setRampStep] = useState(init.rampStep);
   const [rampCap, setRampCap] = useState(init.rampCap);
+  const [mix, setMix] = useState(() => readMix());
   const [playing, setPlaying] = useState(false);
   const [playT, setPlayT] = useState(-1);
   const [beat, setBeat] = useState(false);
@@ -55,6 +58,7 @@ export default function RudimentTrainer({ printNonce }) {
   const rampRef = useRef(rampOn); rampRef.current = rampOn;
   const rampStepRef = useRef(rampStep); rampStepRef.current = rampStep;
   const rampCapRef = useRef(rampCap); rampCapRef.current = rampCap;
+  const mixRef = useRef(mix); mixRef.current = mix;
   const rud = RUDIMENTS.find((r) => r.id === sel) || RUDIMENTS[0];
   const idx = Math.max(0, RUDIMENTS.findIndex((r) => r.id === rud.id));
 
@@ -131,27 +135,39 @@ export default function RudimentTrainer({ printNonce }) {
       }
       cycleStart += 4 * pulseSec;
     }
+    const useMix = hearRef.current === "click" && mixRef.current.advanced;
+    const clock = createMixClock();
+    if (useMix) clock.reset(cycleStart);
+    let rampAt = cycleStart + steps * stepSec();
     const schedule = () => {
       if (cancelled) return;
       const horizon = ctx.currentTime + 0.16;
-      while (!cancelled) {
-        const ev = listEv[evIndex];
-        const when = cycleStart + ev.t * stepSec();
-        if (when >= horizon) break;
-        if (when >= ctx.currentTime - 0.02) {
-          if (ev.kind === "click") playClick(ctx, when, ev.down);
-          else if (ev.kind === "stick") playStick(ctx, ev.nt.hand, when, ev.nt.acc);
-          else playSnare(ctx, when, ev.nt.acc);
-          const delay = Math.max(0, (when - ctx.currentTime) * 1000);
-          window.setTimeout(() => { if (!cancelled) setPlayT(ev.t); }, delay);
-          if (ev.kind === "click" || Math.abs((ev.t || 0) % meter.pulse) < 0.08) pulse(when, ctx);
+      if (hearRef.current === "click" && mixRef.current.advanced) {
+        clock.fill(ctx, horizon, bpmRef.current, mixRef.current, (when) => pulse(when, ctx));
+        if (rampRef.current && ctx.currentTime >= rampAt) {
+          setBpm((p) => Math.min(rampCapRef.current, 260, p + rampStepRef.current));
+          rampAt += steps * stepSec();
         }
-        evIndex += 1;
-        if (evIndex >= listEv.length) {
-          evIndex = 0;
-          cycleStart += steps * stepSec();
-          listEv = events();
-          if (rampRef.current) setBpm((p) => Math.min(rampCapRef.current, 260, p + rampStepRef.current));
+      } else {
+        while (!cancelled) {
+          const ev = listEv[evIndex];
+          const when = cycleStart + ev.t * stepSec();
+          if (when >= horizon) break;
+          if (when >= ctx.currentTime - 0.02) {
+            if (ev.kind === "click") playClick(ctx, when, ev.down);
+            else if (ev.kind === "stick") playStick(ctx, ev.nt.hand, when, ev.nt.acc);
+            else playSnare(ctx, when, ev.nt.acc);
+            const delay = Math.max(0, (when - ctx.currentTime) * 1000);
+            window.setTimeout(() => { if (!cancelled) setPlayT(ev.t); }, delay);
+            if (ev.kind === "click" || Math.abs((ev.t || 0) % meter.pulse) < 0.08) pulse(when, ctx);
+          }
+          evIndex += 1;
+          if (evIndex >= listEv.length) {
+            evIndex = 0;
+            cycleStart += steps * stepSec();
+            listEv = events();
+            if (rampRef.current) setBpm((p) => Math.min(rampCapRef.current, 260, p + rampStepRef.current));
+          }
         }
       }
       timer = window.setTimeout(schedule, 25);
@@ -256,6 +272,7 @@ export default function RudimentTrainer({ printNonce }) {
                 <button className={hear === "click" ? "on" : ""} onClick={() => setHear("click")}>Nur Click</button>
               </div>
             </div>
+            {hear === "click" && <ClickAdvanced mix={mix} setMix={setMix} />}
             <label className="check"><input type="checkbox" checked={rampOn} onChange={(e) => setRampOn(e.target.checked)} />Tempo steigern</label>
             {rampOn && (
               <span style={{ fontSize: 12, color: DIM }}>
