@@ -36,7 +36,6 @@ const flamAcc = (beat, hand) => {
   const oth = hand === "R" ? "L" : "R";
   return trip(beat, hand + oth + hand, [0], (h, i) => (i === 0 ? { flam: oth } : {}));
 };
-/** 8th-triplet flam-drag: two 16ths occupy the middle triplet stroke. */
 const flamDrag8 = (beat, hand, g) => {
   const oth = hand === "R" ? "L" : "R";
   const b = beat * 4;
@@ -99,11 +98,10 @@ const ratTriple = (start, lead, g) => {
   return [
     n(start, 2, lead, false, { drag: oth, g, beams: 1 }),
     n(start + 2, 2, lead, false, { drag: oth, g, beams: 1 }),
-    n(start + 4, 2, lead, false, { drag: oth, g, beams: 1 }),
-    n(start + 6, T6, lead, false, { drag: oth, tuplet: 3, g, beams: 2 }),
-    n(start + 6 + T6, T6, oth, false, { tuplet: 3, g, beams: 2 }),
-    n(start + 6 + 2 * T6, T6, lead, false, { tuplet: 3, g, beams: 2 }),
-    n(start + 8, 2, oth, true, { g, beams: 1 }),
+    n(start + 4, T6, lead, false, { drag: oth, tuplet: 3, g, beams: 2 }),
+    n(start + 4 + T6, T6, oth, false, { tuplet: 3, g, beams: 2 }),
+    n(start + 4 + 2 * T6, T6, lead, false, { tuplet: 3, g, beams: 2 }),
+    n(start + 6, 2, oth, true, { g, beams: 1 }),
   ];
 };
 
@@ -170,7 +168,7 @@ export const RUDIMENTS = [
   { id: 37, cat: "drag", label: "37. Drag Paradiddle #2", bars: 1, time: "4/4", notes: [n(0, 2, "R", true, { drag: "L" }), n(2, 2, "R", false, { drag: "L" }), n(4, 1, "L"), n(5, 1, "R"), n(6, 1, "R"), n(7, 1, "L"), n(8, 2, "L", true, { drag: "R" }), n(10, 2, "L", false, { drag: "R" }), n(12, 1, "R"), n(13, 1, "L"), n(14, 1, "L"), n(15, 1, "R")] },
   { id: 38, cat: "drag", label: "38. Single Ratamacue", bars: 1, time: "2/4", notes: [...ratSingle(0, "R", 1), ...ratSingle(4, "L", 2)], sticking: dualTok(["LLR", "L", "R", "L", "RRL", "R", "L", "R"]) },
   { id: 39, cat: "drag", label: "39. Double Ratamacue", bars: 2, time: "2/4", notes: [...ratDouble(0, "R", 1), ...ratDouble(8, "L", 2)], sticking: dualTok(["LLR", "LLR", "L", "R", "L", "RRL", "RRL", "R", "L", "R"]) },
-  { id: 40, cat: "drag", label: "40. Triple Ratamacue", bars: 3, time: "2/4", notes: [...ratTriple(0, "R", 1), ...ratTriple(12, "L", 2)], sticking: dualTok(["LLR", "LLR", "LLR", "L", "R", "L", "RRL", "RRL", "RRL", "R", "L", "R"]) },
+  { id: 40, cat: "drag", label: "40. Triple Ratamacue", bars: 2, time: "2/4", notes: [...ratTriple(0, "R", 1), ...ratTriple(8, "L", 2)], sticking: dualTok(["LLR", "LLR", "LLR", "L", "R", "L", "RRL", "RRL", "RRL", "R", "L", "R"]) },
 ];
 
 export function rudimentDuration(rud) {
@@ -178,7 +176,6 @@ export function rudimentDuration(rud) {
   return (rud.bars || 1) * (num || 4) * (16 / (den || 4));
 }
 
-/** Click grid in 16th-units. 6/8 = dotted-quarter pulse. */
 export function meterPulse(time) {
   const [n0, d] = String(time || "4/4").split("/").map(Number);
   const num = n0 || 4;
