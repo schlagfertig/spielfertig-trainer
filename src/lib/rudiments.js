@@ -179,7 +179,7 @@ export const RUDIMENTS = [
     n(12, 2, "R", true, { flam: "L", g: 4 }), n(14, 2, "L", true, { flam: "R", g: 4 }),
   ], sticking: dual("RLRLRLRL") },
   { id: 21, cat: "flam", label: "21. Flam Accent", bars: 1, time: "2/4", notes: [...flamAcc(0, "R"), ...flamAcc(1, "L")], sticking: dual("RLRLRL") },
-  { id: 22, cat: "flam", label: "22. Flam Tap", bars: 1, time: "2/4", notes: [...flamTap(0, 1, 2)], sticking: dual("RRLRLL") },
+  { id: 22, cat: "flam", label: "22. Flam Tap", bars: 1, time: "2/4", notes: [...flamTap(0, 1, 2)], sticking: dual("RRLL") },
   { id: 23, cat: "flam", label: "23. Flamacue", bars: 1, time: "2/4", notes: [n(0, 1, "R", false, { flam: "L", g: 1 }), n(1, 1, "L", true, { g: 1 }), n(2, 1, "R", false, { g: 1 }), n(3, 1, "L", false, { g: 1 }), n(4, 4, "R", true, { flam: "L" })], sticking: dual("RLRLR") },
   { id: 24, cat: "flam", label: "24. Flam Paradiddle", bars: 1, time: "2/4", notes: [n(0, 1, "R", true, { flam: "L", g: 1 }), n(1, 1, "L", false, { g: 1 }), n(2, 1, "R", false, { g: 1 }), n(3, 1, "R", false, { g: 1 }), n(4, 1, "L", true, { flam: "R", g: 2 }), n(5, 1, "R", false, { g: 2 }), n(6, 1, "L", false, { g: 2 }), n(7, 1, "L", false, { g: 2 })], sticking: dual("RLRRLRLL") },
   { id: 25, cat: "flam", label: "25. Single Flammed Mill", bars: 1, time: "2/4", notes: [n(0, 1, "R", true, { flam: "L", g: 1 }), n(1, 1, "R", false, { g: 1 }), n(2, 1, "L", false, { g: 1 }), n(3, 1, "R", false, { g: 1 }), n(4, 1, "L", true, { flam: "R", g: 2 }), n(5, 1, "L", false, { g: 2 }), n(6, 1, "R", false, { g: 2 }), n(7, 1, "L", false, { g: 2 })], sticking: dual("RRLRLRLL") },
