@@ -45,6 +45,13 @@ const sixClosed = (start, g) => [
   n(start + 2, 1, "L", false, { g, beams: 2, roll: 2, tuplet: 6, tie: true }),
   n(start + 3, 2, "L", true, { g, beams: 1 }),
 ];
+/** 16th-note triplet + 8th (PAS Single Stroke Four figure). */
+const ss4 = (start, g) => [
+  n(start, T6, "R", false, { tuplet: 3, g, beams: 2 }),
+  n(start + T6, T6, "L", false, { tuplet: 3, g, beams: 2 }),
+  n(start + 2 * T6, T6, "R", false, { tuplet: 3, g, beams: 2 }),
+  n(start + 2, 2, "L", false, { g, beams: 1 }),
+];
 
 export const CATS = [
   { id: "roll", label: "Roll" },
@@ -56,8 +63,8 @@ export const CATS = [
 const SS32 = "RLRLRLRLRLRLRLRLRLRLRLRLRLRLRLRL";
 
 export const RUDIMENTS = [
-  { id: 1, cat: "roll", label: "1. Single Stroke Roll", bars: 2, time: "4/4", notes: [n(0, 8, "R", true, { roll: 3 }), n(8, 8, "L", true, { roll: 3 }), ...d32(16, SS32)], sticking: dual("RL" + SS32) },
-  { id: 2, cat: "roll", label: "2. Single Stroke Four", bars: 1, time: "2/4", notes: [...trip(0, "RLR", [], () => ({ g: 1 })), n(4, 2, "L", true)], sticking: dual("RLRL") },
+  { id: 1, cat: "roll", label: "1. Single Stroke Roll", bars: 1, time: "4/4", notes: [...d32(0, SS32)], sticking: dual(SS32) },
+  { id: 2, cat: "roll", label: "2. Single Stroke Four", bars: 1, time: "4/4", notes: [...ss4(0, 1), ...ss4(8, 2)], sticking: dual("RLRLRLRL") },
   { id: 3, cat: "roll", label: "3. Single Stroke Seven", bars: 1, time: "2/4", notes: [...six(0, "RLRLRL", [], { g: 1 }), n(4, 2, "R", true)], sticking: dual("RLRLRLR") },
   { id: 4, cat: "roll", label: "4. Multiple Bounce Roll", bars: 1, time: "2/4", notes: [n(0, 8, "R", false, { roll: 3, whole: true })], sticking: dualTok(["R"]) },
   { id: 5, cat: "roll", label: "5. Triple Stroke Roll", bars: 1, time: "4/4", notes: [...trip(0, "RRR", [0]), ...trip(1, "LLL", [0]), ...trip(2, "RRR", [0]), ...trip(3, "LLL", [0])], sticking: dual("RRRLLLRRRLLL") },
