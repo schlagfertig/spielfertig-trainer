@@ -5,7 +5,7 @@ import { RudimentStaff } from "../lib/staff.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
 
 const DIM = "#8a969c";
-const HOLDS = [8, 12, 16, 24];
+const BARS = [1, 2, 4];
 
 const STAGES = [
   { id: "q", label: "4tel", perBeat: 1 },
@@ -30,6 +30,10 @@ function plan(dir) {
 
 function flipStick(s) {
   return s.replace(/R/g, "x").replace(/L/g, "R").replace(/x/g, "L");
+}
+
+function barLabel(n) {
+  return n === 1 ? "1 Takt" : `${n} Takte`;
 }
 
 /** Always one 4/4 bar of the current subdivision. */
@@ -63,17 +67,19 @@ function barRud(stage) {
 
 export default function PyramidTrainer() {
   const [bpm, setBpm] = useState(80);
-  const [hold, setHold] = useState(12);
+  const [bars, setBars] = useState(2);
   const [dir, setDir] = useState("updown");
   const [playing, setPlaying] = useState(false);
   const [beat, setBeat] = useState(false);
   const [idx, setIdx] = useState(0);
-  const [left, setLeft] = useState(0);
+  const [leftBars, setLeftBars] = useState(0);
   const [playT, setPlayT] = useState(-1);
   const [done, setDone] = useState("");
   const stopRef = useRef(null);
   const bpmRef = useRef(80);
+  const barsRef = useRef(2);
   bpmRef.current = bpm;
+  barsRef.current = bars;
   const steps = plan(dir);
   const cur = steps[idx] || steps[0];
   const rud = barRud(cur);
@@ -85,7 +91,7 @@ export default function PyramidTrainer() {
     stopRef.current = null;
     setPlaying(false);
     setBeat(false);
-    setLeft(0);
+    setLeftBars(0);
     setPlayT(-1);
     setIdx(0);
   }
@@ -95,15 +101,16 @@ export default function PyramidTrainer() {
     setDone("");
     const ctx = unlockAudio();
     const run = plan(dir);
+    const holdBars = barsRef.current;
     let cancelled = false;
     let timer = 0;
     let si = 0;
     let next = ctx.currentTime + 0.02;
-    let stageArmed = next + hold;
     let sub = 0;
+    let barsDone = 0;
     setIdx(0);
     setPlaying(true);
-    setLeft(hold);
+    setLeftBars(holdBars);
 
     const pulse = (when) => {
       const delay = Math.max(0, (when - ctx.currentTime) * 1000);
@@ -122,7 +129,7 @@ export default function PyramidTrainer() {
       stopRef.current = null;
       setPlaying(false);
       setBeat(false);
-      setLeft(0);
+      setLeftBars(0);
       setPlayT(-1);
       setIdx(0);
       setDone("Pyramide fertig.");
@@ -131,21 +138,9 @@ export default function PyramidTrainer() {
     const schedule = () => {
       if (cancelled) return;
       const now = ctx.currentTime;
-      const per = run[si].perBeat;
-      const inBar = sub % (per * 4);
-      if (now >= stageArmed && inBar === 0 && sub > 0) {
-        if (si + 1 >= run.length) {
-          finish();
-          return;
-        }
-        si += 1;
-        sub = 0;
-        stageArmed += hold;
-        setIdx(si);
-      }
       const horizon = now + 0.16;
-      const curPer = run[si].perBeat;
       while (next < horizon && !cancelled) {
+        const curPer = run[si].perBeat;
         const down = sub % curPer === 0;
         playClick(ctx, next, down);
         const t16 = (sub % (curPer * 4)) * (4 / curPer);
@@ -154,8 +149,21 @@ export default function PyramidTrainer() {
         if (down) pulse(next);
         next += 60 / Math.max(30, bpmRef.current) / curPer;
         sub += 1;
+        if (sub % (curPer * 4) === 0) {
+          barsDone += 1;
+          if (barsDone >= holdBars) {
+            if (si + 1 >= run.length) {
+              finish();
+              return;
+            }
+            si += 1;
+            sub = 0;
+            barsDone = 0;
+            setIdx(si);
+          }
+          setLeftBars(Math.max(0, holdBars - barsDone));
+        }
       }
-      setLeft(Math.max(0, stageArmed - ctx.currentTime));
       timer = window.setTimeout(schedule, 25);
     };
     schedule();
@@ -168,7 +176,7 @@ export default function PyramidTrainer() {
   return (
     <div>
       <p style={{ color: DIM, fontSize: 14, margin: "12px 0 16px" }}>
-        Jede Stufe ist ein 4/4-Takt. Septole ist nicht dabei.
+        Jede Stufe ist 4/4. Du wählst, wie viele Takte eine Stufe bleibt. Septole ist nicht dabei.
       </p>
       <div className="staff-card">
         <div className="staff-label">{rud.label}</div>
@@ -192,8 +200,8 @@ export default function PyramidTrainer() {
         </div>
         {playing ? (
           <div className="count">
-            <span className="count-num">{Math.max(0, Math.ceil(left))}</span>
-            <span className="count-unit">Sek. · Wechsel an der Taktgrenze</span>
+            <span className="count-num">{leftBars}</span>
+            <span className="count-unit">{leftBars === 1 ? "Takt übrig" : "Takte übrig"}</span>
           </div>
         ) : null}
         {done ? <p style={{ color: "#5cc8b8", textAlign: "center", margin: "12px 0 0" }}>{done}</p> : null}
@@ -207,14 +215,14 @@ export default function PyramidTrainer() {
           <button type="button" className={dir === "down" ? "on" : ""} onClick={() => !playing && setDir("down")}>ab</button>
           <button type="button" className={dir === "updown" ? "on" : ""} onClick={() => !playing && setDir("updown")}>auf + ab</button>
         </div>
-        <div style={{ marginTop: 14, fontSize: 13, color: DIM }}>Sekunden pro Stufe</div>
+        <div style={{ marginTop: 14, fontSize: 13, color: DIM }}>Takte pro Stufe</div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
-          {HOLDS.map((s) => (
-            <button key={s} type="button" className={hold === s ? "chip on" : "chip"} onClick={() => setHold(s)}>{s}s</button>
+          {BARS.map((n) => (
+            <button key={n} type="button" className={bars === n ? "chip on" : "chip"} onClick={() => !playing && setBars(n)}>{barLabel(n)}</button>
           ))}
         </div>
         <p style={{ color: DIM, fontSize: 12, margin: "14px 0 0" }}>
-          Immer 4/4. Stufe wechselt erst nach einem vollen Takt.
+          Immer 4/4. Stufe wechselt nach {barLabel(bars)}, genau an der Taktgrenze.
         </p>
       </div>
     </div>
