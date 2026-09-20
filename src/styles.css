@@ -207,6 +207,39 @@ p { font-size: 17px; line-height: 1.45; }
 .staff-card { background: #fff; color: #161a1d; }
 .staff-label { font-size: 18px; font-weight: 800; color: #334; margin-bottom: 6px; }
 .staff-hint { margin-top: 8px; font-size: 14px; color: #6a7378; }
+.beat-track {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+.beat-cells {
+  display: flex;
+  flex: 1;
+  gap: 6px;
+}
+.beat-cells span {
+  flex: 1;
+  text-align: center;
+  font: 800 22px/1.1 "Space Mono", ui-monospace, monospace;
+  color: #8a969c;
+  background: #eef1f2;
+  border-radius: 8px;
+  padding: 8px 0;
+}
+.beat-cells span.on {
+  color: #06120f;
+  background: #e8b84b;
+}
+.beat-loop {
+  flex: 0 0 auto;
+  font: 800 15px Figtree, sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #334;
+  min-width: 72px;
+  text-align: right;
+}
 .check { display: flex; align-items: center; gap: 8px; font-size: 17px; color: #bbb; cursor: pointer; }
 .check input { accent-color: var(--teal); width: 18px; height: 18px; }
 .dock {
