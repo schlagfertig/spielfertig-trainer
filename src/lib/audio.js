@@ -94,20 +94,22 @@ export function playMetronome(c, downbeat, t) {
   playClick(c, t, downbeat);
 }
 
-export function playStick(c, hand, t, accent) {
+export function playStick(c, hand, t, accent, grace = false) {
   const high = hand === "R";
-  tone(c, t, high ? 420 : 280, accent ? 0.12 : 0.09, "triangle", accent ? 0.18 : 0.1);
-  noiseHit(c, t, accent ? 0.08 : 0.05, accent ? 0.1 : 0.05, high ? 1800 : 900);
+  const g = grace ? 0.055 : accent ? 0.18 : 0.1;
+  const d = grace ? 0.05 : accent ? 0.12 : 0.09;
+  tone(c, t, high ? 420 : 280, d, "triangle", g);
+  noiseHit(c, t, grace ? 0.035 : accent ? 0.08 : 0.05, grace ? 0.03 : accent ? 0.1 : 0.05, high ? 1800 : 900);
 }
 
-export function playSnare(c, t, accent = false) {
-  const a = accent ? 1.75 : 1;
-  const dur = accent ? 0.13 : 0.085;
+export function playSnare(c, t, accent = false, grace = false) {
+  const a = grace ? 0.42 : accent ? 1.75 : 1;
+  const dur = grace ? 0.042 : accent ? 0.13 : 0.085;
   const body = c.createOscillator();
   const bg = c.createGain();
   body.type = "triangle";
-  body.frequency.setValueAtTime(205, t);
-  body.frequency.exponentialRampToValueAtTime(118, t + 0.055);
+  body.frequency.setValueAtTime(grace ? 240 : 205, t);
+  body.frequency.exponentialRampToValueAtTime(grace ? 150 : 118, t + (grace ? 0.03 : 0.055));
   bg.gain.setValueAtTime(0.0001, t);
   bg.gain.exponentialRampToValueAtTime(0.16 * a, t + 0.003);
   bg.gain.exponentialRampToValueAtTime(0.0001, t + dur);
@@ -120,14 +122,14 @@ export function playSnare(c, t, accent = false) {
   src.buffer = warmNoise(c);
   const hp = c.createBiquadFilter();
   hp.type = "highpass";
-  hp.frequency.value = 850;
+  hp.frequency.value = grace ? 1400 : 850;
   const bp = c.createBiquadFilter();
   bp.type = "bandpass";
-  bp.frequency.value = 3100;
+  bp.frequency.value = grace ? 3800 : 3100;
   bp.Q.value = 0.85;
   const ng = c.createGain();
   ng.gain.setValueAtTime(0.0001, t);
-  ng.gain.exponentialRampToValueAtTime(0.2 * a, t + 0.002);
+  ng.gain.exponentialRampToValueAtTime((grace ? 0.12 : 0.2) * a, t + 0.002);
   ng.gain.exponentialRampToValueAtTime(0.0001, t + dur);
   src.connect(hp);
   hp.connect(bp);
@@ -139,14 +141,30 @@ export function playSnare(c, t, accent = false) {
   const click = c.createOscillator();
   const cg = c.createGain();
   click.type = "square";
-  click.frequency.setValueAtTime(760, t);
+  click.frequency.setValueAtTime(grace ? 920 : 760, t);
   cg.gain.setValueAtTime(0.0001, t);
-  cg.gain.exponentialRampToValueAtTime(0.06 * a, t + 0.001);
-  cg.gain.exponentialRampToValueAtTime(0.0001, t + 0.014);
+  cg.gain.exponentialRampToValueAtTime((grace ? 0.035 : 0.06) * a, t + 0.001);
+  cg.gain.exponentialRampToValueAtTime(0.0001, t + (grace ? 0.01 : 0.014));
   click.connect(cg);
   cg.connect(c.destination);
   click.start(t);
   click.stop(t + 0.02);
+}
+
+/** Flam = 1 grace before primary. Drag = 2 graces before primary. */
+export function playOrnament(c, nt, when, mode, stepSec) {
+  const hit = (hand, t, acc, grace) => {
+    if (mode === "stick") playStick(c, hand, t, acc, grace);
+    else playSnare(c, t, acc, grace);
+  };
+  const flamLead = Math.min(0.058, Math.max(0.026, stepSec * 0.38));
+  const dragGap = Math.min(0.038, Math.max(0.018, stepSec * 0.22));
+  if (nt.flam) hit(nt.flam, when - flamLead, false, true);
+  if (nt.drag) {
+    hit(nt.drag, when - dragGap * 2, false, true);
+    hit(nt.drag, when - dragGap, false, true);
+  }
+  hit(nt.hand, when, !!nt.acc, false);
 }
 
 export function playKit(c, voice, t, accent) {
