@@ -25,7 +25,9 @@ export function stepsFromTime(time, bars = 1) {
 
 function pulseFromTime(time) {
   const { n, d } = parseTime(time);
-  return d === 8 && n % 3 === 0 ? 6 : 4;
+  if (d === 8 && n % 3 === 0) return 6;
+  if (d === 2) return 8;
+  return 4;
 }
 
 function beamsFor(nt) {
@@ -88,6 +90,14 @@ function PercClef({ x, y }) {
 }
 
 function TimeSig({ x, y, n, d }) {
+  if (n === 2 && d === 2) {
+    return (
+      <g fill="none" stroke={INK} strokeWidth="1.7" strokeLinecap="round">
+        <path d={`M ${x + 8} ${y - 13} C ${x - 8} ${y - 13}, ${x - 9} ${y}, ${x + 8} ${y + 13}`} />
+        <line x1={x} y1={y - 17} x2={x} y2={y + 17} strokeWidth="1.9" />
+      </g>
+    );
+  }
   return (
     <g fill={INK} stroke="none" fontFamily="Oswald, sans-serif" fontWeight="700" textAnchor="middle">
       <text x={x} y={y - 1} fontSize="15">{n}</text>
@@ -285,7 +295,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const viewH = rows === 2 ? 168 : 148;
   const groups = beamGroups(notes, pulse);
   const beamed = new Set();
-  groups.forEach((g) => g.forEach((n) => beamed.add(n)));
+  groups.forEach((g) => g.forEach((note) => beamed.add(note)));
   const near = (a, b) => Math.abs(a - b) < 0.05;
   const stemX = (x) => x + STEM_DX;
   const stemTop = ny - STEM_H;
@@ -329,7 +339,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
           const ink = on ? GOLD : INK;
           const whole = nt.whole || nt.dur >= 16;
           const accY = beamed.has(nt) || nt.roll ? stemTop - (nt.roll ? 11 : 7) : stemTop - 7;
-          const next = notes.slice(i + 1).find((n) => !n.rest);
+          const next = notes.slice(i + 1).find((nn) => !nn.rest);
           const x2 = next ? noteX(next) : x;
           return (
             <g key={i}>
@@ -381,15 +391,15 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
           );
         })}
         {groups.map((g, gi) => {
-          const xs = g.map((n) => stemX(x0 + n.t * stepW));
+          const xs = g.map((nn) => stemX(x0 + nn.t * stepW));
           const y0 = stemTop;
           const sl = Math.min(1.6, (xs[xs.length - 1] - xs[0]) * 0.01);
-          const yAt = (x) => y0 + ((x - xs[0]) / Math.max(1, xs[xs.length - 1] - xs[0])) * sl;
-          const maxB = Math.max(...g.map((n) => beamsFor(n)));
+          const yAt = (xx) => y0 + ((xx - xs[0]) / Math.max(1, xs[xs.length - 1] - xs[0])) * sl;
+          const maxB = Math.max(...g.map((nn) => beamsFor(nn)));
           const layers = [];
           for (let b = 0; b < maxB; b++) {
-            g.forEach((n, i) => {
-              if (beamsFor(n) <= b) return;
+            g.forEach((nn, i) => {
+              if (beamsFor(nn) <= b) return;
               if (i > 0 && beamsFor(g[i - 1]) > b) return;
               const yy = (xx) => yAt(xx) + b * BEAM_GAP;
               if (i < g.length - 1 && beamsFor(g[i + 1]) > b) {
