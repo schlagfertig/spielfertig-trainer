@@ -52,28 +52,45 @@ function noiseHit(c, t, dur, gain, hp) {
   n.stop(t + dur + 0.02);
 }
 
+function tick(c, t, f1, f2, g1, g2, d1 = 0.022, d2 = 0.04) {
+  const o1 = c.createOscillator();
+  const a1 = c.createGain();
+  o1.connect(a1);
+  a1.connect(c.destination);
+  o1.frequency.setValueAtTime(f1, t);
+  a1.gain.setValueAtTime(0.0001, t);
+  a1.gain.exponentialRampToValueAtTime(Math.max(0.0001, g1), t + 0.001);
+  a1.gain.exponentialRampToValueAtTime(0.001, t + d1);
+  o1.start(t);
+  o1.stop(t + d1 + 0.01);
+  if (f2) {
+    const o2 = c.createOscillator();
+    const a2 = c.createGain();
+    o2.connect(a2);
+    a2.connect(c.destination);
+    o2.frequency.setValueAtTime(f2, t);
+    a2.gain.setValueAtTime(0.0001, t);
+    a2.gain.exponentialRampToValueAtTime(Math.max(0.0001, g2), t + 0.001);
+    a2.gain.exponentialRampToValueAtTime(0.001, t + d2);
+    o2.start(t);
+    o2.stop(t + d2 + 0.01);
+  }
+}
+
 /** Click from the setlist app: short 2200 + 900 Hz tick. */
 export function playClick(c, t, downbeat = false) {
-  const osc1 = c.createOscillator();
-  const g1 = c.createGain();
-  osc1.connect(g1);
-  g1.connect(c.destination);
-  osc1.frequency.setValueAtTime(downbeat ? 2400 : 2200, t);
-  g1.gain.setValueAtTime(0.0001, t);
-  g1.gain.exponentialRampToValueAtTime(downbeat ? 0.55 : 0.42, t + 0.001);
-  g1.gain.exponentialRampToValueAtTime(0.001, t + 0.022);
-  osc1.start(t);
-  osc1.stop(t + 0.025);
-  const osc2 = c.createOscillator();
-  const g2 = c.createGain();
-  osc2.connect(g2);
-  g2.connect(c.destination);
-  osc2.frequency.setValueAtTime(downbeat ? 1100 : 900, t);
-  g2.gain.setValueAtTime(0.0001, t);
-  g2.gain.exponentialRampToValueAtTime(downbeat ? 0.34 : 0.26, t + 0.001);
-  g2.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
-  osc2.start(t);
-  osc2.stop(t + 0.045);
+  playClickLayer(c, t, downbeat ? "beat" : "quarter", downbeat ? 1 : 0.78);
+}
+
+/** Distinct, gain-scaled voices for the RW100-style mixer. */
+export function playClickLayer(c, t, voice, amp) {
+  const a = Math.max(0, Math.min(1, amp));
+  if (a < 0.008) return;
+  if (voice === "beat") tick(c, t, 2500, 1180, 0.48 * a, 0.3 * a, 0.024, 0.046);
+  else if (voice === "off") tick(c, t, 2050, 0, 0.26 * a, 0, 0.016, 0.016);
+  else if (voice === "sixteenth") tick(c, t, 3100, 0, 0.18 * a, 0, 0.012, 0.012);
+  else if (voice === "triplet") tick(c, t, 1560, 640, 0.28 * a, 0.14 * a, 0.02, 0.034);
+  else tick(c, t, 1880, 820, 0.36 * a, 0.2 * a, 0.02, 0.038);
 }
 
 export function playMetronome(c, downbeat, t) {
