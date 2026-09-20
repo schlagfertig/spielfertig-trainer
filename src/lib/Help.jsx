@@ -5,6 +5,7 @@ const COPY = {
     ["Rudiments", "40 PAS-Übungen. Notation lesen, Click hören, Tempo halten."],
     ["Click-Trainer", "Metronom: Tempo steigern oder 16tel für x Minuten."],
     ["Rhythmuspyramide", "Subdivisionen auf und ab. Ohne Septole."],
+    ["Stick Control", "Drei generische Stickings plus kurze Challenge."],
     ["Kreis", "Tippen startet. Drehen ändert das Tempo fein."],
   ],
   rudiments: [
@@ -25,6 +26,11 @@ const COPY = {
     ["Septole", "Bewusst weggelassen (MVP)."],
     ["Richtung", "nur auf, nur ab, oder auf und wieder ab."],
     ["Click", "Subdivision durchgehend, Viertel betont. Stufe wechselt ohne Pause."],
+  ],
+  stick: [
+    ["Exercises", "Singles, Doubles, Paradiddle — generisch, kein Buch."],
+    ["Üben", "Endlosschleife zum Warmhalten."],
+    ["Challenge", "1/2 Min oder 8/16 Takte durchhalten. Stoppen zählt nicht."],
   ],
 };
 
