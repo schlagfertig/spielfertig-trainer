@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { CATS, RUDIMENTS, meterPulse, rudimentDuration } from "../lib/rudiments.js";
 import { RudimentStaff } from "../lib/staff.jsx";
-import { TempoControl } from "../lib/tempo.jsx";
 import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, playOrnament, unlockAudio } from "../lib/audio.js";
 import { deliverPng, printElement, sheetHtml, tilesToPng } from "../lib/print.js";
@@ -296,9 +295,6 @@ export default function RudimentTrainer({ printNonce }) {
                 <button type="button" className="nudge-lg" onClick={() => setBpm(Math.max(30, bpm - 5))} aria-label="5 BPM langsamer">−5</button>
                 <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={96} now />
                 <button type="button" className="nudge-lg" onClick={() => setBpm(Math.min(260, bpm + 5))} aria-label="5 BPM schneller">+5</button>
-              </div>
-              <div className="dock-tempo">
-                <TempoControl bpm={bpm} setBpm={setBpm} min={30} max={260} hideNudge />
               </div>
               <label className="check" style={{ marginTop: 10 }}>
                 <input type="checkbox" checked={rampOn} onChange={(e) => setRampOn(e.target.checked)} />Tempo steigern
