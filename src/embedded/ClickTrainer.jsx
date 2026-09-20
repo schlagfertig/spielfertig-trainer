@@ -124,7 +124,7 @@ export default function ClickTrainer() {
       window.setTimeout(() => {
         if (cancelled) return;
         setBeat(true);
-        window.setTimeout(() => setBeat(false), 80);
+        window.setTimeout(() => setBeat(false), 90);
       }, delay);
     };
 
@@ -182,7 +182,7 @@ export default function ClickTrainer() {
           }
           const quarter = beatN % 4 === 0;
           playClick(ctx, next, quarter);
-          if (quarter) pulse(next);
+          pulse(next);
           const beatSec = 60 / Math.max(30, bpmRef.current);
           next += sixteenth ? beatSec / 4 : beatSec;
           beatN += 1;
@@ -237,9 +237,17 @@ export default function ClickTrainer() {
         <button type="button" className={mode === "ramp" ? "on" : ""} onClick={() => pickMode("ramp")}>Tempo steigern</button>
         <button type="button" className={sixteenth ? "on" : ""} onClick={() => pickMode("sixteenth")}>16tel · Min</button>
       </div>
-      <div className="panel dock metro-flip" style={{ position: "static", margin: "0 0 14px", borderRadius: 12, boxShadow: "none" }}>
-        <div className={flipped ? "metro-inner is-back" : "metro-inner"}>
-          <div className="metro-face metro-front">
+      <div className="panel dock" style={{ position: "static", margin: "0 0 14px", borderRadius: 12, boxShadow: "none" }}>
+        {flipped ? (
+          <div key="back" className="metro-swap">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+              <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8" }}>Click-Mixer</div>
+              <button type="button" className="ghost" onClick={() => flip(false)}>Metronom</button>
+            </div>
+            <ClickAdvanced mix={mix} setMix={setMix} slidersOnly />
+          </div>
+        ) : (
+          <div key="front" className="metro-swap">
             <div className="dial-row">
               <button type="button" className="nudge-lg" onClick={() => setDial(bpm - 5)} aria-label="5 BPM langsamer">−5</button>
               <MetronomeDial bpm={bpm} setBpm={setDial} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={132} now />
@@ -272,14 +280,7 @@ export default function ClickTrainer() {
             {done ? <p style={{ color: "#5cc8b8", textAlign: "center", fontSize: 14, margin: "12px 0 0" }}>{done}</p> : null}
             {bgHint ? <p style={{ color: "#e8b84b", textAlign: "center", fontSize: 12, margin: "10px 0 0" }}>App im Hintergrund — der Click kann pausieren. Zurückkommen und ggf. neu starten.</p> : null}
           </div>
-          <div className="metro-face metro-back">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8" }}>Click-Mixer</div>
-              <button type="button" className="ghost" onClick={() => flip(false)}>Metronom</button>
-            </div>
-            <ClickAdvanced mix={mix} setMix={setMix} slidersOnly />
-          </div>
-        </div>
+        )}
       </div>
       <div className="panel">
         <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 12 }}>Einstellung</div>
@@ -327,16 +328,11 @@ export default function ClickTrainer() {
           width: 64px; text-align: center; font-weight: 700; font-size: 16px; color: #5cc8b8;
           background: ${INK}; border: 1px solid ${LINE}; border-radius: 8px; padding: 7px 4px;
         }
-        .metro-flip { perspective: 1000px; }
-        .metro-inner {
-          position: relative;
-          transition: transform .45s ease;
-          transform-style: preserve-3d;
+        .metro-swap { animation: metroIn .28s ease; }
+        @keyframes metroIn {
+          from { opacity: 0; transform: rotateY(-80deg); }
+          to { opacity: 1; transform: none; }
         }
-        .metro-inner.is-back { transform: rotateY(180deg); }
-        .metro-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-        .metro-inner:not(.is-back) .metro-back { display: none; }
-        .metro-inner.is-back .metro-front { display: none; }
       `}</style>
     </div>
   );
