@@ -7,15 +7,45 @@ import { playClick, playSnare, unlockAudio } from "../lib/audio.js";
 const DIM = "#8a969c";
 
 const n = (t, dur, hand, acc = false, extra = {}) => ({ t, dur, hand, acc, ...extra });
-const run8 = (hands) => hands.split("").map((h, i) => n(i * 2, 2, h, i % 4 === 0, { g: Math.floor(i / 2) + 1 }));
+const run8ths = (hands) =>
+  hands.split("").map((h, i) => n(i * 2, 2, h, false, { g: Math.floor(i / 2) + 1 }));
 const dual = (s) => [s, s.replace(/R/g, "x").replace(/L/g, "R").replace(/x/g, "L")];
 
-// Alla breve, Achtel, ein Takt. Taktstrich nach der 4. Achtel.
-const EXERCISES = [
-  { id: "singles", label: "Singles", time: "2/2", bars: 1, notes: run8("RLRLRLRL"), sticking: dual("RLRLRLRL") },
-  { id: "doubles", label: "Doubles", time: "2/2", bars: 1, notes: run8("RRLLRRLL"), sticking: dual("RRLLRRLL") },
-  { id: "paradiddle", label: "Paradiddle", time: "2/2", bars: 1, notes: run8("RLRRLRLL"), sticking: dual("RLRRLRLL") },
+const PATTERNS = [
+  "RLRLRLRLRLRLRLRL",
+  "LRLRLRLRLRLRLRLR",
+  "RRLLRRLLRRLLRRLL",
+  "LLRRLLRRLLRRLLRR",
+  "RLRRLRLLRLRRLRLL",
+  "RLLRLRRLRLLRLRRL",
+  "RRLRLLRLRRLRLLRL",
+  "RLRLLRLRRLRLLRLR",
+  "RRRLRRRLRRRLRRRL",
+  "LLLRLLLRLLLRLLLR",
+  "RLLLRLLLRLLLRLLL",
+  "LRRRLRRRLRRRLRRR",
+  "RRRRLLLLRRRRLLLL",
+  "RLRLRRLLRLRLRRLL",
+  "LRLRLLRRLRLRLLRR",
+  "RLRLRRLRLRLRLRLL",
+  "RLRLRLLRLRLRLRRL",
+  "RLRLRRLRLRLRLLRL",
+  "RLRLRRRLRLRLRRRL",
+  "LRLRLLLRLRLRLLLR",
+  "RLRLRLLLRLRLRLLL",
+  "LRLRLRRRLRLRLRRR",
+  "RLRLRRRRLRLRLLLL",
+  "RRLLRLRRLLRRLRLL",
 ];
+
+const EXERCISES = PATTERNS.map((hands, i) => ({
+  id: i + 1,
+  label: String(i + 1),
+  time: "2/2",
+  bars: 2,
+  notes: run8ths(hands),
+  sticking: dual(hands),
+}));
 
 const CHALLENGES = [
   { id: "t60", kind: "time", sec: 60, label: "1 Min" },
@@ -34,7 +64,7 @@ function fmt(sec) {
 }
 
 export default function StickControl() {
-  const [exId, setExId] = useState("singles");
+  const [exId, setExId] = useState(1);
   const [bpm, setBpm] = useState(80);
   const [mode, setMode] = useState("practice");
   const [goalId, setGoalId] = useState("t60");
@@ -51,6 +81,12 @@ export default function StickControl() {
   const goal = CHALLENGES.find((c) => c.id === goalId) || CHALLENGES[0];
 
   useEffect(() => () => stopRef.current?.(), []);
+
+  function pick(id) {
+    if (playing) return;
+    setExId(id);
+    setDone("");
+  }
 
   function stop(ok = false) {
     stopRef.current?.();
@@ -156,15 +192,17 @@ export default function StickControl() {
   return (
     <div>
       <p style={{ color: DIM, fontSize: 16, fontWeight: 600, margin: "12px 0 16px" }}>
-        Drei generische Stickings in Alla breve, als Achtel. Keine Buch-Übungen.
+        Single-Beat-Kombinationen. Alla breve, zwei Takte Achtel. Tempo = Viertel.
       </p>
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 6, marginBottom: 12 }}>
         {EXERCISES.map((e) => (
-          <button key={e.id} type="button" className={exId === e.id ? "chip on" : "chip"} onClick={() => { if (!playing) setExId(e.id); }}>{e.label}</button>
+          <button key={e.id} type="button" className={exId === e.id ? "chip on" : "chip"} onClick={() => pick(e.id)} style={{ padding: "10px 0", fontSize: 16, fontWeight: 800 }}>
+            {e.label}
+          </button>
         ))}
       </div>
       <div className="staff-card">
-        <div className="staff-label">{ex.label} · Alla breve</div>
+        <div className="staff-label">Nr. {ex.id} · Alla breve · 2 Takte</div>
         <RudimentStaff rud={ex} playingT={playT} svgId="stick-live" />
       </div>
       <div className="seg" style={{ margin: "0 0 12px", width: "fit-content" }}>
@@ -206,7 +244,7 @@ export default function StickControl() {
       <div className="panel">
         <TempoControl bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} min={30} max={200} hideNudge />
         <p style={{ color: DIM, fontSize: 15, fontWeight: 600, margin: "14px 0 0" }}>
-          Alla breve, Achtel. BPM ist der Halbe-Puls. Click auf jeder Viertel, Eins betont. Challenge zählt als Erfolg, wenn du durchhältst.
+          Alla breve, zwei Takte Achtel. BPM zählt die Viertel. Click auf jeder Viertel, Eins betont.
         </p>
       </div>
     </div>
