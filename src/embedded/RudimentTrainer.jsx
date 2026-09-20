@@ -5,25 +5,46 @@ import { TempoControl } from "../lib/tempo.jsx";
 import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, playSnare, playStick, unlockAudio } from "../lib/audio.js";
 import { deliverPng, printElement, sheetHtml, tilesToPng } from "../lib/print.js";
+import { loadSession, saveSession } from "../lib/session.js";
 
 const INK = "#161a1d";
 const LINE = "#2f383d";
 const DIM = "#8a969c";
+const HEAR_OK = ["snare", "hands", "click"];
+
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, Math.round(n)));
+}
+
+function readRudimentSession() {
+  const s = loadSession("rudiments", {});
+  const sel = RUDIMENTS.some((r) => r.id === Number(s.sel)) ? Number(s.sel) : 16;
+  return {
+    sel,
+    bpm: clamp(Number(s.bpm) || 80, 30, 260),
+    hear: HEAR_OK.includes(s.hear) ? s.hear : "snare",
+    countIn: s.countIn !== false,
+    rampOn: !!s.rampOn,
+    rampStep: clamp(Number(s.rampStep) || 2, 1, 12),
+    rampCap: clamp(Number(s.rampCap) || 160, 40, 260),
+  };
+}
 
 export default function RudimentTrainer({ printNonce }) {
-  const [sel, setSel] = useState(16);
-  const [bpm, setBpm] = useState(80);
-  const [hear, setHear] = useState("snare");
-  const [countIn, setCountIn] = useState(true);
-  const [rampOn, setRampOn] = useState(false);
-  const [rampStep, setRampStep] = useState(2);
-  const [rampCap, setRampCap] = useState(160);
+  const init = useRef(readRudimentSession()).current;
+  const [sel, setSel] = useState(init.sel);
+  const [bpm, setBpm] = useState(init.bpm);
+  const [hear, setHear] = useState(init.hear);
+  const [countIn, setCountIn] = useState(init.countIn);
+  const [rampOn, setRampOn] = useState(init.rampOn);
+  const [rampStep, setRampStep] = useState(init.rampStep);
+  const [rampCap, setRampCap] = useState(init.rampCap);
   const [playing, setPlaying] = useState(false);
   const [playT, setPlayT] = useState(-1);
   const [beat, setBeat] = useState(false);
   const [more, setMore] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
-  const [picked, setPicked] = useState([16]);
+  const [picked, setPicked] = useState([init.sel]);
   const [perPage, setPerPage] = useState(6);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
@@ -37,6 +58,9 @@ export default function RudimentTrainer({ printNonce }) {
   const rud = RUDIMENTS.find((r) => r.id === sel) || RUDIMENTS[0];
   const idx = Math.max(0, RUDIMENTS.findIndex((r) => r.id === rud.id));
 
+  useEffect(() => {
+    saveSession("rudiments", { sel, bpm, hear, countIn, rampOn, rampStep, rampCap });
+  }, [sel, bpm, hear, countIn, rampOn, rampStep, rampCap]);
   useEffect(() => {
     if (!printNonce || printNonce === lastPrint.current) return;
     lastPrint.current = printNonce;
