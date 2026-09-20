@@ -7,15 +7,15 @@ import { playClick, playSnare, unlockAudio } from "../lib/audio.js";
 const DIM = "#8a969c";
 
 const n = (t, dur, hand, acc = false, extra = {}) => ({ t, dur, hand, acc, ...extra });
-const run8 = (hands) => hands.split("").map((h, i) => n(i * 2, 2, h, i % 4 === 0, { g: Math.floor(i / 4) + 1 }));
+const run8 = (hands) => hands.split("").map((h, i) => n(i * 2, 2, h, i % 4 === 0, { g: Math.floor(i / 2) + 1 }));
 const dual = (s) => [s, s.replace(/R/g, "x").replace(/L/g, "R").replace(/x/g, "L")];
 
-// Generische Stickings, alla breve / Achtel. Keine Buch-Transkription.
+// Generische Stickings in 2/4, Achtel, zwei Takte. Keine Buch-Transkription.
 // TODO Tom: Liste freigeben / tauschen, wenn eigene Exercises kommen.
 const EXERCISES = [
-  { id: "singles", label: "Singles", time: "2/2", bars: 1, notes: run8("RLRLRLRL"), sticking: dual("RLRLRLRL") },
-  { id: "doubles", label: "Doubles", time: "2/2", bars: 1, notes: run8("RRLLRRLL"), sticking: dual("RRLLRRLL") },
-  { id: "paradiddle", label: "Paradiddle", time: "2/2", bars: 1, notes: run8("RLRRLRLL"), sticking: dual("RLRRLRLL") },
+  { id: "singles", label: "Singles", time: "2/4", bars: 2, notes: run8("RLRLRLRL"), sticking: dual("RLRLRLRL") },
+  { id: "doubles", label: "Doubles", time: "2/4", bars: 2, notes: run8("RRLLRRLL"), sticking: dual("RRLLRRLL") },
+  { id: "paradiddle", label: "Paradiddle", time: "2/4", bars: 2, notes: run8("RLRRLRLL"), sticking: dual("RLRRLRLL") },
 ];
 
 const CHALLENGES = [
@@ -69,7 +69,8 @@ export default function StickControl() {
     setDone("");
     const ctx = unlockAudio();
     const notes = ex.notes;
-    const steps = 16;
+    const barsEach = Math.max(1, ex.bars || 1);
+    const steps = barsEach * 8;
     const challenge = mode === "challenge";
     const endAt = challenge && goal.kind === "time" ? ctx.currentTime + goal.sec : Infinity;
     let barsTarget = challenge && goal.kind === "bars" ? goal.bars : Infinity;
@@ -112,7 +113,7 @@ export default function StickControl() {
         finishOk();
         return;
       }
-      const stepSec = () => 60 / Math.max(30, bpmRef.current) / 8;
+      const stepSec = () => 60 / Math.max(30, bpmRef.current) / 4;
       const horizon = now + 0.16;
       while (!cancelled) {
         const nt = notes[evIndex];
@@ -124,15 +125,16 @@ export default function StickControl() {
         }
         if (when >= now - 0.02) {
           playSnare(ctx, when, nt.acc);
+          if (nt.t % 4 < 0.08) playClick(ctx, when, nt.t % 8 < 0.08);
           const delay = Math.max(0, (when - now) * 1000);
           window.setTimeout(() => { if (!cancelled) setPlayT(nt.t); }, delay);
-          if (nt.t % 8 < 0.08) pulse(when);
+          if (nt.t % 4 < 0.08) pulse(when);
         }
         evIndex += 1;
         if (evIndex >= notes.length) {
           evIndex = 0;
           cycleStart += steps * stepSec();
-          barsDone += 1;
+          barsDone += barsEach;
           if (challenge && goal.kind === "bars") {
             setBarsLeft(Math.max(0, barsTarget - barsDone));
             if (barsDone >= barsTarget) {
@@ -145,7 +147,6 @@ export default function StickControl() {
       if (challenge && goal.kind === "time") setLeft(Math.max(0, endAt - ctx.currentTime));
       timer = window.setTimeout(schedule, 25);
     };
-    playClick(ctx, ctx.currentTime, true);
     schedule();
     stopRef.current = () => {
       cancelled = true;
@@ -156,7 +157,7 @@ export default function StickControl() {
   return (
     <div>
       <p style={{ color: DIM, fontSize: 14, margin: "12px 0 16px" }}>
-        Drei generische Stickings in alla breve, als Achtel. Keine Buch-Übungen.
+        Drei generische Stickings in 2/4, als Achtel über zwei Takte. Keine Buch-Übungen.
       </p>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
         {EXERCISES.map((e) => (
@@ -164,7 +165,7 @@ export default function StickControl() {
         ))}
       </div>
       <div className="staff-card">
-        <div className="staff-label">{ex.label} · alla breve</div>
+        <div className="staff-label">{ex.label} · 2/4</div>
         <RudimentStaff rud={ex} playingT={playT} svgId="stick-live" />
       </div>
       <div className="seg" style={{ margin: "0 0 12px", width: "fit-content" }}>
@@ -206,7 +207,7 @@ export default function StickControl() {
       <div className="panel">
         <TempoControl bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} min={30} max={200} hideNudge />
         <p style={{ color: DIM, fontSize: 12, margin: "14px 0 0" }}>
-          Alla breve, Achtel. BPM ist der Halbe-Puls. Challenge zählt als Erfolg, wenn du durchhältst.
+          2/4, Achtel. BPM ist der Viertel-Puls. Click auf jeder Viertel, Eins betont. Challenge zählt als Erfolg, wenn du durchhältst.
         </p>
       </div>
     </div>
