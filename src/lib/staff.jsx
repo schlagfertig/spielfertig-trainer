@@ -3,13 +3,13 @@ const GOLD = "#e8b84b";
 const RCOL = "#5c8ee0";
 const LCOL = "#e05c5c";
 
-const HEAD_RX = 5.15;
-const HEAD_RY = 3.4;
+const HEAD_RX = 6.35;
+const HEAD_RY = 4.15;
 const HEAD_ROT = -22;
-const STEM_DX = 4.55;
-const STEM_H = 31;
-const BEAM_W = 3.2;
-const BEAM_GAP = 4.05;
+const STEM_DX = 5.55;
+const STEM_H = 34;
+const BEAM_W = 3.6;
+const BEAM_GAP = 4.4;
 const PRINT = "Figtree, sans-serif";
 const SCRIPT = "Segoe Script, Bradley Hand, Snell Roundhand, cursive";
 
@@ -83,8 +83,8 @@ function withDrag(tok, nt) {
 function PercClef({ x, y }) {
   return (
     <g fill={INK} stroke="none">
-      <rect x={x} y={y - 12} width={3.4} height={24} rx={0.4} />
-      <rect x={x + 7.2} y={y - 12} width={3.4} height={24} rx={0.4} />
+      <rect x={x} y={y - 14} width={3.8} height={28} rx={0.4} />
+      <rect x={x + 8} y={y - 14} width={3.8} height={28} rx={0.4} />
     </g>
   );
 }
@@ -143,16 +143,16 @@ function WholeHead({ x, y, ink }) {
       fill={ink}
       fillRule="evenodd"
       stroke="none"
-      d={`M ${x - 6.35} ${y}
-        C ${x - 6.35} ${y - 3.85}, ${x - 3.55} ${y - 3.7}, ${x} ${y - 3.7}
-        C ${x + 3.55} ${y - 3.7}, ${x + 6.35} ${y - 3.85}, ${x + 6.35} ${y}
-        C ${x + 6.35} ${y + 3.85}, ${x + 3.55} ${y + 3.7}, ${x} ${y + 3.7}
-        C ${x - 3.55} ${y + 3.7}, ${x - 6.35} ${y + 3.85}, ${x - 6.35} ${y} Z
-        M ${x - 3.45} ${y}
-        C ${x - 3.45} ${y - 3.15}, ${x - 2.0} ${y - 3.05}, ${x} ${y - 3.05}
-        C ${x + 2.0} ${y - 3.05}, ${x + 3.45} ${y - 3.15}, ${x + 3.45} ${y}
-        C ${x + 3.45} ${y + 3.15}, ${x + 2.0} ${y + 3.05}, ${x} ${y + 3.05}
-        C ${x - 2.0} ${y + 3.05}, ${x - 3.45} ${y + 3.15}, ${x - 3.45} ${y} Z`}
+      d={`M ${x - 7.4} ${y}
+        C ${x - 7.4} ${y - 4.5}, ${x - 4.15} ${y - 4.35}, ${x} ${y - 4.35}
+        C ${x + 4.15} ${y - 4.35}, ${x + 7.4} ${y - 4.5}, ${x + 7.4} ${y}
+        C ${x + 7.4} ${y + 4.5}, ${x + 4.15} ${y + 4.35}, ${x} ${y + 4.35}
+        C ${x - 4.15} ${y + 4.35}, ${x - 7.4} ${y + 4.5}, ${x - 7.4} ${y} Z
+        M ${x - 4} ${y}
+        C ${x - 4} ${y - 3.65}, ${x - 2.3} ${y - 3.55}, ${x} ${y - 3.55}
+        C ${x + 2.3} ${y - 3.55}, ${x + 4} ${y - 3.65}, ${x + 4} ${y}
+        C ${x + 4} ${y + 3.65}, ${x + 2.3} ${y + 3.55}, ${x} ${y + 3.55}
+        C ${x - 2.3} ${y + 3.55}, ${x - 4} ${y + 3.65}, ${x - 4} ${y} Z`}
     />
   );
 }
@@ -206,13 +206,13 @@ function SlimFlag({ x, y, extra }) {
 }
 
 function FlamGrace({ x, y }) {
-  const hx = x - 11.2;
+  const hx = x - 12.4;
   const hy = y + 2.4;
-  const sx = hx + 2.3;
-  const top = hy - 15.5;
+  const sx = hx + 2.5;
+  const top = hy - 16.5;
   return (
     <g stroke={INK} fill={INK}>
-      <ellipse cx={hx} cy={hy} rx={2.7} ry={1.85} stroke="none" transform={`rotate(${HEAD_ROT} ${hx} ${hy})`} />
+      <ellipse cx={hx} cy={hy} rx={3.05} ry={2.05} stroke="none" transform={`rotate(${HEAD_ROT} ${hx} ${hy})`} />
       <line x1={sx} y1={hy - 1.1} x2={sx} y2={top} strokeWidth={0.9} fill="none" />
       <SlimFlag x={sx} y={top} />
       <line x1={sx - 3.8} y1={top + 8.4} x2={sx + 5.2} y2={top + 1.3} strokeWidth={1.05} fill="none" strokeLinecap="round" />
@@ -222,13 +222,13 @@ function FlamGrace({ x, y }) {
 
 function DragGrace({ x, y }) {
   const hy = y + 1.8;
-  const g1 = x - 18.8;
-  const g2 = x - 11.4;
-  const rx = 2.55;
-  const ry = 1.75;
-  const sx1 = g1 + 2.25;
-  const sx2 = g2 + 2.25;
-  const top = hy - 15.2;
+  const g1 = x - 20.4;
+  const g2 = x - 12.6;
+  const rx = 2.85;
+  const ry = 1.95;
+  const sx1 = g1 + 2.4;
+  const sx2 = g2 + 2.4;
+  const top = hy - 16;
   return (
     <g stroke={INK} fill={INK}>
       <ellipse cx={g1} cy={hy} rx={rx} ry={ry} stroke="none" transform={`rotate(${HEAD_ROT} ${g1} ${hy})`} />
@@ -278,24 +278,23 @@ function StickLine({ x, x2, y, text, flam, handwritten }) {
   );
 }
 
-export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
+export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime = false }) {
   const notes = rud.notes || [];
   const sounded = notes.filter((nt) => !nt.rest);
   const minDur = sounded.reduce((m, nt) => Math.min(m, nt.dur || 1), 4);
   const steps = stepsFromTime(rud.time, rud.bars || 1);
   const pulse = pulseFromTime(rud.time);
   const ornamented = notes.some((nt) => nt.flam || nt.drag);
-  const quarterW = ornamented ? 152 : minDur <= 0.5 ? 144 : 140;
+  const quarterW = hideTime ? (ornamented ? 138 : minDur <= 0.5 ? 128 : 124) : (ornamented ? 152 : minDur <= 0.5 ? 144 : 140);
   const stepW = quarterW / 4;
-  const x0 = 88;
+  const x0 = hideTime ? 52 : 88;
   const soloWhole = sounded.length === 1 && !!(sounded[0].whole || (sounded[0].dur >= 8 && sounded[0].roll));
-  const w = x0 + Math.max(steps * stepW, soloWhole ? 240 : 0) + 28;
-  const y = 60;
-  const lineGap = 8;
+  const w = x0 + Math.max(steps * stepW, soloWhole ? 240 : 0) + 22;
+  const y = 58;
+  const lineGap = 9;
   const ny = y - lineGap / 2;
-  const rows = rud.sticking && rud.sticking[1] ? 2 : 1;
-  const h0 = y + 2 * lineGap + 24;
-  const viewH = rows === 2 ? 190 : 166;
+  const h0 = y + 2 * lineGap + 26;
+  const viewH = 156;
   const groups = beamGroups(notes, pulse);
   const beamed = new Set();
   groups.forEach((g) => g.forEach((note) => beamed.add(note)));
@@ -303,9 +302,8 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
   const stemX = (x) => x + STEM_DX;
   const stemTop = ny - STEM_H;
   const primary = rud.sticking && rud.sticking[0];
-  const secondary = rud.sticking && rud.sticking[1];
   const parsed = parseTime(rud.time);
-  const barX = (t16) => x0 + t16 * stepW - stepW * 0.42;
+  const barX = (t16) => x0 + t16 * stepW - stepW * 0.38;
   const tokenAt = (row, i, nt) => {
     if (!row) return nt.hand;
     if (Array.isArray(row)) return row[i];
@@ -321,19 +319,19 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
     <svg id={svgId} viewBox={`0 0 ${w} ${viewH}`} width="100%" role="img" aria-label={rud.label}>
       <g stroke={INK} fill="none" strokeLinecap="butt" strokeLinejoin="miter">
         {[-2, -1, 0, 1, 2].map((i) => (
-          <line key={i} x1={22} y1={y + i * lineGap} x2={w - 16} y2={y + i * lineGap} strokeWidth={1.05} />
+          <line key={i} x1={18} y1={y + i * lineGap} x2={w - 12} y2={y + i * lineGap} strokeWidth={1.15} />
         ))}
-        <line x1={22} y1={y - 2 * lineGap} x2={22} y2={y + 2 * lineGap} strokeWidth={2} />
-        <line x1={w - 16} y1={y - 2 * lineGap} x2={w - 16} y2={y + 2 * lineGap} strokeWidth={2} />
+        <line x1={18} y1={y - 2 * lineGap} x2={18} y2={y + 2 * lineGap} strokeWidth={2.1} />
+        <line x1={w - 12} y1={y - 2 * lineGap} x2={w - 12} y2={y + 2 * lineGap} strokeWidth={2.1} />
         {Array.from({ length: Math.max(0, (rud.bars || 1) - 1) }, (_, i) => {
           const bx = barX((i + 1) * parsed.n * (16 / parsed.d));
-          return <line key={`bar-${i}`} x1={bx} y1={y - 2 * lineGap} x2={bx} y2={y + 2 * lineGap} strokeWidth={1.35} />;
+          return <line key={`bar-${i}`} x1={bx} y1={y - 2 * lineGap} x2={bx} y2={y + 2 * lineGap} strokeWidth={1.45} />;
         })}
         {pulse === 6 ? (
           <line x1={barX(6)} y1={y - 2 * lineGap} x2={barX(6)} y2={y + 2 * lineGap} strokeWidth={0.7} strokeDasharray="2 3" />
         ) : null}
-        <PercClef x={28} y={y} />
-        <TimeSig x={54} y={y} n={parsed.n} d={parsed.d} />
+        <PercClef x={24} y={y} />
+        {hideTime ? null : <TimeSig x={54} y={y} n={parsed.n} d={parsed.d} />}
         {notes.map((nt, i) => {
           const x = noteX(nt);
           if (nt.rest) return <g key={i}><Rest x={x} y={ny} dur={nt.dur} /></g>;
@@ -362,10 +360,10 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
                   transform={`rotate(${HEAD_ROT} ${x} ${ny})`}
                 />
               )}
-              {(nt.dur === 3 || nt.dur === 6 || nt.dot) && <circle cx={x + 8.6} cy={ny + 0.6} r={1.45} fill={INK} stroke="none" />}
-              {!whole && <line x1={sx} y1={ny - 2.15} x2={sx} y2={stemTop} stroke={ink} strokeWidth={1.35} />}
+              {(nt.dur === 3 || nt.dur === 6 || nt.dot) && <circle cx={x + 9.4} cy={ny + 0.6} r={1.55} fill={INK} stroke="none" />}
+              {!whole && <line x1={sx} y1={ny - 2.4} x2={sx} y2={stemTop} stroke={ink} strokeWidth={1.45} />}
               {nt.roll ? <Tremolo sx={whole ? x : sx} y0={whole ? ny - 24 : ny - 6} y1={whole ? ny - 10 : stemTop + 2} count={nt.roll} /> : null}
-              {nt.acc && <Accent x={x + 1} y={whole ? ny - 30 : accY} />}
+              {nt.acc && <Accent x={x + 1} y={whole ? ny - 32 : accY} />}
               {!whole && !beamed.has(nt) && !nt.roll && beamsFor(nt) >= 1 && <Flag x={sx} y={stemTop} extra={beamsFor(nt) >= 2} />}
               {nt.tie && next && (
                 <path
@@ -382,14 +380,11 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId }) {
         {sounded.map((nt, i) => {
           const x = noteX(nt);
           const top = withDrag(tokenAt(primary, i, nt), nt);
-          const bot = secondary ? withDrag(tokenAt(secondary, i, nt), { ...nt, drag: nt.drag ? flipHand(nt.drag) : null, hand: flipHand(nt.hand) }) : null;
           const flamTop = nt.flam ? String(nt.flam) : null;
-          const flamBot = flamTop ? flipHand(flamTop) : null;
           const xEnd = String(top || "").length > 3 ? endXFor(i) : x;
           return (
             <g key={`h-${i}`}>
               <StickLine x={x} x2={xEnd} y={h0} text={top} flam={flamTop} handwritten={handwritten} />
-              {bot ? <StickLine x={x} x2={xEnd} y={h0 + 22} text={bot} flam={flamBot} handwritten={handwritten} /> : null}
             </g>
           );
         })}
