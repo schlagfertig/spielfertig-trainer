@@ -10,12 +10,11 @@ const n = (t, dur, hand, acc = false, extra = {}) => ({ t, dur, hand, acc, ...ex
 const run8 = (hands) => hands.split("").map((h, i) => n(i * 2, 2, h, i % 4 === 0, { g: Math.floor(i / 2) + 1 }));
 const dual = (s) => [s, s.replace(/R/g, "x").replace(/L/g, "R").replace(/x/g, "L")];
 
-// Generische Stickings in 2/4, Achtel, zwei Takte. Keine Buch-Transkription.
-// TODO Tom: Liste freigeben / tauschen, wenn eigene Exercises kommen.
+// Alla breve, Achtel, ein Takt. Taktstrich nach der 4. Achtel.
 const EXERCISES = [
-  { id: "singles", label: "Singles", time: "2/4", bars: 2, notes: run8("RLRLRLRL"), sticking: dual("RLRLRLRL") },
-  { id: "doubles", label: "Doubles", time: "2/4", bars: 2, notes: run8("RRLLRRLL"), sticking: dual("RRLLRRLL") },
-  { id: "paradiddle", label: "Paradiddle", time: "2/4", bars: 2, notes: run8("RLRRLRLL"), sticking: dual("RLRRLRLL") },
+  { id: "singles", label: "Singles", time: "2/2", bars: 1, notes: run8("RLRLRLRL"), sticking: dual("RLRLRLRL") },
+  { id: "doubles", label: "Doubles", time: "2/2", bars: 1, notes: run8("RRLLRRLL"), sticking: dual("RRLLRRLL") },
+  { id: "paradiddle", label: "Paradiddle", time: "2/2", bars: 1, notes: run8("RLRRLRLL"), sticking: dual("RLRRLRLL") },
 ];
 
 const CHALLENGES = [
@@ -70,7 +69,7 @@ export default function StickControl() {
     const ctx = unlockAudio();
     const notes = ex.notes;
     const barsEach = Math.max(1, ex.bars || 1);
-    const steps = barsEach * 8;
+    const steps = barsEach * 16;
     const challenge = mode === "challenge";
     const endAt = challenge && goal.kind === "time" ? ctx.currentTime + goal.sec : Infinity;
     let barsTarget = challenge && goal.kind === "bars" ? goal.bars : Infinity;
@@ -156,8 +155,8 @@ export default function StickControl() {
 
   return (
     <div>
-      <p style={{ color: DIM, fontSize: 14, margin: "12px 0 16px" }}>
-        Drei generische Stickings in 2/4, als Achtel über zwei Takte. Keine Buch-Übungen.
+      <p style={{ color: DIM, fontSize: 16, fontWeight: 600, margin: "12px 0 16px" }}>
+        Drei generische Stickings in Alla breve, als Achtel. Keine Buch-Übungen.
       </p>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
         {EXERCISES.map((e) => (
@@ -165,7 +164,7 @@ export default function StickControl() {
         ))}
       </div>
       <div className="staff-card">
-        <div className="staff-label">{ex.label} · 2/4</div>
+        <div className="staff-label">{ex.label} · Alla breve</div>
         <RudimentStaff rud={ex} playingT={playT} svgId="stick-live" />
       </div>
       <div className="seg" style={{ margin: "0 0 12px", width: "fit-content" }}>
@@ -202,12 +201,12 @@ export default function StickControl() {
             <span className="count-unit">Takte übrig</span>
           </div>
         ) : null}
-        {done ? <p style={{ color: "#5cc8b8", textAlign: "center", margin: "12px 0 0" }}>{done}</p> : null}
+        {done ? <p style={{ color: "#5cc8b8", textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{done}</p> : null}
       </div>
       <div className="panel">
         <TempoControl bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} min={30} max={200} hideNudge />
-        <p style={{ color: DIM, fontSize: 12, margin: "14px 0 0" }}>
-          2/4, Achtel. BPM ist der Viertel-Puls. Click auf jeder Viertel, Eins betont. Challenge zählt als Erfolg, wenn du durchhältst.
+        <p style={{ color: DIM, fontSize: 15, fontWeight: 600, margin: "14px 0 0" }}>
+          Alla breve, Achtel. BPM ist der Halbe-Puls. Click auf jeder Viertel, Eins betont. Challenge zählt als Erfolg, wenn du durchhältst.
         </p>
       </div>
     </div>
