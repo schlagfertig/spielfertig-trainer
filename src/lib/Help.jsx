@@ -5,7 +5,7 @@ const COPY = {
     ["Rudiments", "40 PAS-Übungen. Notation lesen, Click hören, Tempo halten."],
     ["Click-Trainer", "Metronom: Tempo steigern oder 16tel für x Minuten."],
     ["Rhythmuspyramide", "Subdivisionen auf und ab. Ohne Septole."],
-    ["Stick Control", "Single-Beat-Kombinationen plus kurze Challenge."],
+    ["Stick Control", "24 Single-Beat-Nummern. Challenge spielt 1–24 durch."],
     ["Noten", "Eigene Fotos/PDFs nur auf diesem Gerät. Beim Üben über Blatt."],
     ["Kreis", "Tippen startet. Drehen ändert das Tempo fein."],
   ],
@@ -30,10 +30,10 @@ const COPY = {
     ["Click", "Subdivision durchgehend, Viertel betont. Stufe wechselt ohne Pause."],
   ],
   stick: [
-    ["Exercises", "Stone Single-Beat 1–24. Alla breve, zwei Takte."],
-    ["Takt", "BPM = Viertel. Click nur auf der Viertel."],
-    ["Üben", "Endlosschleife zum Warmhalten."],
-    ["Challenge", "1/2 Min oder 8/16 Takte durchhalten. Stoppen zählt nicht."],
+    ["Notation", "Achtel bleiben stehen. Darunter wechselt nur der Fingersatz."],
+    ["Wahl", "Dropdown oben, Pfeile unten wie bei den Rudiments."],
+    ["Click", "BPM = Viertel. Nur Viertel-Click."],
+    ["Challenge", "Nr. 1 bis 24 am Stück. 2/4/8 Takte je Nummer. Letzter Takt = Vorschau."],
   ],
   archive: [
     ["Lokal", "Dateien bleiben im Browser dieses Geräts. Kein Upload in die Cloud."],
