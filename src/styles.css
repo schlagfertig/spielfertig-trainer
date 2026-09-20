@@ -301,6 +301,54 @@ p { font-size: 17px; line-height: 1.45; }
 .modal-head { color: var(--teal); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; font-size: 15px; margin-bottom: 8px; }
 @media print { body { background: #161a1d; } .top, .panel, .rud-nav, .rud-metro { display: none !important; } }
 
+.page.tool.stage {
+  padding: 4px 10px 0;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.page.tool.stage .top {
+  padding: 2px 0 6px;
+}
+.page.tool.stage .top-title { font-size: 16px; }
+.page.tool.stage .main {
+  flex: 1;
+  min-height: 0;
+  max-width: none;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.page.tool.stage .rud-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: calc(var(--rud-foot) + 200px);
+}
+.page.tool.stage .staff-card {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.page.tool.stage .staff-card svg {
+  width: 100%;
+  max-height: calc(100dvh - 280px);
+}
+.page.tool.stage .rud-metro {
+  grid-template-columns: 1fr;
+}
+.page.tool.stage .rud-metro .metro-face {
+  border-radius: 16px 16px 0 0;
+  max-height: 220px;
+}
+.page.tool.stage .rud-half { min-height: 56px; }
+
 @media (orientation: landscape) {
   .page.tool {
     display: flex;
@@ -361,4 +409,6 @@ p { font-size: 17px; line-height: 1.45; }
   .page.tool .play { padding: 10px 18px; font-size: 16px; }
   .page.tool .rud-half { min-height: 56px; padding: 6px 12px calc(6px + env(safe-area-inset-bottom, 0px)); }
   .page.tool .rud-half-name { font-size: 15px; }
+  .page.tool.stage .staff-card svg { max-height: calc(100dvh - 200px); }
+  .page.tool.stage .rud-metro .metro-face { max-height: 34dvh; }
 }
