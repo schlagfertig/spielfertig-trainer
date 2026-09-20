@@ -3,7 +3,7 @@ import { CATS, RUDIMENTS, meterPulse, rudimentDuration } from "../lib/rudiments.
 import { RudimentStaff } from "../lib/staff.jsx";
 import { TempoControl } from "../lib/tempo.jsx";
 import { MetronomeDial } from "../lib/metronome.jsx";
-import { playClick, playSnare, playStick, unlockAudio } from "../lib/audio.js";
+import { playClick, playOrnament, unlockAudio } from "../lib/audio.js";
 import { deliverPng, printElement, sheetHtml, tilesToPng } from "../lib/print.js";
 import { loadSession, saveSession } from "../lib/session.js";
 import { ClickAdvanced } from "../lib/ClickAdvanced.jsx";
@@ -155,8 +155,7 @@ export default function RudimentTrainer({ printNonce }) {
           if (when >= horizon) break;
           if (when >= ctx.currentTime - 0.02) {
             if (ev.kind === "click") playClick(ctx, when, ev.down);
-            else if (ev.kind === "stick") playStick(ctx, ev.nt.hand, when, ev.nt.acc);
-            else playSnare(ctx, when, ev.nt.acc);
+            else playOrnament(ctx, ev.nt, when, ev.kind === "stick" ? "stick" : "snare", stepSec());
             const delay = Math.max(0, (when - ctx.currentTime) * 1000);
             window.setTimeout(() => { if (!cancelled) setPlayT(ev.t); }, delay);
             if (ev.kind === "click" || Math.abs((ev.t || 0) % meter.pulse) < 0.08) pulse(when, ctx);
