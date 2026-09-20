@@ -15,7 +15,13 @@ button { font-family: inherit; }
 .home { max-width: 640px; margin: 0 auto; position: relative; }
 .home-help { position: absolute; top: 4px; right: 4px; }
 .hero { text-align: center; padding: 12px 0 10px; }
-.logo { display: block; margin: 0 auto; width: min(380px, 88vw); height: auto; background: #000; }
+.logo {
+  display: block;
+  margin: 0 auto;
+  width: min(380px, 88vw);
+  height: auto;
+  background: transparent;
+}
 .hero h1 {
   font-family: Oswald, sans-serif;
   font-weight: 700;
@@ -24,7 +30,7 @@ button { font-family: inherit; }
   margin: 12px 0 6px;
   font-size: 40px;
 }
-.tag { color: var(--teal); letter-spacing: 0.04em; margin: 0; }
+.tag { color: var(--teal); letterSpacing: 0.04em; margin: 0; }
 .cards { display: grid; gap: 14px; margin-top: 24px; }
 .card {
   text-align: left;
