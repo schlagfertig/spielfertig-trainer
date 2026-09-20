@@ -228,12 +228,6 @@ function DragGrace({ x, y }) {
       <line x1={sx2} y1={hy - 1.1} x2={sx2} y2={top} strokeWidth={0.95} fill="none" />
       <line x1={sx1} y1={top} x2={sx2} y2={top} strokeWidth={1.55} />
       <line x1={sx1} y1={top + 2.2} x2={sx2} y2={top + 2.2} strokeWidth={1.55} />
-      <path
-        d={`M ${g1 - 0.6} ${hy - 7.2} C ${g1 + 4} ${top - 5.5}, ${x - 5} ${top - 4}, ${x - 1} ${y - 8}`}
-        fill="none"
-        strokeWidth={1.1}
-        strokeLinecap="round"
-      />
     </g>
   );
 }
