@@ -10,42 +10,75 @@ function clamp(n, min, max) {
 }
 
 export function TempoControl({ bpm, setBpm, min = 30, max = 260, hideNudge = false }) {
-  const [draft, setDraft] = useState(String(bpm));
+  const safe = clamp(Number(bpm) || min, min, max);
+  const [draft, setDraft] = useState(String(safe));
   const [focused, setFocused] = useState(false);
 
   useEffect(() => {
-    if (!focused) setDraft(String(bpm));
-  }, [bpm, focused]);
+    if (!focused) setDraft(String(safe));
+  }, [safe, focused]);
+
+  function apply(n) {
+    const next = clamp(n, min, max);
+    setBpm(next);
+    setDraft(String(next));
+    return next;
+  }
 
   function commit(raw) {
     const n = parseInt(raw, 10);
     if (Number.isNaN(n)) {
-      setDraft(String(bpm));
+      setDraft(String(safe));
       return;
     }
-    const next = clamp(n, min, max);
-    setBpm(next);
-    setDraft(String(next));
+    apply(n);
   }
 
   function onDraft(raw) {
     const clean = raw.replace(/[^\d]/g, "").slice(0, 3);
-    setDraft(clean);
+    if (clean === "") {
+      setDraft("");
+      return;
+    }
     const n = parseInt(clean, 10);
-    if (!Number.isNaN(n) && n >= min) setBpm(clamp(n, min, max));
+    if (Number.isNaN(n)) {
+      setDraft(String(safe));
+      return;
+    }
+    if (n > max) {
+      apply(max);
+      return;
+    }
+    setDraft(String(n));
+    if (n >= min) setBpm(n);
+  }
+
+  function slide(n) {
+    apply(n);
   }
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
       <span style={{ fontSize: 12, color: DIM }}>Tempo</span>
-      <input type="range" min={min} max={max} value={Number.isFinite(Number(bpm)) ? bpm : min} onChange={(e) => setBpm(Number(e.target.value))} aria-label="Tempo" style={{ width: 140, accentColor: TEAL }} />
+      <input type="range" min={min} max={max} value={safe} onChange={(e) => slide(Number(e.target.value))} aria-label="Tempo" style={{ width: 140, accentColor: TEAL }} />
       {!hideNudge && (
         <>
-          <button type="button" className="nudge" onClick={() => setBpm(clamp((Number(bpm) || min) - 5, min, max))}>−5</button>
-          <button type="button" className="nudge" onClick={() => setBpm(clamp((Number(bpm) || min) + 5, min, max))}>+5</button>
+          <button type="button" className="nudge" onClick={() => apply(safe - 5)}>−5</button>
+          <button type="button" className="nudge" onClick={() => apply(safe + 5)}>+5</button>
         </>
       )}
-      <input type="text" inputMode="numeric" pattern="[0-9]*" aria-label="Tempo in BPM" value={focused ? draft : String(Number.isFinite(Number(bpm)) ? bpm : "")} onFocus={() => { setFocused(true); setDraft(String(bpm)); }} onChange={(e) => onDraft(e.target.value)} onBlur={() => { setFocused(false); commit(draft); }} onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }} style={{ width: 52, textAlign: "center", fontSize: 16, fontWeight: 700, color: TEAL, background: INK, border: "1px solid " + LINE, borderRadius: 8, padding: "6px 4px" }} />
+      <input
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        aria-label="Tempo in BPM"
+        value={focused ? draft : String(safe)}
+        onFocus={() => { setFocused(true); setDraft(String(safe)); }}
+        onChange={(e) => onDraft(e.target.value)}
+        onBlur={() => { setFocused(false); commit(draft); }}
+        onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+        style={{ width: 52, textAlign: "center", fontSize: 16, fontWeight: 700, color: TEAL, background: INK, border: "1px solid " + LINE, borderRadius: 8, padding: "6px 4px" }}
+      />
       <span style={{ fontSize: 11, color: DIM, fontWeight: 700 }}>BPM</span>
     </div>
   );
