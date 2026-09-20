@@ -6,7 +6,7 @@ import { playClick, playSnare, unlockAudio } from "../lib/audio.js";
 
 const DIM = "#8a969c";
 
-const n = (t, dur, hand, acc = false) => ({ t, dur, hand, acc });
+const n = (t, dur, hand, acc = false, extra = {}) => ({ t, dur, hand, acc, ...extra });
 const run8 = (hands) => hands.split("").map((h, i) => n(i * 2, 2, h, i % 4 === 0, { g: Math.floor(i / 4) + 1 }));
 const dual = (s) => [s, s.replace(/R/g, "x").replace(/L/g, "R").replace(/x/g, "L")];
 
@@ -25,8 +25,8 @@ const CHALLENGES = [
   { id: "b16", kind: "bars", bars: 16, label: "16 Takte" },
 ];
 
-function clamp(n, min, max) {
-  return Math.max(min, Math.min(max, Math.round(n)));
+function clamp(v, min, max) {
+  return Math.max(min, Math.min(max, Math.round(v)));
 }
 
 function fmt(sec) {
@@ -112,7 +112,7 @@ export default function StickControl() {
         finishOk();
         return;
       }
-      const stepSec = () => 60 / Math.max(30, bpmRef.current) / 4;
+      const stepSec = () => 60 / Math.max(30, bpmRef.current) / 8;
       const horizon = now + 0.16;
       while (!cancelled) {
         const nt = notes[evIndex];
@@ -181,7 +181,7 @@ export default function StickControl() {
       <div className="panel dock" style={{ position: "static", margin: "0 0 14px", borderRadius: 12, boxShadow: "none" }}>
         <div className="dial-row">
           <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))} aria-label="5 BPM langsamer">−5</button>
-          <MetronomeDial bpm={bpm} setBpm={(n) => setBpm(clamp(n, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop(false) : start())} size={120} now />
+          <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop(false) : start())} size={120} now />
           <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))} aria-label="5 BPM schneller">+5</button>
         </div>
         <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
@@ -204,7 +204,7 @@ export default function StickControl() {
         {done ? <p style={{ color: "#5cc8b8", textAlign: "center", margin: "12px 0 0" }}>{done}</p> : null}
       </div>
       <div className="panel">
-        <TempoControl bpm={bpm} setBpm={(n) => setBpm(clamp(n, 30, 200))} min={30} max={200} hideNudge />
+        <TempoControl bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} min={30} max={200} hideNudge />
         <p style={{ color: DIM, fontSize: 12, margin: "14px 0 0" }}>
           Alla breve, Achtel. BPM ist der Halbe-Puls. Challenge zählt als Erfolg, wenn du durchhältst.
         </p>
