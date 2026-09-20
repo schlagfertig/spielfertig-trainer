@@ -1,6 +1,7 @@
 const DB = "sf.archive.v1";
 const STORE = "sheets";
 const LAST = "sf.v1.archive.last";
+const LAST2 = "sf.v1.archive.last2";
 export const MAX_BYTES = 12 * 1024 * 1024;
 
 function openDb() {
@@ -77,6 +78,7 @@ export async function removeSheet(id) {
   tx.objectStore(STORE).delete(id);
   await txDone(tx);
   if (lastId() === id) rememberLast("");
+  if (lastId2() === id) rememberLast2("");
 }
 
 export async function renameSheet(id, name) {
@@ -89,13 +91,17 @@ export async function renameSheet(id, name) {
   await txDone(tx);
 }
 
-export function lastId() {
-  try { return localStorage.getItem(LAST) || ""; } catch { return ""; }
+function readKey(key) {
+  try { return localStorage.getItem(key) || ""; } catch { return ""; }
 }
-
-export function rememberLast(id) {
+function writeKey(key, id) {
   try {
-    if (id) localStorage.setItem(LAST, id);
-    else localStorage.removeItem(LAST);
+    if (id) localStorage.setItem(key, id);
+    else localStorage.removeItem(key);
   } catch { /* ignore */ }
 }
+
+export function lastId() { return readKey(LAST); }
+export function lastId2() { return readKey(LAST2); }
+export function rememberLast(id) { writeKey(LAST, id); }
+export function rememberLast2(id) { writeKey(LAST2, id); }
