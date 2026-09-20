@@ -63,8 +63,9 @@ export function createMixClock() {
       t16 = t0;
       t3 = t0;
     },
-    fill(ctx, horizon, bpm, mix, onQuarter) {
+    fill(ctx, horizon, bpm, mix, onQuarter, opts = {}) {
       const beat = 60 / Math.max(30, bpm);
+      const barSteps = Math.max(1, Math.round(opts.barSteps || 16));
       const g = (id) => layerGain(mix, id);
       const earliest = ctx.currentTime - 0.02;
       while (t16 < earliest) {
@@ -77,7 +78,7 @@ export function createMixClock() {
       }
       while (t16 < horizon) {
         const slot = n16 % 4;
-        const bar = n16 % 16;
+        const bar = n16 % barSteps;
         if (t16 >= earliest) {
           if (g("beat") > 0.008 && bar === 0) playClickLayer(ctx, t16, "beat", g("beat"));
           if (g("quarter") > 0.008 && slot === 0) playClickLayer(ctx, t16, "quarter", g("quarter"));

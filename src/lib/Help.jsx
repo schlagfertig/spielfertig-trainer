@@ -29,6 +29,7 @@ const COPY = {
   ],
   stick: [
     ["Exercises", "Singles, Doubles, Paradiddle — generisch, kein Buch."],
+    ["Takt", "2/4 über zwei Takte. Achtel, BPM = Viertel. Click auf der Viertel."],
     ["Üben", "Endlosschleife zum Warmhalten."],
     ["Challenge", "1/2 Min oder 8/16 Takte durchhalten. Stoppen zählt nicht."],
   ],
