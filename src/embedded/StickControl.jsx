@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { RudimentStaff } from "../lib/staff.jsx";
-import { TempoControl } from "../lib/tempo.jsx";
 import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
 
 const DIM = "#8a969c";
+const RCOL = "#5c8ee0";
+const LCOL = "#e05c5c";
 
 const n = (t, dur, hand, acc = false, extra = {}) => ({ t, dur, hand, acc, ...extra });
 const run8ths = (hands) =>
@@ -39,45 +40,73 @@ const PATTERNS = [
 
 const EXERCISES = PATTERNS.map((hands, i) => ({
   id: i + 1,
-  label: String(i + 1),
+  label: `Nr. ${i + 1}`,
   time: "2/2",
   bars: 2,
   notes: run8ths(hands),
+  hands,
   sticking: [hands],
 }));
 
-const CHALLENGES = [
-  { id: "t60", kind: "time", sec: 60, label: "1 Min" },
-  { id: "t120", kind: "time", sec: 120, label: "2 Min" },
-  { id: "b8", kind: "bars", bars: 8, label: "8 Takte" },
-  { id: "b16", kind: "bars", bars: 16, label: "16 Takte" },
-];
+const BAR_CHOICES = [2, 4, 8];
 
 function clamp(v, min, max) {
   return Math.max(min, Math.min(max, Math.round(v)));
 }
 
-function fmt(sec) {
-  const s = Math.max(0, Math.ceil(sec));
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+function Hands({ hands, playT, faint }) {
+  const letters = String(hands || "").split("");
+  const active = playT < 0 ? -1 : Math.round(playT / 2);
+  return (
+    <div style={{ display: "flex", gap: 10, opacity: faint ? 0.55 : 1 }}>
+      {[0, 1].map((bar) => (
+        <div key={bar} style={{ flex: 1, display: "flex", justifyContent: "space-between", gap: 2 }}>
+          {letters.slice(bar * 8, bar * 8 + 8).map((ch, i) => {
+            const idx = bar * 8 + i;
+            const on = !faint && idx === active;
+            const gap = i === 3 ? 8 : 0;
+            return (
+              <span
+                key={idx}
+                style={{
+                  flex: 1,
+                  marginRight: gap,
+                  textAlign: "center",
+                  font: "800 22px/1.1 Oswald, sans-serif",
+                  color: on ? "#06120f" : ch === "R" ? RCOL : LCOL,
+                  background: on ? "#e8b84b" : "transparent",
+                  borderRadius: 6,
+                  padding: "6px 0",
+                }}
+              >
+                {ch}
+              </span>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export default function StickControl() {
   const [exId, setExId] = useState(1);
   const [bpm, setBpm] = useState(80);
   const [mode, setMode] = useState("practice");
-  const [goalId, setGoalId] = useState("t60");
+  const [barsPer, setBarsPer] = useState(4);
   const [playing, setPlaying] = useState(false);
   const [beat, setBeat] = useState(false);
   const [playT, setPlayT] = useState(-1);
-  const [left, setLeft] = useState(0);
-  const [barsLeft, setBarsLeft] = useState(0);
+  const [preview, setPreview] = useState(false);
   const [done, setDone] = useState("");
   const stopRef = useRef(null);
   const bpmRef = useRef(80);
   bpmRef.current = bpm;
-  const ex = EXERCISES.find((e) => e.id === exId) || EXERCISES[0];
-  const goal = CHALLENGES.find((c) => c.id === goalId) || CHALLENGES[0];
+  const idx = Math.max(0, EXERCISES.findIndex((e) => e.id === exId));
+  const ex = EXERCISES[idx] || EXERCISES[0];
+  const prev = EXERCISES[idx - 1];
+  const next = EXERCISES[idx + 1];
+  const peek = mode === "challenge" ? EXERCISES[idx + 1] : null;
 
   useEffect(() => () => stopRef.current?.(), []);
 
@@ -85,37 +114,41 @@ export default function StickControl() {
     if (playing) return;
     setExId(id);
     setDone("");
+    setPreview(false);
   }
 
-  function stop(ok = false) {
+  function step(dir) {
+    const n = EXERCISES[idx + dir];
+    if (n) pick(n.id);
+  }
+
+  function stop() {
     stopRef.current?.();
     stopRef.current = null;
     setPlaying(false);
     setBeat(false);
     setPlayT(-1);
-    setLeft(0);
-    setBarsLeft(0);
-    if (ok) setDone("Challenge gehalten — geschafft.");
+    setPreview(false);
   }
 
   function start() {
-    stop(false);
+    stop();
     setDone("");
     const ctx = unlockAudio();
-    const notes = ex.notes;
-    const barsEach = Math.max(1, ex.bars || 1);
-    const steps = barsEach * 16;
     const challenge = mode === "challenge";
-    const endAt = challenge && goal.kind === "time" ? ctx.currentTime + goal.sec : Infinity;
-    let barsTarget = challenge && goal.kind === "bars" ? goal.bars : Infinity;
-    let barsDone = 0;
+    let exIdx = challenge ? 0 : Math.max(0, idx);
+    if (challenge) setExId(1);
+    let notes = EXERCISES[exIdx].notes;
+    const cellBars = 2;
+    const cyclesNeeded = Math.max(1, Math.round(barsPer / cellBars));
+    let cycleInEx = 0;
     let cancelled = false;
     let timer = 0;
     let evIndex = 0;
     let cycleStart = ctx.currentTime + 0.02;
+    const steps = cellBars * 16;
     setPlaying(true);
-    if (challenge && goal.kind === "time") setLeft(goal.sec);
-    if (challenge && goal.kind === "bars") setBarsLeft(goal.bars);
+    setPreview(false);
 
     const pulse = (when) => {
       const delay = Math.max(0, (when - ctx.currentTime) * 1000);
@@ -135,53 +168,61 @@ export default function StickControl() {
       setPlaying(false);
       setBeat(false);
       setPlayT(-1);
-      setLeft(0);
-      setBarsLeft(0);
-      setDone("Challenge gehalten — geschafft.");
+      setPreview(false);
+      setDone(challenge ? "1–24 durch — gehalten." : "");
     };
 
     const schedule = () => {
       if (cancelled) return;
       const now = ctx.currentTime;
-      if (challenge && goal.kind === "time" && now >= endAt) {
-        finishOk();
-        return;
-      }
       const stepSec = () => 60 / Math.max(30, bpmRef.current) / 4;
       const horizon = now + 0.16;
       while (!cancelled) {
         const nt = notes[evIndex];
         const when = cycleStart + nt.t * stepSec();
         if (when >= horizon) break;
-        if (challenge && goal.kind === "time" && when >= endAt) {
-          finishOk();
-          return;
-        }
         if (when >= now - 0.02) {
-          // Stick Control: only quarter-note click (BPM = quarter). No advanced mix, no 8th grid.
           const onQuarter = nt.t % 4 < 0.08;
           if (onQuarter) {
             playClick(ctx, when, nt.t % 16 < 0.08);
             pulse(when);
           }
+          const lastCycle = cycleInEx === cyclesNeeded - 1;
+          const lastBar = nt.t >= 8 - 1e-4;
+          const hasNext = challenge && exIdx < EXERCISES.length - 1;
           const delay = Math.max(0, (when - now) * 1000);
-          window.setTimeout(() => { if (!cancelled) setPlayT(nt.t); }, delay);
+          window.setTimeout(() => {
+            if (cancelled) return;
+            setPlayT(nt.t);
+            setPreview(!!(hasNext && lastCycle && lastBar));
+          }, delay);
         }
         evIndex += 1;
         if (evIndex >= notes.length) {
           evIndex = 0;
           cycleStart += steps * stepSec();
-          barsDone += barsEach;
-          if (challenge && goal.kind === "bars") {
-            setBarsLeft(Math.max(0, barsTarget - barsDone));
-            if (barsDone >= barsTarget) {
-              finishOk();
-              return;
+          cycleInEx += 1;
+          if (cycleInEx >= cyclesNeeded) {
+            if (challenge) {
+              if (exIdx >= EXERCISES.length - 1) {
+                finishOk();
+                return;
+              }
+              exIdx += 1;
+              notes = EXERCISES[exIdx].notes;
+              cycleInEx = 0;
+              window.setTimeout(() => {
+                if (!cancelled) {
+                  setExId(EXERCISES[exIdx].id);
+                  setPreview(false);
+                }
+              }, 0);
+            } else {
+              cycleInEx = 0;
             }
           }
         }
       }
-      if (challenge && goal.kind === "time") setLeft(Math.max(0, endAt - ctx.currentTime));
       timer = window.setTimeout(schedule, 25);
     };
     schedule();
@@ -192,62 +233,81 @@ export default function StickControl() {
   }
 
   return (
-    <div>
-      <p style={{ color: DIM, fontSize: 16, fontWeight: 600, margin: "12px 0 16px" }}>
-        Single-Beat-Kombinationen. Tempo = Viertel. Click nur auf die Viertel.
-      </p>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 6, marginBottom: 12 }}>
-        {EXERCISES.map((e) => (
-          <button key={e.id} type="button" className={exId === e.id ? "chip on" : "chip"} onClick={() => pick(e.id)} style={{ padding: "10px 0", fontSize: 16, fontWeight: 800 }}>
-            {e.label}
-          </button>
-        ))}
-      </div>
-      <div className="staff-card">
-        <div className="staff-label">Nr. {ex.id}</div>
-        <RudimentStaff rud={ex} playingT={playT} svgId="stick-live" hideTime />
+    <div className="rud-wrap">
+      <div className="staff-card" style={{ position: "sticky", top: 52, zIndex: 8 }}>
+        <div className="rud-title">
+          <div className="rud-title-name">{ex.label}</div>
+          <select
+            className="rud-title-select"
+            value={ex.id}
+            disabled={playing}
+            onChange={(e) => pick(Number(e.target.value))}
+            aria-label="Nummer wählen"
+          >
+            {EXERCISES.map((e) => (
+              <option key={e.id} value={e.id}>{e.label}</option>
+            ))}
+          </select>
+        </div>
+        <RudimentStaff rud={ex} playingT={playT} svgId="stick-live" hideTime hideSticking />
+        <Hands hands={ex.hands} playT={playT} />
+        {preview && peek ? (
+          <div style={{ marginTop: 10, padding: 8, background: "#eef1f2", borderRadius: 8 }}>
+            <div style={{ font: "800 13px Figtree, sans-serif", letterSpacing: "0.08em", textTransform: "uppercase", color: "#334", marginBottom: 6 }}>
+              Nächste · {peek.label}
+            </div>
+            <Hands hands={peek.hands} playT={-1} faint />
+          </div>
+        ) : null}
       </div>
       <div className="seg" style={{ margin: "0 0 12px", width: "fit-content" }}>
         <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>Üben</button>
         <button type="button" className={mode === "challenge" ? "on" : ""} onClick={() => !playing && setMode("challenge")}>Challenge</button>
       </div>
-      {mode === "challenge" && (
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", margin: "0 0 12px" }}>
-          {CHALLENGES.map((c) => (
-            <button key={c.id} type="button" className={goalId === c.id ? "chip on" : "chip"} onClick={() => !playing && setGoalId(c.id)}>{c.label}</button>
-          ))}
+      {mode === "challenge" ? (
+        <div style={{ margin: "0 0 12px" }}>
+          <div style={{ color: DIM, fontSize: 15, fontWeight: 700, marginBottom: 6 }}>Takte je Nummer</div>
+          <div className="seg" style={{ width: "fit-content" }}>
+            {BAR_CHOICES.map((n) => (
+              <button key={n} type="button" className={barsPer === n ? "on" : ""} onClick={() => !playing && setBarsPer(n)}>{n}</button>
+            ))}
+          </div>
+          <p style={{ color: DIM, fontSize: 15, margin: "8px 0 0" }}>
+            1–24 am Stück. Letzter Takt zeigt den nächsten Fingersatz.
+          </p>
         </div>
+      ) : (
+        <p style={{ color: DIM, fontSize: 15, margin: "0 0 12px" }}>
+          Notation bleibt. Nur der Fingersatz wechselt. Tempo = Viertel.
+        </p>
       )}
       <div className="panel dock" style={{ position: "static", margin: "0 0 14px", borderRadius: 12, boxShadow: "none" }}>
         <div className="dial-row">
           <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))} aria-label="5 BPM langsamer">−5</button>
-          <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop(false) : start())} size={120} now />
+          <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={120} now />
           <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))} aria-label="5 BPM schneller">+5</button>
         </div>
         <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
-          <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop(false) : start())}>
-            {playing ? "Stop" : "Start"}
+          <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
+            {playing ? "Stop" : mode === "challenge" ? "1–24 Start" : "Start"}
           </button>
         </div>
-        {playing && mode === "challenge" && goal.kind === "time" ? (
-          <div className="count">
-            <span className="count-num">{fmt(left)}</span>
-            <span className="count-unit">noch halten</span>
-          </div>
-        ) : null}
-        {playing && mode === "challenge" && goal.kind === "bars" ? (
-          <div className="count">
-            <span className="count-num">{barsLeft}</span>
-            <span className="count-unit">Takte übrig</span>
-          </div>
+        {playing && mode === "challenge" ? (
+          <p style={{ color: "#5cc8b8", textAlign: "center", fontWeight: 800, margin: "12px 0 0" }}>
+            {ex.label} · {ex.id}/24 · {barsPer} Takte
+          </p>
         ) : null}
         {done ? <p style={{ color: "#5cc8b8", textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{done}</p> : null}
       </div>
-      <div className="panel">
-        <TempoControl bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} min={30} max={200} hideNudge />
-        <p style={{ color: DIM, fontSize: 15, fontWeight: 600, margin: "14px 0 0" }}>
-          BPM = Viertel. Kein Erweitert-Mix — nur Viertel-Click, Eins im Takt betont.
-        </p>
+      <div className="rud-nav">
+        <button type="button" className="rud-half prev" disabled={!prev || playing} onClick={() => step(-1)} aria-label={prev ? prev.label : "Keine vorherige Nummer"}>
+          <span className="rud-half-arrow">‹</span>
+          <span className="rud-half-name">{prev ? prev.label : ""}</span>
+        </button>
+        <button type="button" className="rud-half next" disabled={!next || playing} onClick={() => step(1)} aria-label={next ? next.label : "Keine nächste Nummer"}>
+          <span className="rud-half-name">{next ? next.label : ""}</span>
+          <span className="rud-half-arrow">›</span>
+        </button>
       </div>
     </div>
   );
