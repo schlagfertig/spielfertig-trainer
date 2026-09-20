@@ -61,6 +61,8 @@ export default function RudimentTrainer({ printNonce }) {
   const mixRef = useRef(mix); mixRef.current = mix;
   const rud = RUDIMENTS.find((r) => r.id === sel) || RUDIMENTS[0];
   const idx = Math.max(0, RUDIMENTS.findIndex((r) => r.id === rud.id));
+  const prevRud = RUDIMENTS[idx - 1];
+  const nextRud = RUDIMENTS[idx + 1];
 
   useEffect(() => {
     saveSession("rudiments", { sel, bpm, hear, countIn, rampOn, rampStep, rampCap });
@@ -230,6 +232,18 @@ export default function RudimentTrainer({ printNonce }) {
   return (
     <div className="rud-wrap">
       <div className="staff-card">
+        <div className="rud-title">
+          <div className="rud-title-name">{rud.label}</div>
+          <select className="rud-title-select" value={rud.id} onChange={(e) => pickRud(Number(e.target.value))} aria-label="Rudiment wählen">
+            {CATS.map((c) => (
+              <optgroup key={c.id} label={c.label}>
+                {RUDIMENTS.filter((r) => r.cat === c.id).map((r) => (
+                  <option key={r.id} value={r.id}>{r.label}</option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </div>
         <RudimentStaff rud={rud} playingT={playT} svgId="rud-live" />
         <div className="staff-hint">R blau · L rot · Kreis drehen ändert das Tempo</div>
       </div>
@@ -271,20 +285,14 @@ export default function RudimentTrainer({ printNonce }) {
         )}
       </div>
       <div className="rud-nav">
-        <button type="button" className="rud-arrow" disabled={idx <= 0} onClick={() => stepRud(-1)} aria-label="Vorheriges Rudiment">‹</button>
-        <div className="rud-now">
-          <div className="rud-now-name">{rud.label}</div>
-          <select className="rud-now-select" value={rud.id} onChange={(e) => pickRud(Number(e.target.value))} aria-label="Rudiment wählen">
-            {CATS.map((c) => (
-              <optgroup key={c.id} label={c.label}>
-                {RUDIMENTS.filter((r) => r.cat === c.id).map((r) => (
-                  <option key={r.id} value={r.id}>{r.label}</option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
-        </div>
-        <button type="button" className="rud-arrow" disabled={idx >= RUDIMENTS.length - 1} onClick={() => stepRud(1)} aria-label="Nächstes Rudiment">›</button>
+        <button type="button" className="rud-half prev" disabled={!prevRud} onClick={() => stepRud(-1)} aria-label={prevRud ? "Vorheriges: " + prevRud.label : "Kein vorheriges Rudiment"}>
+          <span className="rud-half-arrow">‹</span>
+          <span className="rud-half-name">{prevRud ? prevRud.label : ""}</span>
+        </button>
+        <button type="button" className="rud-half next" disabled={!nextRud} onClick={() => stepRud(1)} aria-label={nextRud ? "Nächstes: " + nextRud.label : "Kein nächstes Rudiment"}>
+          <span className="rud-half-name">{nextRud ? nextRud.label : ""}</span>
+          <span className="rud-half-arrow">›</span>
+        </button>
       </div>
       {printOpen && (
         <div className="modal" onClick={closePrint}>
