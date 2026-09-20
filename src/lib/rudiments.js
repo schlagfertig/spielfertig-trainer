@@ -40,11 +40,19 @@ const flamDrag = (beat, hand) => {
     n(beat * 4 + 2 * T3, T3, hand, false, { tuplet: 3 }),
   ];
 };
-const sixClosed = (start, g) => [
-  n(start, 2, "R", true, { g, beams: 1 }),
-  n(start + 2, 1, "L", false, { g, beams: 2, roll: 2, tuplet: 6, tie: true }),
-  n(start + 3, 2, "L", true, { g, beams: 1 }),
-];
+/** 16th + four 32nds + 16th. lead R → R LLRR L */
+const sixStroke = (start, lead, g) => {
+  const a = lead;
+  const b = lead === "R" ? "L" : "R";
+  return [
+    n(start, 1, a, true, { g, beams: 2 }),
+    n(start + 1, 0.5, b, false, { g, beams: 3 }),
+    n(start + 1.5, 0.5, b, false, { g, beams: 3 }),
+    n(start + 2, 0.5, a, false, { g, beams: 3 }),
+    n(start + 2.5, 0.5, a, false, { g, beams: 3 }),
+    n(start + 3, 1, b, true, { g, beams: 2 }),
+  ];
+};
 /** 16th-note triplet + 8th (PAS Single Stroke Four figure). */
 const ss4 = (start, g) => [
   n(start, T6, "R", false, { tuplet: 3, g, beams: 2 }),
@@ -70,7 +78,7 @@ export const RUDIMENTS = [
   { id: 5, cat: "roll", label: "5. Triple Stroke Roll", bars: 1, time: "4/4", notes: [...trip(0, "RRR", [0]), ...trip(1, "LLL", [0]), ...trip(2, "RRR", [0]), ...trip(3, "LLL", [0])], sticking: dual("RRRLLLRRRLLL") },
   { id: 6, cat: "roll", label: "6. Double Stroke Open Roll", bars: 1, time: "4/4", notes: run(0, "RRLLRRLLRRLLRRLL"), sticking: dual("RRLLRRLLRRLLRRLL") },
   { id: 7, cat: "roll", label: "7. Five Stroke Roll", bars: 1, time: "2/4", notes: [...d32(0, "RRLL"), n(2, 2, "R", true), ...d32(4, "LLRR"), n(6, 2, "L", true)] },
-  { id: 8, cat: "roll", label: "8. Six Stroke Roll", bars: 1, time: "3/4", notes: [...sixClosed(0, 1), ...sixClosed(6, 2)], sticking: dualTok(["R", "", "L", "R", "", "L"]) },
+  { id: 8, cat: "roll", label: "8. Six Stroke Roll", bars: 1, time: "2/4", notes: [...sixStroke(0, "R", 1), ...sixStroke(4, "L", 2)], sticking: dual("RLLRRLLRRLLR") },
   { id: 9, cat: "roll", label: "9. Seven Stroke Roll", bars: 1, time: "2/4", notes: [n(0, 2, "L", false, { roll: 3, tie: true }), n(2, 2, "R", true), n(4, 2, "R", false, { roll: 3, tie: true }), n(6, 2, "L", true)], sticking: dualTok(["LLRRLLR", "", "RRLLRRL", ""]) },
   { id: 10, cat: "roll", label: "10. Nine Stroke Roll", bars: 1, time: "4/4", notes: [n(0, 2, "R", false, { roll: 3, tie: true }), n(2, 2, "R", true), n(4, 2, "L", false, { roll: 3, tie: true }), n(6, 2, "L", true), n(8, 2, "R", false, { roll: 3, tie: true }), n(10, 2, "R", true), n(12, 2, "L", false, { roll: 3, tie: true }), n(14, 2, "L", true)], sticking: dualTok(["RRLLRRLLR", "", "LLRRLLRRL", "", "RRLLRRLLR", "", "LLRRLLRRL", ""]) },
   { id: 11, cat: "roll", label: "11. Ten Stroke Roll", bars: 1, time: "2/4", notes: [n(0, 2, "R", false, { roll: 3, tie: true }), n(2, 1, "R", true, { g: 1 }), n(3, 1, "L", true, { g: 1 }), n(4, 2, "L", false, { roll: 3, tie: true }), n(6, 1, "L", true, { g: 2 }), n(7, 1, "R", true, { g: 2 })], sticking: dualTok(["RRLLRRLL", "R", "L", "LLRRLLRR", "L", "R"]) },
