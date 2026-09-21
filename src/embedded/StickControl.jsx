@@ -256,23 +256,50 @@ export default function StickControl() {
           background: #161a1d;
           padding: 8px 0 10px;
         }
-        .stick-wrap .rud-metro { grid-template-columns: 1fr; }
-        .stick-wrap .rud-metro .metro-face { border-radius: 16px 16px 0 0; }
+        .stick-dock {
+          position: fixed;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 18;
+          background: #1c2226;
+          border-top: 1px solid #2f383d;
+          border-radius: 18px 18px 0 0;
+          box-shadow: 0 -10px 28px rgba(0,0,0,.45);
+          overflow: visible;
+        }
+        .stick-dock .rud-metro {
+          position: static;
+          display: block;
+          grid-template-columns: none;
+          margin: 0;
+        }
+        .stick-dock .metro-face {
+          position: static;
+          margin: 0;
+          border: 0;
+          border-radius: 18px 18px 0 0;
+          box-shadow: none;
+          background: transparent;
+          padding: 10px 12px 8px;
+          max-height: none;
+        }
+        .stick-dock .rud-nav {
+          position: relative;
+          box-shadow: none;
+          border-top: 1px solid #2f383d;
+          background: transparent;
+        }
         .stick-wrap .rud-half {
           min-height: 108px;
           gap: 12px;
           padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
         }
-        .stick-wrap .rud-half-arrow {
-          font-size: 52px;
-        }
-        .stick-wrap .rud-half-name {
-          font-size: clamp(18px, 5.2vw, 24px);
-        }
+        .stick-wrap .rud-half-arrow { font-size: 52px; }
+        .stick-wrap .rud-half-name { font-size: clamp(18px, 5.2vw, 24px); }
         @media (orientation: landscape) {
           .stick-wrap { padding-bottom: calc(var(--rud-foot) + 148px) !important; }
-          .stick-wrap .rud-metro { max-height: 26dvh; }
-          .stick-wrap .rud-metro .metro-face { max-height: 26dvh; padding: 6px 10px 8px; }
+          .stick-dock .metro-face { padding: 6px 10px 6px; }
           .stick-wrap .rud-half { min-height: 88px; }
         }
       `}</style>
@@ -301,29 +328,31 @@ export default function StickControl() {
         <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === 0} label={i === 0 ? "ALS NÄCHSTES" : ""} />
       ))}
       {done ? <p style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{done}</p> : null}
-      <div className="metro-shell rud-metro">
-        <div className="panel dock metro-face">
-          <div className="dial-row">
-            <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))}>−5</button>
-            <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={96} now />
-            <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))}>+5</button>
-          </div>
-          <label className="check" style={{ justifyContent: "center", marginTop: 10 }}>
-            <input type="checkbox" checked={countIn} onChange={(e) => setCountIn(e.target.checked)} />4 Schläge einzählen
-          </label>
-          <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
-            <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
-              {playing ? "Stop" : challenge ? `${ex.label}–24` : "Start"}
-            </button>
+      <div className="stick-dock">
+        <div className="metro-shell rud-metro">
+          <div className="panel dock metro-face">
+            <div className="dial-row">
+              <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))}>−5</button>
+              <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={96} now />
+              <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))}>+5</button>
+            </div>
+            <label className="check" style={{ justifyContent: "center", marginTop: 10 }}>
+              <input type="checkbox" checked={countIn} onChange={(e) => setCountIn(e.target.checked)} />4 Schläge einzählen
+            </label>
+            <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
+              <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
+                {playing ? "Stop" : challenge ? `${ex.label}–24` : "Start"}
+              </button>
+            </div>
           </div>
         </div>
+        <NavScrub
+          items={EXERCISES.map((e) => ({ id: e.id, label: e.label, preview: e.hands.slice(0, 8) }))}
+          index={idx}
+          disabled={playing}
+          onPick={pick}
+        />
       </div>
-      <NavScrub
-        items={EXERCISES.map((e) => ({ id: e.id, label: e.label, preview: e.hands.slice(0, 8) }))}
-        index={idx}
-        disabled={playing}
-        onPick={pick}
-      />
     </div>
   );
 }
