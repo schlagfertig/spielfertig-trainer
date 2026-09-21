@@ -122,10 +122,29 @@ p { font-size: 17px; line-height: 1.45; }
 .rud-wrap { padding-bottom: calc(var(--rud-foot) + var(--rud-dock)); }
 .rud-title {
   position: relative;
-  margin: 0 0 8px;
-  min-height: 40px;
+  margin: 0 0 10px;
+  padding: 2px 8px 8px 0;
+  min-height: 52px;
+  border-bottom: 2px solid #5cc8b8;
+  cursor: pointer;
+}
+.rud-title-kicker {
+  font: 800 11px/1 Figtree, sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #2a9a8c;
+  margin-bottom: 4px;
+  pointer-events: none;
+}
+.rud-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
 }
 .rud-title-name {
+  flex: 1;
+  min-width: 0;
   font-family: Oswald, sans-serif;
   font-size: clamp(24px, 6.8vw, 34px);
   font-weight: 700;
@@ -133,7 +152,16 @@ p { font-size: 17px; line-height: 1.45; }
   text-transform: uppercase;
   color: #161a1d;
   line-height: 1.15;
-  pointer-events: none;
+}
+.rud-title-caret {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #e7f7f4;
+  color: #0b6e62;
+  font: 800 18px/28px Figtree, sans-serif;
+  text-align: center;
 }
 .rud-title-select {
   position: absolute;
