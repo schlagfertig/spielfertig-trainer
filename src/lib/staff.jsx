@@ -293,7 +293,8 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
   const lineGap = hideTime ? 7.2 : 8.5;
   const ny = y - lineGap / 2;
   const h0 = y + 2 * lineGap + (hideTime ? 18 : 26);
-  const viewH = hideTime ? 86 : 156;
+  const altRow = rud.altStick ? rud.sticking?.[1] : null;
+  const viewH = hideTime ? 86 : (altRow ? 176 : 156);
   const groups = beamGroups(notes, pulse);
   const beamed = new Set();
   groups.forEach((g) => g.forEach((note) => beamed.add(note)));
@@ -394,11 +395,13 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
         {sounded.map((nt, i) => {
           const x = noteX(nt);
           const top = withDrag(tokenAt(primary, i, nt), nt);
+          const alt = altRow ? tokenAt(altRow, i, nt) : "";
           const flamTop = nt.flam ? String(nt.flam) : "";
           const xEnd = String(top || "").length > 3 ? endXFor(i) : x;
           return (
             <g key={`h-${i}`}>
               <StickLine x={x} x2={xEnd} y={h0} text={top} flam={flamTop || null} handwritten={handwritten} />
+              {alt ? <StickLine x={x} x2={xEnd} y={h0 + 18} text={alt} handwritten={handwritten} /> : null}
             </g>
           );
         })}
