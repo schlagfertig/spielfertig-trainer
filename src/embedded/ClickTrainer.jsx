@@ -194,18 +194,18 @@ export default function ClickTrainer() {
   const atCap = ramp && bpm >= cap;
 
   return (
-    <div>
+    <div style={{ minWidth: 0, maxWidth: "100%" }}>
       <p style={{ color: DIM, fontSize: 14, margin: "12px 0 16px" }}>
         {ramp
           ? "Click starten. Alle paar Sekunden wird das Tempo angehoben — Du bleibst am Pad."
           : "Gleichmäßiges Tempo halten. BPM am Kreis drehen oder ±5."}
       </p>
-      <div className="seg" style={{ margin: "0 0 14px", width: "fit-content" }}>
+      <div className="seg" style={{ margin: "0 0 14px", maxWidth: "100%" }}>
         <button type="button" className={!ramp ? "on" : ""} onClick={() => pickMode("hold")}>Tempo halten</button>
         <button type="button" className={ramp ? "on" : ""} onClick={() => pickMode("ramp")}>Tempo steigern</button>
       </div>
       <div className="metro-shell">
-        <div className="panel dock metro-face" style={{ position: "static", margin: 0, borderRadius: "12px 0 0 12px", boxShadow: "none" }}>
+        <div className="panel dock metro-face" style={{ position: "static", margin: 0, borderRadius: "12px 0 0 12px", boxShadow: "none", overflow: "auto" }}>
           {flipped ? (
             <div key="back" className="metro-swap">
               <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 10 }}>Click-Mixer</div>
@@ -215,7 +215,7 @@ export default function ClickTrainer() {
             <div key="front" className="metro-swap">
               <div className="dial-row">
                 <button type="button" className="nudge-lg" onClick={() => setDial(bpm - 5)} aria-label="5 BPM langsamer">−5</button>
-                <MetronomeDial bpm={bpm} setBpm={setDial} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={132} now />
+                <MetronomeDial bpm={bpm} setBpm={setDial} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={108} now />
                 <button type="button" className="nudge-lg" onClick={() => setDial(bpm + 5)} aria-label="5 BPM schneller">+5</button>
               </div>
               <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 14 }}>
@@ -277,29 +277,36 @@ export default function ClickTrainer() {
         )}
       </div>
       <style>{`
-        .field { display: flex; align-items: center; gap: 8px; font-size: 14px; color: ${DIM}; }
+        .field { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 14px; color: ${DIM}; }
         .field input {
           width: 64px; text-align: center; font-weight: 700; font-size: 16px; color: #5cc8b8;
           background: ${INK}; border: 1px solid ${LINE}; border-radius: 8px; padding: 7px 4px;
         }
         .metro-shell {
           display: grid;
-          grid-template-columns: 1fr 46px;
+          grid-template-columns: minmax(0, 1fr) 40px;
           align-items: stretch;
           margin: 0 0 14px;
+          max-width: 100%;
+          min-width: 0;
         }
         .metro-side {
           margin: 0;
-          padding: 12px 0;
+          width: 40px;
+          max-width: 40px;
+          min-width: 40px;
+          padding: 10px 0;
+          overflow: hidden;
           border: 1px solid ${LINE};
           border-left: 0;
           border-radius: 0 12px 12px 0;
           background: #13211f;
           color: #5cc8b8;
-          font: 800 11px/1.1 Figtree, sans-serif;
-          letter-spacing: 0.14em;
+          font: 800 10px/1.05 Figtree, sans-serif;
+          letter-spacing: 0.08em;
           text-transform: uppercase;
           writing-mode: vertical-rl;
+          text-orientation: mixed;
           transform: rotate(180deg);
           cursor: pointer;
         }
@@ -308,7 +315,7 @@ export default function ClickTrainer() {
           color: #06120f;
           border-color: #5cc8b8;
         }
-        .metro-swap { animation: metroIn .28s ease; }
+        .metro-swap { animation: metroIn .28s ease; min-width: 0; }
         @keyframes metroIn {
           from { opacity: 0; transform: rotateY(-80deg); }
           to { opacity: 1; transform: none; }
