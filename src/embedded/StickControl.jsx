@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
+import { ClickAdvanced } from "../lib/ClickAdvanced.jsx";
+import { createMixClock, extrasOn, readMix, writeMix } from "../lib/clickMix.js";
 
 const DIM = "#8a969c";
 const TEAL = "#5cc8b8";
@@ -8,6 +10,7 @@ const INK = "#f4f7f6";
 const LINE = "#3a444c";
 const GOLD = "#e8b84b";
 const NOTES_PER_BAR = 8;
+const CELL_STEPS = 32;
 const INNER = 13;
 const GAP = 20;
 const LINE_L = 30;
@@ -28,8 +31,6 @@ const PATTERNS = [
 const EXERCISES = PATTERNS.map((hands, i) => ({
   id: i + 1,
   label: `Nr. ${i + 1}`,
-  time: "2/2",
-  bars: 2,
   notes: run8ths(hands),
   hands,
 }));
@@ -92,6 +93,9 @@ export default function StickControl() {
   const [bpm, setBpm] = useState(80);
   const [mode, setMode] = useState("practice");
   const [barsPer, setBarsPer] = useState(4);
+  const [countIn, setCountIn] = useState(true);
+  const [mix, setMix] = useState(() => readMix());
+  const [flipped, setFlipped] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [counting, setCounting] = useState(false);
   const [beat, setBeat] = useState(false);
@@ -99,12 +103,14 @@ export default function StickControl() {
   const [done, setDone] = useState("");
   const stopRef = useRef(null);
   const bpmRef = useRef(80);
+  const mixRef = useRef(mix);
   bpmRef.current = bpm;
+  mixRef.current = mix;
   const idx = Math.max(0, EXERCISES.findIndex((e) => e.id === exId));
   const ex = EXERCISES[idx] || EXERCISES[0];
   const prev = EXERCISES[idx - 1];
   const next = EXERCISES[idx + 1];
-  const rest = EXERCISES.slice(idx + 2);
+  const upcoming = EXERCISES.slice(idx + 1);
   const challenge = mode === "challenge";
 
   useEffect(() => () => stopRef.current?.(), []);
@@ -126,6 +132,10 @@ export default function StickControl() {
     setBeat(false);
     setPlayT(-1);
   }
+  function flip(on) {
+    setFlipped(on);
+    writeMix({ ...mixRef.current, advanced: on || extrasOn(mixRef.current) });
+  }
 
   function start() {
     stop();
@@ -134,26 +144,40 @@ export default function StickControl() {
     const isCh = mode === "challenge";
     const per = clamp(barsPer, 1, 20);
     const startLabel = EXERCISES[Math.max(0, idx)].label;
+    const useCount = countIn;
     let exIdx = Math.max(0, idx);
     let notes = EXERCISES[exIdx].notes;
-    let notesInEx = 0;
     let cancelled = false;
     let timer = 0;
     let evIndex = 0;
-    let cycleStart = ctx.currentTime + 0.04;
-    const steps = 32;
-    const targetNotes = per * NOTES_PER_BAR;
+    let barsInEx = 0;
+    let notesInBar = 0;
+    const stepSec = () => 60 / Math.max(30, bpmRef.current) / 4;
+    let cycleStart = ctx.currentTime + 0.03;
+    const clock = createMixClock();
     setPlaying(true);
 
-    const pulse = (when) => {
+    const pulseAt = (when) => {
       const delay = Math.max(0, (when - ctx.currentTime) * 1000);
       window.setTimeout(() => {
-        if (!cancelled) {
-          setBeat(true);
-          window.setTimeout(() => setBeat(false), 80);
-        }
+        if (cancelled) return;
+        setBeat(true);
+        window.setTimeout(() => setBeat(false), 80);
       }, delay);
     };
+
+    if (useCount) {
+      setCounting(true);
+      const q = 60 / Math.max(30, bpmRef.current);
+      for (let i = 0; i < 4; i++) {
+        playClick(ctx, cycleStart + i * q, i === 0);
+        pulseAt(cycleStart + i * q);
+      }
+      cycleStart += 4 * q;
+      window.setTimeout(() => { if (!cancelled) setCounting(false); }, Math.max(0, (cycleStart - ctx.currentTime) * 1000));
+    }
+    clock.reset(cycleStart);
+
     const finishOk = () => {
       if (cancelled) return;
       cancelled = true;
@@ -165,58 +189,98 @@ export default function StickControl() {
       setPlayT(-1);
       setDone(isCh ? `Bis Nr. 24 gehalten (ab ${startLabel}).` : "");
     };
-    const countIn = (from, then) => {
-      setCounting(true);
-      const q = 60 / Math.max(30, bpmRef.current);
-      for (let i = 0; i < 4; i++) {
-        playClick(ctx, from + i * q, i === 0);
-        pulse(from + i * q);
-      }
-      window.setTimeout(() => { if (!cancelled) setCounting(false); }, Math.max(0, (from + 4 * q - ctx.currentTime) * 1000));
-      then(from + 4 * q);
-    };
-    const arm = (startAt) => {
-      cycleStart = startAt;
-      evIndex = 0;
-      notesInEx = 0;
-      notes = EXERCISES[exIdx].notes;
-    };
-    countIn(cycleStart, (when) => arm(when));
 
     const schedule = () => {
       if (cancelled) return;
       const now = ctx.currentTime;
-      const stepSec = () => 60 / Math.max(30, bpmRef.current) / 4;
-      const horizon = now + 0.16;
-      while (!cancelled) {
-        const nt = notes[evIndex];
-        const when = cycleStart + nt.t * stepSec();
-        if (when >= horizon) break;
-        if (when >= now - 0.02) {
-          if (nt.t % 4 < 0.08) {
-            playClick(ctx, when, nt.t % 16 < 0.08);
-            pulse(when);
-          }
-          const delay = Math.max(0, (when - now) * 1000);
-          window.setTimeout(() => { if (!cancelled) setPlayT(nt.t); }, delay);
-        }
-        evIndex += 1;
-        notesInEx += 1;
-        if (evIndex >= notes.length) {
-          evIndex = 0;
-          cycleStart += steps * stepSec();
-        }
-        if (notesInEx >= targetNotes) {
-          if (!isCh || exIdx >= EXERCISES.length - 1) {
+      const horizon = now + 0.18;
+      const mixNow = mixRef.current;
+      if (mixNow.advanced) {
+        clock.fill(ctx, horizon, bpmRef.current, mixNow, (when) => {
+          pulseAt(when);
+          const elapsed = Math.max(0, when - cycleStart);
+          const t16 = elapsed / stepSec();
+          const local = ((t16 % CELL_STEPS) + CELL_STEPS) % CELL_STEPS;
+          window.setTimeout(() => { if (!cancelled) setPlayT(local); }, Math.max(0, (when - ctx.currentTime) * 1000));
+        }, { barSteps: 8 });
+        const barSec = 8 * stepSec();
+        const passed = Math.floor(Math.max(0, now - cycleStart) / Math.max(0.08, barSec));
+        if (isCh && passed >= per) {
+          const nextI = exIdx + 1;
+          if (nextI >= EXERCISES.length) {
             finishOk();
             return;
           }
-          const lastT = notes[Math.max(0, evIndex - 1)]?.t || 0;
-          const handoff = cycleStart + lastT * stepSec() + stepSec() * 2;
-          exIdx += 1;
+          exIdx = nextI;
+          notes = EXERCISES[exIdx].notes;
+          barsInEx = 0;
+          notesInBar = 0;
+          evIndex = 0;
+          cycleStart = Math.max(now, cycleStart + per * barSec);
+          clock.reset(cycleStart);
           window.setTimeout(() => { if (!cancelled) setExId(EXERCISES[exIdx].id); }, 0);
-          countIn(Math.max(ctx.currentTime + 0.02, handoff), (when) => arm(when));
-          break;
+          if (useCount) {
+            setCounting(true);
+            const q = 60 / Math.max(30, bpmRef.current);
+            for (let i = 0; i < 4; i++) {
+              playClick(ctx, cycleStart + i * q, i === 0);
+              pulseAt(cycleStart + i * q);
+            }
+            cycleStart += 4 * q;
+            clock.reset(cycleStart);
+            window.setTimeout(() => { if (!cancelled) setCounting(false); }, Math.max(0, (cycleStart - ctx.currentTime) * 1000));
+          }
+        }
+      } else {
+        while (!cancelled) {
+          const nt = notes[evIndex];
+          if (!nt) break;
+          const when = cycleStart + nt.t * stepSec();
+          if (when >= horizon) break;
+          if (when >= now - 0.02) {
+            if (nt.t % 4 < 0.08) {
+              playClick(ctx, when, nt.t % 16 < 0.08);
+              pulseAt(when);
+            }
+            const delay = Math.max(0, (when - now) * 1000);
+            window.setTimeout(() => { if (!cancelled) setPlayT(nt.t); }, delay);
+          }
+          evIndex += 1;
+          notesInBar += 1;
+          if (notesInBar >= NOTES_PER_BAR) {
+            notesInBar = 0;
+            barsInEx += 1;
+          }
+          if (evIndex >= notes.length) {
+            evIndex = 0;
+            cycleStart += CELL_STEPS * stepSec();
+          }
+          if (isCh && barsInEx >= per) {
+            const nextI = exIdx + 1;
+            if (nextI >= EXERCISES.length) {
+              finishOk();
+              return;
+            }
+            exIdx = nextI;
+            notes = EXERCISES[exIdx].notes;
+            barsInEx = 0;
+            notesInBar = 0;
+            evIndex = 0;
+            window.setTimeout(() => { if (!cancelled) setExId(EXERCISES[exIdx].id); }, 0);
+            if (useCount) {
+              setCounting(true);
+              const q = 60 / Math.max(30, bpmRef.current);
+              for (let i = 0; i < 4; i++) {
+                playClick(ctx, when + stepSec() * 2 + i * q, i === 0);
+                pulseAt(when + stepSec() * 2 + i * q);
+              }
+              cycleStart = when + stepSec() * 2 + 4 * q;
+              window.setTimeout(() => { if (!cancelled) setCounting(false); }, Math.max(0, (cycleStart - ctx.currentTime) * 1000));
+            } else {
+              cycleStart = when + stepSec() * 2;
+            }
+            break;
+          }
         }
       }
       timer = window.setTimeout(schedule, 25);
@@ -229,7 +293,14 @@ export default function StickControl() {
   }
 
   return (
-    <div className="rud-wrap">
+    <div className="rud-wrap stick-wrap">
+      <style>{`
+        @media (orientation: landscape) {
+          .stick-wrap { padding-bottom: calc(var(--rud-foot) + 148px) !important; }
+          .stick-wrap .rud-metro { max-height: 26dvh; }
+          .stick-wrap .rud-metro .metro-face { max-height: 26dvh; padding: 6px 10px 8px; }
+        }
+      `}</style>
       <div style={{ display: "flex", gap: 8, alignItems: "center", margin: "0 0 10px", flexWrap: "wrap" }}>
         <div className="seg" style={{ width: "fit-content" }}>
           <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>Üben</button>
@@ -248,47 +319,54 @@ export default function StickControl() {
         <Phrase id={ex.id} hands={ex.hands} playT={counting ? -1 : playT} />
       </div>
 
-      {next ? (
-        <button type="button" onClick={() => pick(next.id)} disabled={playing} style={{ width: "100%", marginTop: 8, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: "10px 12px", color: "inherit", textAlign: "left" }}>
-          <div style={{ color: TEAL, font: "800 11px Figtree, sans-serif", letterSpacing: "0.12em" }}>ALS NÄCHSTES</div>
+      {upcoming.map((row, i) => (
+        <button key={row.id} type="button" onClick={() => pick(row.id)} disabled={playing} style={{ width: "100%", marginTop: i === 0 ? 8 : 4, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: "10px 12px", color: "inherit", textAlign: "left", opacity: i === 0 ? 1 : 0.55 }}>
+          {i === 0 ? <div style={{ color: TEAL, font: "800 11px Figtree, sans-serif", letterSpacing: "0.12em" }}>ALS NÄCHSTES</div> : null}
           <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "baseline", marginTop: 2 }}>
-            <strong style={{ font: "700 18px Oswald, sans-serif", color: TEAL }}>{next.id}.</strong>
-            <span style={{ color: TEAL, font: "800 13px Oswald, sans-serif", letterSpacing: "0.04em" }}>{shortHands(next.hands)}</span>
+            <strong style={{ font: "700 18px Oswald, sans-serif", color: TEAL }}>{row.id}.</strong>
+            <span style={{ color: TEAL, font: "800 13px Oswald, sans-serif", letterSpacing: "0.04em" }}>{shortHands(row.hands)}</span>
           </div>
         </button>
-      ) : null}
-
-      {challenge && rest.length ? (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
-          {rest.map((row) => (
-            <button key={row.id} type="button" className="chip" disabled={playing} onClick={() => pick(row.id)} style={{ minWidth: 40 }}>{row.id}</button>
-          ))}
-        </div>
-      ) : null}
+      ))}
 
       {done ? <p style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{done}</p> : null}
 
-      <div className="rud-metro" style={{ padding: "8px 12px 10px" }}>
-        <div className="dial-row">
-          <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))}>−5</button>
-          <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={96} now />
-          <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))}>+5</button>
+      <div className="metro-shell rud-metro">
+        <div className="panel dock metro-face">
+          {flipped ? (
+            <div className="metro-swap">
+              <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: TEAL, marginBottom: 10 }}>Click</div>
+              <label className="check"><input type="checkbox" checked={countIn} onChange={(e) => setCountIn(e.target.checked)} />4 Schläge einzählen</label>
+              <ClickAdvanced mix={mix} setMix={setMix} slidersOnly />
+            </div>
+          ) : (
+            <div className="metro-swap">
+              <div className="dial-row">
+                <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))}>−5</button>
+                <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={96} now />
+                <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))}>+5</button>
+              </div>
+              <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
+                <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
+                  {playing ? "Stop" : challenge ? `${ex.label}–24` : "Start"}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-        <div style={{ display: "flex", justifyContent: "center", marginTop: 8 }}>
-          <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
-            {playing ? "Stop" : challenge ? `${ex.label}–24` : "Start"}
-          </button>
-        </div>
+        <button type="button" className={flipped ? "metro-side on" : "metro-side"} onClick={() => flip(!flipped)}>
+          {flipped ? "Metronom" : "Erweitert"}
+        </button>
       </div>
 
       <div className="rud-nav">
-        <button type="button" className="rud-half prev" disabled={!prev || playing} onClick={() => step(-1)}>
-          <span className="rud-half-arrow">‹</span>
-          <span className="rud-half-name">{prev ? prev.label : ""}</span>
+        <button type="button" className="rud-half prev" disabled={!prev || playing} onClick={() => step(-1)} style={{ minHeight: 88 }}>
+          <span className="rud-half-arrow" style={{ fontSize: 44 }}>‹</span>
+          <span className="rud-half-name" style={{ fontSize: 20 }}>{prev ? prev.label : ""}</span>
         </button>
-        <button type="button" className="rud-half next" disabled={!next || playing} onClick={() => step(1)}>
-          <span className="rud-half-name">{next ? next.label : ""}</span>
-          <span className="rud-half-arrow">›</span>
+        <button type="button" className="rud-half next" disabled={!next || playing} onClick={() => step(1)} style={{ minHeight: 88 }}>
+          <span className="rud-half-name" style={{ fontSize: 20 }}>{next ? next.label : ""}</span>
+          <span className="rud-half-arrow" style={{ fontSize: 44 }}>›</span>
         </button>
       </div>
     </div>
