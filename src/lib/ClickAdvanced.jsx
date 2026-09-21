@@ -13,7 +13,7 @@ export function ClickAdvanced({ mix, setMix, slidersOnly = false }) {
   return (
     <div className="click-adv">
       {!slidersOnly && (
-        <div className="seg" style={{ width: "fit-content" }}>
+        <div className="seg" style={{ width: "fit-content", maxWidth: "100%" }}>
           <button type="button" className={!mix.advanced ? "on" : ""} onClick={() => patch({ advanced: false })}>Normal</button>
           <button type="button" className={mix.advanced ? "on" : ""} onClick={() => patch({ advanced: true })}>Erweitert</button>
         </div>
@@ -43,12 +43,12 @@ export function ClickAdvanced({ mix, setMix, slidersOnly = false }) {
         </div>
       )}
       <style>{`
-        .click-adv { display: flex; flex-direction: column; gap: 10px; }
+        .click-adv { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
         .click-adv-list { display: flex; flex-direction: column; gap: 8px; max-height: 46dvh; overflow: auto; padding-right: 2px; }
-        .click-adv-row { display: grid; grid-template-columns: 92px 1fr 32px; gap: 8px; align-items: center; }
-        .click-adv-name { font-size: 12px; color: #ddd; font-weight: 700; line-height: 1.15; }
+        .click-adv-row { display: grid; grid-template-columns: minmax(64px, 76px) minmax(0, 1fr) 28px; gap: 6px; align-items: center; min-width: 0; }
+        .click-adv-name { font-size: 12px; color: #ddd; font-weight: 700; line-height: 1.15; min-width: 0; }
         .click-adv-name small { display: block; color: ${DIM}; font-weight: 600; font-size: 10px; }
-        .click-adv-row input[type=range] { width: 100%; accent-color: ${TEAL}; min-height: 28px; }
+        .click-adv-row input[type=range] { width: 100%; min-width: 0; accent-color: ${TEAL}; min-height: 28px; }
         .click-adv-val { font-size: 11px; color: ${TEAL}; font-weight: 800; text-align: right; }
       `}</style>
     </div>
