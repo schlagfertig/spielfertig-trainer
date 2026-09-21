@@ -8,7 +8,6 @@ const TEAL = "#5cc8b8";
 const INK = "#f4f7f6";
 const LINE = "#3a444c";
 const GOLD = "#e8b84b";
-const NOTES_PER_BAR = 8;
 const CELL_STEPS = 32;
 const INNER = 13;
 const GAP = 20;
@@ -113,7 +112,7 @@ export default function StickControl() {
   const [exId, setExId] = useState(1);
   const [bpm, setBpm] = useState(80);
   const [mode, setMode] = useState("practice");
-  const [barsPer, setBarsPer] = useState(4);
+  const [reps, setReps] = useState(4);
   const [countIn, setCountIn] = useState(true);
   const [playing, setPlaying] = useState(false);
   const [counting, setCounting] = useState(false);
@@ -154,7 +153,7 @@ export default function StickControl() {
     setDone("");
     const ctx = unlockAudio();
     const isCh = mode === "challenge";
-    const per = clamp(barsPer, 1, 20);
+    const per = clamp(reps, 1, 20);
     const startLabel = EXERCISES[Math.max(0, idx)].label;
     const useCount = countIn;
     let exIdx = Math.max(0, idx);
@@ -162,8 +161,7 @@ export default function StickControl() {
     let cancelled = false;
     let timer = 0;
     let evIndex = 0;
-    let barsInEx = 0;
-    let notesInBar = 0;
+    let repsInEx = 0;
     const stepSec = () => 60 / Math.max(30, bpmRef.current) / 4;
     let cycleStart = ctx.currentTime + 0.03;
     setPlaying(true);
@@ -214,27 +212,18 @@ export default function StickControl() {
           window.setTimeout(() => { if (!cancelled) setPlayT(nt.t); }, delay);
         }
         evIndex += 1;
-        notesInBar += 1;
-        if (notesInBar >= NOTES_PER_BAR) { notesInBar = 0; barsInEx += 1; }
-        if (evIndex >= notes.length) { evIndex = 0; cycleStart += CELL_STEPS * stepSec(); }
-        if (isCh && barsInEx >= per) {
-          const nextI = exIdx + 1;
-          if (nextI >= EXERCISES.length) { finishOk(); return; }
-          exIdx = nextI;
-          notes = EXERCISES[exIdx].notes;
-          barsInEx = 0; notesInBar = 0; evIndex = 0;
-          window.setTimeout(() => { if (!cancelled) setExId(EXERCISES[exIdx].id); }, 0);
-          if (useCount) {
-            setCounting(true);
-            const q = 60 / Math.max(30, bpmRef.current);
-            for (let i = 0; i < 4; i++) {
-              playClick(ctx, when + stepSec() * 2 + i * q, i === 0);
-              pulseAt(when + stepSec() * 2 + i * q);
-            }
-            cycleStart = when + stepSec() * 2 + 4 * q;
-            window.setTimeout(() => { if (!cancelled) setCounting(false); }, Math.max(0, (cycleStart - ctx.currentTime) * 1000));
-          } else cycleStart = when + stepSec() * 2;
-          break;
+        if (evIndex >= notes.length) {
+          repsInEx += 1;
+          evIndex = 0;
+          cycleStart += CELL_STEPS * stepSec();
+          if (isCh && repsInEx >= per) {
+            const nextI = exIdx + 1;
+            if (nextI >= EXERCISES.length) { finishOk(); return; }
+            exIdx = nextI;
+            notes = EXERCISES[exIdx].notes;
+            repsInEx = 0;
+            window.setTimeout(() => { if (!cancelled) setExId(EXERCISES[exIdx].id); }, 0);
+          }
         }
       }
       timer = window.setTimeout(schedule, 25);
@@ -314,8 +303,8 @@ export default function StickControl() {
           </div>
           {challenge ? (
             <label style={{ display: "flex", alignItems: "center", gap: 6, color: DIM, fontWeight: 700, marginLeft: "auto" }}>
-              Takte
-              <input type="number" min={1} max={20} value={barsPer} disabled={playing} onChange={(e) => setBarsPer(clamp(Number(e.target.value) || 1, 1, 20))} style={{ width: 52, background: "#161a1d", color: TEAL, border: "1px solid #2f383d", borderRadius: 8, padding: "6px 8px", fontWeight: 800, fontSize: 16, textAlign: "center" }} />
+              Wiederholungen
+              <input type="number" min={1} max={20} value={reps} disabled={playing} onChange={(e) => setReps(clamp(Number(e.target.value) || 1, 1, 20))} style={{ width: 52, background: "#161a1d", color: TEAL, border: "1px solid #2f383d", borderRadius: 8, padding: "6px 8px", fontWeight: 800, fontSize: 16, textAlign: "center" }} />
             </label>
           ) : null}
           {counting ? <span style={{ color: TEAL, fontWeight: 800, letterSpacing: "0.08em" }}>COUNT-IN</span> : null}
