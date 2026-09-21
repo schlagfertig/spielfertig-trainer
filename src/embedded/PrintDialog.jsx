@@ -1,9 +1,8 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { RUDIMENTS } from "../lib/rudiments.js";
 import { RudimentStaff } from "../lib/staff.jsx";
 import { deliverPng, printElement, sheetHtml, tilesToPng } from "../lib/print.js";
 import { PrintPreview } from "../lib/PrintPreview.jsx";
-import { useState } from "react";
 
 const DIM = "#8a969c";
 const SECTION = "Rudiments";
@@ -23,6 +22,11 @@ export function PrintDialog({ sel, onClose }) {
   const [note, setNote] = useState("");
   const [tick, setTick] = useState(0);
 
+  useEffect(() => {
+    const id = window.requestAnimationFrame(() => setTick((n) => n + 1));
+    return () => window.cancelAnimationFrame(id);
+  }, [picked, perPage]);
+
   const tiles = useMemo(() => {
     const host = document.getElementById("print-host");
     if (!host) return [];
@@ -30,10 +34,6 @@ export function PrintDialog({ sel, onClose }) {
       .map((r) => ({ r, svg: host.querySelector(`[data-print="${r.id}"] svg`) }))
       .filter((x) => x.svg);
   }, [picked, tick]);
-
-  function bump() {
-    window.requestAnimationFrame(() => setTick((n) => n + 1));
-  }
 
   async function savePng(list, reason) {
     const canvas = await tilesToPng(list, 2, perPage, SECTION);
@@ -46,14 +46,12 @@ export function PrintDialog({ sel, onClose }) {
   async function doPrint(mode) {
     setBusy(true);
     setNote(mode === "print" ? "Blatt wird erzeugt…" : "");
-    bump();
-    const list = (() => {
-      const host = document.getElementById("print-host");
-      if (!host) return [];
-      return RUDIMENTS.filter((r) => picked.includes(r.id))
+    const host = document.getElementById("print-host");
+    const list = host
+      ? RUDIMENTS.filter((r) => picked.includes(r.id))
         .map((r) => ({ r, svg: host.querySelector(`[data-print="${r.id}"] svg`) }))
-        .filter((x) => x.svg);
-    })();
+        .filter((x) => x.svg)
+      : [];
     if (!list.length) {
       setNote("Keine Notation zum Export.");
       setBusy(false);
@@ -95,12 +93,12 @@ export function PrintDialog({ sel, onClose }) {
         </p>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", margin: "10px 0" }}>
           {[4, 6, 10, 12].map((n) => (
-            <button key={n} type="button" className={perPage === n ? "chip on" : "chip"} onClick={() => { setPerPage(n); bump(); }}>{n} / Seite</button>
+            <button key={n} type="button" className={perPage === n ? "chip on" : "chip"} onClick={() => setPerPage(n)}>{n} / Seite</button>
           ))}
         </div>
         <div style={{ display: "flex", gap: 8, margin: "0 0 8px" }}>
-          <button type="button" className="ghost" onClick={() => { setPicked(RUDIMENTS.map((r) => r.id)); bump(); }}>Alle</button>
-          <button type="button" className="ghost" onClick={() => { setPicked([sel]); bump(); }}>Nur aktuelles</button>
+          <button type="button" className="ghost" onClick={() => setPicked(RUDIMENTS.map((r) => r.id))}>Alle</button>
+          <button type="button" className="ghost" onClick={() => setPicked([sel])}>Nur aktuelles</button>
         </div>
         <div style={{ maxHeight: "22dvh", overflow: "auto", display: "flex", flexDirection: "column", gap: 4 }}>
           {RUDIMENTS.map((r) => (
@@ -108,10 +106,7 @@ export function PrintDialog({ sel, onClose }) {
               <input
                 type="checkbox"
                 checked={picked.includes(r.id)}
-                onChange={() => {
-                  setPicked((p) => p.includes(r.id) ? p.filter((x) => x !== r.id) : [...p, r.id]);
-                  bump();
-                }}
+                onChange={() => setPicked((p) => p.includes(r.id) ? p.filter((x) => x !== r.id) : [...p, r.id])}
               />
               {r.label}
             </label>
