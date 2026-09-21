@@ -20,16 +20,41 @@ function wrap(d) {
   return d;
 }
 
-function WheelHints({ size }) {
-  const w = Math.max(72, size);
+function polar(cx, cy, r, deg) {
+  const a = (deg * Math.PI) / 180;
+  return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+}
+
+function tip(cx, cy, r, deg, dir) {
+  const [x, y] = polar(cx, cy, r, deg);
+  const t = ((deg + dir * 90) * Math.PI) / 180;
+  const px = Math.cos(t);
+  const py = Math.sin(t);
+  const tx = Math.cos((deg * Math.PI) / 180) * dir;
+  const ty = Math.sin((deg * Math.PI) / 180) * dir;
+  const s = 3.2;
+  const b = 2.4;
+  return `${x + tx * s},${y + ty * s} ${x - px * b - tx * 0.4},${y - py * b - ty * 0.4} ${x + px * b - tx * 0.4},${y + py * b - ty * 0.4}`;
+}
+
+function WheelHints() {
+  const cx = 50;
+  const cy = 50;
+  const r = 46;
+  const [lsx, lsy] = polar(cx, cy, r, 218);
+  const [lex, ley] = polar(cx, cy, r, 148);
+  const [rsx, rsy] = polar(cx, cy, r, 322);
+  const [rex, rey] = polar(cx, cy, r, 32);
+  const [lmX, lmY] = polar(cx, cy, r + 8, 184);
+  const [rmX, rmY] = polar(cx, cy, r + 8, 356);
   return (
-    <svg width={w} height={16} viewBox={`0 0 ${w} 16`} aria-hidden="true" style={{ display: "block", marginBottom: 2 }}>
-      <path d="M22 13 A 11 11 0 0 0 8 5" fill="none" stroke={TEAL} strokeWidth="1.35" strokeLinecap="round" />
-      <path d="M8 5 L12 2 L13 7 Z" fill={TEAL} />
-      <text x="26" y="11" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="800">−</text>
-      <path d={`M${w - 22} 13 A 11 11 0 0 1 ${w - 8} 5`} fill="none" stroke={TEAL} strokeWidth="1.35" strokeLinecap="round" />
-      <path d={`M${w - 8} 5 L${w - 12} 2 L${w - 13} 7 Z`} fill={TEAL} />
-      <text x={w - 32} y="11" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="800">+</text>
+    <svg viewBox="0 0 100 100" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
+      <path d={`M ${lsx} ${lsy} A ${r} ${r} 0 0 0 ${lex} ${ley}`} fill="none" stroke={TEAL} strokeWidth="1.5" strokeLinecap="round" />
+      <polygon points={tip(cx, cy, r, 148, -1)} fill={TEAL} />
+      <text x={lmX} y={lmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="7.5" fontWeight="800">−</text>
+      <path d={`M ${rsx} ${rsy} A ${r} ${r} 0 0 1 ${rex} ${rey}`} fill="none" stroke={TEAL} strokeWidth="1.5" strokeLinecap="round" />
+      <polygon points={tip(cx, cy, r, 32, 1)} fill={TEAL} />
+      <text x={rmX} y={rmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="7.5" fontWeight="800">+</text>
     </svg>
   );
 }
@@ -53,6 +78,7 @@ export function MetronomeDial({
   const labelCol = num;
   const bpmSize = Math.max(12, Math.round(size * (large ? 0.36 : 0.34)));
   const labelSize = Math.max(8, Math.round(size * 0.11));
+  const pad = 16;
   const drag = useRef(null);
 
   function onPointerDown(e) {
@@ -95,8 +121,8 @@ export function MetronomeDial({
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-      {setBpm ? <WheelHints size={size} /> : null}
+    <div style={{ position: "relative", width: size + pad * 2, height: size + pad * 2, flexShrink: 0 }}>
+      {setBpm ? <WheelHints /> : null}
       <button
         type="button"
         onPointerDown={onPointerDown}
@@ -106,6 +132,9 @@ export function MetronomeDial({
         title={(active ? "Click aus" : "Click an") + " (" + bpm + " BPM). Drehen ändert das Tempo."}
         aria-label={active ? "Metronom stoppen" : "Metronom starten"}
         style={{
+          position: "absolute",
+          left: pad,
+          top: pad,
           background: fill,
           border: (large ? 3.5 : 2.5) + "px solid " + ring,
           borderRadius: "50%",
