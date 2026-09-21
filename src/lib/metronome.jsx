@@ -37,24 +37,28 @@ function tip(cx, cy, r, deg, dir) {
   return `${x + tx * s},${y + ty * s} ${x - px * b - tx * 0.4},${y - py * b - ty * 0.4} ${x + px * b - tx * 0.4},${y + py * b - ty * 0.4}`;
 }
 
+function arc(cx, cy, r, a0, a1, sweep) {
+  const [x0, y0] = polar(cx, cy, r, a0);
+  const [x1, y1] = polar(cx, cy, r, a1);
+  return `M ${x0} ${y0} A ${r} ${r} 0 0 ${sweep} ${x1} ${y1}`;
+}
+
 function WheelHints() {
   const cx = 50;
   const cy = 50;
   const r = 46;
-  const [lsx, lsy] = polar(cx, cy, r, 218);
-  const [lex, ley] = polar(cx, cy, r, 148);
-  const [rsx, rsy] = polar(cx, cy, r, 322);
-  const [rex, rey] = polar(cx, cy, r, 32);
-  const [lmX, lmY] = polar(cx, cy, r + 8, 184);
-  const [rmX, rmY] = polar(cx, cy, r + 8, 356);
+  const [lmX, lmY] = polar(cx, cy, r, 183);
+  const [rmX, rmY] = polar(cx, cy, r, 357);
   return (
     <svg viewBox="0 0 100 100" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
-      <path d={`M ${lsx} ${lsy} A ${r} ${r} 0 0 0 ${lex} ${ley}`} fill="none" stroke={TEAL} strokeWidth="1.5" strokeLinecap="round" />
+      <path d={arc(cx, cy, r, 218, 196, 0)} fill="none" stroke={TEAL} strokeWidth="1.5" strokeLinecap="round" />
+      <path d={arc(cx, cy, r, 170, 148, 0)} fill="none" stroke={TEAL} strokeWidth="1.5" strokeLinecap="round" />
       <polygon points={tip(cx, cy, r, 148, -1)} fill={TEAL} />
-      <text x={lmX} y={lmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="7.5" fontWeight="800">−</text>
-      <path d={`M ${rsx} ${rsy} A ${r} ${r} 0 0 1 ${rex} ${rey}`} fill="none" stroke={TEAL} strokeWidth="1.5" strokeLinecap="round" />
+      <text x={lmX} y={lmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="8" fontWeight="800">−</text>
+      <path d={arc(cx, cy, r, 322, 344, 1)} fill="none" stroke={TEAL} strokeWidth="1.5" strokeLinecap="round" />
+      <path d={arc(cx, cy, r, 10, 32, 1)} fill="none" stroke={TEAL} strokeWidth="1.5" strokeLinecap="round" />
       <polygon points={tip(cx, cy, r, 32, 1)} fill={TEAL} />
-      <text x={rmX} y={rmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="7.5" fontWeight="800">+</text>
+      <text x={rmX} y={rmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="8" fontWeight="800">+</text>
     </svg>
   );
 }
