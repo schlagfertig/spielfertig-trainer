@@ -2,9 +2,9 @@ export const BRAND = {
   mark: "schlagfertig\u203d",
   product: "Spielfertig",
   person: "Thomas Schuster",
-  phone: "",
+  phone: "01522 574 2199",
   web: "spielfertig-trainer.vercel.app",
-  tag: "Zeit für guten Sound",
+  tag: "Zeit f\u00fcr guten Sound",
   logo: "/logo.svg",
 };
 
