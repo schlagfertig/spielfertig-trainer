@@ -38,10 +38,10 @@ function clamp(v, min, max) {
 function noteX(i) {
   const g = Math.floor(i / 4);
   const k = i % 4;
-  const inner = 16;
-  const groupGap = 11;
-  const barExtra = 14;
-  const x0 = 36;
+  const inner = 15;
+  const groupGap = 30;
+  const barExtra = 22;
+  const x0 = 34;
   let x = x0;
   for (let gi = 0; gi < g; gi++) x += inner * 3 + groupGap + (gi === 1 ? barExtra : 0);
   return x + k * inner;
@@ -55,11 +55,11 @@ function Phrase({ id, hands, playT }) {
   const hy = 62;
   const xs = Array.from({ length: 16 }, (_, i) => noteX(i));
   const barX = (xs[7] + xs[8]) / 2;
-  const end = xs[15] + 12;
+  const end = xs[15] + 14;
   return (
     <svg viewBox={`0 0 ${end + 10} 74`} width="100%" role="img" aria-label={`Nummer ${id}`}>
-      <line x1="18" y1={y} x2={end} y2={y} stroke={LINE} strokeWidth="1.7" />
-      <line x1="18" y1={y - 11} x2="18" y2={y + 11} stroke={LINE} strokeWidth="2.1" />
+      <line x1="16" y1={y} x2={end} y2={y} stroke={LINE} strokeWidth="1.7" />
+      <line x1="16" y1={y - 11} x2="16" y2={y + 11} stroke={LINE} strokeWidth="2.1" />
       <line x1={end} y1={y - 11} x2={end} y2={y + 11} stroke={LINE} strokeWidth="2.1" />
       <line x1={barX} y1={y - 12} x2={barX} y2={y + 12} stroke={LINE} strokeWidth="1.6" />
       {xs.map((x, i) => {
@@ -75,7 +75,7 @@ function Phrase({ id, hands, playT }) {
       {[0, 1, 2, 3].map((g) => (
         <line key={g} x1={xs[g * 4] + 4.3} y1={top} x2={xs[g * 4 + 3] + 4.3} y2={top} stroke={INK} strokeWidth="3.2" />
       ))}
-      <text x="18" y={hy} fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="800" fontSize="16" textAnchor="start">{id}.</text>
+      <text x="16" y={hy} fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="800" fontSize="16" textAnchor="start">{id}.</text>
       {letters.map((ch, i) => {
         const on = i === active;
         return (
