@@ -7,6 +7,7 @@ import { deliverPng, printElement, sheetHtml, tilesToPng } from "../lib/print.js
 import { loadSession, saveSession } from "../lib/session.js";
 import { ClickAdvanced } from "../lib/ClickAdvanced.jsx";
 import { createMixClock, extrasOn, readMix, writeMix } from "../lib/clickMix.js";
+import { NavScrub } from "../lib/NavScrub.jsx";
 
 const INK = "#161a1d";
 const LINE = "#2f383d";
@@ -80,8 +81,6 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
   const mixRef = useRef(mix); mixRef.current = mix;
   const rud = RUDIMENTS.find((r) => r.id === sel) || RUDIMENTS[0];
   const idx = Math.max(0, RUDIMENTS.findIndex((r) => r.id === rud.id));
-  const prevRud = RUDIMENTS[idx - 1];
-  const nextRud = RUDIMENTS[idx + 1];
   const meterNow = meterPulse(rud.time);
   const beatsInBar = Math.max(1, Math.round(meterNow.bar / meterNow.pulse));
   const beatN = playT < 0 ? -1 : Math.floor((playT + 1e-4) / meterNow.pulse) % beatsInBar;
@@ -122,11 +121,6 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
     if (id !== sel) stop();
     setSel(id);
     setDone("");
-  }
-
-  function stepRud(dir) {
-    const next = RUDIMENTS[idx + dir];
-    if (next) pickRud(next.id);
   }
 
   function flip(on) {
@@ -418,20 +412,19 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
           </button>
         )}
       </div>
-      <div className="rud-nav">
-        <button type="button" className="rud-half prev" disabled={!prevRud} onClick={() => stepRud(-1)} aria-label={prevRud ? "Vorheriges: " + prevRud.label : "Kein vorheriges Rudiment"}>
-          <span className="rud-half-arrow">‹</span>
-          <span className="rud-half-name">{prevRud ? prevRud.label : ""}</span>
-        </button>
-        <button type="button" className="rud-half next" disabled={!nextRud} onClick={() => stepRud(1)} aria-label={nextRud ? "Nächstes: " + nextRud.label : "Kein nächstes Rudiment"}>
-          <span className="rud-half-name">{nextRud ? nextRud.label : ""}</span>
-          <span className="rud-half-arrow">›</span>
-        </button>
-      </div>
+      <NavScrub
+        items={RUDIMENTS.map((r) => ({ id: r.id, label: r.label, preview: r.label }))}
+        index={idx}
+        disabled={playing}
+        onPick={pickRud}
+      />
       {printOpen && (
         <div className="modal" onClick={closePrint}>
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-head">Rudiments drucken</div>
+            <div className="modal-head" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+              <span>Rudiments drucken</span>
+              <button type="button" className="ghost" onClick={closePrint}>Zurück</button>
+            </div>
             <p style={{ color: DIM, fontSize: 13 }}>Auswahl und Layout. Hochformat DIN A4.</p>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", margin: "10px 0" }}>
               {[4, 6, 10, 12].map((n) => (
