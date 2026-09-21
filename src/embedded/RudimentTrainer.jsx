@@ -27,6 +27,14 @@ function fmt(sec) {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 
+function isStandalone() {
+  try {
+    return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  } catch {
+    return false;
+  }
+}
+
 function readRudimentSession() {
   const s = loadSession("rudiments", {});
   const sel = RUDIMENTS.some((r) => r.id === Number(s.sel)) ? Number(s.sel) : 16;
@@ -44,7 +52,7 @@ function readRudimentSession() {
   };
 }
 
-export default function RudimentTrainer({ printNonce, stage = false }) {
+export default function RudimentTrainer({ printOpen = false, onPrintClose, stage = false }) {
   const init = useRef(readRudimentSession()).current;
   const [sel, setSel] = useState(init.sel);
   const [bpm, setBpm] = useState(init.bpm);
@@ -61,13 +69,11 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
   const [loopN, setLoopN] = useState(0);
   const [leftSec, setLeftSec] = useState(0);
   const [done, setDone] = useState("");
-  const [printOpen, setPrintOpen] = useState(false);
   const [picked, setPicked] = useState([init.sel]);
   const [perPage, setPerPage] = useState(6);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
   const stopRef = useRef(null);
-  const lastPrint = useRef(printNonce || 0);
   const bpmRef = useRef(bpm); bpmRef.current = bpm;
   const hearRef = useRef(hear); hearRef.current = hear;
   const rampRef = useRef(rampOn); rampRef.current = rampOn;
@@ -85,18 +91,17 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
     saveSession("rudiments", { sel, bpm, hear, countIn, rampOn, rampBars, rampStep, rampCap, goalId });
   }, [sel, bpm, hear, countIn, rampOn, rampBars, rampStep, rampCap, goalId]);
   useEffect(() => {
-    if (!printNonce || printNonce === lastPrint.current) return;
-    lastPrint.current = printNonce;
-    setPrintOpen(true);
-    setNote("");
-    setPicked((p) => (p.includes(sel) ? p : [...p, sel]));
-  }, [printNonce, sel]);
+    if (printOpen) {
+      setNote("");
+      setPicked((p) => (p.includes(sel) ? p : [...p, sel]));
+    }
+  }, [printOpen, sel]);
   useEffect(() => () => stopRef.current?.(), []);
 
   function closePrint() {
-    setPrintOpen(false);
     setNote("");
     setBusy(false);
+    onPrintClose?.();
   }
 
   function stop() {
@@ -254,11 +259,12 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
     }
     try {
       if (mode === "print") {
-        const printed = printElement(sheetHtml(tiles, perPage));
-        if (printed) {
-          setNote("Druckdialog geöffnet. Falls nichts kommt: Popups erlauben oder Speichern nutzen.");
+        if (isStandalone()) {
+          await savePng(tiles, "Home-Bildschirm: Blatt als PNG gespeichert (kein System-Druck). Teilen geht auch.");
         } else {
-          await savePng(tiles, "Popup blockiert — Blatt als PNG gespeichert.");
+          const printed = printElement(sheetHtml(tiles, perPage));
+          if (printed) setNote("Druckdialog geöffnet. Fertig? Oben auf Zurück.");
+          else await savePng(tiles, "Druck nicht möglich — Blatt als PNG gespeichert.");
         }
       } else if (mode === "share") {
         const canvas = await tilesToPng(tiles, 2, perPage);
@@ -373,13 +379,15 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
         onPick={pickRud}
       />
       {printOpen && (
-        <div className="modal" onClick={closePrint}>
-          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+        <div className="modal" style={{ top: 52, zIndex: 30, alignItems: "stretch" }}>
+          <div className="modal-card" style={{ width: "100%", maxWidth: 560, maxHeight: "none", margin: "0 auto" }}>
             <div className="modal-head" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
               <span>Rudiments drucken</span>
-              <button type="button" className="ghost" onClick={closePrint}>Zurück</button>
+              <button type="button" className="play" onClick={closePrint} style={{ padding: "10px 16px", fontSize: 15 }}>Zurück</button>
             </div>
-            <p style={{ color: DIM, fontSize: 13 }}>Auswahl und Layout. Hochformat DIN A4.</p>
+            <p style={{ color: DIM, fontSize: 15 }}>
+              Auswahl und Layout. Oben oder hier Zurück — die App bleibt offen.
+            </p>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", margin: "10px 0" }}>
               {[4, 6, 10, 12].map((n) => (
                 <button key={n} type="button" className={perPage === n ? "chip on" : "chip"} onClick={() => setPerPage(n)}>{n} / Seite</button>
@@ -389,7 +397,7 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
               <button type="button" className="ghost" onClick={() => setPicked(RUDIMENTS.map((r) => r.id))}>Alle</button>
               <button type="button" className="ghost" onClick={() => setPicked([sel])}>Nur aktuelles</button>
             </div>
-            <div style={{ maxHeight: 240, overflow: "auto", display: "flex", flexDirection: "column", gap: 4 }}>
+            <div style={{ maxHeight: "36dvh", overflow: "auto", display: "flex", flexDirection: "column", gap: 4 }}>
               {RUDIMENTS.map((r) => (
                 <label key={r.id} className="check">
                   <input type="checkbox" checked={picked.includes(r.id)} onChange={() => setPicked((p) => p.includes(r.id) ? p.filter((x) => x !== r.id) : [...p, r.id])} />
@@ -403,12 +411,16 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
               ))}
             </div>
             <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
-              <button className="play" disabled={busy || !picked.length} onClick={() => doPrint("print")}>{busy ? "…" : "Drucken"}</button>
+              <button className="play" disabled={busy || !picked.length} onClick={() => doPrint("print")}>{busy ? "…" : isStandalone() ? "Speichern" : "Drucken"}</button>
               <button className="ghost" disabled={busy || !picked.length} onClick={() => doPrint("share")}>Teilen</button>
-              <button className="ghost" disabled={busy || !picked.length} onClick={() => doPrint("save")}>Speichern</button>
+              {!isStandalone() ? <button className="ghost" disabled={busy || !picked.length} onClick={() => doPrint("save")}>PNG</button> : null}
               <button className="ghost" onClick={closePrint}>Schließen</button>
             </div>
-            {note ? <p style={{ color: "#5cc8b8", fontSize: 12, margin: "10px 0 0" }}>{note}</p> : <p style={{ color: DIM, fontSize: 12, margin: "10px 0 0" }}>Drucken öffnet den Systemdialog. Blockiert das Handy das Popup, wird automatisch ein PNG gespeichert.</p>}
+            {note ? <p style={{ color: "#5cc8b8", fontSize: 15, margin: "10px 0 0" }}>{note}</p> : (
+              <p style={{ color: DIM, fontSize: 14, margin: "10px 0 0" }}>
+                {isStandalone() ? "Vom Home-Bildschirm speichert die App ein PNG — so bleibt kein Druckdialog offen." : "Drucken öffnet den Systemdialog. Danach oben Zurück."}
+              </p>
+            )}
           </div>
         </div>
       )}
