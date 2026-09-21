@@ -66,11 +66,6 @@ function beamGroups(notes, pulse = 4) {
   return groups.filter((g) => g.length >= 2);
 }
 
-function flipHand(h) {
-  if (!h) return h;
-  return String(h).replace(/R/g, "x").replace(/L/g, "R").replace(/x/g, "L");
-}
-
 function withDrag(tok, nt) {
   const main = tok || nt.hand || "";
   if (!nt.drag) return main;
@@ -291,6 +286,8 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
   const pack = hideTime ? 0.92 : 1;
   const cluster = 8;
   const soloWhole = sounded.length === 1 && !!(sounded[0].whole || (sounded[0].dur >= 8 && sounded[0].roll));
+  const spanEnd = sounded.reduce((m, nt) => Math.max(m, (nt.t || 0) + (nt.dur || 1)), 0);
+  const tShift = Math.max(0, steps - spanEnd) / 2;
   const w = x0 + Math.max(steps * stepW, soloWhole ? 240 : 0) + (hideTime ? 14 : 18);
   const y = hideTime ? 36 : 58;
   const lineGap = hideTime ? 7.2 : 8.5;
@@ -308,9 +305,10 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
   const slotW = cluster * stepW;
   const noteX = (nt) => {
     if (soloWhole) return x0 + (Math.max(steps * stepW, 240) / 2);
-    if (pack >= 0.99) return x0 + nt.t * stepW;
-    const g = Math.floor(nt.t / cluster + 1e-6);
-    const local = nt.t - g * cluster;
+    const t = (nt.t || 0) + tShift;
+    if (pack >= 0.99) return x0 + t * stepW;
+    const g = Math.floor(t / cluster + 1e-6);
+    const local = t - g * cluster;
     const inner = slotW * pack;
     const inset = (slotW - inner) / 2;
     return x0 + g * slotW + inset + local * stepW * pack;
@@ -319,7 +317,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
     const left = sounded.filter((nt) => nt.t < t16 - 1e-4).at(-1);
     const right = sounded.find((nt) => nt.t >= t16 - 1e-4);
     if (left && right) return (noteX(left) + noteX(right)) / 2;
-    return x0 + t16 * stepW;
+    return x0 + (t16 + tShift) * stepW;
   };
   const tokenAt = (row, i, nt) => {
     if (!row) return nt.hand;
@@ -396,11 +394,11 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
         {sounded.map((nt, i) => {
           const x = noteX(nt);
           const top = withDrag(tokenAt(primary, i, nt), nt);
-          const flamTop = nt.flam ? String(nt.flam) : null;
+          const flamTop = nt.flam ? String(nt.flam) : "";
           const xEnd = String(top || "").length > 3 ? endXFor(i) : x;
           return (
             <g key={`h-${i}`}>
-              <StickLine x={x} x2={xEnd} y={h0} text={top} flam={flamTop} handwritten={handwritten} />
+              <StickLine x={x} x2={xEnd} y={h0} text={top} flam={flamTop || null} handwritten={handwritten} />
             </g>
           );
         })}
