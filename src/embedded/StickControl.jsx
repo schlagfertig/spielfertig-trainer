@@ -275,7 +275,19 @@ export default function StickControl() {
         </div>
       ))}
 
-      <div className="panel dock" style={{ position: "static", margin: "14px 0", borderRadius: 16, boxShadow: "none", padding: 12 }}>
+      <div
+        className="panel dock"
+        style={{
+          position: "fixed",
+          left: 0,
+          right: 0,
+          bottom: "var(--rud-foot)",
+          zIndex: 16,
+          margin: 0,
+          borderRadius: "16px 16px 0 0",
+          padding: 12,
+        }}
+      >
         <div style={{ display: "flex", gap: 10, alignItems: "stretch" }}>
           <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={108} now />
           <div style={{ flex: 1, border: `1px solid ${TEAL}`, borderRadius: 14, padding: "10px 12px", display: "flex", gap: 10 }}>
