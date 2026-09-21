@@ -123,7 +123,7 @@ export default function App() {
           <button className="card" onClick={() => open("stick")}>
             <div className="card-kicker">Technik</div>
             <div className="card-title">Stick Control</div>
-            <div className="card-lead">Single-Beat-Kombinationen. Kurze Challenge.</div>
+            <div className="card-lead">Nach G. L. Stone. Hände ausgleichen — Kontrolle, Tempo, Ausdauer.</div>
             <div className="card-go">Öffnen</div>
           </button>
           <button className="card" onClick={() => open("archive")}>
