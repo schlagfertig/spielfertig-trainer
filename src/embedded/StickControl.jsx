@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
-import { ClickAdvanced } from "../lib/ClickAdvanced.jsx";
 import { NavScrub } from "../lib/NavScrub.jsx";
-import { createMixClock, extrasOn, readMix, writeMix } from "../lib/clickMix.js";
 
 const DIM = "#8a969c";
 const TEAL = "#5cc8b8";
@@ -108,8 +106,6 @@ export default function StickControl() {
   const [mode, setMode] = useState("practice");
   const [barsPer, setBarsPer] = useState(4);
   const [countIn, setCountIn] = useState(true);
-  const [mix, setMix] = useState(() => readMix());
-  const [flipped, setFlipped] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [counting, setCounting] = useState(false);
   const [beat, setBeat] = useState(false);
@@ -117,9 +113,7 @@ export default function StickControl() {
   const [done, setDone] = useState("");
   const stopRef = useRef(null);
   const bpmRef = useRef(80);
-  const mixRef = useRef(mix);
   bpmRef.current = bpm;
-  mixRef.current = mix;
   const idx = Math.max(0, EXERCISES.findIndex((e) => e.id === exId));
   const ex = EXERCISES[idx] || EXERCISES[0];
   const upcoming = EXERCISES.slice(idx + 1);
@@ -140,10 +134,6 @@ export default function StickControl() {
     setBeat(false);
     setPlayT(-1);
   }
-  function flip(on) {
-    setFlipped(on);
-    writeMix({ ...mixRef.current, advanced: on || extrasOn(mixRef.current) });
-  }
 
   function start() {
     stop();
@@ -162,7 +152,6 @@ export default function StickControl() {
     let notesInBar = 0;
     const stepSec = () => 60 / Math.max(30, bpmRef.current) / 4;
     let cycleStart = ctx.currentTime + 0.03;
-    const clock = createMixClock();
     setPlaying(true);
     const pulseAt = (when) => {
       const delay = Math.max(0, (when - ctx.currentTime) * 1000);
@@ -182,7 +171,6 @@ export default function StickControl() {
       cycleStart += 4 * q;
       window.setTimeout(() => { if (!cancelled) setCounting(false); }, Math.max(0, (cycleStart - ctx.currentTime) * 1000));
     }
-    clock.reset(cycleStart);
     const finishOk = () => {
       if (cancelled) return;
       cancelled = true;
@@ -198,75 +186,41 @@ export default function StickControl() {
       if (cancelled) return;
       const now = ctx.currentTime;
       const horizon = now + 0.18;
-      const mixNow = mixRef.current;
-      if (mixNow.advanced) {
-        clock.fill(ctx, horizon, bpmRef.current, mixNow, (when) => {
-          pulseAt(when);
-          const elapsed = Math.max(0, when - cycleStart);
-          const t16 = elapsed / stepSec();
-          const local = ((t16 % CELL_STEPS) + CELL_STEPS) % CELL_STEPS;
-          window.setTimeout(() => { if (!cancelled) setPlayT(local); }, Math.max(0, (when - ctx.currentTime) * 1000));
-        }, { barSteps: 8 });
-        const barSec = 8 * stepSec();
-        const passed = Math.floor(Math.max(0, now - cycleStart) / Math.max(0.08, barSec));
-        if (isCh && passed >= per) {
+      while (!cancelled) {
+        const nt = notes[evIndex];
+        if (!nt) break;
+        const when = cycleStart + nt.t * stepSec();
+        if (when >= horizon) break;
+        if (when >= now - 0.02) {
+          if (nt.t % 4 < 0.08) {
+            playClick(ctx, when, nt.t % 16 < 0.08);
+            pulseAt(when);
+          }
+          const delay = Math.max(0, (when - now) * 1000);
+          window.setTimeout(() => { if (!cancelled) setPlayT(nt.t); }, delay);
+        }
+        evIndex += 1;
+        notesInBar += 1;
+        if (notesInBar >= NOTES_PER_BAR) { notesInBar = 0; barsInEx += 1; }
+        if (evIndex >= notes.length) { evIndex = 0; cycleStart += CELL_STEPS * stepSec(); }
+        if (isCh && barsInEx >= per) {
           const nextI = exIdx + 1;
           if (nextI >= EXERCISES.length) { finishOk(); return; }
           exIdx = nextI;
           notes = EXERCISES[exIdx].notes;
           barsInEx = 0; notesInBar = 0; evIndex = 0;
-          cycleStart = Math.max(now, cycleStart + per * barSec);
-          clock.reset(cycleStart);
           window.setTimeout(() => { if (!cancelled) setExId(EXERCISES[exIdx].id); }, 0);
           if (useCount) {
             setCounting(true);
             const q = 60 / Math.max(30, bpmRef.current);
             for (let i = 0; i < 4; i++) {
-              playClick(ctx, cycleStart + i * q, i === 0);
-              pulseAt(cycleStart + i * q);
+              playClick(ctx, when + stepSec() * 2 + i * q, i === 0);
+              pulseAt(when + stepSec() * 2 + i * q);
             }
-            cycleStart += 4 * q;
-            clock.reset(cycleStart);
+            cycleStart = when + stepSec() * 2 + 4 * q;
             window.setTimeout(() => { if (!cancelled) setCounting(false); }, Math.max(0, (cycleStart - ctx.currentTime) * 1000));
-          }
-        }
-      } else {
-        while (!cancelled) {
-          const nt = notes[evIndex];
-          if (!nt) break;
-          const when = cycleStart + nt.t * stepSec();
-          if (when >= horizon) break;
-          if (when >= now - 0.02) {
-            if (nt.t % 4 < 0.08) {
-              playClick(ctx, when, nt.t % 16 < 0.08);
-              pulseAt(when);
-            }
-            const delay = Math.max(0, (when - now) * 1000);
-            window.setTimeout(() => { if (!cancelled) setPlayT(nt.t); }, delay);
-          }
-          evIndex += 1;
-          notesInBar += 1;
-          if (notesInBar >= NOTES_PER_BAR) { notesInBar = 0; barsInEx += 1; }
-          if (evIndex >= notes.length) { evIndex = 0; cycleStart += CELL_STEPS * stepSec(); }
-          if (isCh && barsInEx >= per) {
-            const nextI = exIdx + 1;
-            if (nextI >= EXERCISES.length) { finishOk(); return; }
-            exIdx = nextI;
-            notes = EXERCISES[exIdx].notes;
-            barsInEx = 0; notesInBar = 0; evIndex = 0;
-            window.setTimeout(() => { if (!cancelled) setExId(EXERCISES[exIdx].id); }, 0);
-            if (useCount) {
-              setCounting(true);
-              const q = 60 / Math.max(30, bpmRef.current);
-              for (let i = 0; i < 4; i++) {
-                playClick(ctx, when + stepSec() * 2 + i * q, i === 0);
-                pulseAt(when + stepSec() * 2 + i * q);
-              }
-              cycleStart = when + stepSec() * 2 + 4 * q;
-              window.setTimeout(() => { if (!cancelled) setCounting(false); }, Math.max(0, (cycleStart - ctx.currentTime) * 1000));
-            } else cycleStart = when + stepSec() * 2;
-            break;
-          }
+          } else cycleStart = when + stepSec() * 2;
+          break;
         }
       }
       timer = window.setTimeout(schedule, 25);
@@ -285,6 +239,8 @@ export default function StickControl() {
           background: #161a1d;
           padding: 0 0 10px;
         }
+        .stick-wrap .rud-metro { grid-template-columns: 1fr; }
+        .stick-wrap .rud-metro .metro-face { border-radius: 16px 16px 0 0; }
         @media (orientation: landscape) {
           .stick-wrap { padding-bottom: calc(var(--rud-foot) + 148px) !important; }
           .stick-wrap .rud-metro { max-height: 26dvh; }
@@ -318,30 +274,20 @@ export default function StickControl() {
       {done ? <p style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{done}</p> : null}
       <div className="metro-shell rud-metro">
         <div className="panel dock metro-face">
-          {flipped ? (
-            <div className="metro-swap">
-              <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: TEAL, marginBottom: 10 }}>Click</div>
-              <label className="check"><input type="checkbox" checked={countIn} onChange={(e) => setCountIn(e.target.checked)} />4 Schläge einzählen</label>
-              <ClickAdvanced mix={mix} setMix={setMix} slidersOnly />
-            </div>
-          ) : (
-            <div className="metro-swap">
-              <div className="dial-row">
-                <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))}>−5</button>
-                <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={96} now />
-                <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))}>+5</button>
-              </div>
-              <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
-                <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
-                  {playing ? "Stop" : challenge ? `${ex.label}–24` : "Start"}
-                </button>
-              </div>
-            </div>
-          )}
+          <div className="dial-row">
+            <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))}>−5</button>
+            <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={96} now />
+            <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))}>+5</button>
+          </div>
+          <label className="check" style={{ justifyContent: "center", marginTop: 10 }}>
+            <input type="checkbox" checked={countIn} onChange={(e) => setCountIn(e.target.checked)} />4 Schläge einzählen
+          </label>
+          <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
+            <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
+              {playing ? "Stop" : challenge ? `${ex.label}–24` : "Start"}
+            </button>
+          </div>
         </div>
-        <button type="button" className={flipped ? "metro-side on" : "metro-side"} onClick={() => flip(!flipped)}>
-          {flipped ? "Metronom" : "Erweitert"}
-        </button>
       </div>
       <NavScrub
         items={EXERCISES.map((e) => ({ id: e.id, label: e.label, preview: e.hands.slice(0, 8) }))}
