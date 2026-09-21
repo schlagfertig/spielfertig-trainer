@@ -232,6 +232,9 @@ export default function StickControl() {
   return (
     <div className="rud-wrap stick-wrap">
       <style>{`
+        .stick-wrap {
+          --rud-foot: calc(118px + env(safe-area-inset-bottom, 0px));
+        }
         .stick-pin {
           position: sticky;
           top: 0;
@@ -241,10 +244,22 @@ export default function StickControl() {
         }
         .stick-wrap .rud-metro { grid-template-columns: 1fr; }
         .stick-wrap .rud-metro .metro-face { border-radius: 16px 16px 0 0; }
+        .stick-wrap .rud-half {
+          min-height: 108px;
+          gap: 12px;
+          padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+        }
+        .stick-wrap .rud-half-arrow {
+          font-size: 52px;
+        }
+        .stick-wrap .rud-half-name {
+          font-size: clamp(18px, 5.2vw, 24px);
+        }
         @media (orientation: landscape) {
           .stick-wrap { padding-bottom: calc(var(--rud-foot) + 148px) !important; }
           .stick-wrap .rud-metro { max-height: 26dvh; }
           .stick-wrap .rud-metro .metro-face { max-height: 26dvh; padding: 6px 10px 8px; }
+          .stick-wrap .rud-half { min-height: 88px; }
         }
       `}</style>
       <div className="stick-pin">
