@@ -12,6 +12,7 @@ const CELL_STEPS = 32;
 const INNER = 13;
 const GAP = 20;
 const LINE_L = 30;
+const Q_PER_BAR = 4;
 
 const n = (t, dur, hand, extra = {}) => ({ t, dur, hand, acc: false, ...extra });
 const run8ths = (hands) =>
@@ -113,7 +114,7 @@ export default function StickControl() {
   const [bpm, setBpm] = useState(80);
   const [mode, setMode] = useState("practice");
   const [reps, setReps] = useState(4);
-  const [countIn, setCountIn] = useState(true);
+  const [countBars, setCountBars] = useState(1);
   const [playing, setPlaying] = useState(false);
   const [counting, setCounting] = useState(false);
   const [beat, setBeat] = useState(false);
@@ -155,7 +156,8 @@ export default function StickControl() {
     const isCh = mode === "challenge";
     const per = clamp(reps, 1, 20);
     const startLabel = EXERCISES[Math.max(0, idx)].label;
-    const useCount = countIn;
+    const barsIn = clamp(countBars, 0, 2);
+    const clicks = barsIn * Q_PER_BAR;
     let exIdx = Math.max(0, idx);
     let notes = EXERCISES[exIdx].notes;
     let cancelled = false;
@@ -173,14 +175,14 @@ export default function StickControl() {
         window.setTimeout(() => setBeat(false), 80);
       }, delay);
     };
-    if (useCount) {
+    if (clicks > 0) {
       setCounting(true);
       const q = 60 / Math.max(30, bpmRef.current);
-      for (let i = 0; i < 4; i++) {
-        playClick(ctx, cycleStart + i * q, i === 0);
+      for (let i = 0; i < clicks; i++) {
+        playClick(ctx, cycleStart + i * q, i % Q_PER_BAR === 0);
         pulseAt(cycleStart + i * q);
       }
-      cycleStart += 4 * q;
+      cycleStart += clicks * q;
       window.setTimeout(() => { if (!cancelled) setCounting(false); }, Math.max(0, (cycleStart - ctx.currentTime) * 1000));
     }
     const finishOk = () => {
@@ -325,9 +327,14 @@ export default function StickControl() {
               <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={96} now />
               <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))}>+5</button>
             </div>
-            <label className="check" style={{ justifyContent: "center", marginTop: 10 }}>
-              <input type="checkbox" checked={countIn} onChange={(e) => setCountIn(e.target.checked)} />4 Schläge einzählen
-            </label>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+              <span style={{ color: DIM, fontWeight: 700, fontSize: 14 }}>Einzählen</span>
+              <div className="seg" style={{ width: "fit-content" }}>
+                <button type="button" className={countBars === 0 ? "on" : ""} onClick={() => setCountBars(0)}>Aus</button>
+                <button type="button" className={countBars === 1 ? "on" : ""} onClick={() => setCountBars(1)}>1 Takt</button>
+                <button type="button" className={countBars === 2 ? "on" : ""} onClick={() => setCountBars(2)}>2 Takte</button>
+              </div>
+            </div>
             <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
               <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
                 {playing ? "Stop" : challenge ? `${ex.label}–24` : "Start"}
