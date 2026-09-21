@@ -32,7 +32,7 @@ const COPY = {
     ["Metronom", "Drehwisch am Kreis ändert das Tempo. Innen grob, außen fein."],
     ["Nav unten", "‹ › oder wischen. Halten öffnet das Rad, Vorschau = erste 8 Achtel."],
     ["Liste", "Nach oben scrollen zeigt frühere Nummern, nach unten die nächsten. Die aktuelle bleibt oben angeheftet."],
-    ["Challenge", "Übung 1–24 mit selbst gewähltem Tempo und Wiederholungszahl (Takte) pro Übung durchspielen. Startet bei der aktuellen Nummer, endet bei 24."],
+    ["Challenge", "1–24 durchspielen. Wiederholungen = komplette Übung (beide Takte). Einzählen nur am Start, nicht zwischen den Nummern."],
   ],
   archive: [
     ["Lokal", "Dateien bleiben im Browser dieses Geräts. Kein Upload in die Cloud."],
