@@ -15,12 +15,25 @@ function isStandalone() {
   }
 }
 
+function Banner({ tone, text }) {
+  if (!text) return null;
+  const bg = tone === "err" ? "#3a1a1a" : tone === "warn" ? "#3a2e12" : "#13211f";
+  const fg = tone === "err" ? "#e05c5c" : tone === "warn" ? "#e8b84b" : "#5cc8b8";
+  return (
+    <p role="status" style={{ background: bg, color: fg, border: `1px solid ${fg}`, borderRadius: 10, padding: "10px 12px", fontSize: 15, fontWeight: 700, margin: "10px 0 0" }}>
+      {text}
+    </p>
+  );
+}
+
 export function PrintDialog({ sel, onClose }) {
   const [picked, setPicked] = useState(() => [sel]);
   const [perPage, setPerPage] = useState(6);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
+  const [tone, setTone] = useState("ok");
   const [tick, setTick] = useState(0);
+  const current = RUDIMENTS.find((r) => r.id === sel);
 
   useEffect(() => {
     const id = window.requestAnimationFrame(() => setTick((n) => n + 1));
@@ -35,17 +48,22 @@ export function PrintDialog({ sel, onClose }) {
       .filter((x) => x.svg);
   }, [picked, tick]);
 
+  function status(text, nextTone = "ok") {
+    setNote(text);
+    setTone(nextTone);
+  }
+
   async function savePng(list, reason) {
     const canvas = await tilesToPng(list, 2, perPage, SECTION);
     const result = await deliverPng(canvas, "spielfertig-rudiments.png", "save");
-    if (result) setNote(reason || "PNG gespeichert.");
-    else setNote("Speichern abgebrochen.");
+    if (result) status(reason || "PNG gespeichert — Dateien / Downloads prüfen.");
+    else status("Speichern abgebrochen.", "warn");
     return result;
   }
 
   async function doPrint(mode) {
     setBusy(true);
-    setNote(mode === "print" ? "Blatt wird erzeugt…" : "");
+    status(mode === "print" ? "Blatt wird erzeugt…" : mode === "share" ? "Teilen wird vorbereitet…" : "PNG wird erzeugt…");
     const host = document.getElementById("print-host");
     const list = host
       ? RUDIMENTS.filter((r) => picked.includes(r.id))
@@ -53,33 +71,35 @@ export function PrintDialog({ sel, onClose }) {
         .filter((x) => x.svg)
       : [];
     if (!list.length) {
-      setNote("Keine Notation zum Export.");
+      status("Keine Notation zum Export.", "err");
       setBusy(false);
       return;
     }
     try {
       if (mode === "print") {
         if (isStandalone()) {
-          await savePng(list, "Home-Bildschirm: Blatt als PNG gespeichert. Teilen geht auch.");
+          await savePng(list, "Home-Bildschirm: Systemdruck fehlt. Blatt als PNG gespeichert.");
         } else {
           const printed = printElement(sheetHtml(list, perPage, SECTION));
-          if (printed) setNote("Druckdialog geöffnet. Fertig? Oben auf Zurück.");
-          else await savePng(list, "Druck nicht möglich — Blatt als PNG gespeichert.");
+          if (printed) status("Druckdialog geöffnet. Fertig? Oben auf Zurück.");
+          else await savePng(list, "Druck blockiert oder fehlgeschlagen — PNG gespeichert.");
         }
       } else if (mode === "share") {
         const canvas = await tilesToPng(list, 2, perPage, SECTION);
         const result = await deliverPng(canvas, "spielfertig-rudiments.png", "share");
-        if (result === "share") setNote("Geteilt.");
-        else if (result === "save") setNote("Teilen nicht verfügbar — PNG gespeichert.");
-        else setNote("Abgebrochen.");
+        if (result === "share") status("Geteilt.");
+        else if (result === "save") status("Teilen nicht verfügbar — PNG gespeichert.", "warn");
+        else status("Teilen abgebrochen.", "warn");
       } else {
         await savePng(list);
       }
     } catch {
-      setNote("Konnte das Blatt nicht erzeugen. Bitte erneut versuchen.");
+      status("Konnte das Blatt nicht erzeugen. Bitte erneut versuchen.", "err");
     }
     setBusy(false);
   }
+
+  const onlyCurrent = picked.length === 1 && picked[0] === sel;
 
   return (
     <div className="modal" style={{ top: 52, zIndex: 30, alignItems: "stretch" }}>
@@ -89,7 +109,10 @@ export function PrintDialog({ sel, onClose }) {
           <button type="button" className="play" onClick={onClose} style={{ padding: "10px 16px", fontSize: 15 }}>Zurück</button>
         </div>
         <p style={{ color: DIM, fontSize: 15 }}>
-          Auswahl ändert die Vorschau live. Kopf: Logo + Bereich. Fuß: Name und Marke.
+          {onlyCurrent
+            ? `Aktuelles Blatt: ${current?.label || "Übung"}`
+            : `Auswahl: ${picked.length} Übungen`}
+          {" · "}Vorschau unten.
         </p>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", margin: "10px 0" }}>
           {[4, 6, 10, 12].map((n) => (
@@ -98,7 +121,7 @@ export function PrintDialog({ sel, onClose }) {
         </div>
         <div style={{ display: "flex", gap: 8, margin: "0 0 8px" }}>
           <button type="button" className="ghost" onClick={() => setPicked(RUDIMENTS.map((r) => r.id))}>Alle</button>
-          <button type="button" className="ghost" onClick={() => setPicked([sel])}>Nur aktuelles</button>
+          <button type="button" className={onlyCurrent ? "ghost on" : "ghost"} onClick={() => setPicked([sel])}>Nur aktuelles Blatt</button>
         </div>
         <div style={{ maxHeight: "22dvh", overflow: "auto", display: "flex", flexDirection: "column", gap: 4 }}>
           {RUDIMENTS.map((r) => (
@@ -108,7 +131,7 @@ export function PrintDialog({ sel, onClose }) {
                 checked={picked.includes(r.id)}
                 onChange={() => setPicked((p) => p.includes(r.id) ? p.filter((x) => x !== r.id) : [...p, r.id])}
               />
-              {r.label}
+              {r.label}{r.id === sel ? " · jetzt" : ""}
             </label>
           ))}
         </div>
@@ -124,11 +147,14 @@ export function PrintDialog({ sel, onClose }) {
           {!isStandalone() ? <button className="ghost" disabled={busy || !picked.length} onClick={() => doPrint("save")}>PNG</button> : null}
           <button className="ghost" onClick={onClose}>Schließen</button>
         </div>
-        {note ? <p style={{ color: "#5cc8b8", fontSize: 15, margin: "10px 0 0" }}>{note}</p> : (
+        <Banner tone={tone} text={note} />
+        {!note ? (
           <p style={{ color: DIM, fontSize: 14, margin: "10px 0 0" }}>
-            {isStandalone() ? "Vom Home-Bildschirm speichert die App ein PNG." : "Drucken öffnet den Systemdialog. Danach oben Zurück."}
+            {isStandalone()
+              ? "Vom Home-Bildschirm gibt es keinen Systemdruck. Speichern legt ein PNG ab."
+              : "Drucken öffnet den Systemdialog. Die App sagt danach Bescheid."}
           </p>
-        )}
+        ) : null}
       </div>
     </div>
   );
