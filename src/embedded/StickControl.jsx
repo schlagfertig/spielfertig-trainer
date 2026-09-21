@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { RudimentStaff } from "../lib/staff.jsx";
 import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
 
 const DIM = "#8a969c";
 const TEAL = "#5cc8b8";
-const RCOL = "#5c8ee0";
-const LCOL = "#e05c5c";
+const INK = "#f4f7f6";
+const GOLD = "#e8b84b";
 const NOTES_PER_BAR = 8;
 
 const n = (t, dur, hand, extra = {}) => ({ t, dur, hand, acc: false, ...extra });
@@ -29,18 +28,54 @@ const EXERCISES = PATTERNS.map((hands, i) => ({
   bars: 2,
   notes: run8ths(hands),
   hands,
-  sticking: [Array(16).fill("")],
 }));
 
 function clamp(v, min, max) {
   return Math.max(min, Math.min(max, Math.round(v)));
 }
 
+function noteX(i) {
+  const g = Math.floor(i / 4);
+  const local = i % 4;
+  return 18 + g * 78 + local * 14;
+}
+
+function LineStaff({ playT }) {
+  const active = playT < 0 ? -1 : Math.round(playT / 2);
+  const y = 36;
+  const top = 12;
+  const xs = Array.from({ length: 16 }, (_, i) => noteX(i));
+  const barX = (xs[7] + xs[8]) / 2;
+  return (
+    <svg viewBox="0 0 340 48" width="100%" aria-hidden="true">
+      <line x1="8" y1={y} x2="332" y2={y} stroke={INK} strokeWidth="1.3" />
+      <line x1="8" y1={y - 10} x2="8" y2={y + 10} stroke={INK} strokeWidth="1.8" />
+      <line x1="332" y1={y - 10} x2="332" y2={y + 10} stroke={INK} strokeWidth="1.8" />
+      <line x1={barX} y1={y - 11} x2={barX} y2={y + 11} stroke={INK} strokeWidth="1.4" />
+      {xs.map((x, i) => {
+        const on = i === active;
+        const c = on ? GOLD : INK;
+        return (
+          <g key={i}>
+            <ellipse cx={x} cy={y} rx="5.2" ry="3.5" fill={c} transform={`rotate(-22 ${x} ${y})`} />
+            <line x1={x + 4.4} y1={y - 1} x2={x + 4.4} y2={top} stroke={c} strokeWidth="1.2" />
+          </g>
+        );
+      })}
+      {[0, 1, 2, 3].map((g) => {
+        const a = xs[g * 4] + 4.4;
+        const b = xs[g * 4 + 3] + 4.4;
+        return <line key={g} x1={a} y1={top} x2={b} y2={top} stroke={INK} strokeWidth="3.1" />;
+      })}
+    </svg>
+  );
+}
+
 function Hands({ hands, playT }) {
   const letters = String(hands || "").split("");
   const active = playT < 0 ? -1 : Math.round(playT / 2);
   return (
-    <div style={{ display: "flex", gap: 8 }}>
+    <div style={{ display: "flex", flex: 1, gap: 8 }}>
       {[0, 1].map((bar) => (
         <div key={bar} style={{ flex: 1, display: "flex" }}>
           {letters.slice(bar * 8, bar * 8 + 8).map((ch, i) => {
@@ -52,8 +87,8 @@ function Hands({ hands, playT }) {
                 marginRight: i === 3 ? 6 : 0,
                 textAlign: "center",
                 font: "800 20px/1 Oswald, sans-serif",
-                color: on ? "#06120f" : ch === "R" ? RCOL : LCOL,
-                background: on ? "#e8b84b" : "transparent",
+                color: on ? "#06120f" : TEAL,
+                background: on ? GOLD : "transparent",
                 borderRadius: 5,
                 padding: "4px 0",
               }}>{ch}</span>
@@ -89,7 +124,6 @@ export default function StickControl() {
   const next = EXERCISES[idx + 1];
   const rest = EXERCISES.slice(idx + 2);
   const challenge = mode === "challenge";
-  const staffRud = { ...ex, sticking: [Array(16).fill("")], notes: ex.notes.map((nt) => ({ ...nt, hand: "" })) };
 
   useEffect(() => () => stopRef.current?.(), []);
 
@@ -214,10 +248,6 @@ export default function StickControl() {
 
   return (
     <div className="rud-wrap">
-      <div className="staff-card">
-        <RudimentStaff rud={staffRud} playingT={playT} svgId="stick-live" hideTime />
-      </div>
-
       <div style={{ display: "flex", gap: 8, alignItems: "center", margin: "0 0 10px", flexWrap: "wrap" }}>
         <div className="seg" style={{ width: "fit-content" }}>
           <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>Üben</button>
@@ -229,23 +259,23 @@ export default function StickControl() {
             <input type="number" min={1} max={20} value={barsPer} disabled={playing} onChange={(e) => setBarsPer(clamp(Number(e.target.value) || 1, 1, 20))} style={{ width: 52, background: "#161a1d", color: TEAL, border: "1px solid #2f383d", borderRadius: 8, padding: "6px 8px", fontWeight: 800, fontSize: 16, textAlign: "center" }} />
           </label>
         ) : null}
+        {counting ? <span style={{ color: TEAL, fontWeight: 800, letterSpacing: "0.08em" }}>COUNT-IN</span> : null}
       </div>
 
-      <div style={{ background: TEAL, color: "#06120f", borderRadius: 16, padding: "12px 14px 14px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", font: "800 12px Figtree, sans-serif", letterSpacing: "0.14em" }}>
-          <span>{counting ? "COUNT-IN" : "JETZT"}</span>
-          <span>{ex.id}/24</span>
+      <div style={{ background: "#14191c", border: `2px solid ${TEAL}`, borderRadius: 16, padding: "10px 12px 12px" }}>
+        <LineStaff playT={counting ? -1 : playT} />
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
+          <span style={{ font: "800 22px Oswald, sans-serif", color: TEAL, minWidth: 28 }}>{ex.id}.</span>
+          <Hands hands={ex.hands} playT={counting ? -1 : playT} />
         </div>
-        <div style={{ font: "700 26px/1 Oswald, sans-serif", margin: "4px 0 10px" }}>{ex.label}</div>
-        <Hands hands={ex.hands} playT={counting ? -1 : playT} />
       </div>
 
       {next ? (
         <button type="button" onClick={() => pick(next.id)} disabled={playing} style={{ width: "100%", marginTop: 8, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: "10px 12px", color: "inherit", textAlign: "left" }}>
           <div style={{ color: TEAL, font: "800 11px Figtree, sans-serif", letterSpacing: "0.12em" }}>ALS NÄCHSTES</div>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "baseline", marginTop: 2 }}>
-            <strong style={{ font: "700 18px Oswald, sans-serif" }}>{next.label}</strong>
-            <span style={{ color: DIM, font: "800 13px Oswald, sans-serif", letterSpacing: "0.04em" }}>{shortHands(next.hands)}</span>
+            <strong style={{ font: "700 18px Oswald, sans-serif", color: TEAL }}>{next.id}.</strong>
+            <span style={{ color: TEAL, font: "800 13px Oswald, sans-serif", letterSpacing: "0.04em" }}>{shortHands(next.hands)}</span>
           </div>
         </button>
       ) : null}
