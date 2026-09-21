@@ -6,7 +6,7 @@ function chunk(arr, size) {
   return out;
 }
 
-function today() {
+export function todayDe() {
   try {
     return new Date().toLocaleDateString("de-DE");
   } catch {
@@ -72,16 +72,14 @@ export function printStyles(cols) {
       display: flex; justify-content: space-between; gap: 12px;
       font-size: 10px; letter-spacing: 0.04em; color: #5a666c;
     }
-    @media print {
-      .bar { display: none !important; }
-    }
+    @media print { .bar { display: none !important; } }
   `;
 }
 
 export function sheetHtml(tiles, perPage = 6, section = "Rudiments") {
   const cols = perPage <= 4 ? 1 : 2;
   const pages = chunk(tiles, perPage);
-  const date = today();
+  const date = todayDe();
   const foot = brandLine();
   const body = pages.map((page, i) =>
     `<section class="sheet">
@@ -105,35 +103,6 @@ export function sheetHtml(tiles, perPage = 6, section = "Rudiments") {
       <span>Druckvorschau</span>
     </div>
     ${body}</body></html>`;
-}
-
-export function PrintPreview({ tiles = [], perPage = 6, section = "Rudiments" }) {
-  const cols = perPage <= 4 ? 1 : 2;
-  const pages = Math.max(1, Math.ceil((tiles.length || 1) / perPage));
-  const first = tiles.slice(0, perPage);
-  return (
-    <div className="sheet-prev">
-      <div className="sheet-prev-head">
-        <img src={BRAND.logo} alt="" />
-        <div>
-          <div className="sheet-prev-sec">{section}</div>
-          <div className="sheet-prev-sub">{BRAND.product} · {today()}</div>
-        </div>
-      </div>
-      <div className="sheet-prev-grid" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
-        {first.length ? first.map(({ r, svg }) => (
-          <article key={r.id} className="sheet-prev-tile">
-            <h3>{r.label}</h3>
-            <div className="sheet-prev-svg" dangerouslySetInnerHTML={{ __html: svg?.outerHTML || "" }} />
-          </article>
-        )) : <div className="sheet-prev-empty">Übungen anhaken — die Seite baut sich hier auf.</div>}
-      </div>
-      <div className="sheet-prev-foot">
-        <span>{brandLine()}</span>
-        <span>1 / {pages}{tiles.length ? ` · ${tiles.length}` : ""}</span>
-      </div>
-    </div>
-  );
 }
 
 export function printElement(html) {
@@ -247,7 +216,7 @@ export async function tilesToPng(tiles, scale = 2, perPage = 6, section = "Rudim
     ctx.fillText(section, pageW - pad - 16, top + 42);
     ctx.fillStyle = "#8a969c";
     ctx.font = "600 13px Figtree, sans-serif";
-    ctx.fillText(`${BRAND.product} · ${today()}`, pageW - pad - 16, top + 60);
+    ctx.fillText(`${BRAND.product} · ${todayDe()}`, pageW - pad - 16, top + 60);
     ctx.textAlign = "left";
     const rows = Math.ceil(page.length / cols) || 1;
     const areaTop = top + headH;
