@@ -4,6 +4,7 @@ const TEAL = "#5cc8b8";
 const INK = "#161a1d";
 const TEAL_GLOW = "rgba(92,200,184,0.45)";
 const RAD_PER_BPM = (10 * Math.PI) / 180;
+const MINUS = "-";
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, Math.round(n)));
@@ -54,11 +55,11 @@ function WheelHints() {
       <path d={arc(cx, cy, r, 218, 196, 0)} fill="none" stroke={TEAL} strokeWidth="1.5" strokeLinecap="round" />
       <path d={arc(cx, cy, r, 170, 148, 0)} fill="none" stroke={TEAL} strokeWidth="1.5" strokeLinecap="round" />
       <polygon points={tip(cx, cy, r, 148, -1)} fill={TEAL} />
-      <text x={lmX} y={lmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="8" fontWeight="800">\u2212</text>
+      <text x={lmX} y={lmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="9" fontWeight="800">{MINUS}</text>
       <path d={arc(cx, cy, r, 322, 344, 1)} fill="none" stroke={TEAL} strokeWidth="1.5" strokeLinecap="round" />
       <path d={arc(cx, cy, r, 10, 32, 1)} fill="none" stroke={TEAL} strokeWidth="1.5" strokeLinecap="round" />
       <polygon points={tip(cx, cy, r, 32, 1)} fill={TEAL} />
-      <text x={rmX} y={rmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="8" fontWeight="800">+</text>
+      <text x={rmX} y={rmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="9" fontWeight="800">+</text>
     </svg>
   );
 }
@@ -134,7 +135,7 @@ export function MetronomeDial({
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
-          title={"Tipp = Start/Stop. Halten und drehen aendert das Tempo."}
+          title="Tipp = Start/Stop. Halten und drehen aendert das Tempo."
           aria-label={active ? "Metronom stoppen. Halten und drehen aendert das Tempo." : "Metronom starten. Halten und drehen aendert das Tempo."}
           style={{
             position: "absolute",
