@@ -117,7 +117,7 @@ export default function App() {
           <button className="card" onClick={() => open("pyramid")}>
             <div className="card-kicker">Subdivision</div>
             <div className="card-title">Rhythmuspyramide</div>
-            <div className="card-lead">4tel bis 32tel auf und ab.</div>
+            <div className="card-lead">4tel bis 32tel: Puls festigen, sauber zwischen Unterteilungen wechseln, Tempo trotz Dichte halten.</div>
             <div className="card-go">Öffnen</div>
           </button>
           <button className="card" onClick={() => open("stick")}>
