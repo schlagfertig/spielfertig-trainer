@@ -54,7 +54,7 @@ function WheelHints() {
       <path d={arc(cx, cy, r, 218, 196, 0)} fill="none" stroke={TEAL} strokeWidth="1.5" strokeLinecap="round" />
       <path d={arc(cx, cy, r, 170, 148, 0)} fill="none" stroke={TEAL} strokeWidth="1.5" strokeLinecap="round" />
       <polygon points={tip(cx, cy, r, 148, -1)} fill={TEAL} />
-      <text x={lmX} y={lmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="8" fontWeight="800">−</text>
+      <text x={lmX} y={lmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="8" fontWeight="800">\u2212</text>
       <path d={arc(cx, cy, r, 322, 344, 1)} fill="none" stroke={TEAL} strokeWidth="1.5" strokeLinecap="round" />
       <path d={arc(cx, cy, r, 10, 32, 1)} fill="none" stroke={TEAL} strokeWidth="1.5" strokeLinecap="round" />
       <polygon points={tip(cx, cy, r, 32, 1)} fill={TEAL} />
@@ -134,8 +134,8 @@ export function MetronomeDial({
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
-          title={"Tipp = Start/Stop. Halten und drehen ändert das Tempo."}
-          aria-label={active ? "Metronom stoppen. Halten und drehen ändert das Tempo." : "Metronom starten. Halten und drehen ändert das Tempo."}
+          title={"Tipp = Start/Stop. Halten und drehen aendert das Tempo."}
+          aria-label={active ? "Metronom stoppen. Halten und drehen aendert das Tempo." : "Metronom starten. Halten und drehen aendert das Tempo."}
           style={{
             position: "absolute",
             left: pad,
@@ -184,7 +184,11 @@ export function MetronomeDial({
           </div>
         </button>
       </div>
-      {setBpm ? <div className="dial-hint">Halten und drehen ändert das Tempo</div> : null}
+      {setBpm ? (
+        <div style={{ marginTop: 2, maxWidth: 148, textAlign: "center", font: "600 11px/1.25 Figtree, sans-serif", color: "#8a969c" }}>
+          Halten und drehen aendert das Tempo
+        </div>
+      ) : null}
     </div>
   );
 }
