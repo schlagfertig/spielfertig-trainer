@@ -19,13 +19,32 @@ const n = (t, dur, hand, extra = {}) => ({ t, dur, hand, acc: false, ...extra })
 const run8ths = (hands) =>
   hands.split("").map((h, i) => n(i * 2, 2, h, { g: Math.floor(i / 4) + 1 }));
 
+// Stone, Single Beat Combinations (p.5), two bars of 8ths.
 const PATTERNS = [
-  "RLRLRLRLRLRLRLRL", "LRLRLRLRLRLRLRLR", "RRLLRRLLRRLLRRLL", "LLRRLLRRLLRRLLRR",
-  "RLRRLRLLRLRRLRLL", "RLLRLRRLRLLRLRRL", "RRLRLLRLRRLRLLRL", "RLRLLRLRRLRLLRLR",
-  "RRRLRRRLRRRLRRRL", "LLLRLLLRLLLRLLLR", "RLLLRLLLRLLLRLLL", "LRRRLRRRLRRRLRRR",
-  "RRRRLLLLRRRRLLLL", "RLRLRRLLRLRLRRLL", "LRLRLLRRLRLRLLRR", "RLRLRRLRLRLRLRLL",
-  "RLRLRLLRLRLRLRRL", "RLRLRRLRLRLRLLRL", "RLRLRRRLRLRLRRRL", "LRLRLLLRLRLRLLLR",
-  "RLRLRLLLRLRLRLLL", "LRLRLRRRLRLRLRRR", "RLRLRRRRLRLRLLLL", "RRLLRLRRLLRRLRLL",
+  "RLRLRLRLRLRLRLRL", // 1
+  "LRLRLRLRLRLRLRLR", // 2
+  "RRLLRRLLRRLLRRLL", // 3
+  "LLRRLLRRLLRRLLRR", // 4
+  "RLRRLRLLRLRRLRLL", // 5
+  "RLLRLRRLRLLRLRRL", // 6
+  "RRLRLLRLRRLRLLRL", // 7
+  "RLRLLRLRRLRLLRLR", // 8
+  "RRRLRRRLRRRLRRRL", // 9
+  "LLLRLLLRLLLRLLLR", // 10
+  "RLLLRLLLRLLLRLLL", // 11
+  "LRRRLRRRLRRRLRRR", // 12
+  "RRRRLLLLRRRRLLLL", // 13
+  "RLRLRRLLRLRLRRLL", // 14
+  "LRLRLLRRLRLRLLRR", // 15
+  "RLRLRLRRLRLRLRLL", // 16 RLRL RLRR LRLR LRLL
+  "RLRLRLLRLRLRLRRL", // 17
+  "RLRLRRLRLRLRLLRL", // 18
+  "RLRLRRRLRLRLRRRL", // 19
+  "LRLRLLLRLRLRLLLR", // 20
+  "RLRLRLLLRLRLRLLL", // 21
+  "LRLRLRRRLRLRLRRR", // 22
+  "RLRLRRRRLRLRLLLL", // 23
+  "RRLLRLRRLLRRLRLL", // 24
 ];
 
 const EXERCISES = PATTERNS.map((hands, i) => ({
@@ -43,6 +62,10 @@ function noteX(i) {
   const g = Math.floor(i / 4);
   const k = i % 4;
   return LINE_L + GAP + g * (INNER * 3 + GAP) + k * INNER;
+}
+
+function phraseWidth() {
+  return noteX(15) + GAP + 8;
 }
 
 function Phrase({ id, hands, playT }) {
@@ -83,9 +106,18 @@ function Phrase({ id, hands, playT }) {
   );
 }
 
-function shortHands(hands) {
-  const s = String(hands || "");
-  return `${s.slice(0, 8)} · ${s.slice(8)}`;
+function StickRow({ id, hands }) {
+  const letters = String(hands || "").split("");
+  const xs = Array.from({ length: 16 }, (_, i) => noteX(i));
+  const w = phraseWidth();
+  return (
+    <svg viewBox={`0 0 ${w} 22`} width="100%" aria-hidden="true">
+      <text x="6" y="16" fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="13">{id}.</text>
+      {letters.map((ch, i) => (
+        <text key={i} x={xs[i]} y="16" textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="13" fill={TEAL}>{ch}</text>
+      ))}
+    </svg>
+  );
 }
 
 export default function StickControl() {
@@ -320,12 +352,9 @@ export default function StickControl() {
       </div>
 
       {upcoming.map((row, i) => (
-        <button key={row.id} type="button" onClick={() => pick(row.id)} disabled={playing} style={{ width: "100%", marginTop: i === 0 ? 8 : 4, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: "10px 12px", color: "inherit", textAlign: "left", opacity: i === 0 ? 1 : 0.55 }}>
-          {i === 0 ? <div style={{ color: TEAL, font: "800 11px Figtree, sans-serif", letterSpacing: "0.12em" }}>ALS NÄCHSTES</div> : null}
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "baseline", marginTop: 2 }}>
-            <strong style={{ font: "700 18px Oswald, sans-serif", color: TEAL }}>{row.id}.</strong>
-            <span style={{ color: TEAL, font: "800 13px Oswald, sans-serif", letterSpacing: "0.04em" }}>{shortHands(row.hands)}</span>
-          </div>
+        <button key={row.id} type="button" onClick={() => pick(row.id)} disabled={playing} style={{ width: "100%", marginTop: i === 0 ? 8 : 4, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: i === 0 ? "8px 8px 6px" : "6px 8px", color: "inherit", textAlign: "left", opacity: i === 0 ? 1 : 0.7 }}>
+          {i === 0 ? <div style={{ color: TEAL, font: "800 11px Figtree, sans-serif", letterSpacing: "0.12em", padding: "0 4px 4px" }}>ALS NÄCHSTES</div> : null}
+          <StickRow id={row.id} hands={row.hands} />
         </button>
       ))}
 
