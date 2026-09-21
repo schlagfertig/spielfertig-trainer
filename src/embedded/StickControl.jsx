@@ -8,6 +8,9 @@ const INK = "#f4f7f6";
 const LINE = "#3a444c";
 const GOLD = "#e8b84b";
 const NOTES_PER_BAR = 8;
+const INNER = 13;
+const GAP = 20;
+const LINE_L = 30;
 
 const n = (t, dur, hand, extra = {}) => ({ t, dur, hand, acc: false, ...extra });
 const run8ths = (hands) =>
@@ -38,52 +41,43 @@ function clamp(v, min, max) {
 function noteX(i) {
   const g = Math.floor(i / 4);
   const k = i % 4;
-  const inner = 15;
-  const groupGap = 30;
-  const barExtra = 22;
-  const x0 = 34;
-  let x = x0;
-  for (let gi = 0; gi < g; gi++) x += inner * 3 + groupGap + (gi === 1 ? barExtra : 0);
-  return x + k * inner;
+  return LINE_L + GAP + g * (INNER * 3 + GAP) + k * INNER;
 }
 
 function Phrase({ id, hands, playT }) {
   const letters = String(hands || "").split("");
   const active = playT < 0 ? -1 : Math.round(playT / 2);
-  const y = 34;
-  const top = 11;
-  const hy = 62;
+  const y = 32;
+  const top = 12;
+  const hy = 58;
   const xs = Array.from({ length: 16 }, (_, i) => noteX(i));
+  const start = LINE_L;
+  const end = xs[15] + GAP;
   const barX = (xs[7] + xs[8]) / 2;
-  const end = xs[15] + 14;
+  const stem = 3.6;
   return (
-    <svg viewBox={`0 0 ${end + 10} 74`} width="100%" role="img" aria-label={`Nummer ${id}`}>
-      <line x1="16" y1={y} x2={end} y2={y} stroke={LINE} strokeWidth="1.7" />
-      <line x1="16" y1={y - 11} x2="16" y2={y + 11} stroke={LINE} strokeWidth="2.1" />
-      <line x1={end} y1={y - 11} x2={end} y2={y + 11} stroke={LINE} strokeWidth="2.1" />
-      <line x1={barX} y1={y - 12} x2={barX} y2={y + 12} stroke={LINE} strokeWidth="1.6" />
+    <svg viewBox={`0 0 ${end + 8} 68`} width="100%" role="img" aria-label={`Nummer ${id}`}>
+      <line x1={start} y1={y} x2={end} y2={y} stroke={LINE} strokeWidth="1.35" />
+      <line x1={start} y1={y - 9} x2={start} y2={y + 9} stroke={LINE} strokeWidth="1.5" />
+      <line x1={end} y1={y - 9} x2={end} y2={y + 9} stroke={LINE} strokeWidth="1.5" />
+      <line x1={barX} y1={y - 9} x2={barX} y2={y + 9} stroke={LINE} strokeWidth="1.15" />
       {xs.map((x, i) => {
         const on = i === active;
         const c = on ? GOLD : INK;
         return (
           <g key={i}>
-            <ellipse cx={x} cy={y} rx="5.1" ry="3.45" fill={c} transform={`rotate(-22 ${x} ${y})`} />
-            <line x1={x + 4.3} y1={y - 1.2} x2={x + 4.3} y2={top} stroke={c} strokeWidth="1.25" />
+            <ellipse cx={x} cy={y} rx="4.35" ry="2.95" fill={c} transform={`rotate(-18 ${x} ${y})`} />
+            <line x1={x + stem} y1={y - 1} x2={x + stem} y2={top} stroke={c} strokeWidth="0.85" />
           </g>
         );
       })}
       {[0, 1, 2, 3].map((g) => (
-        <line key={g} x1={xs[g * 4] + 4.3} y1={top} x2={xs[g * 4 + 3] + 4.3} y2={top} stroke={INK} strokeWidth="3.2" />
+        <line key={g} x1={xs[g * 4] + stem} y1={top} x2={xs[g * 4 + 3] + stem} y2={top} stroke={INK} strokeWidth="2.7" strokeLinecap="butt" />
       ))}
-      <text x="16" y={hy} fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="800" fontSize="16" textAnchor="start">{id}.</text>
-      {letters.map((ch, i) => {
-        const on = i === active;
-        return (
-          <text key={i} x={xs[i]} y={hy} textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="800" fontSize="15" fill={on ? GOLD : TEAL}>
-            {ch}
-          </text>
-        );
-      })}
+      <text x="6" y={hy} fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="13">{id}.</text>
+      {letters.map((ch, i) => (
+        <text key={i} x={xs[i]} y={hy} textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="13" fill={i === active ? GOLD : TEAL}>{ch}</text>
+      ))}
     </svg>
   );
 }
@@ -250,7 +244,7 @@ export default function StickControl() {
         {counting ? <span style={{ color: TEAL, fontWeight: 800, letterSpacing: "0.08em" }}>COUNT-IN</span> : null}
       </div>
 
-      <div style={{ background: "#14191c", border: `2px solid ${TEAL}`, borderRadius: 16, padding: "8px 8px 4px" }}>
+      <div style={{ background: "#14191c", border: `1.5px solid ${TEAL}`, borderRadius: 16, padding: "10px 10px 6px" }}>
         <Phrase id={ex.id} hands={ex.hands} playT={counting ? -1 : playT} />
       </div>
 
