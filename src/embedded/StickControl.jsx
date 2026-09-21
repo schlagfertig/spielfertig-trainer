@@ -290,26 +290,58 @@ export default function StickControl() {
         .stick-wrap .rud-half-name { font-size: clamp(18px, 5.2vw, 24px); }
         .stick-flash, .stick-click-mini { display: none; }
         @media (orientation: landscape) {
-          .stick-wrap { --rud-foot: calc(56px + env(safe-area-inset-bottom, 0px)); padding-bottom: calc(var(--rud-foot) + 8px) !important; }
+          .stick-wrap {
+            --rud-foot: calc(46px + env(safe-area-inset-bottom, 0px));
+            padding-bottom: var(--rud-foot) !important;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+          }
+          .stick-list, .stick-done { display: none !important; }
           .stick-dock .metro-shell { display: none !important; }
           .stick-dock { border-radius: 0; box-shadow: none; }
-          .stick-wrap .rud-half { min-height: 56px; padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px)); }
+          .stick-pin {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 0 0 4px;
+          }
+          .stick-tools {
+            flex: 0 0 auto;
+            margin: 0 0 6px !important;
+          }
+          .stick-card {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            padding: 6px 10px 4px !important;
+          }
+          .stick-card svg {
+            width: 100%;
+            height: auto;
+            max-height: calc(100dvh - 128px);
+          }
+          .stick-wrap .rud-half {
+            min-height: 44px;
+            padding: 4px 12px calc(4px + env(safe-area-inset-bottom, 0px));
+          }
+          .stick-wrap .rud-half-name { font-size: 15px; }
           .stick-click-mini {
             display: flex;
             align-items: center;
             justify-content: center;
-            position: fixed;
-            right: 12px;
-            bottom: calc(var(--rud-foot) + 10px);
-            z-index: 22;
-            min-width: 72px;
-            height: 40px;
-            padding: 0 14px;
+            margin-left: auto;
+            min-width: 68px;
+            height: 34px;
+            padding: 0 12px;
             border-radius: 999px;
             border: 2px solid ${playing ? "#e05c5c" : TEAL};
             background: ${playing ? "#3a1a1a" : "#13211f"};
             color: ${playing ? "#e05c5c" : TEAL};
-            font: 800 13px/1 Figtree, sans-serif;
+            font: 800 12px/1 Figtree, sans-serif;
             letter-spacing: 0.08em;
             text-transform: uppercase;
           }
@@ -319,39 +351,43 @@ export default function StickControl() {
             position: fixed;
             inset: 0;
             z-index: 28;
-            box-shadow: inset 0 0 0 7px ${TEAL}, inset 0 0 28px 4px rgba(92,200,184,.35);
+            box-shadow: inset 0 0 0 6px ${TEAL}, inset 0 0 22px 3px rgba(92,200,184,.3);
           }
         }
       `}</style>
       {beat ? <div className="stick-flash" aria-hidden="true" /> : null}
-      <button type="button" className="stick-click-mini" onClick={() => (playing ? stop() : start())}>
-        {playing ? "Stop" : "Click"}
-      </button>
-      {previous.map((row, i) => (
-        <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === previous.length - 1} label={i === previous.length - 1 ? "DAVOR" : ""} />
-      ))}
+      <div className="stick-list">
+        {previous.map((row, i) => (
+          <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === previous.length - 1} label={i === previous.length - 1 ? "DAVOR" : ""} />
+        ))}
+      </div>
       <div className="stick-pin" ref={pinRef}>
-        <div style={{ display: "flex", gap: 8, alignItems: "center", margin: "0 0 10px", flexWrap: "wrap" }}>
+        <div className="stick-tools" style={{ display: "flex", gap: 8, alignItems: "center", margin: "0 0 10px", flexWrap: "wrap" }}>
           <div className="seg" style={{ width: "fit-content" }}>
             <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>Üben</button>
             <button type="button" className={mode === "challenge" ? "on" : ""} onClick={() => !playing && setMode("challenge")}>Challenge</button>
           </div>
           {challenge ? (
-            <label style={{ display: "flex", alignItems: "center", gap: 6, color: DIM, fontWeight: 700, marginLeft: "auto" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: 6, color: DIM, fontWeight: 700 }}>
               Wiederholungen
               <input type="number" min={1} max={20} value={reps} disabled={playing} onChange={(e) => setReps(clamp(Number(e.target.value) || 1, 1, 20))} style={{ width: 52, background: "#161a1d", color: TEAL, border: "1px solid #2f383d", borderRadius: 8, padding: "6px 8px", fontWeight: 800, fontSize: 16, textAlign: "center" }} />
             </label>
           ) : null}
           {counting ? <span style={{ color: TEAL, fontWeight: 800, letterSpacing: "0.08em" }}>COUNT-IN</span> : null}
+          <button type="button" className="stick-click-mini" onClick={() => (playing ? stop() : start())}>
+            {playing ? "Stop" : "Click"}
+          </button>
         </div>
-        <div style={{ background: "#14191c", border: `1.5px solid ${TEAL}`, borderRadius: 16, padding: "12px 8px 8px" }}>
+        <div className="stick-card" style={{ background: "#14191c", border: `1.5px solid ${TEAL}`, borderRadius: 16, padding: "12px 8px 8px" }}>
           <Phrase id={ex.id} hands={ex.hands} playT={counting ? -1 : playT} />
         </div>
       </div>
-      {upcoming.map((row, i) => (
-        <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === 0} label={i === 0 ? "ALS NÄCHSTES" : ""} />
-      ))}
-      {done ? <p style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{done}</p> : null}
+      <div className="stick-list">
+        {upcoming.map((row, i) => (
+          <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === 0} label={i === 0 ? "ALS NÄCHSTES" : ""} />
+        ))}
+      </div>
+      {done ? <p className="stick-done" style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{done}</p> : null}
       <div className="stick-dock">
         <div className="metro-shell rud-metro">
           <div className="panel dock metro-face">
