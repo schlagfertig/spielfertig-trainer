@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
 import { ClickAdvanced } from "../lib/ClickAdvanced.jsx";
+import { NavScrub } from "../lib/NavScrub.jsx";
 import { createMixClock, extrasOn, readMix, writeMix } from "../lib/clickMix.js";
 
 const DIM = "#8a969c";
@@ -19,32 +20,13 @@ const n = (t, dur, hand, extra = {}) => ({ t, dur, hand, acc: false, ...extra })
 const run8ths = (hands) =>
   hands.split("").map((h, i) => n(i * 2, 2, h, { g: Math.floor(i / 4) + 1 }));
 
-// Stone, Single Beat Combinations (p.5), two bars of 8ths.
 const PATTERNS = [
-  "RLRLRLRLRLRLRLRL", // 1
-  "LRLRLRLRLRLRLRLR", // 2
-  "RRLLRRLLRRLLRRLL", // 3
-  "LLRRLLRRLLRRLLRR", // 4
-  "RLRRLRLLRLRRLRLL", // 5
-  "RLLRLRRLRLLRLRRL", // 6
-  "RRLRLLRLRRLRLLRL", // 7
-  "RLRLLRLRRLRLLRLR", // 8
-  "RRRLRRRLRRRLRRRL", // 9
-  "LLLRLLLRLLLRLLLR", // 10
-  "RLLLRLLLRLLLRLLL", // 11
-  "LRRRLRRRLRRRLRRR", // 12
-  "RRRRLLLLRRRRLLLL", // 13
-  "RLRLRRLLRLRLRRLL", // 14
-  "LRLRLLRRLRLRLLRR", // 15
-  "RLRLRLRRLRLRLRLL", // 16 RLRL RLRR LRLR LRLL
-  "RLRLRLLRLRLRLRRL", // 17
-  "RLRLRRLRLRLRLLRL", // 18
-  "RLRLRRRLRLRLRRRL", // 19
-  "LRLRLLLRLRLRLLLR", // 20
-  "RLRLRLLLRLRLRLLL", // 21
-  "LRLRLRRRLRLRLRRR", // 22
-  "RLRLRRRRLRLRLLLL", // 23
-  "RRLLRLRRLLRRLRLL", // 24
+  "RLRLRLRLRLRLRLRL", "LRLRLRLRLRLRLRLR", "RRLLRRLLRRLLRRLL", "LLRRLLRRLLRRLLRR",
+  "RLRRLRLLRLRRLRLL", "RLLRLRRLRLLRLRRL", "RRLRLLRLRRLRLLRL", "RLRLLRLRRLRLLRLR",
+  "RRRLRRRLRRRLRRRL", "LLLRLLLRLLLRLLLR", "RLLLRLLLRLLLRLLL", "LRRRLRRRLRRRLRRR",
+  "RRRRLLLLRRRRLLLL", "RLRLRRLLRLRLRRLL", "LRLRLLRRLRLRLLRR", "RLRLRLRRLRLRLRLL",
+  "RLRLRLLRLRLRLRRL", "RLRLRRLRLRLRLLRL", "RLRLRRRLRLRLRRRL", "LRLRLLLRLRLRLLLR",
+  "RLRLRLLLRLRLRLLL", "LRLRLRRRLRLRLRRR", "RLRLRRRRLRLRLLLL", "RRLLRLRRLLRRLRLL",
 ];
 
 const EXERCISES = PATTERNS.map((hands, i) => ({
@@ -140,8 +122,6 @@ export default function StickControl() {
   mixRef.current = mix;
   const idx = Math.max(0, EXERCISES.findIndex((e) => e.id === exId));
   const ex = EXERCISES[idx] || EXERCISES[0];
-  const prev = EXERCISES[idx - 1];
-  const next = EXERCISES[idx + 1];
   const upcoming = EXERCISES.slice(idx + 1);
   const challenge = mode === "challenge";
 
@@ -151,10 +131,6 @@ export default function StickControl() {
     if (playing) return;
     setExId(id);
     setDone("");
-  }
-  function step(dir) {
-    const n0 = EXERCISES[idx + dir];
-    if (n0) pick(n0.id);
   }
   function stop() {
     stopRef.current?.();
@@ -188,7 +164,6 @@ export default function StickControl() {
     let cycleStart = ctx.currentTime + 0.03;
     const clock = createMixClock();
     setPlaying(true);
-
     const pulseAt = (when) => {
       const delay = Math.max(0, (when - ctx.currentTime) * 1000);
       window.setTimeout(() => {
@@ -197,7 +172,6 @@ export default function StickControl() {
         window.setTimeout(() => setBeat(false), 80);
       }, delay);
     };
-
     if (useCount) {
       setCounting(true);
       const q = 60 / Math.max(30, bpmRef.current);
@@ -209,7 +183,6 @@ export default function StickControl() {
       window.setTimeout(() => { if (!cancelled) setCounting(false); }, Math.max(0, (cycleStart - ctx.currentTime) * 1000));
     }
     clock.reset(cycleStart);
-
     const finishOk = () => {
       if (cancelled) return;
       cancelled = true;
@@ -221,7 +194,6 @@ export default function StickControl() {
       setPlayT(-1);
       setDone(isCh ? `Bis Nr. 24 gehalten (ab ${startLabel}).` : "");
     };
-
     const schedule = () => {
       if (cancelled) return;
       const now = ctx.currentTime;
@@ -239,15 +211,10 @@ export default function StickControl() {
         const passed = Math.floor(Math.max(0, now - cycleStart) / Math.max(0.08, barSec));
         if (isCh && passed >= per) {
           const nextI = exIdx + 1;
-          if (nextI >= EXERCISES.length) {
-            finishOk();
-            return;
-          }
+          if (nextI >= EXERCISES.length) { finishOk(); return; }
           exIdx = nextI;
           notes = EXERCISES[exIdx].notes;
-          barsInEx = 0;
-          notesInBar = 0;
-          evIndex = 0;
+          barsInEx = 0; notesInBar = 0; evIndex = 0;
           cycleStart = Math.max(now, cycleStart + per * barSec);
           clock.reset(cycleStart);
           window.setTimeout(() => { if (!cancelled) setExId(EXERCISES[exIdx].id); }, 0);
@@ -279,25 +246,14 @@ export default function StickControl() {
           }
           evIndex += 1;
           notesInBar += 1;
-          if (notesInBar >= NOTES_PER_BAR) {
-            notesInBar = 0;
-            barsInEx += 1;
-          }
-          if (evIndex >= notes.length) {
-            evIndex = 0;
-            cycleStart += CELL_STEPS * stepSec();
-          }
+          if (notesInBar >= NOTES_PER_BAR) { notesInBar = 0; barsInEx += 1; }
+          if (evIndex >= notes.length) { evIndex = 0; cycleStart += CELL_STEPS * stepSec(); }
           if (isCh && barsInEx >= per) {
             const nextI = exIdx + 1;
-            if (nextI >= EXERCISES.length) {
-              finishOk();
-              return;
-            }
+            if (nextI >= EXERCISES.length) { finishOk(); return; }
             exIdx = nextI;
             notes = EXERCISES[exIdx].notes;
-            barsInEx = 0;
-            notesInBar = 0;
-            evIndex = 0;
+            barsInEx = 0; notesInBar = 0; evIndex = 0;
             window.setTimeout(() => { if (!cancelled) setExId(EXERCISES[exIdx].id); }, 0);
             if (useCount) {
               setCounting(true);
@@ -308,9 +264,7 @@ export default function StickControl() {
               }
               cycleStart = when + stepSec() * 2 + 4 * q;
               window.setTimeout(() => { if (!cancelled) setCounting(false); }, Math.max(0, (cycleStart - ctx.currentTime) * 1000));
-            } else {
-              cycleStart = when + stepSec() * 2;
-            }
+            } else cycleStart = when + stepSec() * 2;
             break;
           }
         }
@@ -318,21 +272,16 @@ export default function StickControl() {
       timer = window.setTimeout(schedule, 25);
     };
     schedule();
-    stopRef.current = () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
+    stopRef.current = () => { cancelled = true; window.clearTimeout(timer); };
   }
 
   return (
     <div className="rud-wrap stick-wrap">
-      <style>{`
-        @media (orientation: landscape) {
-          .stick-wrap { padding-bottom: calc(var(--rud-foot) + 148px) !important; }
-          .stick-wrap .rud-metro { max-height: 26dvh; }
-          .stick-wrap .rud-metro .metro-face { max-height: 26dvh; padding: 6px 10px 8px; }
-        }
-      `}</style>
+      <style>{`@media (orientation: landscape) {
+        .stick-wrap { padding-bottom: calc(var(--rud-foot) + 148px) !important; }
+        .stick-wrap .rud-metro { max-height: 26dvh; }
+        .stick-wrap .rud-metro .metro-face { max-height: 26dvh; padding: 6px 10px 8px; }
+      }`}</style>
       <div style={{ display: "flex", gap: 8, alignItems: "center", margin: "0 0 10px", flexWrap: "wrap" }}>
         <div className="seg" style={{ width: "fit-content" }}>
           <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>Üben</button>
@@ -346,20 +295,16 @@ export default function StickControl() {
         ) : null}
         {counting ? <span style={{ color: TEAL, fontWeight: 800, letterSpacing: "0.08em" }}>COUNT-IN</span> : null}
       </div>
-
       <div style={{ background: "#14191c", border: `1.5px solid ${TEAL}`, borderRadius: 16, padding: "10px 10px 6px" }}>
         <Phrase id={ex.id} hands={ex.hands} playT={counting ? -1 : playT} />
       </div>
-
       {upcoming.map((row, i) => (
         <button key={row.id} type="button" onClick={() => pick(row.id)} disabled={playing} style={{ width: "100%", marginTop: i === 0 ? 8 : 4, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: i === 0 ? "8px 8px 6px" : "6px 8px", color: "inherit", textAlign: "left", opacity: i === 0 ? 1 : 0.7 }}>
           {i === 0 ? <div style={{ color: TEAL, font: "800 11px Figtree, sans-serif", letterSpacing: "0.12em", padding: "0 4px 4px" }}>ALS NÄCHSTES</div> : null}
           <StickRow id={row.id} hands={row.hands} />
         </button>
       ))}
-
       {done ? <p style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{done}</p> : null}
-
       <div className="metro-shell rud-metro">
         <div className="panel dock metro-face">
           {flipped ? (
@@ -387,17 +332,12 @@ export default function StickControl() {
           {flipped ? "Metronom" : "Erweitert"}
         </button>
       </div>
-
-      <div className="rud-nav">
-        <button type="button" className="rud-half prev" disabled={!prev || playing} onClick={() => step(-1)} style={{ minHeight: 88 }}>
-          <span className="rud-half-arrow" style={{ fontSize: 44 }}>‹</span>
-          <span className="rud-half-name" style={{ fontSize: 20 }}>{prev ? prev.label : ""}</span>
-        </button>
-        <button type="button" className="rud-half next" disabled={!next || playing} onClick={() => step(1)} style={{ minHeight: 88 }}>
-          <span className="rud-half-name" style={{ fontSize: 20 }}>{next ? next.label : ""}</span>
-          <span className="rud-half-arrow" style={{ fontSize: 44 }}>›</span>
-        </button>
-      </div>
+      <NavScrub
+        items={EXERCISES.map((e) => ({ id: e.id, label: e.label, preview: e.hands.slice(0, 8).split("").join(" ") }))}
+        index={idx}
+        disabled={playing}
+        onPick={pick}
+      />
     </div>
   );
 }
