@@ -51,6 +51,7 @@ export default function Archive({ overlay = false, onClose }) {
   const [split, setSplit] = useState(!!(overlay && lastId2()));
   const [pickSide, setPickSide] = useState("a");
   const [err, setErr] = useState("");
+  const [ok, setOk] = useState("");
   const [busy, setBusy] = useState(false);
   const pick = useRef(null);
   const a = useSheet(openA);
@@ -71,6 +72,7 @@ export default function Archive({ overlay = false, onClose }) {
     if (!picked) return;
     setBusy(true);
     setErr("");
+    setOk("");
     try {
       const id = await addSheet(picked);
       await refresh();
@@ -81,6 +83,7 @@ export default function Archive({ overlay = false, onClose }) {
         setOpenA(id);
         rememberLast(id);
       }
+      setOk("Gespeichert auf diesem Gerät. Kopie extra in Dateien oder Cloud legen.");
     } catch (e) {
       setErr(e.message || "Konnte das Blatt nicht speichern.");
     }
@@ -93,6 +96,7 @@ export default function Archive({ overlay = false, onClose }) {
     await removeSheet(id);
     if (openA === id) setOpenA("");
     if (openB === id) setOpenB("");
+    setOk("Blatt gelöscht.");
     await refresh();
   }
 
@@ -100,6 +104,7 @@ export default function Archive({ overlay = false, onClose }) {
     const next = window.prompt("Name", current || "");
     if (next == null) return;
     await renameSheet(id, next);
+    setOk("Name geändert.");
     await refresh();
   }
 
@@ -129,9 +134,10 @@ export default function Archive({ overlay = false, onClose }) {
 
   const body = (
     <div>
-      <p style={{ color: "#8a969c", marginTop: 0, fontSize: 16 }}>
-        Nur auf diesem Gerät. Foto oder PDF, max. 12 MB.
-      </p>
+      <div role="note" style={{ background: "#3a2e12", color: "#e8b84b", border: "1px solid #e8b84b", borderRadius: 10, padding: "12px 14px", margin: "0 0 14px", fontSize: 15, lineHeight: 1.4 }}>
+        <strong style={{ display: "block", letterSpacing: "0.06em", textTransform: "uppercase", fontSize: 12, marginBottom: 4 }}>Nur lokal</strong>
+        Liegt nur in diesem Browser. Gerätewechsel, Cache leeren oder App neu installieren kann alles löschen. Backup: Original-PDF/Foto extra in Dateien, Mail oder Cloud behalten.
+      </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
         <button type="button" className="play" disabled={busy} onClick={() => pick.current?.click()}>{busy ? "…" : "Hinzufügen"}</button>
         <button type="button" className={split ? "ghost on" : "ghost"} onClick={toggleSplit}>2×</button>
@@ -144,7 +150,8 @@ export default function Archive({ overlay = false, onClose }) {
         </div>
       ) : null}
       <input ref={pick} type="file" accept="image/*,application/pdf" hidden onChange={(e) => onFiles(e.target.files)} />
-      {err ? <p style={{ color: "#e05c5c" }}>{err}</p> : null}
+      {err ? <p role="status" style={{ color: "#e05c5c", fontWeight: 700 }}>{err}</p> : null}
+      {ok ? <p role="status" style={{ color: "#5cc8b8", fontWeight: 700 }}>{ok}</p> : null}
       {!rows.length && !err ? <p style={{ color: "#8a969c" }}>Noch keine Blätter.</p> : null}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {rows.map((r) => (
