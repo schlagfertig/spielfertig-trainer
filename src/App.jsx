@@ -5,8 +5,11 @@ import PyramidTrainer from "./embedded/PyramidTrainer.jsx";
 import StickControl from "./embedded/StickControl.jsx";
 import Archive from "./embedded/Archive.jsx";
 import { Help } from "./lib/Help.jsx";
+import FirstLesson from "./lib/FirstLesson.jsx";
+import { loadSession } from "./lib/session.js";
 
 const META = {
+  first: { title: "Erste Übung", help: "home" },
   rudiments: { title: "Rudiments", help: "rudiments" },
   click: { title: "Click-Trainer", help: "click" },
   pyramid: { title: "Rhythmuspyramide", help: "pyramid" },
@@ -21,6 +24,7 @@ export default function App() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const viewRef = useRef(view);
   viewRef.current = view;
+  const firstDone = !!loadSession("firstLesson", {}).done;
 
   function goHome() {
     setPrintOpen(false);
@@ -100,41 +104,47 @@ export default function App() {
         <header className="hero">
           <img className="logo" src="/logo.svg?v=clear" alt="schlagfertig\u203d" />
           <h1>Spielfertig</h1>
-          <p className="tag">schlagfertig\u203d \u00b7 Zeit f\u00fcr guten Sound</p>
+          <p className="tag">schlagfertig\u203d \u00b7 Zeit für guten Sound</p>
         </header>
+        <button className="card" style={{ width: "100%", borderColor: "#5cc8b8", marginTop: 8 }} onClick={() => open("first")}>
+          <div className="card-kicker">{firstDone ? "Nochmal" : "Loslegen"}</div>
+          <div className="card-title">Erste Übung starten</div>
+          <div className="card-lead">Eine Minute mitklicken. Kein Fachwort nötig.</div>
+          <div className="card-go">Start</div>
+        </button>
         <div className="cards">
           <button className="card" onClick={() => open("rudiments")}>
-            <div className="card-kicker">\u00dcben</div>
+            <div className="card-kicker">Üben</div>
             <div className="card-title">Rudiments</div>
             <div className="card-lead">40 PAS-Rudiments. Notation, Click, Tempo.</div>
-            <div className="card-go">\u00d6ffnen</div>
+            <div className="card-go">Öffnen</div>
           </button>
           <button className="card" onClick={() => open("click")}>
             <div className="card-kicker">Tempo</div>
             <div className="card-title">Click-Trainer</div>
-            <div className="card-lead">Starttempo w\u00e4hlen. Alle X Sekunden um Y BPM schneller.</div>
-            <div className="card-go">\u00d6ffnen</div>
+            <div className="card-lead">Starttempo wählen. Alle X Sekunden um Y BPM schneller.</div>
+            <div className="card-go">Öffnen</div>
           </button>
           <button className="card" onClick={() => open("pyramid")}>
             <div className="card-kicker">Subdivision</div>
             <div className="card-title">Rhythmuspyramide</div>
             <div className="card-lead">4tel bis 32tel: Puls festigen, sauber zwischen Unterteilungen wechseln, Tempo trotz Dichte halten.</div>
-            <div className="card-go">\u00d6ffnen</div>
+            <div className="card-go">Öffnen</div>
           </button>
           <button className="card" onClick={() => open("stick")}>
             <div className="card-kicker">Technik</div>
             <div className="card-title">Stick Control</div>
-            <div className="card-lead">nach G. L. Stone: Schwache Hand verbessern, saubere Wechsel \u00fcben, Tempo ohne Verspannungen halten.</div>
-            <div className="card-go">\u00d6ffnen</div>
+            <div className="card-lead">nach G. L. Stone: Schwache Hand verbessern, saubere Wechsel üben, Tempo ohne Verspannungen halten.</div>
+            <div className="card-go">Öffnen</div>
           </button>
           <button className="card" onClick={() => open("archive")}>
-            <div className="card-kicker">Eigene Bl\u00e4tter</div>
+            <div className="card-kicker">Eigene Blätter</div>
             <div className="card-title">Noten</div>
-            <div className="card-lead">Fotos und PDFs lokal ablegen und w\u00e4hrenddessen aufschlagen.</div>
-            <div className="card-go">\u00d6ffnen</div>
+            <div className="card-lead">Fotos und PDFs lokal ablegen und währenddessen aufschlagen.</div>
+            <div className="card-go">Öffnen</div>
           </button>
         </div>
-        <footer className="foot">Thomas Schuster \u00b7 schlagfertig\u203d</footer>
+        <footer className="foot">Thomas Schuster · schlagfertig\u203d</footer>
       </div>
     );
   }
@@ -146,7 +156,7 @@ export default function App() {
         {stage && !printOpen ? (
           <button className="ghost" onClick={() => setStage(false)}>Pad aus</button>
         ) : (
-          <button className="ghost" onClick={back}>Zur\u00fcck</button>
+          <button className="ghost" onClick={back}>Ürück</button>
         )}
         <div className="top-title">{printOpen && view === "rudiments" ? "Drucken" : meta.title}</div>
         <div className="top-right">
@@ -159,16 +169,17 @@ export default function App() {
           {view === "rudiments" && !printOpen && (
             <button
               className={stage ? "ghost on" : "ghost"}
-              title="Notation gro\u00df, weniger Bedienelemente — gut am Tablet."
-              aria-label={stage ? "\u00dcbepad aus" : "\u00dcbepad: Notation gro\u00df anzeigen"}
+              title="Notation groß, weniger Bedienelemente — gut am Tablet."
+              aria-label={stage ? "Übepad aus" : "Übepad: Notation groß anzeigen"}
               onClick={() => setStage((v) => !v)}
-            >{stage ? "Pad aus" : "\u00dcbepad"}</button>
+            >{stage ? "Pad aus" : "Übepad"}</button>
           )}
-          {!stage && !printOpen && <Help topic={meta.help} />}
+          {!stage && !printOpen && view !== "first" && <Help topic={meta.help} />}
         </div>
       </header>
       <main className="main">
-        {view === "click" ? <ClickTrainer />
+        {view === "first" ? <FirstLesson onHome={goHome} onOpen={open} />
+          : view === "click" ? <ClickTrainer />
           : view === "pyramid" ? <PyramidTrainer />
           : view === "stick" ? <StickControl />
           : view === "archive" ? <Archive />
