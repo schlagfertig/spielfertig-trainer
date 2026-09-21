@@ -100,6 +100,15 @@ function StickRow({ id, hands }) {
   );
 }
 
+function ListRow({ row, onPick, playing, label, near }) {
+  return (
+    <button type="button" onClick={() => onPick(row.id)} disabled={playing} style={{ width: "100%", marginTop: 4, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: near ? "8px 8px 6px" : "6px 8px", color: "inherit", textAlign: "left", opacity: near ? 1 : 0.7 }}>
+      {label ? <div style={{ color: TEAL, font: "800 11px Figtree, sans-serif", letterSpacing: "0.12em", padding: "0 4px 4px" }}>{label}</div> : null}
+      <StickRow id={row.id} hands={row.hands} />
+    </button>
+  );
+}
+
 export default function StickControl() {
   const [exId, setExId] = useState(1);
   const [bpm, setBpm] = useState(80);
@@ -112,14 +121,19 @@ export default function StickControl() {
   const [playT, setPlayT] = useState(-1);
   const [done, setDone] = useState("");
   const stopRef = useRef(null);
+  const pinRef = useRef(null);
   const bpmRef = useRef(80);
   bpmRef.current = bpm;
   const idx = Math.max(0, EXERCISES.findIndex((e) => e.id === exId));
   const ex = EXERCISES[idx] || EXERCISES[0];
+  const previous = EXERCISES.slice(0, idx);
   const upcoming = EXERCISES.slice(idx + 1);
   const challenge = mode === "challenge";
 
   useEffect(() => () => stopRef.current?.(), []);
+  useEffect(() => {
+    pinRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
+  }, [exId]);
 
   function pick(id) {
     if (playing) return;
@@ -240,7 +254,7 @@ export default function StickControl() {
           top: 0;
           z-index: 14;
           background: #161a1d;
-          padding: 0 0 10px;
+          padding: 8px 0 10px;
         }
         .stick-wrap .rud-metro { grid-template-columns: 1fr; }
         .stick-wrap .rud-metro .metro-face { border-radius: 16px 16px 0 0; }
@@ -262,7 +276,10 @@ export default function StickControl() {
           .stick-wrap .rud-half { min-height: 88px; }
         }
       `}</style>
-      <div className="stick-pin">
+      {previous.map((row, i) => (
+        <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === previous.length - 1} label={i === previous.length - 1 ? "DAVOR" : ""} />
+      ))}
+      <div className="stick-pin" ref={pinRef}>
         <div style={{ display: "flex", gap: 8, alignItems: "center", margin: "0 0 10px", flexWrap: "wrap" }}>
           <div className="seg" style={{ width: "fit-content" }}>
             <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>Üben</button>
@@ -281,10 +298,7 @@ export default function StickControl() {
         </div>
       </div>
       {upcoming.map((row, i) => (
-        <button key={row.id} type="button" onClick={() => pick(row.id)} disabled={playing} style={{ width: "100%", marginTop: i === 0 ? 8 : 4, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: i === 0 ? "8px 8px 6px" : "6px 8px", color: "inherit", textAlign: "left", opacity: i === 0 ? 1 : 0.7 }}>
-          {i === 0 ? <div style={{ color: TEAL, font: "800 11px Figtree, sans-serif", letterSpacing: "0.12em", padding: "0 4px 4px" }}>ALS NÄCHSTES</div> : null}
-          <StickRow id={row.id} hands={row.hands} />
-        </button>
+        <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === 0} label={i === 0 ? "ALS NÄCHSTES" : ""} />
       ))}
       {done ? <p style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{done}</p> : null}
       <div className="metro-shell rud-metro">
