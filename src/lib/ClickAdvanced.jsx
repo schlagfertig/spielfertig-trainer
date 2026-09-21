@@ -20,6 +20,9 @@ export function ClickAdvanced({ mix, setMix, slidersOnly = false }) {
       )}
       {(slidersOnly || mix.advanced) && (
         <div className="click-adv-list">
+          <p style={{ color: DIM, fontSize: 12, margin: "0 0 4px", lineHeight: 1.35 }}>
+            Jede Ebene extra: BEAT = 1, Offbeat = und, e/a = 16tel dazwischen, Master = alles.
+          </p>
           {MIX_LAYERS.map((layer) => (
             <label key={layer.id} className="click-adv-row">
               <span className="click-adv-name">
@@ -31,7 +34,7 @@ export function ClickAdvanced({ mix, setMix, slidersOnly = false }) {
                 min={0}
                 max={100}
                 value={mix[layer.id]}
-                aria-label={layer.label}
+                aria-label={`${layer.label}. ${layer.sub}`}
                 onChange={(e) => patch({ [layer.id]: Number(e.target.value) })}
               />
               <span className="click-adv-val">{mix[layer.id]}</span>
@@ -45,7 +48,7 @@ export function ClickAdvanced({ mix, setMix, slidersOnly = false }) {
       <style>{`
         .click-adv { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
         .click-adv-list { display: flex; flex-direction: column; gap: 8px; max-height: 46dvh; overflow: auto; padding-right: 2px; }
-        .click-adv-row { display: grid; grid-template-columns: minmax(64px, 76px) minmax(0, 1fr) 28px; gap: 6px; align-items: center; min-width: 0; }
+        .click-adv-row { display: grid; grid-template-columns: minmax(72px, 86px) minmax(0, 1fr) 28px; gap: 6px; align-items: center; min-width: 0; }
         .click-adv-name { font-size: 12px; color: #ddd; font-weight: 700; line-height: 1.15; min-width: 0; }
         .click-adv-name small { display: block; color: ${DIM}; font-weight: 600; font-size: 10px; }
         .click-adv-row input[type=range] { width: 100%; min-width: 0; accent-color: ${TEAL}; min-height: 28px; }
