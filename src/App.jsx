@@ -16,20 +16,29 @@ const META = {
 
 export default function App() {
   const [view, setView] = useState("home");
-  const [printNonce, setPrintNonce] = useState(0);
+  const [printOpen, setPrintOpen] = useState(false);
   const [stage, setStage] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const viewRef = useRef(view);
   viewRef.current = view;
 
   function goHome() {
-    setPrintNonce(0);
+    setPrintOpen(false);
     setStage(false);
     setSheetOpen(false);
     setView("home");
   }
 
+  function back() {
+    if (printOpen) { setPrintOpen(false); return; }
+    if (sheetOpen) { setSheetOpen(false); return; }
+    if (stage) { setStage(false); return; }
+    if (window.history.state?.sf) window.history.back();
+    else goHome();
+  }
+
   function open(next) {
+    setPrintOpen(false);
     setStage(false);
     setSheetOpen(false);
     setView(next);
@@ -38,11 +47,12 @@ export default function App() {
 
   useEffect(() => {
     function onPop() {
+      if (printOpen) { setPrintOpen(false); return; }
       if (viewRef.current !== "home") goHome();
     }
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
-  }, []);
+  }, [printOpen]);
 
   useEffect(() => {
     if (view === "home") return undefined;
@@ -65,16 +75,7 @@ export default function App() {
       const dy = Math.abs(t.clientY - startY);
       if (dx > 72 && dy < 56) {
         tracking = false;
-        if (sheetOpen) {
-          setSheetOpen(false);
-          return;
-        }
-        if (stage) {
-          setStage(false);
-          return;
-        }
-        if (window.history.state?.sf) window.history.back();
-        else goHome();
+        back();
       }
     }
     function onEnd() {
@@ -90,7 +91,7 @@ export default function App() {
       window.removeEventListener("touchend", onEnd);
       window.removeEventListener("touchcancel", onEnd);
     };
-  }, [view, stage, sheetOpen]);
+  }, [view, stage, sheetOpen, printOpen]);
 
   if (view === "home") {
     return (
@@ -141,28 +142,24 @@ export default function App() {
   const meta = META[view] || META.rudiments;
   return (
     <div className={stage ? "page tool stage" : "page tool"}>
-      <header className="top">
-        {stage ? (
+      <header className="top" style={{ zIndex: 50 }}>
+        {stage && !printOpen ? (
           <button className="ghost" onClick={() => setStage(false)}>Pad aus</button>
         ) : (
-          <button className="ghost" onClick={() => {
-            if (sheetOpen) { setSheetOpen(false); return; }
-            if (window.history.state?.sf) window.history.back();
-            else goHome();
-          }}>Zurück</button>
+          <button className="ghost" onClick={back}>Zurück</button>
         )}
-        <div className="top-title">{meta.title}</div>
+        <div className="top-title">{printOpen && view === "rudiments" ? "Drucken" : meta.title}</div>
         <div className="top-right">
-          {view === "archive" && (
+          {view === "archive" && !printOpen && (
             <button className={sheetOpen ? "ghost on" : "ghost"} onClick={() => setSheetOpen((v) => !v)}>Blatt</button>
           )}
-          {view === "rudiments" && !stage && (
-            <button className="ghost" onClick={() => setPrintNonce((n) => n + 1)}>Drucken</button>
+          {view === "rudiments" && !stage && !printOpen && (
+            <button className="ghost" onClick={() => setPrintOpen(true)}>Drucken</button>
           )}
-          {view === "rudiments" && (
+          {view === "rudiments" && !printOpen && (
             <button className={stage ? "ghost on" : "ghost"} onClick={() => setStage((v) => !v)}>{stage ? "Pad aus" : "Pad"}</button>
           )}
-          {!stage && <Help topic={meta.help} />}
+          {!stage && !printOpen && <Help topic={meta.help} />}
         </div>
       </header>
       <main className="main">
@@ -170,7 +167,7 @@ export default function App() {
           : view === "pyramid" ? <PyramidTrainer />
           : view === "stick" ? <StickControl />
           : view === "archive" ? <Archive />
-          : <RudimentTrainer printNonce={printNonce} stage={stage} />}
+          : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} />}
       </main>
       {sheetOpen && view === "archive" ? <Archive overlay onClose={() => setSheetOpen(false)} /> : null}
     </div>
