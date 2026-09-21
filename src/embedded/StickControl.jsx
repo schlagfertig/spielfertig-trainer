@@ -7,12 +7,11 @@ const DIM = "#8a969c";
 const TEAL = "#5cc8b8";
 const RCOL = "#5c8ee0";
 const LCOL = "#e05c5c";
-const EMPTY_STICK = [Array(16).fill("")];
 const NOTES_PER_BAR = 8;
 
-const n = (t, dur, hand, acc = false, extra = {}) => ({ t, dur, hand, acc, ...extra });
+const n = (t, dur, hand, extra = {}) => ({ t, dur, hand, acc: false, ...extra });
 const run8ths = (hands) =>
-  hands.split("").map((h, i) => n(i * 2, 2, h, false, { g: Math.floor(i / 4) + 1 }));
+  hands.split("").map((h, i) => n(i * 2, 2, h, { g: Math.floor(i / 4) + 1 }));
 
 const PATTERNS = [
   "RLRLRLRLRLRLRLRL", "LRLRLRLRLRLRLRLR", "RRLLRRLLRRLLRRLL", "LLRRLLRRLLRRLLRR",
@@ -30,20 +29,20 @@ const EXERCISES = PATTERNS.map((hands, i) => ({
   bars: 2,
   notes: run8ths(hands),
   hands,
-  sticking: [hands],
+  sticking: [Array(16).fill("")],
 }));
 
 function clamp(v, min, max) {
   return Math.max(min, Math.min(max, Math.round(v)));
 }
 
-function Hands({ hands, playT, compact }) {
+function Hands({ hands, playT }) {
   const letters = String(hands || "").split("");
   const active = playT < 0 ? -1 : Math.round(playT / 2);
   return (
-    <div style={{ display: "flex", gap: compact ? 6 : 10, marginTop: compact ? 0 : 6 }}>
+    <div style={{ display: "flex", gap: 8 }}>
       {[0, 1].map((bar) => (
-        <div key={bar} style={{ flex: 1, display: "flex", gap: 1 }}>
+        <div key={bar} style={{ flex: 1, display: "flex" }}>
           {letters.slice(bar * 8, bar * 8 + 8).map((ch, i) => {
             const idx = bar * 8 + i;
             const on = idx === active;
@@ -52,11 +51,11 @@ function Hands({ hands, playT, compact }) {
                 flex: 1,
                 marginRight: i === 3 ? 6 : 0,
                 textAlign: "center",
-                font: compact ? "800 14px/1 Oswald, sans-serif" : "800 22px/1.1 Oswald, sans-serif",
+                font: "800 20px/1 Oswald, sans-serif",
                 color: on ? "#06120f" : ch === "R" ? RCOL : LCOL,
                 background: on ? "#e8b84b" : "transparent",
                 borderRadius: 5,
-                padding: compact ? "2px 0" : "6px 0",
+                padding: "4px 0",
               }}>{ch}</span>
             );
           })}
@@ -66,15 +65,9 @@ function Hands({ hands, playT, compact }) {
   );
 }
 
-function Circle({ n }) {
-  return (
-    <div style={{
-      width: 46, height: 46, flex: "0 0 46px", borderRadius: "50%",
-      border: `2px solid ${TEAL}`, color: TEAL,
-      display: "grid", placeItems: "center",
-      font: "800 16px Oswald, sans-serif",
-    }}>{n}</div>
-  );
+function shortHands(hands) {
+  const s = String(hands || "");
+  return `${s.slice(0, 8)} · ${s.slice(8)}`;
 }
 
 export default function StickControl() {
@@ -96,6 +89,7 @@ export default function StickControl() {
   const next = EXERCISES[idx + 1];
   const rest = EXERCISES.slice(idx + 2);
   const challenge = mode === "challenge";
+  const staffRud = { ...ex, sticking: [Array(16).fill("")], notes: ex.notes.map((nt) => ({ ...nt, hand: "" })) };
 
   useEffect(() => () => stopRef.current?.(), []);
 
@@ -220,96 +214,63 @@ export default function StickControl() {
 
   return (
     <div className="rud-wrap">
-      <div className="staff-card" style={{ position: "sticky", top: 52, zIndex: 8 }}>
-        <div className="rud-title">
-          <div className="rud-title-name">{ex.label}</div>
-          <select className="rud-title-select" value={ex.id} disabled={playing} onChange={(e) => pick(Number(e.target.value))} aria-label="Nummer wählen">
-            {EXERCISES.map((e) => <option key={e.id} value={e.id}>{e.label}</option>)}
-          </select>
-        </div>
-        <RudimentStaff rud={{ ...ex, sticking: EMPTY_STICK }} playingT={playT} svgId="stick-live" hideTime />
+      <div className="staff-card">
+        <RudimentStaff rud={staffRud} playingT={playT} svgId="stick-live" hideTime />
       </div>
 
-      <div className="seg" style={{ margin: "0 0 12px", width: "fit-content" }}>
-        <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>Üben</button>
-        <button type="button" className={mode === "challenge" ? "on" : ""} onClick={() => !playing && setMode("challenge")}>Challenge</button>
+      <div style={{ display: "flex", gap: 8, alignItems: "center", margin: "0 0 10px", flexWrap: "wrap" }}>
+        <div className="seg" style={{ width: "fit-content" }}>
+          <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>Üben</button>
+          <button type="button" className={mode === "challenge" ? "on" : ""} onClick={() => !playing && setMode("challenge")}>Challenge</button>
+        </div>
+        {challenge ? (
+          <label style={{ display: "flex", alignItems: "center", gap: 6, color: DIM, fontWeight: 700, marginLeft: "auto" }}>
+            Takte
+            <input type="number" min={1} max={20} value={barsPer} disabled={playing} onChange={(e) => setBarsPer(clamp(Number(e.target.value) || 1, 1, 20))} style={{ width: 52, background: "#161a1d", color: TEAL, border: "1px solid #2f383d", borderRadius: 8, padding: "6px 8px", fontWeight: 800, fontSize: 16, textAlign: "center" }} />
+          </label>
+        ) : null}
       </div>
-      {challenge ? (
-        <label style={{ display: "flex", alignItems: "center", gap: 8, color: DIM, fontWeight: 700, margin: "0 0 12px" }}>
-          Takte je Nummer
-          <input type="number" min={1} max={20} value={barsPer} disabled={playing} onChange={(e) => setBarsPer(clamp(Number(e.target.value) || 1, 1, 20))} style={{ width: 64, background: "#161a1d", color: TEAL, border: "1px solid #2f383d", borderRadius: 8, padding: "8px 10px", fontWeight: 800, fontSize: 18, textAlign: "center" }} />
-        </label>
-      ) : null}
 
-      <div style={{ background: TEAL, color: "#06120f", borderRadius: 16, padding: "14px 14px 12px", marginBottom: 8 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", font: "800 12px Figtree, sans-serif", letterSpacing: "0.14em" }}>
-          <span>{counting ? "COUNT-IN" : "NOW"}</span>
-          <span>{playing ? "▶" : ""} {ex.id}/24</span>
+      <div style={{ background: TEAL, color: "#06120f", borderRadius: 16, padding: "12px 14px 14px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", font: "800 12px Figtree, sans-serif", letterSpacing: "0.14em" }}>
+          <span>{counting ? "COUNT-IN" : "JETZT"}</span>
+          <span>{ex.id}/24</span>
         </div>
-        <div style={{ font: "700 30px/1.05 Oswald, sans-serif", letterSpacing: "0.03em", textTransform: "uppercase", margin: "6px 0 2px" }}>{ex.label}</div>
-        <div style={{ font: "800 16px Figtree, sans-serif" }}>{bpm} BPM</div>
-        <div style={{ borderTop: "1px solid rgba(6,18,15,.25)", marginTop: 10, paddingTop: 8 }}>
-          <Hands hands={ex.hands} playT={counting ? -1 : playT} />
-        </div>
+        <div style={{ font: "700 26px/1 Oswald, sans-serif", margin: "4px 0 10px" }}>{ex.label}</div>
+        <Hands hands={ex.hands} playT={counting ? -1 : playT} />
       </div>
 
       {next ? (
-        <div style={{ display: "flex", alignItems: "center", gap: 10, border: "1px solid #2f383d", borderRadius: 14, padding: "10px 12px", marginBottom: 4, background: "#14191c" }}>
-          <div style={{ color: TEAL, font: "800 11px Figtree, sans-serif", letterSpacing: "0.14em", width: 44 }}>NEXT</div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ font: "700 20px Oswald, sans-serif" }}>{next.label}</div>
-            <Hands hands={next.hands} playT={-1} compact />
+        <button type="button" onClick={() => pick(next.id)} disabled={playing} style={{ width: "100%", marginTop: 8, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: "10px 12px", color: "inherit", textAlign: "left" }}>
+          <div style={{ color: TEAL, font: "800 11px Figtree, sans-serif", letterSpacing: "0.12em" }}>ALS NÄCHSTES</div>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "baseline", marginTop: 2 }}>
+            <strong style={{ font: "700 18px Oswald, sans-serif" }}>{next.label}</strong>
+            <span style={{ color: DIM, font: "800 13px Oswald, sans-serif", letterSpacing: "0.04em" }}>{shortHands(next.hands)}</span>
           </div>
-          <Circle n={next.id} />
+        </button>
+      ) : null}
+
+      {challenge && rest.length ? (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
+          {rest.map((row) => (
+            <button key={row.id} type="button" className="chip" disabled={playing} onClick={() => pick(row.id)} style={{ minWidth: 40 }}>{row.id}</button>
+          ))}
         </div>
       ) : null}
 
-      {rest.map((row, i) => (
-        <div key={row.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", borderBottom: "1px solid #2f383d", opacity: 0.42 }}>
-          <div style={{ width: 44, color: DIM, fontWeight: 800 }}>{idx + 3 + i}</div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ font: "700 16px Oswald, sans-serif", color: "#c5cece" }}>{row.label}</div>
-            <Hands hands={row.hands} playT={-1} compact />
-          </div>
-          <Circle n={row.id} />
-        </div>
-      ))}
+      {done ? <p style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{done}</p> : null}
 
-      <div
-        className="panel dock"
-        style={{
-          position: "fixed",
-          left: 0,
-          right: 0,
-          bottom: "var(--rud-foot)",
-          zIndex: 16,
-          margin: 0,
-          borderRadius: "16px 16px 0 0",
-          padding: 12,
-        }}
-      >
-        <div style={{ display: "flex", gap: 10, alignItems: "stretch" }}>
-          <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={108} now />
-          <div style={{ flex: 1, border: `1px solid ${TEAL}`, borderRadius: 14, padding: "10px 12px", display: "flex", gap: 10 }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ color: TEAL, font: "800 11px Figtree, sans-serif", letterSpacing: "0.14em" }}>NEXT</div>
-              <div style={{ font: "700 20px/1.1 Oswald, sans-serif", margin: "2px 0 4px" }}>{next ? next.label : "—"}</div>
-              <div style={{ color: TEAL, fontWeight: 800 }}>{ex.id}{next ? ` → ${next.id}` : " · Ende"}</div>
-            </div>
-            <div style={{ width: 1, background: "#2f383d" }} />
-            <div style={{ flex: 1, minWidth: 0, color: DIM, fontSize: 13 }}>
-              {next ? <Hands hands={next.hands} playT={-1} compact /> : "Letzte Nummer"}
-            </div>
-          </div>
-        </div>
-        <div style={{ display: "flex", justifyContent: "center", gap: 10, marginTop: 12 }}>
+      <div className="rud-metro" style={{ padding: "8px 12px 10px" }}>
+        <div className="dial-row">
           <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))}>−5</button>
+          <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={96} now />
+          <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))}>+5</button>
+        </div>
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 8 }}>
           <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
             {playing ? "Stop" : challenge ? `${ex.label}–24` : "Start"}
           </button>
-          <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))}>+5</button>
         </div>
-        {done ? <p style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{done}</p> : null}
       </div>
 
       <div className="rud-nav">
