@@ -9,25 +9,16 @@ import { createMixClock, extrasOn, readMix, writeMix } from "../lib/clickMix.js"
 const INK = "#161a1d";
 const LINE = "#2f383d";
 const DIM = "#8a969c";
-const MINS = [1, 2, 5, 10];
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, Math.round(n)));
-}
-
-function fmtLeft(sec) {
-  const s = Math.max(0, Math.ceil(sec));
-  const m = Math.floor(s / 60);
-  const r = s % 60;
-  return `${m}:${String(r).padStart(2, "0")}`;
 }
 
 function readClickSession() {
   const s = loadSession("click", {});
   const startBpm = clamp(Number(s.startBpm) || 80, 30, 260);
   return {
-    mode: s.mode === "sixteenth" ? "sixteenth" : "ramp",
-    mins: MINS.includes(Number(s.mins)) ? Number(s.mins) : 2,
+    mode: s.mode === "ramp" ? "ramp" : "hold",
     startBpm,
     everySec: clamp(Number(s.everySec) || 10, 2, 60),
     step: clamp(Number(s.step) || 4, 1, 20),
@@ -42,7 +33,6 @@ function useMixNow(mix, flipped) {
 export default function ClickTrainer() {
   const init = useRef(readClickSession()).current;
   const [mode, setMode] = useState(init.mode);
-  const [mins, setMins] = useState(init.mins);
   const [startBpm, setStartBpm] = useState(init.startBpm);
   const [bpm, setBpm] = useState(init.startBpm);
   const [everySec, setEverySec] = useState(init.everySec);
@@ -74,8 +64,8 @@ export default function ClickTrainer() {
   flippedRef.current = flipped;
 
   useEffect(() => {
-    saveSession("click", { mode, mins, startBpm, everySec, step, cap });
-  }, [mode, mins, startBpm, everySec, step, cap]);
+    saveSession("click", { mode, startBpm, everySec, step, cap });
+  }, [mode, startBpm, everySec, step, cap]);
   useEffect(() => () => stopRef.current?.(), []);
   useEffect(() => {
     const onVis = () => {
@@ -108,8 +98,7 @@ export default function ClickTrainer() {
     let timer = 0;
     let next = ctx.currentTime + 0.02;
     let beatN = 0;
-    const sixteenth = modeRef.current === "sixteenth";
-    const endAt = sixteenth ? ctx.currentTime + mins * 60 : Infinity;
+    const ramp = modeRef.current === "ramp";
     let bumpAt = ctx.currentTime + everyRef.current;
     const clock = createMixClock();
     clock.reset(next);
@@ -117,7 +106,6 @@ export default function ClickTrainer() {
     setBpm(startBpm);
     bpmRef.current = startBpm;
     setPlaying(true);
-    if (sixteenth) setLeft(mins * 60);
 
     const pulse = (when) => {
       const delay = Math.max(0, (when - ctx.currentTime) * 1000);
@@ -128,27 +116,11 @@ export default function ClickTrainer() {
       }, delay);
     };
 
-    const finish = () => {
-      if (cancelled) return;
-      cancelled = true;
-      window.clearTimeout(timer);
-      stopRef.current = null;
-      setPlaying(false);
-      setBeat(false);
-      setLeft(0);
-      setBpm(startBpm);
-      setDone(`${mins} Min 16tel bei ${startBpm} BPM — fertig.`);
-    };
-
     const schedule = () => {
       if (cancelled) return;
       if (ctx.state === "suspended" && playingRef.current) setBgHint(true);
       const now = ctx.currentTime;
-      if (sixteenth && now >= endAt) {
-        finish();
-        return;
-      }
-      if (!sixteenth) {
+      if (ramp) {
         while (bumpAt < now - 0.05) bumpAt += everyRef.current;
         if (now >= bumpAt - 0.001) {
           const nextBpm = clamp(bpmRef.current + stepRef.current, 30, Math.min(260, capRef.current));
@@ -172,24 +144,19 @@ export default function ClickTrainer() {
       } else {
         while (next < now - 0.02) {
           const beatSec = 60 / Math.max(30, bpmRef.current);
-          next += sixteenth ? beatSec / 4 : beatSec;
+          next += beatSec;
           beatN += 1;
         }
         while (next < horizon && !cancelled) {
-          if (sixteenth && next >= endAt) {
-            finish();
-            return;
-          }
           const quarter = beatN % 4 === 0;
           playClick(ctx, next, quarter);
           if (quarter) pulse(next);
           const beatSec = 60 / Math.max(30, bpmRef.current);
-          next += sixteenth ? beatSec / 4 : beatSec;
+          next += beatSec;
           beatN += 1;
         }
       }
-      if (sixteenth) setLeft(Math.max(0, endAt - ctx.currentTime));
-      else setLeft(Math.max(0, bumpAt - ctx.currentTime));
+      if (ramp) setLeft(Math.max(0, bumpAt - ctx.currentTime));
       timer = window.setTimeout(schedule, 25);
     };
     schedule();
@@ -223,19 +190,19 @@ export default function ClickTrainer() {
     writeMix({ ...mixRef.current, advanced: on || extrasOn(mixRef.current) });
   }
 
-  const atCap = mode === "ramp" && bpm >= cap;
-  const sixteenth = mode === "sixteenth";
+  const ramp = mode === "ramp";
+  const atCap = ramp && bpm >= cap;
 
   return (
     <div>
       <p style={{ color: DIM, fontSize: 14, margin: "12px 0 16px" }}>
-        {sixteenth
-          ? "16tel durchgehend. BPM ist der Viertel-Puls; jede Viertel ist betont."
-          : "Click starten. Alle paar Sekunden wird das Tempo angehoben — Du bleibst am Pad."}
+        {ramp
+          ? "Click starten. Alle paar Sekunden wird das Tempo angehoben — Du bleibst am Pad."
+          : "Gleichmäßiges Tempo halten. BPM am Kreis drehen oder ±5."}
       </p>
       <div className="seg" style={{ margin: "0 0 14px", width: "fit-content" }}>
-        <button type="button" className={mode === "ramp" ? "on" : ""} onClick={() => pickMode("ramp")}>Tempo steigern</button>
-        <button type="button" className={sixteenth ? "on" : ""} onClick={() => pickMode("sixteenth")}>16tel · Min</button>
+        <button type="button" className={!ramp ? "on" : ""} onClick={() => pickMode("hold")}>Tempo halten</button>
+        <button type="button" className={ramp ? "on" : ""} onClick={() => pickMode("ramp")}>Tempo steigern</button>
       </div>
       <div className="metro-shell">
         <div className="panel dock metro-face" style={{ position: "static", margin: 0, borderRadius: "12px 0 0 12px", boxShadow: "none" }}>
@@ -256,13 +223,7 @@ export default function ClickTrainer() {
                   {playing ? "Stop" : "Start"}
                 </button>
               </div>
-              {playing && sixteenth ? (
-                <div className="count">
-                  <span className="count-num">{fmtLeft(left)}</span>
-                  <span className="count-unit">Minuten übrig</span>
-                </div>
-              ) : null}
-              {playing && !sixteenth ? (
+              {playing && ramp ? (
                 <div className="count">
                   {atCap ? (
                     <span className="count-done">Ziel</span>
@@ -286,19 +247,7 @@ export default function ClickTrainer() {
       <div className="panel">
         <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 12 }}>Einstellung</div>
         <TempoControl bpm={startBpm} setBpm={setStart} min={30} max={260} hideNudge />
-        {sixteenth ? (
-          <>
-            <div style={{ marginTop: 16, fontSize: 13, color: DIM }}>Dauer</div>
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
-              {MINS.map((m) => (
-                <button key={m} type="button" className={mins === m ? "chip on" : "chip"} onClick={() => setMins(m)}>{m} Min</button>
-              ))}
-            </div>
-            <p style={{ color: DIM, fontSize: 12, margin: "14px 0 0" }}>
-              {mins} Min 16tel bei {startBpm} BPM (Viertel betont, dazwischen leiser).
-            </p>
-          </>
-        ) : (
+        {ramp ? (
           <>
             <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
               <label className="field">
@@ -321,6 +270,10 @@ export default function ClickTrainer() {
               Beispiel: Start {startBpm}, alle {everySec}s +{step}, Ziel {cap}.
             </p>
           </>
+        ) : (
+          <p style={{ color: DIM, fontSize: 12, margin: "14px 0 0" }}>
+            Fester Puls bei {startBpm} BPM. Drehen ändert das Tempo live.
+          </p>
         )}
       </div>
       <style>{`
