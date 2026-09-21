@@ -12,12 +12,12 @@ export const DEFAULT_MIX = {
 };
 
 export const MIX_LAYERS = [
-  { id: "quarter", label: "Viertel", sub: "1 2 3 4" },
-  { id: "off", label: "Achtel +", sub: "und" },
-  { id: "sixteenth", label: "16tel e/a", sub: "e + a" },
-  { id: "triplet", label: "Triolen", sub: "2 + 3" },
-  { id: "beat", label: "BEAT", sub: "1" },
-  { id: "master", label: "Master", sub: "gesamt" },
+  { id: "quarter", label: "Viertel", sub: "Grundpuls 1 2 3 4" },
+  { id: "off", label: "Offbeat", sub: "das „und“ dazwischen" },
+  { id: "sixteenth", label: "16tel e/a", sub: "zwischen den Achteln" },
+  { id: "triplet", label: "Triolen", sub: "2 und 3, 1 bleibt Viertel" },
+  { id: "beat", label: "BEAT", sub: "betonte 1, anderer Klang" },
+  { id: "master", label: "Master", sub: "Lautstärke aller Ebenen" },
 ];
 
 function pct(n, fallback) {
@@ -90,7 +90,6 @@ export function createMixClock() {
         t16 += beat / 4;
       }
       while (t3 < horizon) {
-        // First of each triplet sits on the quarter — skip, Viertel/BEAT cover it.
         if (t3 >= earliest && g("triplet") > 0.008 && n3 % 3 !== 0) {
           playClickLayer(ctx, t3, "triplet", g("triplet"));
         }
