@@ -110,11 +110,11 @@ const dp2 = (start, lead, g) => {
   const oth = lead === "R" ? "L" : "R";
   return [
     n(start, 2, lead, true, { g, beams: 1 }),
-    n(start + 2, 1, lead, false, { drag: oth, g, beams: 2 }),
-    n(start + 3, 1, lead, false, { drag: oth, g: g + 10, beams: 2 }),
-    n(start + 4, 1, oth, false, { g: g + 10, beams: 2 }),
-    n(start + 5, 1, lead, false, { g: g + 10, beams: 2 }),
+    n(start + 2, 2, lead, false, { drag: oth, g, beams: 1 }),
+    n(start + 4, 1, lead, false, { drag: oth, g: g + 10, beams: 2 }),
+    n(start + 5, 1, oth, false, { g: g + 10, beams: 2 }),
     n(start + 6, 1, lead, false, { g: g + 10, beams: 2 }),
+    n(start + 7, 1, lead, false, { g: g + 10, beams: 2 }),
   ];
 };
 const ratSingle = (start, lead, g) => {
