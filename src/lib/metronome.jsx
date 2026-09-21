@@ -125,63 +125,66 @@ export function MetronomeDial({
   }
 
   return (
-    <div style={{ position: "relative", width: size + pad * 2, height: size + pad * 2, flexShrink: 0 }}>
-      {setBpm ? <WheelHints /> : null}
-      <button
-        type="button"
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
-        title={(active ? "Click aus" : "Click an") + " (" + bpm + " BPM). Drehen ändert das Tempo."}
-        aria-label={active ? "Metronom stoppen" : "Metronom starten"}
-        style={{
-          position: "absolute",
-          left: pad,
-          top: pad,
-          background: fill,
-          border: (large ? 3.5 : 2.5) + "px solid " + ring,
-          borderRadius: "50%",
-          width: size,
-          height: size,
-          cursor: setBpm ? "grab" : "pointer",
-          touchAction: "none",
-          userSelect: "none",
-          padding: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          boxShadow: beat
-            ? "0 0 24px 7px " + TEAL
-            : on
-              ? "0 0 16px 3px " + TEAL_GLOW
-              : "none",
-          transform: beat ? "scale(1.07)" : "scale(1)",
-          transition: "transform .05s linear, background .05s linear, box-shadow .05s linear, border-color .05s linear, color .05s linear",
-        }}
-      >
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", lineHeight: 1, pointerEvents: "none" }}>
-          <div style={{
-            color: num,
-            fontSize: bpmSize,
-            fontFamily: "'Space Mono', ui-monospace, monospace",
-            fontWeight: 700,
-            letterSpacing: "-0.04em",
-            lineHeight: 1,
-          }}>{bpm}</div>
-          {large && (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, minWidth: 0 }}>
+      <div style={{ position: "relative", width: size + pad * 2, height: size + pad * 2, flexShrink: 0 }}>
+        {setBpm ? <WheelHints /> : null}
+        <button
+          type="button"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+          title={"Tipp = Start/Stop. Halten und drehen ändert das Tempo."}
+          aria-label={active ? "Metronom stoppen. Halten und drehen ändert das Tempo." : "Metronom starten. Halten und drehen ändert das Tempo."}
+          style={{
+            position: "absolute",
+            left: pad,
+            top: pad,
+            background: fill,
+            border: (large ? 3.5 : 2.5) + "px solid " + ring,
+            borderRadius: "50%",
+            width: size,
+            height: size,
+            cursor: setBpm ? "grab" : "pointer",
+            touchAction: "none",
+            userSelect: "none",
+            padding: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: beat
+              ? "0 0 24px 7px " + TEAL
+              : on
+                ? "0 0 16px 3px " + TEAL_GLOW
+                : "none",
+            transform: beat ? "scale(1.07)" : "scale(1)",
+            transition: "transform .05s linear, background .05s linear, box-shadow .05s linear, border-color .05s linear, color .05s linear",
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", lineHeight: 1, pointerEvents: "none" }}>
             <div style={{
-              color: labelCol,
-              fontSize: labelSize,
-              fontWeight: 800,
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-              marginTop: 4,
-              opacity: 0.85,
-            }}>{now && on ? "Now" : "BPM"}</div>
-          )}
-        </div>
-      </button>
+              color: num,
+              fontSize: bpmSize,
+              fontFamily: "'Space Mono', ui-monospace, monospace",
+              fontWeight: 700,
+              letterSpacing: "-0.04em",
+              lineHeight: 1,
+            }}>{bpm}</div>
+            {large && (
+              <div style={{
+                color: labelCol,
+                fontSize: labelSize,
+                fontWeight: 800,
+                letterSpacing: "0.16em",
+                textTransform: "uppercase",
+                marginTop: 4,
+                opacity: 0.85,
+              }}>{now && on ? "Now" : "BPM"}</div>
+            )}
+          </div>
+        </button>
+      </div>
+      {setBpm ? <div className="dial-hint">Halten und drehen ändert das Tempo</div> : null}
     </div>
   );
 }
