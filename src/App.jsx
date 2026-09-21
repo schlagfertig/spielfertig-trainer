@@ -139,18 +139,21 @@ export default function App() {
   }
 
   const meta = META[view] || META.rudiments;
-  const practice = view === "rudiments" || view === "stick" || view === "click" || view === "pyramid";
   return (
     <div className={stage ? "page tool stage" : "page tool"}>
       <header className="top">
         {stage ? (
           <button className="ghost" onClick={() => setStage(false)}>Pad aus</button>
         ) : (
-          <button className="ghost" onClick={() => (window.history.state?.sf ? window.history.back() : goHome())}>Zurück</button>
+          <button className="ghost" onClick={() => {
+            if (sheetOpen) { setSheetOpen(false); return; }
+            if (window.history.state?.sf) window.history.back();
+            else goHome();
+          }}>Zurück</button>
         )}
         <div className="top-title">{meta.title}</div>
         <div className="top-right">
-          {practice && (
+          {view === "archive" && (
             <button className={sheetOpen ? "ghost on" : "ghost"} onClick={() => setSheetOpen((v) => !v)}>Blatt</button>
           )}
           {view === "rudiments" && !stage && (
@@ -169,7 +172,7 @@ export default function App() {
           : view === "archive" ? <Archive />
           : <RudimentTrainer printNonce={printNonce} stage={stage} />}
       </main>
-      {sheetOpen ? <Archive overlay onClose={() => setSheetOpen(false)} /> : null}
+      {sheetOpen && view === "archive" ? <Archive overlay onClose={() => setSheetOpen(false)} /> : null}
     </div>
   );
 }
