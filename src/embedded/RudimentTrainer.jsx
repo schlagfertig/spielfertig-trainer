@@ -5,8 +5,6 @@ import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, playOrnament, unlockAudio } from "../lib/audio.js";
 import { deliverPng, printElement, sheetHtml, tilesToPng } from "../lib/print.js";
 import { loadSession, saveSession } from "../lib/session.js";
-import { ClickAdvanced } from "../lib/ClickAdvanced.jsx";
-import { createMixClock, extrasOn, readMix, writeMix } from "../lib/clickMix.js";
 import { NavScrub } from "../lib/NavScrub.jsx";
 
 const INK = "#161a1d";
@@ -57,8 +55,6 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
   const [rampStep, setRampStep] = useState(init.rampStep);
   const [rampCap, setRampCap] = useState(init.rampCap);
   const [goalId, setGoalId] = useState(init.goalId);
-  const [mix, setMix] = useState(() => readMix());
-  const [flipped, setFlipped] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [playT, setPlayT] = useState(-1);
   const [beat, setBeat] = useState(false);
@@ -78,7 +74,6 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
   const rampBarsRef = useRef(rampBars); rampBarsRef.current = rampBars;
   const rampStepRef = useRef(rampStep); rampStepRef.current = rampStep;
   const rampCapRef = useRef(rampCap); rampCapRef.current = rampCap;
-  const mixRef = useRef(mix); mixRef.current = mix;
   const rud = RUDIMENTS.find((r) => r.id === sel) || RUDIMENTS[0];
   const idx = Math.max(0, RUDIMENTS.findIndex((r) => r.id === rud.id));
   const meterNow = meterPulse(rud.time);
@@ -97,9 +92,6 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
     setPicked((p) => (p.includes(sel) ? p : [...p, sel]));
   }, [printNonce, sel]);
   useEffect(() => () => stopRef.current?.(), []);
-  useEffect(() => {
-    if (stage) setFlipped(false);
-  }, [stage]);
 
   function closePrint() {
     setPrintOpen(false);
@@ -121,11 +113,6 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
     if (id !== sel) stop();
     setSel(id);
     setDone("");
-  }
-
-  function flip(on) {
-    setFlipped(on);
-    writeMix({ ...mixRef.current, advanced: on || extrasOn(mixRef.current) });
   }
 
   function pulse(when, ctx) {
@@ -171,11 +158,7 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
       }
       cycleStart += 4 * pulseSec;
     }
-    const origin = cycleStart;
-    const clock = createMixClock();
-    if (hearRef.current === "click" && mixRef.current.advanced) clock.reset(cycleStart);
     let barsAcc = 0;
-    let rampAt = cycleStart + rampBarsRef.current * meter.bar * stepSec();
     const bump = () => setBpm((p) => Math.min(rampCapRef.current, 260, p + rampStepRef.current));
     setLoopN(1);
     if (goal.sec) setLeftSec(goal.sec);
@@ -200,56 +183,36 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
         return;
       }
       const horizon = now + 0.16;
-      if (hearRef.current === "click" && mixRef.current.advanced) {
-        clock.fill(ctx, horizon, bpmRef.current, mixRef.current, (when) => {
-          pulse(when, ctx);
-          const elapsed = Math.max(0, when - origin);
-          const t16 = (elapsed / stepSec()) % steps;
-          window.setTimeout(() => { if (!cancelled) setPlayT(t16); }, Math.max(0, (when - ctx.currentTime) * 1000));
-        });
-        const period = Math.max(0.08, steps * stepSec());
-        loopsDone = 1 + Math.floor(Math.max(0, now - origin) / period);
-        setLoopN(loopsDone);
-        if (targetLoops && loopsDone > targetLoops) {
+      while (!cancelled) {
+        const ev = listEv[evIndex];
+        const when = cycleStart + ev.t * stepSec();
+        if (when >= horizon) break;
+        if (goal.sec && when >= endAt) {
           finishOk();
           return;
         }
-        if (rampRef.current && now >= rampAt) {
-          bump();
-          rampAt += rampBarsRef.current * meter.bar * stepSec();
+        if (when >= now - 0.02) {
+          if (ev.kind === "click") playClick(ctx, when, ev.down);
+          else playOrnament(ctx, ev.nt, when, ev.kind === "stick" ? "stick" : "snare", stepSec());
+          const delay = Math.max(0, (when - now) * 1000);
+          window.setTimeout(() => { if (!cancelled) setPlayT(ev.t); }, delay);
+          if (ev.kind === "click" || Math.abs((ev.t || 0) % meter.pulse) < 0.08) pulse(when, ctx);
         }
-      } else {
-        while (!cancelled) {
-          const ev = listEv[evIndex];
-          const when = cycleStart + ev.t * stepSec();
-          if (when >= horizon) break;
-          if (goal.sec && when >= endAt) {
+        evIndex += 1;
+        if (evIndex >= listEv.length) {
+          evIndex = 0;
+          cycleStart += steps * stepSec();
+          listEv = events();
+          barsAcc += barsEach;
+          loopsDone += 1;
+          setLoopN(loopsDone);
+          if (targetLoops && loopsDone > targetLoops) {
             finishOk();
             return;
           }
-          if (when >= now - 0.02) {
-            if (ev.kind === "click") playClick(ctx, when, ev.down);
-            else playOrnament(ctx, ev.nt, when, ev.kind === "stick" ? "stick" : "snare", stepSec());
-            const delay = Math.max(0, (when - now) * 1000);
-            window.setTimeout(() => { if (!cancelled) setPlayT(ev.t); }, delay);
-            if (ev.kind === "click" || Math.abs((ev.t || 0) % meter.pulse) < 0.08) pulse(when, ctx);
-          }
-          evIndex += 1;
-          if (evIndex >= listEv.length) {
-            evIndex = 0;
-            cycleStart += steps * stepSec();
-            listEv = events();
-            barsAcc += barsEach;
-            loopsDone += 1;
-            setLoopN(loopsDone);
-            if (targetLoops && loopsDone > targetLoops) {
-              finishOk();
-              return;
-            }
-            if (rampRef.current && barsAcc >= rampBarsRef.current) {
-              barsAcc = 0;
-              bump();
-            }
+          if (rampRef.current && barsAcc >= rampBarsRef.current) {
+            barsAcc = 0;
+            bump();
           }
         }
       }
@@ -360,57 +323,44 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
           ))}
         </div>
       )}
-      <div className="metro-shell rud-metro">
-        <div className="panel dock metro-face">
-          {flipped ? (
-            <div key="back" className="metro-swap">
-              <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 10 }}>Optionen</div>
-              <label className="check"><input type="checkbox" checked={countIn} onChange={(e) => setCountIn(e.target.checked)} />4 Schläge einzählen</label>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "10px 0" }}>
-                <span style={{ fontSize: 12, color: DIM }}>Hören</span>
+      <div className="metro-shell rud-metro" style={{ gridTemplateColumns: "1fr" }}>
+        <div className="panel dock metro-face" style={{ borderRadius: "16px 16px 0 0" }}>
+          <div className="dial-row">
+            <button type="button" className="nudge-lg" onClick={() => setBpm(Math.max(30, bpm - 5))} aria-label="5 BPM langsamer">−5</button>
+            <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={stage ? 136 : 96} now />
+            <button type="button" className="nudge-lg" onClick={() => setBpm(Math.min(260, bpm + 5))} aria-label="5 BPM schneller">+5</button>
+          </div>
+          {stage ? null : (
+            <>
+              <div style={{ display: "flex", justifyContent: "center", marginTop: 12 }}>
                 <div className="seg">
                   <button type="button" className={hear === "snare" ? "on" : ""} onClick={() => setHear("snare")}>Snare</button>
                   <button type="button" className={hear === "hands" ? "on" : ""} onClick={() => setHear("hands")}>L / R</button>
                   <button type="button" className={hear === "click" ? "on" : ""} onClick={() => setHear("click")}>Nur Click</button>
                 </div>
               </div>
-              <ClickAdvanced mix={mix} setMix={setMix} slidersOnly />
-            </div>
-          ) : (
-            <div key="front" className="metro-swap">
-              <div className="dial-row">
-                <button type="button" className="nudge-lg" onClick={() => setBpm(Math.max(30, bpm - 5))} aria-label="5 BPM langsamer">−5</button>
-                <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={stage ? 136 : 96} now />
-                <button type="button" className="nudge-lg" onClick={() => setBpm(Math.min(260, bpm + 5))} aria-label="5 BPM schneller">+5</button>
-              </div>
-              {stage ? null : (
-                <>
-                  <label className="check" style={{ marginTop: 10 }}>
-                    <input type="checkbox" checked={rampOn} onChange={(e) => setRampOn(e.target.checked)} />Tempo steigern
-                  </label>
-                  {rampOn ? (
-                    <div style={{ fontSize: 12, color: DIM, marginTop: 8, lineHeight: 1.7 }}>
-                      alle
-                      <input type="number" min={1} max={8} value={rampBars} onChange={(e) => setRampBars(clamp(Number(e.target.value) || 2, 1, 8))} style={field} />
-                      Takte um
-                      <input type="number" min={1} max={12} value={rampStep} onChange={(e) => setRampStep(clamp(Number(e.target.value) || 2, 1, 12))} style={field} />
-                      BPM · bis
-                      <input type="number" min={40} max={260} value={rampCap} onChange={(e) => setRampCap(clamp(Number(e.target.value) || 160, 40, 260))} style={{ ...field, width: 56 }} />
-                    </div>
-                  ) : null}
-                </>
-              )}
-              <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
-                <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : startLoop())}>{playing ? "Stop" : "Start"}</button>
-              </div>
-            </div>
+              <label className="check" style={{ marginTop: 10 }}>
+                <input type="checkbox" checked={countIn} onChange={(e) => setCountIn(e.target.checked)} />4 Schläge einzählen
+              </label>
+              <label className="check" style={{ marginTop: 8 }}>
+                <input type="checkbox" checked={rampOn} onChange={(e) => setRampOn(e.target.checked)} />Tempo steigern
+              </label>
+              {rampOn ? (
+                <div style={{ fontSize: 12, color: DIM, marginTop: 8, lineHeight: 1.7 }}>
+                  alle
+                  <input type="number" min={1} max={8} value={rampBars} onChange={(e) => setRampBars(clamp(Number(e.target.value) || 2, 1, 8))} style={field} />
+                  Takte um
+                  <input type="number" min={1} max={12} value={rampStep} onChange={(e) => setRampStep(clamp(Number(e.target.value) || 2, 1, 12))} style={field} />
+                  BPM · bis
+                  <input type="number" min={40} max={260} value={rampCap} onChange={(e) => setRampCap(clamp(Number(e.target.value) || 160, 40, 260))} style={{ ...field, width: 56 }} />
+                </div>
+              ) : null}
+            </>
           )}
+          <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
+            <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : startLoop())}>{playing ? "Stop" : "Start"}</button>
+          </div>
         </div>
-        {stage ? null : (
-          <button type="button" className={flipped ? "metro-side on" : "metro-side"} onClick={() => flip(!flipped)}>
-            {flipped ? "Metronom" : "Erweitert"}
-          </button>
-        )}
       </div>
       <NavScrub
         items={RUDIMENTS.map((r) => ({ id: r.id, label: r.label, preview: r.label }))}
