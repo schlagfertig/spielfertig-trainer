@@ -1,6 +1,6 @@
 function chunk(arr, size) {
   const out = [];
-  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, size + i));
   return out;
 }
 
@@ -8,10 +8,24 @@ export function printStyles(cols) {
   return `
     @page { size: A4 portrait; margin: 10mm; }
     html, body { margin: 0; background: #fff; color: #161a1d; font-family: Figtree, sans-serif; }
+    .bar {
+      position: sticky; top: 0; z-index: 2;
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      background: #161a1d;
+      color: #f4f7f6;
+    }
+    .bar button {
+      background: #5cc8b8; color: #06120f; border: 0;
+      border-radius: 8px; padding: 10px 16px;
+      font: 800 15px Figtree, sans-serif;
+    }
+    .bar span { font: 700 13px Figtree, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; color: #8a969c; }
     .page {
       display: grid;
       grid-template-columns: repeat(${cols}, 1fr);
       gap: 8px;
+      padding: 12px;
       page-break-after: always;
       break-after: page;
     }
@@ -33,6 +47,10 @@ export function printStyles(cols) {
       color: #0b3d38;
     }
     svg { width: 100%; height: auto; display: block; }
+    @media print {
+      .bar { display: none !important; }
+      .page { padding: 0; }
+    }
   `;
 }
 
@@ -44,36 +62,32 @@ export function sheetHtml(tiles, perPage = 6) {
     page.map(({ r, svg }) => `<article class="tile"><h2>${r.label}</h2>${svg.outerHTML}</article>`).join("") +
     `</section>`
   ).join("");
-  return `<!doctype html><html><head><meta charset="utf-8"><title>Spielfertig — Drucken</title>
-    <style>${printStyles(cols)}</style></head><body>${body}</body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Spielfertig — Drucken</title>
+    <style>${printStyles(cols)}</style></head><body>
+    <div class="bar">
+      <button type="button" onclick="try{window.close()}catch(e){} if(!window.closed){history.back()}">Zurück</button>
+      <span>Druckvorschau</span>
+    </div>
+    ${body}</body></html>`;
 }
 
 export function printElement(html) {
-  try {
-    const w = window.open("", "_blank");
-    if (w) {
-      w.document.open();
-      w.document.write(html);
-      w.document.close();
-      w.focus();
-      window.setTimeout(() => {
-        try { w.print(); } catch { /* ignore */ }
-      }, 280);
-      return "popup";
-    }
-  } catch { /* popup blocked */ }
   try {
     const iframe = document.createElement("iframe");
     iframe.setAttribute("aria-hidden", "true");
     iframe.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;";
     document.body.appendChild(iframe);
     const doc = iframe.contentDocument;
+    if (!doc) throw new Error("no frame");
     doc.open();
     doc.write(html);
     doc.close();
     window.setTimeout(() => {
-      try { iframe.contentWindow.focus(); iframe.contentWindow.print(); } catch { /* ignore */ }
-      window.setTimeout(() => iframe.remove(), 1500);
+      try {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+      } catch { /* ignore */ }
+      window.setTimeout(() => iframe.remove(), 1800);
     }, 280);
     return "iframe";
   } catch {
@@ -119,7 +133,7 @@ export async function tilesToPng(tiles, scale = 2, perPage = 6) {
   const rendered = [];
   for (const tile of tiles) rendered.push({ label: tile.r.label, canvas: await svgToPng(tile.svg, scale) });
   const cols = perPage <= 4 ? 1 : 2;
-  const pages = chunk(rendered, perPage);
+  const pages = chunk(tiles.length ? rendered : [], perPage);
   const pageW = 1240;
   const pageH = 1754;
   const pad = 28;
@@ -128,15 +142,15 @@ export async function tilesToPng(tiles, scale = 2, perPage = 6) {
   const outH = pages.length * pageH + Math.max(0, pages.length - 1) * 24;
   const canvas = document.createElement("canvas");
   canvas.width = pageW;
-  canvas.height = outH;
+  canvas.height = Math.max(pageH, outH);
   const ctx = canvas.getContext("2d");
   ctx.fillStyle = "#e6e8ea";
-  ctx.fillRect(0, 0, pageW, outH);
+  ctx.fillRect(0, 0, pageW, canvas.height);
   pages.forEach((page, pi) => {
     const top = pi * (pageH + 24);
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, top, pageW, pageH);
-    const rows = Math.ceil(page.length / cols);
+    const rows = Math.ceil(page.length / cols) || 1;
     const cellW = (pageW - pad * 2 - gap * (cols - 1)) / cols;
     const cellH = (pageH - pad * 2 - gap * (rows - 1)) / rows;
     page.forEach((p, i) => {
