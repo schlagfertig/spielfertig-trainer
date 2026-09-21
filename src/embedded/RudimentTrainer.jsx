@@ -291,7 +291,11 @@ export default function RudimentTrainer({ printNonce, stage = false }) {
     <div className="rud-wrap">
       <div className="staff-card">
         <div className="rud-title">
-          <div className="rud-title-name">{rud.label}</div>
+          <div className="rud-title-kicker">Rudiment wählen</div>
+          <div className="rud-title-row">
+            <div className="rud-title-name">{rud.label}</div>
+            <span className="rud-title-caret" aria-hidden="true">▾</span>
+          </div>
           <select className="rud-title-select" value={rud.id} onChange={(e) => pickRud(Number(e.target.value))} aria-label="Rudiment wählen">
             {CATS.map((c) => (
               <optgroup key={c.id} label={c.label}>
