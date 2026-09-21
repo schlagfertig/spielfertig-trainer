@@ -21,10 +21,10 @@ const swiss16 = (start, lead, g) => {
   ];
 };
 const flamTap = (start, gR, gL) => [
-  n(start, 1, "R", true, { flam: "L", g: gR }),
-  n(start + 1, 1, "R", false, { g: gR }),
-  n(start + 2, 1, "L", true, { flam: "R", g: gL }),
-  n(start + 3, 1, "L", false, { g: gL }),
+  n(start, 2, "R", true, { flam: "L", g: gR, beams: 1 }),
+  n(start + 2, 2, "R", false, { g: gR, beams: 1 }),
+  n(start + 4, 2, "L", true, { flam: "R", g: gL, beams: 1 }),
+  n(start + 6, 2, "L", false, { g: gL, beams: 1 }),
 ];
 const invFlamTap = (start, g1, g2) => [
   n(start, 1, "R", true, { g: g1 }),
