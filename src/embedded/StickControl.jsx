@@ -288,12 +288,45 @@ export default function StickControl() {
         }
         .stick-wrap .rud-half-arrow { font-size: 52px; }
         .stick-wrap .rud-half-name { font-size: clamp(18px, 5.2vw, 24px); }
+        .stick-flash, .stick-click-mini { display: none; }
         @media (orientation: landscape) {
-          .stick-wrap { padding-bottom: calc(var(--rud-foot) + 148px) !important; }
-          .stick-dock .metro-face { padding: 6px 10px 6px; }
-          .stick-wrap .rud-half { min-height: 88px; }
+          .stick-wrap { --rud-foot: calc(56px + env(safe-area-inset-bottom, 0px)); padding-bottom: calc(var(--rud-foot) + 8px) !important; }
+          .stick-dock .metro-shell { display: none !important; }
+          .stick-dock { border-radius: 0; box-shadow: none; }
+          .stick-wrap .rud-half { min-height: 56px; padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px)); }
+          .stick-click-mini {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            right: 12px;
+            bottom: calc(var(--rud-foot) + 10px);
+            z-index: 22;
+            min-width: 72px;
+            height: 40px;
+            padding: 0 14px;
+            border-radius: 999px;
+            border: 2px solid ${playing ? "#e05c5c" : TEAL};
+            background: ${playing ? "#3a1a1a" : "#13211f"};
+            color: ${playing ? "#e05c5c" : TEAL};
+            font: 800 13px/1 Figtree, sans-serif;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+          }
+          .stick-flash {
+            display: block;
+            pointer-events: none;
+            position: fixed;
+            inset: 0;
+            z-index: 28;
+            box-shadow: inset 0 0 0 7px ${TEAL}, inset 0 0 28px 4px rgba(92,200,184,.35);
+          }
         }
       `}</style>
+      {beat ? <div className="stick-flash" aria-hidden="true" /> : null}
+      <button type="button" className="stick-click-mini" onClick={() => (playing ? stop() : start())}>
+        {playing ? "Stop" : "Click"}
+      </button>
       {previous.map((row, i) => (
         <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === previous.length - 1} label={i === previous.length - 1 ? "DAVOR" : ""} />
       ))}
