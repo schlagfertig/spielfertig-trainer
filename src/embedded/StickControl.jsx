@@ -53,36 +53,36 @@ function phraseWidth() {
 function Phrase({ id, hands, playT }) {
   const letters = String(hands || "").split("");
   const active = playT < 0 ? -1 : Math.round(playT / 2);
-  const y = 32;
-  const top = 12;
-  const hy = 58;
+  const y = 42;
+  const top = 10;
+  const hy = 78;
   const xs = Array.from({ length: 16 }, (_, i) => noteX(i));
   const start = LINE_L;
   const end = xs[15] + GAP;
   const barX = (xs[7] + xs[8]) / 2;
-  const stem = 3.6;
+  const stem = 4.4;
   return (
-    <svg viewBox={`0 0 ${end + 8} 68`} width="100%" role="img" aria-label={`Nummer ${id}`}>
-      <line x1={start} y1={y} x2={end} y2={y} stroke={LINE} strokeWidth="1.35" />
-      <line x1={start} y1={y - 9} x2={start} y2={y + 9} stroke={LINE} strokeWidth="1.5" />
-      <line x1={end} y1={y - 9} x2={end} y2={y + 9} stroke={LINE} strokeWidth="1.5" />
-      <line x1={barX} y1={y - 9} x2={barX} y2={y + 9} stroke={LINE} strokeWidth="1.15" />
+    <svg viewBox={`0 0 ${end + 8} 92`} width="100%" role="img" aria-label={`Nummer ${id}`}>
+      <line x1={start} y1={y} x2={end} y2={y} stroke={LINE} strokeWidth="1.45" />
+      <line x1={start} y1={y - 12} x2={start} y2={y + 12} stroke={LINE} strokeWidth="1.6" />
+      <line x1={end} y1={y - 12} x2={end} y2={y + 12} stroke={LINE} strokeWidth="1.6" />
+      <line x1={barX} y1={y - 12} x2={barX} y2={y + 12} stroke={LINE} strokeWidth="1.25" />
       {xs.map((x, i) => {
         const on = i === active;
         const c = on ? GOLD : INK;
         return (
           <g key={i}>
-            <ellipse cx={x} cy={y} rx="4.35" ry="2.95" fill={c} transform={`rotate(-18 ${x} ${y})`} />
-            <line x1={x + stem} y1={y - 1} x2={x + stem} y2={top} stroke={c} strokeWidth="0.85" />
+            <ellipse cx={x} cy={y} rx="5.4" ry="3.6" fill={c} transform={`rotate(-18 ${x} ${y})`} />
+            <line x1={x + stem} y1={y - 1.2} x2={x + stem} y2={top} stroke={c} strokeWidth="0.9" />
           </g>
         );
       })}
       {[0, 1, 2, 3].map((g) => (
-        <line key={g} x1={xs[g * 4] + stem} y1={top} x2={xs[g * 4 + 3] + stem} y2={top} stroke={INK} strokeWidth="2.7" strokeLinecap="butt" />
+        <line key={g} x1={xs[g * 4] + stem} y1={top} x2={xs[g * 4 + 3] + stem} y2={top} stroke={INK} strokeWidth="3" strokeLinecap="butt" />
       ))}
-      <text x="6" y={hy} fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="13">{id}.</text>
+      <text x="6" y={hy} fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="16">{id}.</text>
       {letters.map((ch, i) => (
-        <text key={i} x={xs[i]} y={hy} textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="13" fill={i === active ? GOLD : TEAL}>{ch}</text>
+        <text key={i} x={xs[i]} y={hy} textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="16" fill={i === active ? GOLD : TEAL}>{ch}</text>
       ))}
     </svg>
   );
@@ -277,26 +277,37 @@ export default function StickControl() {
 
   return (
     <div className="rud-wrap stick-wrap">
-      <style>{`@media (orientation: landscape) {
-        .stick-wrap { padding-bottom: calc(var(--rud-foot) + 148px) !important; }
-        .stick-wrap .rud-metro { max-height: 26dvh; }
-        .stick-wrap .rud-metro .metro-face { max-height: 26dvh; padding: 6px 10px 8px; }
-      }`}</style>
-      <div style={{ display: "flex", gap: 8, alignItems: "center", margin: "0 0 10px", flexWrap: "wrap" }}>
-        <div className="seg" style={{ width: "fit-content" }}>
-          <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>Üben</button>
-          <button type="button" className={mode === "challenge" ? "on" : ""} onClick={() => !playing && setMode("challenge")}>Challenge</button>
+      <style>{`
+        .stick-pin {
+          position: sticky;
+          top: 0;
+          z-index: 14;
+          background: #161a1d;
+          padding: 0 0 10px;
+        }
+        @media (orientation: landscape) {
+          .stick-wrap { padding-bottom: calc(var(--rud-foot) + 148px) !important; }
+          .stick-wrap .rud-metro { max-height: 26dvh; }
+          .stick-wrap .rud-metro .metro-face { max-height: 26dvh; padding: 6px 10px 8px; }
+        }
+      `}</style>
+      <div className="stick-pin">
+        <div style={{ display: "flex", gap: 8, alignItems: "center", margin: "0 0 10px", flexWrap: "wrap" }}>
+          <div className="seg" style={{ width: "fit-content" }}>
+            <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>Üben</button>
+            <button type="button" className={mode === "challenge" ? "on" : ""} onClick={() => !playing && setMode("challenge")}>Challenge</button>
+          </div>
+          {challenge ? (
+            <label style={{ display: "flex", alignItems: "center", gap: 6, color: DIM, fontWeight: 700, marginLeft: "auto" }}>
+              Takte
+              <input type="number" min={1} max={20} value={barsPer} disabled={playing} onChange={(e) => setBarsPer(clamp(Number(e.target.value) || 1, 1, 20))} style={{ width: 52, background: "#161a1d", color: TEAL, border: "1px solid #2f383d", borderRadius: 8, padding: "6px 8px", fontWeight: 800, fontSize: 16, textAlign: "center" }} />
+            </label>
+          ) : null}
+          {counting ? <span style={{ color: TEAL, fontWeight: 800, letterSpacing: "0.08em" }}>COUNT-IN</span> : null}
         </div>
-        {challenge ? (
-          <label style={{ display: "flex", alignItems: "center", gap: 6, color: DIM, fontWeight: 700, marginLeft: "auto" }}>
-            Takte
-            <input type="number" min={1} max={20} value={barsPer} disabled={playing} onChange={(e) => setBarsPer(clamp(Number(e.target.value) || 1, 1, 20))} style={{ width: 52, background: "#161a1d", color: TEAL, border: "1px solid #2f383d", borderRadius: 8, padding: "6px 8px", fontWeight: 800, fontSize: 16, textAlign: "center" }} />
-          </label>
-        ) : null}
-        {counting ? <span style={{ color: TEAL, fontWeight: 800, letterSpacing: "0.08em" }}>COUNT-IN</span> : null}
-      </div>
-      <div style={{ background: "#14191c", border: `1.5px solid ${TEAL}`, borderRadius: 16, padding: "10px 10px 6px" }}>
-        <Phrase id={ex.id} hands={ex.hands} playT={counting ? -1 : playT} />
+        <div style={{ background: "#14191c", border: `1.5px solid ${TEAL}`, borderRadius: 16, padding: "12px 8px 8px" }}>
+          <Phrase id={ex.id} hands={ex.hands} playT={counting ? -1 : playT} />
+        </div>
       </div>
       {upcoming.map((row, i) => (
         <button key={row.id} type="button" onClick={() => pick(row.id)} disabled={playing} style={{ width: "100%", marginTop: i === 0 ? 8 : 4, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: i === 0 ? "8px 8px 6px" : "6px 8px", color: "inherit", textAlign: "left", opacity: i === 0 ? 1 : 0.7 }}>
@@ -333,7 +344,7 @@ export default function StickControl() {
         </button>
       </div>
       <NavScrub
-        items={EXERCISES.map((e) => ({ id: e.id, label: e.label, preview: e.hands.slice(0, 8).split("").join(" ") }))}
+        items={EXERCISES.map((e) => ({ id: e.id, label: e.label, preview: e.hands.slice(0, 8) }))}
         index={idx}
         disabled={playing}
         onPick={pick}
