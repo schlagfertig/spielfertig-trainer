@@ -148,9 +148,9 @@ export default function ClickTrainer() {
           beatN += 1;
         }
         while (next < horizon && !cancelled) {
-          const quarter = beatN % 4 === 0;
-          playClick(ctx, next, quarter);
-          if (quarter) pulse(next);
+          const down = beatN % 4 === 0;
+          playClick(ctx, next, down);
+          pulse(next);
           const beatSec = 60 / Math.max(30, bpmRef.current);
           next += beatSec;
           beatN += 1;
