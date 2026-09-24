@@ -7,9 +7,6 @@ import { loadSession, saveSession } from "../lib/session.js";
 import { NavScrub } from "../lib/NavScrub.jsx";
 import { PrintDialog } from "./PrintDialog.jsx";
 
-const INK = "#161a1d";
-const LINE = "#2f383d";
-const DIM = "#8a969c";
 const HEAR_OK = ["snare", "hands", "click"];
 const GOALS = [
   { id: "free", label: "Frei" },
@@ -35,11 +32,6 @@ function readRudimentSession() {
     sel,
     bpm: clamp(Number(s.bpm) || 80, 30, 260),
     hear: HEAR_OK.includes(s.hear) ? s.hear : "snare",
-    countIn: s.countIn !== false,
-    rampOn: !!s.rampOn,
-    rampBars: clamp(Number(s.rampBars) || 2, 1, 8),
-    rampStep: clamp(Number(s.rampStep) || 2, 1, 12),
-    rampCap: clamp(Number(s.rampCap) || 160, 40, 260),
     goalId,
   };
 }
@@ -49,11 +41,6 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
   const [sel, setSel] = useState(init.sel);
   const [bpm, setBpm] = useState(init.bpm);
   const [hear, setHear] = useState(init.hear);
-  const [countIn, setCountIn] = useState(init.countIn);
-  const [rampOn, setRampOn] = useState(init.rampOn);
-  const [rampBars, setRampBars] = useState(init.rampBars);
-  const [rampStep, setRampStep] = useState(init.rampStep);
-  const [rampCap, setRampCap] = useState(init.rampCap);
   const [goalId, setGoalId] = useState(init.goalId);
   const [playing, setPlaying] = useState(false);
   const [playT, setPlayT] = useState(-1);
@@ -64,10 +51,6 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
   const stopRef = useRef(null);
   const bpmRef = useRef(bpm); bpmRef.current = bpm;
   const hearRef = useRef(hear); hearRef.current = hear;
-  const rampRef = useRef(rampOn); rampRef.current = rampOn;
-  const rampBarsRef = useRef(rampBars); rampBarsRef.current = rampBars;
-  const rampStepRef = useRef(rampStep); rampStepRef.current = rampStep;
-  const rampCapRef = useRef(rampCap); rampCapRef.current = rampCap;
   const rud = RUDIMENTS.find((r) => r.id === sel) || RUDIMENTS[0];
   const idx = Math.max(0, RUDIMENTS.findIndex((r) => r.id === rud.id));
   const meterNow = meterPulse(rud.time);
@@ -76,8 +59,8 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
   const goal = GOALS.find((g) => g.id === goalId) || GOALS[0];
 
   useEffect(() => {
-    saveSession("rudiments", { sel, bpm, hear, countIn, rampOn, rampBars, rampStep, rampCap, goalId });
-  }, [sel, bpm, hear, countIn, rampOn, rampBars, rampStep, rampCap, goalId]);
+    saveSession("rudiments", { sel, bpm, hear, goalId });
+  }, [sel, bpm, hear, goalId]);
   useEffect(() => () => stopRef.current?.(), []);
 
   function stop() {
@@ -111,7 +94,6 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
     const notes = (rud.notes || []).filter((nt) => !nt.rest);
     const steps = rudimentDuration(rud);
     const meter = meterPulse(rud.time);
-    const barsEach = Math.max(1, rud.bars || 1);
     const targetLoops = goal.loops || 0;
     const endAt = goal.sec ? ctx.currentTime + goal.sec : Infinity;
     let cancelled = false;
@@ -131,16 +113,6 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
     if (!listEv.length) listEv = [{ t: 0, kind: "click", down: true }];
     let evIndex = 0;
     let cycleStart = ctx.currentTime + 0.02;
-    if (countIn) {
-      const pulseSec = stepSec() * meter.pulse;
-      for (let i = 0; i < 4; i++) {
-        playClick(ctx, cycleStart + i * pulseSec, i === 0);
-        pulse(cycleStart + i * pulseSec, ctx);
-      }
-      cycleStart += 4 * pulseSec;
-    }
-    let barsAcc = 0;
-    const bump = () => setBpm((p) => Math.min(rampCapRef.current, 260, p + rampStepRef.current));
     setLoopN(1);
     if (goal.sec) setLeftSec(goal.sec);
 
@@ -184,16 +156,11 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           evIndex = 0;
           cycleStart += steps * stepSec();
           listEv = events();
-          barsAcc += barsEach;
           loopsDone += 1;
           setLoopN(loopsDone);
           if (targetLoops && loopsDone > targetLoops) {
             finishOk();
             return;
-          }
-          if (rampRef.current && barsAcc >= rampBarsRef.current) {
-            barsAcc = 0;
-            bump();
           }
         }
       }
@@ -207,18 +174,6 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
       window.clearTimeout(timer);
     };
   }
-
-  const field = {
-    width: 46,
-    margin: "0 6px",
-    background: INK,
-    border: "1px solid " + LINE,
-    color: "#5cc8b8",
-    borderRadius: 5,
-    padding: "3px 5px",
-    textAlign: "center",
-    fontWeight: 700,
-  };
 
   return (
     <div className="rud-wrap">
@@ -271,7 +226,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           ))}
         </div>
       )}
-      <div className="metro-shell rud-metro" style={{ gridTemplateColumns: "1fr" }}>
+      <div className="metro-shell rud-metro" style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 16, gridTemplateColumns: "1fr" }}>
         <div
           className="dock metro-face"
           style={{
@@ -283,45 +238,4 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
         >
           <div className="dial-row">
             <button type="button" className="nudge-lg" onClick={() => setBpm(Math.max(30, bpm - 5))} aria-label="5 BPM langsamer">−5</button>
-            <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={stage ? 152 : 124} now subLabel={playing ? "Stop" : "Start"} />
-            <button type="button" className="nudge-lg" onClick={() => setBpm(Math.min(260, bpm + 5))} aria-label="5 BPM schneller">+5</button>
-          </div>
-          {stage ? null : (
-            <>
-              <div style={{ display: "flex", justifyContent: "center", marginTop: 12 }}>
-                <div className="seg">
-                  <button type="button" className={hear === "snare" ? "on" : ""} onClick={() => setHear("snare")}>Snare</button>
-                  <button type="button" className={hear === "hands" ? "on" : ""} onClick={() => setHear("hands")}>L / R</button>
-                  <button type="button" className={hear === "click" ? "on" : ""} onClick={() => setHear("click")}>Nur Click</button>
-                </div>
-              </div>
-              <label className="check" style={{ marginTop: 10 }}>
-                <input type="checkbox" checked={countIn} onChange={(e) => setCountIn(e.target.checked)} />4 Schläge einzählen
-              </label>
-              <label className="check" style={{ marginTop: 8 }}>
-                <input type="checkbox" checked={rampOn} onChange={(e) => setRampOn(e.target.checked)} />Tempo steigern
-              </label>
-              {rampOn ? (
-                <div style={{ fontSize: 12, color: DIM, marginTop: 8, lineHeight: 1.7 }}>
-                  alle
-                  <input type="number" min={1} max={8} value={rampBars} onChange={(e) => setRampBars(clamp(Number(e.target.value) || 2, 1, 8))} style={field} />
-                  Takte um
-                  <input type="number" min={1} max={12} value={rampStep} onChange={(e) => setRampStep(clamp(Number(e.target.value) || 2, 1, 12))} style={field} />
-                  BPM · bis
-                  <input type="number" min={40} max={260} value={rampCap} onChange={(e) => setRampCap(clamp(Number(e.target.value) || 160, 40, 260))} style={{ ...field, width: 56 }} />
-                </div>
-              ) : null}
-            </>
-          )}
-        </div>
-      </div>
-      <NavScrub
-        items={RUDIMENTS.map((r) => ({ id: r.id, label: r.label, preview: r.label }))}
-        index={idx}
-        disabled={playing}
-        onPick={pickRud}
-      />
-      {printOpen ? <PrintDialog sel={sel} onClose={onPrintClose} /> : null}
-    </div>
-  );
-}
+            <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={stage ? 152 : 124} now subLabel={playing ? "Stop" : "Start
