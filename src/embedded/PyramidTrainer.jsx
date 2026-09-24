@@ -86,6 +86,7 @@ export default function PyramidTrainer() {
   const steps = plan(dir, active.length ? active : STAGES);
   const cur = steps[idx] || steps[0];
   const rud = barRud(cur);
+  const curId = steps[idx]?.id;
 
   useEffect(() => () => stopRef.current?.(), []);
 
@@ -194,58 +195,41 @@ export default function PyramidTrainer() {
   }
 
   return (
-    <div>
+    <div style={{ paddingBottom: "calc(220px + env(safe-area-inset-bottom, 0px))" }}>
       <p style={{ color: DIM, fontSize: 14, margin: "12px 0 16px" }}>
         Jede Stufe ist 4/4. Du wählst die Stufen und, wie viele Takte eine Stufe bleibt. Septole ist nicht dabei.
       </p>
       <div className="staff-card">
         <div className="staff-label">{rud.label}</div>
         <RudimentStaff rud={rud} playingT={playT} svgId="pyramid-live" />
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
-          {steps.map((s, i) => (
-            <span key={s.id + i} className={i === idx ? "chip on" : "chip"} style={{ pointerEvents: "none" }}>{s.label}</span>
-          ))}
-        </div>
       </div>
-      <div className="panel dock" style={{ position: "static", margin: "0 0 14px", borderRadius: 12, boxShadow: "none" }}>
-        <div className="dial-row">
-          <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))} aria-label="5 BPM langsamer">−5</button>
-          <MetronomeDial bpm={bpm} setBpm={(n) => setBpm(clamp(n, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={120} now />
-          <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))} aria-label="5 BPM schneller">+5</button>
-        </div>
-        <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
-          <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
-            {playing ? "Stop" : "Start"}
-          </button>
-        </div>
-        {playing ? (
-          <div className="count">
-            <span className="count-num">{leftBars}</span>
-            <span className="count-unit">{leftBars === 1 ? "Takt übrig" : "Takte übrig"}</span>
-          </div>
-        ) : null}
-        {done ? <p style={{ color: "#5cc8b8", textAlign: "center", margin: "12px 0 0" }}>{done}</p> : null}
-      </div>
-      <div className="panel">
-        <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 12 }}>Einstellung</div>
-        <TempoControl bpm={bpm} setBpm={(n) => setBpm(clamp(n, 30, 200))} min={30} max={200} hideNudge />
-        <div style={{ marginTop: 14, fontSize: 13, color: DIM }}>Stufen</div>
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
-          {STAGES.map((s) => (
-            <button
-              key={s.id}
-              type="button"
-              className={enabled.has(s.id) ? "chip on" : "chip"}
-              aria-pressed={enabled.has(s.id)}
-              onClick={() => toggleStage(s.id)}
-            >
-              {s.label}
-            </button>
-          ))}
+      <div style={{ margin: "0 0 12px" }}>
+        <div style={{ fontSize: 13, color: DIM, marginBottom: 8 }}>Stufen</div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {STAGES.map((s) => {
+            const on = enabled.has(s.id);
+            const current = playing && curId === s.id;
+            return (
+              <button
+                key={s.id}
+                type="button"
+                className={on ? "chip on" : "chip"}
+                aria-pressed={on}
+                onClick={() => toggleStage(s.id)}
+                style={current ? { outline: "2px solid #e8b84b", outlineOffset: 2 } : undefined}
+              >
+                {s.label}
+              </button>
+            );
+          })}
         </div>
         <p style={{ color: DIM, fontSize: 12, margin: "8px 0 0" }}>
           Tippen schaltet an oder aus. Mindestens eine Stufe bleibt an. Während dem Laufen gesperrt.
         </p>
+      </div>
+      <div className="panel">
+        <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 12 }}>Einstellung</div>
+        <TempoControl bpm={bpm} setBpm={(n) => setBpm(clamp(n, 30, 200))} min={30} max={200} hideNudge />
         <div style={{ marginTop: 14, fontSize: 13, color: DIM }}>Richtung</div>
         <div className="seg" style={{ marginTop: 8, width: "fit-content" }}>
           <button type="button" className={dir === "up" ? "on" : ""} onClick={() => !playing && setDir("up")}>auf</button>
@@ -261,6 +245,42 @@ export default function PyramidTrainer() {
         <p style={{ color: DIM, fontSize: 12, margin: "14px 0 0" }}>
           Immer 4/4. Stufe wechselt nach {barLabel(bars)}, genau an der Taktgrenze.
         </p>
+      </div>
+      <div
+        style={{
+          position: "fixed",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 15,
+          background: "transparent",
+          border: "none",
+          boxShadow: "none",
+          borderRadius: 0,
+          margin: 0,
+          padding: "8px 14px calc(14px + env(safe-area-inset-bottom, 0px))",
+          pointerEvents: "none",
+        }}
+      >
+        <div style={{ pointerEvents: "auto", maxWidth: 880, margin: "0 auto" }}>
+          <div className="dial-row">
+            <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))} aria-label="5 BPM langsamer">−5</button>
+            <MetronomeDial bpm={bpm} setBpm={(n) => setBpm(clamp(n, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={120} now />
+            <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))} aria-label="5 BPM schneller">+5</button>
+          </div>
+          <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
+            <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
+              {playing ? "Stop" : "Start"}
+            </button>
+          </div>
+          {playing ? (
+            <div className="count">
+              <span className="count-num">{leftBars}</span>
+              <span className="count-unit">{leftBars === 1 ? "Takt übrig" : "Takte übrig"}</span>
+            </div>
+          ) : null}
+          {done ? <p style={{ color: "#5cc8b8", textAlign: "center", margin: "12px 0 0" }}>{done}</p> : null}
+        </div>
       </div>
     </div>
   );
