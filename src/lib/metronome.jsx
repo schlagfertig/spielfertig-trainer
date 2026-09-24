@@ -50,11 +50,13 @@ function arc(cx, cy, r, a0, a1, sweep) {
   return `M ${x0} ${y0} A ${r} ${r} 0 0 ${sweep} ${x1} ${y1}`;
 }
 
-/** Radians of turn per 1 BPM: near center = coarse, far out = fine. */
+/** Radians of turn per 1 BPM: near center = coarse, past rim = finer. */
 function radPerBpm(distPx, halfSize) {
-  const t = Math.min(1, Math.max(0, distPx / Math.max(1, halfSize)));
+  // Reach past the dial rim so fine control lives outside the circle.
+  const reach = halfSize * 1.85;
+  const t = Math.min(1, Math.max(0, distPx / Math.max(1, reach)));
   const coarse = (6 * Math.PI) / 180;
-  const fine = (18 * Math.PI) / 180;
+  const fine = (22 * Math.PI) / 180;
   return coarse + (fine - coarse) * t;
 }
 
@@ -84,12 +86,13 @@ function HoldLever({ angle, distPx, size, pad, visible }) {
   const cx = W / 2;
   const cy = W / 2;
   const rMin = size * 0.2;
-  const rMax = size * 0.52;
+  // Past dial rim into the pad ring (finer zone).
+  const rMax = size / 2 + pad - 8;
   const r = Math.min(rMax, Math.max(rMin, distPx));
   const t = (r - rMin) / Math.max(0.001, rMax - rMin); // 0 near, 1 far
   const coarse = 1 - t; // near = grob (dicker), far = fein (schmaler)
   const strokeW = 2.2 + coarse * 3.2;
-  const arcR = Math.min(rMax + 6, r + 10);
+  const arcR = Math.min(rMax - 2, r + 10);
   const halfSpan = 28 + coarse * 22;
   const a0 = (angle * 180) / Math.PI - halfSpan;
   const a1 = (angle * 180) / Math.PI + halfSpan;
@@ -176,7 +179,7 @@ export function MetronomeDial({
   const labelCol = num;
   const bpmSize = Math.max(12, Math.round(size * (large ? 0.36 : 0.34)));
   const labelSize = Math.max(8, Math.round(size * 0.11));
-  const pad = 16;
+  const pad = 40;
   const drag = useRef(null);
   const fadeTimer = useRef(null);
   const [lever, setLever] = useState({ visible: false, angle: 0, dist: size * 0.35, mounted: false });
@@ -231,8 +234,7 @@ export function MetronomeDial({
     if (d.moved >= MOVE_PX) {
       d.dragging = true;
       showLever(ang, dist);
-      const half = e.currentTarget.getBoundingClientRect().width / 2;
-      const step = radPerBpm(dist, half);
+      const step = radPerBpm(dist, size / 2);
       if (Math.abs(d.acc) >= step) {
         const steps = Math.trunc(d.acc / step);
         d.acc -= steps * step;
@@ -253,7 +255,7 @@ export function MetronomeDial({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, minWidth: 0 }}>
-      <div style={{ position: "relative", width: size + pad * 2, height: size + pad * 2, flexShrink: 0 }}>
+      <div style={{ position: "relative", width: size + pad * 2, height: size + pad * 2, flexShrink: 0, overflow: "visible" }}>
         {setBpm ? <WheelHints /> : null}
         {setBpm && lever.mounted ? (
           <HoldLever
@@ -266,12 +268,9 @@ export function MetronomeDial({
         ) : null}
         <button
           type="button"
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
-          title="Tipp = Start/Stop. Halten und drehen ändert das Tempo."
-          aria-label={active ? "Metronom stoppen. Halten und drehen ändert das Tempo." : "Metronom starten. Halten und drehen ändert das Tempo."}
+          tabIndex={setBpm ? -1 : undefined}
+          aria-hidden={setBpm ? true : undefined}
+          onClick={setBpm ? undefined : () => onToggle?.()}
           style={{
             position: "absolute",
             left: pad,
@@ -288,6 +287,7 @@ export function MetronomeDial({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            pointerEvents: setBpm ? "none" : "auto",
             boxShadow: beat
               ? "0 0 24px 7px " + TEAL
               : on
@@ -320,6 +320,34 @@ export function MetronomeDial({
             )}
           </div>
         </button>
+        {setBpm ? (
+          <div
+            role="button"
+            tabIndex={0}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={onPointerUp}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onToggle?.();
+              }
+            }}
+            title="Tipp = Start/Stop. Halten und drehen ändert das Tempo."
+            aria-label={active ? "Metronom stoppen. Halten und drehen ändert das Tempo." : "Metronom starten. Halten und drehen ändert das Tempo."}
+            style={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 3,
+              borderRadius: "50%",
+              cursor: "grab",
+              touchAction: "none",
+              userSelect: "none",
+              outline: "none",
+            }}
+          />
+        ) : null}
       </div>
       {setBpm ? (
         <div style={{ marginTop: 2, maxWidth: 148, textAlign: "center", font: "600 11px/1.25 Figtree, sans-serif", color: "#8a969c" }}>
