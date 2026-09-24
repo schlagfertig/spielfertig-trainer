@@ -136,7 +136,7 @@ export default function FirstLesson({ onHome, onOpen }) {
           </div>
         ) : null}
       </div>
-      <button className="ghost" style={{ width: "100%" }} onClick={skip}>Überspringen</button>
+      <button className="ghost" style={{ width: "100%", minHeight: 44, border: "1px solid transparent" }} onClick={skip}>Überspringen</button>
     </div>
   );
 }
