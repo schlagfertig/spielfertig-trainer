@@ -116,7 +116,7 @@ export default function FirstLesson({ onHome, onOpen }) {
           <p style={{ color: "#5cc8b8", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", fontSize: 13, margin: "8px 0 10px" }}>Erste Übung</p>
           <h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: 30, margin: "0 0 10px" }}>Eine Minute im Puls bleiben</h2>
           <p style={{ color: DIM, fontSize: 17, margin: "0 0 16px" }}>
-            Du hörst einen gleichmäßigen Klick — 80 Schlage pro Minute, das ist ein ruhiges Gehtempo. Bei jedem Klick ein Schlag auf dem Pad. Nicht schneller werden.
+            Du hörst einen gleichmäßigen Klick — 80 Schläge pro Minute, das ist ein ruhiges Gehtempo. Bei jedem Klick ein Schlag auf dem Pad. Nicht schneller werden.
           </p>
         </>
       ) : (
