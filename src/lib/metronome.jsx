@@ -74,6 +74,7 @@ export function MetronomeDial({
   onToggle,
   size = 124,
   now = true,
+  subLabel,
 }) {
   const large = size >= 72;
   const on = !!active;
@@ -180,7 +181,7 @@ export function MetronomeDial({
                 textTransform: "uppercase",
                 marginTop: 4,
                 opacity: 0.85,
-              }}>{now && on ? "Now" : "BPM"}</div>
+              }}>{subLabel != null ? subLabel : (now && on ? "Now" : "BPM")}</div>
             )}
           </div>
         </button>
