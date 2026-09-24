@@ -80,7 +80,7 @@ function Phrase({ id, hands, playT }) {
       ))}
       <text x="6" y={hy} fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="16">{id}.</text>
       {letters.map((ch, i) => (
-        <text key={i} x={xs[i]} y={hy} textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="16" fill={i === active ? GOLD : TEAL}>{ch}</text>
+        <text key={i} x={xs[i]} y={hy} textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="16" fill={i === active ? GOLD : INK}>{ch}</text>
       ))}
     </svg>
   );
@@ -94,7 +94,7 @@ function StickRow({ id, hands }) {
     <svg viewBox={`0 0 ${w} 22`} width="100%" aria-hidden="true">
       <text x="6" y="16" fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="13">{id}.</text>
       {letters.map((ch, i) => (
-        <text key={i} x={xs[i]} y="16" textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="13" fill={TEAL}>{ch}</text>
+        <text key={i} x={xs[i]} y="16" textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="13" fill={INK}>{ch}</text>
       ))}
     </svg>
   );
@@ -365,7 +365,7 @@ export default function StickControl() {
       <div className="stick-pin" ref={pinRef}>
         <div className="stick-tools" style={{ display: "flex", gap: 8, alignItems: "center", margin: "0 0 10px", flexWrap: "wrap" }}>
           <div className="seg" style={{ width: "fit-content" }}>
-            <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>Üben</button>
+            <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>\u00dcben</button>
             <button type="button" className={mode === "challenge" ? "on" : ""} onClick={() => !playing && setMode("challenge")}>Challenge</button>
           </div>
           {challenge ? (
