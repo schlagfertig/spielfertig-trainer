@@ -365,7 +365,7 @@ export default function StickControl() {
       <div className="stick-pin" ref={pinRef}>
         <div className="stick-tools" style={{ display: "flex", gap: 8, alignItems: "center", margin: "0 0 10px", flexWrap: "wrap" }}>
           <div className="seg" style={{ width: "fit-content" }}>
-            <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>\u00dcben</button>
+            <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>Üben</button>
             <button type="button" className={mode === "challenge" ? "on" : ""} onClick={() => !playing && setMode("challenge")}>Challenge</button>
           </div>
           {challenge ? (
