@@ -30,7 +30,7 @@ p { font-size: 17px; line-height: 1.45; }
   overflow-x: hidden;
 }
 .home { max-width: 640px; margin: 0 auto; position: relative; }
-.home-help { position: absolute; top: 4px; right: 4px; }
+.home-help { position: absolute; top: 10px; right: 10px; }
 .hero { text-align: center; padding: 12px 0 10px; }
 .logo {
   display: block;
@@ -105,7 +105,7 @@ p { font-size: 17px; line-height: 1.45; }
   background: transparent; color: var(--dim); border: 1px solid var(--line);
   border-radius: 8px; padding: 10px 12px; font-weight: 700; font-size: 16px; cursor: pointer;
 }
-.top .ghost { padding: 8px 10px; font-size: 15px; }
+.top .ghost { padding: 10px 12px; font-size: 15px; min-height: 44px; }
 .nudge { min-width: 48px; font-size: 17px; color: var(--teal); }
 .dial-row {
   display: flex;
@@ -138,7 +138,7 @@ p { font-size: 17px; line-height: 1.45; }
 .count-done { font-family: Oswald, sans-serif; font-size: 36px; letter-spacing: 0.08em; text-transform: uppercase; }
 .chip.on, .seg button.on, .ghost.on, .more-btn.on { background: var(--teal); color: #06120f; border-color: var(--teal); }
 .help-dot {
-  width: 36px; height: 36px; padding: 0;
+  width: 44px; height: 44px; padding: 0;
   border-radius: 50%;
   border: 1px solid var(--teal);
   background: transparent;
