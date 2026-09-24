@@ -10,7 +10,7 @@ import Legal from "./lib/Legal.jsx";
 import { loadSession } from "./lib/session.js";
 
 const META = {
-  first: { title: "Erste Uebung", help: "home" },
+  first: { title: "Erste Übung", help: "home" },
   rudiments: { title: "Rudiments", help: "rudiments" },
   click: { title: "Click-Trainer", help: "click" },
   pyramid: { title: "Rhythmuspyramide", help: "pyramid" },
@@ -130,44 +130,44 @@ export default function App() {
         <header className="hero">
           <img className="logo" src="/logo.svg?v=clear" alt="schlagfertig" />
           <h1>Spielfertig</h1>
-          <p className="tag">schlagfertig · Zeit fuer guten Sound</p>
+          <p className="tag">schlagfertig · Zeit für guten Sound</p>
         </header>
         <button className="card" style={{ width: "100%", borderColor: "#5cc8b8", marginTop: 8 }} onClick={() => open("first")}>
           <div className="card-kicker">{firstDone ? "Nochmal" : "Loslegen"}</div>
-          <div className="card-title">Erste Uebung starten</div>
-          <div className="card-lead">Eine Minute mitklicken. Kein Fachwort noetig.</div>
+          <div className="card-title">Erste Übung starten</div>
+          <div className="card-lead">Eine Minute mitklicken. Kein Fachwort nötig.</div>
           <div className="card-go">Start</div>
         </button>
         <div className="cards">
           <button className="card" onClick={() => open("rudiments")}>
-            <div className="card-kicker">Ueben</div>
+            <div className="card-kicker">Üben</div>
             <div className="card-title">Rudiments</div>
             <div className="card-lead">40 PAS-Rudiments. Notation, Click, Tempo.</div>
-            <div className="card-go">Oeffnen</div>
+            <div className="card-go">Öffnen</div>
           </button>
           <button className="card" onClick={() => open("click")}>
             <div className="card-kicker">Tempo</div>
             <div className="card-title">Click-Trainer</div>
-            <div className="card-lead">Starttempo waehlen. Alle X Sekunden um Y BPM schneller.</div>
-            <div className="card-go">Oeffnen</div>
+            <div className="card-lead">Starttempo wählen. Alle X Sekunden um Y BPM schneller.</div>
+            <div className="card-go">Öffnen</div>
           </button>
           <button className="card" onClick={() => open("pyramid")}>
             <div className="card-kicker">Subdivision</div>
             <div className="card-title">Rhythmuspyramide</div>
             <div className="card-lead">4tel bis 32tel: Puls festigen, sauber zwischen Unterteilungen wechseln, Tempo trotz Dichte halten.</div>
-            <div className="card-go">Oeffnen</div>
+            <div className="card-go">Öffnen</div>
           </button>
           <button className="card" onClick={() => open("stick")}>
             <div className="card-kicker">Technik</div>
             <div className="card-title">Stick Control</div>
-            <div className="card-lead">nach G. L. Stone: Schwache Hand verbessern, saubere Wechsel ueben, Tempo ohne Verspannungen halten.</div>
-            <div className="card-go">Oeffnen</div>
+            <div className="card-lead">nach G. L. Stone: Schwache Hand verbessern, saubere Wechsel üben, Tempo ohne Verspannungen halten.</div>
+            <div className="card-go">Öffnen</div>
           </button>
           <button className="card" onClick={() => open("archive")}>
-            <div className="card-kicker">Eigene Blaetter</div>
+            <div className="card-kicker">Eigene Blätter</div>
             <div className="card-title">Noten</div>
-            <div className="card-lead">Fotos und PDFs lokal ablegen und waehrenddessen aufschlagen.</div>
-            <div className="card-go">Oeffnen</div>
+            <div className="card-lead">Fotos und PDFs lokal ablegen und währenddessen aufschlagen.</div>
+            <div className="card-go">Öffnen</div>
           </button>
         </div>
         <footer className="foot">
@@ -188,7 +188,7 @@ export default function App() {
         {stage && !printOpen ? (
           <button className="ghost" onClick={() => setStage(false)}>Pad aus</button>
         ) : (
-          <button className="ghost" onClick={back}>Zurueck</button>
+          <button className="ghost" onClick={back}>Zurück</button>
         )}
         <div className="top-title">{printOpen && view === "rudiments" ? "Drucken" : meta.title}</div>
         <div className="top-right">
@@ -201,10 +201,10 @@ export default function App() {
           {view === "rudiments" && !printOpen && (
             <button
               className={stage ? "ghost on" : "ghost"}
-              title="Notation gross, weniger Bedienelemente."
-              aria-label={stage ? "Uebepad aus" : "Uebepad"}
+              title="Notation groß, weniger Bedienelemente."
+              aria-label={stage ? "Übepad aus" : "Übepad"}
               onClick={() => setStage((v) => !v)}
-            >{stage ? "Pad aus" : "Uebepad"}</button>
+            >{stage ? "Pad aus" : "Übepad"}</button>
           )}
           {!stage && !printOpen && view !== "first" && view !== "impressum" && view !== "datenschutz" && <Help topic={meta.help} />}
         </div>
