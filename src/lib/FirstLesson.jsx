@@ -125,7 +125,7 @@ export default function FirstLesson({ onHome, onOpen }) {
           <p style={{ color: DIM, fontSize: 16, margin: "0 0 8px" }}>Bleib am Pad. Jeder Klick = ein Schlag.</p>
         </>
       )}
-      <div className="panel dock" style={{ position: "static", margin: "0 0 14px", borderRadius: 12, boxShadow: "none" }}>
+      <div className="panel dock" style={{ position: "static", margin: "0 0 14px", borderRadius: 12, boxShadow: "none", border: "1px solid transparent" }}>
         <div className="dial-row">
           <MetronomeDial bpm={BPM} beat={beat} active={phase === "play"} onToggle={() => (phase === "play" ? finish() : start())} size={170} now subLabel={phase === "play" ? "Stop" : "Start"} />
         </div>
