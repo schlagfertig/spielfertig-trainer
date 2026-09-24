@@ -152,7 +152,7 @@ export default function Archive({ overlay = false, onClose }) {
       <input ref={pick} type="file" accept="image/*,application/pdf" hidden onChange={(e) => onFiles(e.target.files)} />
       {err ? <p role="status" style={{ color: "#e05c5c", fontWeight: 700 }}>{err}</p> : null}
       {ok ? <p role="status" style={{ color: "#5cc8b8", fontWeight: 700 }}>{ok}</p> : null}
-      {!rows.length && !err ? <p style={{ color: "#8a969c" }}>Noch keine Blätter.</p> : null}
+      {!rows.length && !err ? <p style={{ color: "#8a969c" }}>Noch keine Blätter. Mit „Hinzufügen“ Foto oder PDF ablegen.</p> : null}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {rows.map((r) => (
           <div key={r.id} style={{ display: "flex", gap: 6, alignItems: "center", padding: 10, border: "1px solid #2f383d", borderRadius: 10, background: r.id === openA || r.id === openB ? "#13211f" : "#1c2226" }}>
