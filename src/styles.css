@@ -559,11 +559,32 @@ p { font-size: 17px; line-height: 1.45; }
   line-height: 1.5;
   white-space: pre-line;
 }
-.foot-links { display: flex; flex-wrap: wrap; gap: 10px 14px; justify-content: center; margin-top: 10px; }
+.foot-links { display: flex; flex-wrap: wrap; gap: 4px 8px; justify-content: center; margin-top: 12px; }
 .foot-link {
-  background: none; border: 0; padding: 0;
+  background: none; border: 0;
+  padding: 10px 12px;
+  min-height: 44px;
   color: #5a666c; font-size: 13px; font-weight: 700;
   letter-spacing: 0.08em; text-transform: uppercase;
   cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
 }
 .foot-link:hover { color: var(--teal); }
+.legal-a {
+  color: var(--teal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  word-break: break-word;
+}
+.legal-nav { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--line); }
+.legal-nav-btn {
+  background: transparent;
+  color: var(--teal);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  width: 100%;
+}
+.legal-nav-btn:hover { border-color: var(--teal); }
