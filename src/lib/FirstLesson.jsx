@@ -127,7 +127,7 @@ export default function FirstLesson({ onHome, onOpen }) {
       )}
       <div className="panel dock" style={{ position: "static", margin: "0 0 14px", borderRadius: 12, boxShadow: "none" }}>
         <div className="dial-row">
-          <MetronomeDial bpm={BPM} beat={beat} active={phase === "play"} onToggle={() => (phase === "play" ? finish() : start())} size={120} now />
+          <MetronomeDial bpm={BPM} beat={beat} active={phase === "play"} onToggle={() => (phase === "play" ? finish() : start())} size={170} now subLabel={phase === "play" ? "Stop" : "Start"} />
         </div>
         {phase === "play" ? (
           <div className="count">
@@ -135,11 +135,6 @@ export default function FirstLesson({ onHome, onOpen }) {
             <span className="count-unit">Sekunden</span>
           </div>
         ) : null}
-        <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
-          <button className={phase === "play" ? "play stop" : "play"} onClick={() => (phase === "play" ? finish() : start())}>
-            {phase === "play" ? "Fertig" : "Start"}
-          </button>
-        </div>
       </div>
       <button className="ghost" style={{ width: "100%" }} onClick={skip}>Überspringen</button>
     </div>
