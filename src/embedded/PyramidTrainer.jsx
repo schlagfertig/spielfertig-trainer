@@ -21,9 +21,9 @@ function clamp(n, min, max) {
   return Math.max(min, Math.min(max, Math.round(n)));
 }
 
-function plan(dir) {
-  const up = STAGES;
-  const down = [...STAGES].reverse();
+function plan(dir, stages) {
+  const up = stages;
+  const down = [...stages].reverse();
   if (dir === "up") return up;
   if (dir === "down") return down;
   return [...up, ...down.slice(1)];
@@ -70,6 +70,7 @@ export default function PyramidTrainer() {
   const [bpm, setBpm] = useState(80);
   const [bars, setBars] = useState(2);
   const [dir, setDir] = useState("updown");
+  const [enabled, setEnabled] = useState(() => new Set(STAGES.map((s) => s.id)));
   const [playing, setPlaying] = useState(false);
   const [beat, setBeat] = useState(false);
   const [idx, setIdx] = useState(0);
@@ -81,11 +82,28 @@ export default function PyramidTrainer() {
   const barsRef = useRef(2);
   bpmRef.current = bpm;
   barsRef.current = bars;
-  const steps = plan(dir);
+  const active = STAGES.filter((s) => enabled.has(s.id));
+  const steps = plan(dir, active.length ? active : STAGES);
   const cur = steps[idx] || steps[0];
   const rud = barRud(cur);
 
   useEffect(() => () => stopRef.current?.(), []);
+
+  function toggleStage(id) {
+    if (playing) return;
+    setEnabled((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        if (next.size <= 1) return prev;
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+    setIdx(0);
+    setDone("");
+  }
 
   function stop() {
     stopRef.current?.();
@@ -101,7 +119,8 @@ export default function PyramidTrainer() {
     stop();
     setDone("");
     const ctx = unlockAudio();
-    const run = plan(dir);
+    const selected = STAGES.filter((s) => enabled.has(s.id));
+    const run = plan(dir, selected.length ? selected : STAGES);
     const holdBars = barsRef.current;
     let cancelled = false;
     let timer = 0;
@@ -177,7 +196,7 @@ export default function PyramidTrainer() {
   return (
     <div>
       <p style={{ color: DIM, fontSize: 14, margin: "12px 0 16px" }}>
-        Jede Stufe ist 4/4. Du wählst, wie viele Takte eine Stufe bleibt. Septole ist nicht dabei.
+        Jede Stufe ist 4/4. Du wählst die Stufen und, wie viele Takte eine Stufe bleibt. Septole ist nicht dabei.
       </p>
       <div className="staff-card">
         <div className="staff-label">{rud.label}</div>
@@ -210,6 +229,23 @@ export default function PyramidTrainer() {
       <div className="panel">
         <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 12 }}>Einstellung</div>
         <TempoControl bpm={bpm} setBpm={(n) => setBpm(clamp(n, 30, 200))} min={30} max={200} hideNudge />
+        <div style={{ marginTop: 14, fontSize: 13, color: DIM }}>Stufen</div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+          {STAGES.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              className={enabled.has(s.id) ? "chip on" : "chip"}
+              aria-pressed={enabled.has(s.id)}
+              onClick={() => toggleStage(s.id)}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+        <p style={{ color: DIM, fontSize: 12, margin: "8px 0 0" }}>
+          Tippen schaltet an oder aus. Mindestens eine Stufe bleibt an. Während dem Laufen gesperrt.
+        </p>
         <div style={{ marginTop: 14, fontSize: 13, color: DIM }}>Richtung</div>
         <div className="seg" style={{ marginTop: 8, width: "fit-content" }}>
           <button type="button" className={dir === "up" ? "on" : ""} onClick={() => !playing && setDir("up")}>auf</button>
