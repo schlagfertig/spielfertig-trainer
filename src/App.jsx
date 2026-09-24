@@ -148,7 +148,7 @@ export default function App() {
           <button className="card" onClick={() => open("click")}>
             <div className="card-kicker">Tempo</div>
             <div className="card-title">Click-Trainer</div>
-            <div className="card-lead">Starttempo wählen. Alle X Sekunden um Y BPM schneller.</div>
+            <div className="card-lead">Starttempo wählen. Tempo halten oder automatisch steigern.</div>
             <div className="card-go">Öffnen</div>
           </button>
           <button className="card" onClick={() => open("pyramid")}>
