@@ -265,13 +265,8 @@ export default function PyramidTrainer() {
         <div style={{ pointerEvents: "auto", maxWidth: 880, margin: "0 auto" }}>
           <div className="dial-row">
             <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))} aria-label="5 BPM langsamer">−5</button>
-            <MetronomeDial bpm={bpm} setBpm={(n) => setBpm(clamp(n, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={120} now />
+            <MetronomeDial bpm={bpm} setBpm={(n) => setBpm(clamp(n, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={124} now subLabel={playing ? "Stop" : "Start"} />
             <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))} aria-label="5 BPM schneller">+5</button>
-          </div>
-          <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
-            <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
-              {playing ? "Stop" : "Start"}
-            </button>
           </div>
           {playing ? (
             <div className="count">
