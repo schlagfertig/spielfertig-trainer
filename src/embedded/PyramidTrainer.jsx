@@ -195,7 +195,7 @@ export default function PyramidTrainer() {
   }
 
   return (
-    <div style={{ paddingBottom: "calc(220px + env(safe-area-inset-bottom, 0px))" }}>
+    <div className="pyramid-wrap" style={{ paddingBottom: "calc(260px + env(safe-area-inset-bottom, 0px))" }}>
       <p style={{ color: DIM, fontSize: 14, margin: "12px 0 16px" }}>
         Jede Stufe ist 4/4. Du wählst die Stufen und, wie viele Takte eine Stufe bleibt. Septole ist nicht dabei.
       </p>
@@ -247,6 +247,7 @@ export default function PyramidTrainer() {
         </p>
       </div>
       <div
+        className="pyramid-dock"
         style={{
           position: "fixed",
           left: 0,
@@ -258,7 +259,7 @@ export default function PyramidTrainer() {
           boxShadow: "none",
           borderRadius: 0,
           margin: 0,
-          padding: "8px 14px calc(14px + env(safe-area-inset-bottom, 0px))",
+          padding: "6px 14px calc(10px + env(safe-area-inset-bottom, 0px))",
           pointerEvents: "none",
         }}
       >

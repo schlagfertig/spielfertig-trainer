@@ -239,6 +239,7 @@ export default function StickControl() {
       <style>{`
         .stick-wrap {
           --rud-foot: calc(84px + env(safe-area-inset-bottom, 0px));
+          --rud-dock: 220px;
         }
         .stick-pin {
           position: sticky;
@@ -247,37 +248,29 @@ export default function StickControl() {
           background: #161a1d;
           padding: 8px 0 10px;
         }
-        .stick-dock {
+        .stick-wrap .rud-metro {
           position: fixed;
           left: 0;
           right: 0;
           bottom: 0;
-          z-index: 18;
+          z-index: 16;
           background: transparent;
-          border-top: none;
-          border-radius: 18px 18px 0 0;
+          border: none;
           box-shadow: none;
-          overflow: visible;
         }
-        .stick-dock .rud-metro {
-          position: static;
-          display: block;
-          grid-template-columns: none;
-          margin: 0;
-        }
-        .stick-dock .metro-face,
-        .stick-dock .dock {
+        .stick-wrap .rud-metro .metro-face,
+        .stick-wrap .rud-metro .dock {
           position: static;
           margin: 0;
           border: 0;
           border-radius: 18px 18px 0 0;
           box-shadow: none;
           background: transparent;
-          padding: 6px 12px 4px;
-          max-height: none;
+          padding: 6px 12px var(--rud-foot);
+          max-height: calc(var(--rud-dock) + var(--rud-foot));
+          overflow: auto;
         }
-        .stick-dock .rud-nav {
-          position: relative;
+        .stick-wrap .rud-nav {
           box-shadow: none;
           border-top: 1px solid #2f383d;
           background: transparent;
@@ -300,8 +293,7 @@ export default function StickControl() {
             overflow: hidden;
           }
           .stick-list, .stick-done { display: none !important; }
-          .stick-dock .metro-shell { display: none !important; }
-          .stick-dock { border-radius: 0; box-shadow: none; }
+          .stick-wrap .rud-metro { display: none !important; }
           .stick-pin {
             flex: 1;
             min-height: 0;
@@ -389,7 +381,6 @@ export default function StickControl() {
         ))}
       </div>
       {done ? <p className="stick-done" style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{done}</p> : null}
-      <div className="stick-dock">
         <div className="metro-shell rud-metro">
           <div className="dock metro-face">
             <div className="dial-row">
@@ -413,7 +404,6 @@ export default function StickControl() {
           disabled={playing}
           onPick={pick}
         />
-      </div>
     </div>
   );
 }
