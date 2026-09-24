@@ -194,7 +194,7 @@ export default function ClickTrainer() {
   const atCap = ramp && bpm >= cap;
 
   return (
-    <div style={{ minWidth: 0, maxWidth: "100%" }}>
+    <div style={{ minWidth: 0, maxWidth: "100%", paddingBottom: "calc(220px + env(safe-area-inset-bottom, 0px))" }}>
       <p style={{ color: DIM, fontSize: 14, margin: "12px 0 16px" }}>
         {ramp
           ? "Click starten. Alle paar Sekunden wird das Tempo angehoben — Du bleibst am Pad."
@@ -203,46 +203,6 @@ export default function ClickTrainer() {
       <div className="seg" style={{ margin: "0 0 14px", maxWidth: "100%" }}>
         <button type="button" className={!ramp ? "on" : ""} onClick={() => pickMode("hold")}>Tempo halten</button>
         <button type="button" className={ramp ? "on" : ""} onClick={() => pickMode("ramp")}>Tempo steigern</button>
-      </div>
-      <div className="metro-shell">
-        <div className="panel dock metro-face" style={{ position: "static", margin: 0, borderRadius: "12px 0 0 12px", boxShadow: "none", overflow: "auto" }}>
-          {flipped ? (
-            <div key="back" className="metro-swap">
-              <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 10 }}>Click-Mixer</div>
-              <ClickAdvanced mix={mix} setMix={setMix} slidersOnly />
-            </div>
-          ) : (
-            <div key="front" className="metro-swap">
-              <div className="dial-row">
-                <button type="button" className="nudge-lg" onClick={() => setDial(bpm - 5)} aria-label="5 BPM langsamer">−5</button>
-                <MetronomeDial bpm={bpm} setBpm={setDial} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={108} now />
-                <button type="button" className="nudge-lg" onClick={() => setDial(bpm + 5)} aria-label="5 BPM schneller">+5</button>
-              </div>
-              <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 14 }}>
-                <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
-                  {playing ? "Stop" : "Start"}
-                </button>
-              </div>
-              {playing && ramp ? (
-                <div className="count">
-                  {atCap ? (
-                    <span className="count-done">Ziel</span>
-                  ) : (
-                    <>
-                      <span className="count-num">{Math.max(0, Math.ceil(left))}</span>
-                      <span className="count-unit">Sek. bis +{step}</span>
-                    </>
-                  )}
-                </div>
-              ) : null}
-              {done ? <p style={{ color: "#5cc8b8", textAlign: "center", fontSize: 14, margin: "12px 0 0" }}>{done}</p> : null}
-              {bgHint ? <p style={{ color: "#e8b84b", textAlign: "center", fontSize: 12, margin: "10px 0 0" }}>App im Hintergrund — der Click kann pausieren. Zurückkommen und ggf. neu starten.</p> : null}
-            </div>
-          )}
-        </div>
-        <button type="button" className={flipped ? "metro-side on" : "metro-side"} onClick={() => flip(!flipped)}>
-          {flipped ? "Metronom" : "Erweitert"}
-        </button>
       </div>
       <div className="panel">
         <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 12 }}>Einstellung</div>
@@ -276,6 +236,65 @@ export default function ClickTrainer() {
           </p>
         )}
       </div>
+      <div
+        style={{
+          position: "fixed",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 15,
+          background: "transparent",
+          border: "none",
+          boxShadow: "none",
+          borderRadius: 0,
+          margin: 0,
+          padding: "8px 14px calc(14px + env(safe-area-inset-bottom, 0px))",
+          pointerEvents: "none",
+        }}
+      >
+        <div style={{ pointerEvents: "auto", maxWidth: 880, margin: "0 auto" }}>
+          <div className="metro-shell">
+            <div className="metro-face" style={{ position: "static", margin: 0, padding: "8px 8px 4px 0", borderRadius: 0, background: "transparent", border: "none", boxShadow: "none", overflow: "auto" }}>
+              {flipped ? (
+                <div key="back" className="metro-swap">
+                  <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 10 }}>Click-Mixer</div>
+                  <ClickAdvanced mix={mix} setMix={setMix} slidersOnly />
+                </div>
+              ) : (
+                <div key="front" className="metro-swap">
+                  <div className="dial-row">
+                    <button type="button" className="nudge-lg" onClick={() => setDial(bpm - 5)} aria-label="5 BPM langsamer">−5</button>
+                    <MetronomeDial bpm={bpm} setBpm={setDial} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={108} now />
+                    <button type="button" className="nudge-lg" onClick={() => setDial(bpm + 5)} aria-label="5 BPM schneller">+5</button>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 14 }}>
+                    <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
+                      {playing ? "Stop" : "Start"}
+                    </button>
+                  </div>
+                  {playing && ramp ? (
+                    <div className="count">
+                      {atCap ? (
+                        <span className="count-done">Ziel</span>
+                      ) : (
+                        <>
+                          <span className="count-num">{Math.max(0, Math.ceil(left))}</span>
+                          <span className="count-unit">Sek. bis +{step}</span>
+                        </>
+                      )}
+                    </div>
+                  ) : null}
+                  {done ? <p style={{ color: "#5cc8b8", textAlign: "center", fontSize: 14, margin: "12px 0 0" }}>{done}</p> : null}
+                  {bgHint ? <p style={{ color: "#e8b84b", textAlign: "center", fontSize: 12, margin: "10px 0 0" }}>App im Hintergrund — der Click kann pausieren. Zurückkommen und ggf. neu starten.</p> : null}
+                </div>
+              )}
+            </div>
+            <button type="button" className={flipped ? "metro-side on" : "metro-side"} onClick={() => flip(!flipped)}>
+              {flipped ? "Metronom" : "Erweitert"}
+            </button>
+          </div>
+        </div>
+      </div>
       <style>{`
         .field { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 14px; color: ${DIM}; }
         .field input {
@@ -286,7 +305,7 @@ export default function ClickTrainer() {
           display: grid;
           grid-template-columns: minmax(0, 1fr) 40px;
           align-items: stretch;
-          margin: 0 0 14px;
+          margin: 0;
           max-width: 100%;
           min-width: 0;
         }
