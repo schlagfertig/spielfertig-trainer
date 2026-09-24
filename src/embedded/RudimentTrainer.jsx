@@ -261,7 +261,15 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
         </div>
       )}
       <div className="metro-shell rud-metro" style={{ gridTemplateColumns: "1fr" }}>
-        <div className="panel dock metro-face" style={{ borderRadius: "16px 16px 0 0" }}>
+        <div
+          className="panel dock metro-face"
+          style={{
+            borderRadius: "16px 16px 0 0",
+            background: "transparent",
+            border: "none",
+            boxShadow: "none",
+          }}
+        >
           <div className="dial-row">
             <button type="button" className="nudge-lg" onClick={() => setBpm(Math.max(30, bpm - 5))} aria-label="5 BPM langsamer">−5</button>
             <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={stage ? 136 : 96} now />
