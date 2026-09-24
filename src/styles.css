@@ -7,7 +7,7 @@
   --txt: #f4f7f6;
   --dim: #8a969c;
   --rud-foot: calc(84px + env(safe-area-inset-bottom, 0px));
-  --rud-dock: 220px;
+  --rud-dock: 168px;
 }
 * { box-sizing: border-box; }
 html, body, #root {

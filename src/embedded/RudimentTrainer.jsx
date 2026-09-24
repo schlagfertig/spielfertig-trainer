@@ -238,4 +238,29 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
         >
           <div className="dial-row">
             <button type="button" className="nudge-lg" onClick={() => setBpm(Math.max(30, bpm - 5))} aria-label="5 BPM langsamer">−5</button>
-            <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={stage ? 152 : 124} now subLabel={playing ? "Stop" : "Start
+            <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={stage ? 152 : 124} now subLabel={playing ? "Stop" : "Start"} />
+            <button type="button" className="nudge-lg" onClick={() => setBpm(Math.min(260, bpm + 5))} aria-label="5 BPM schneller">+5</button>
+          </div>
+          {stage ? null : (
+            <>
+              <div style={{ display: "flex", justifyContent: "center", marginTop: 12 }}>
+                <div className="seg">
+                  <button type="button" className={hear === "snare" ? "on" : ""} onClick={() => setHear("snare")}>Snare</button>
+                  <button type="button" className={hear === "hands" ? "on" : ""} onClick={() => setHear("hands")}>L / R</button>
+                  <button type="button" className={hear === "click" ? "on" : ""} onClick={() => setHear("click")}>Nur Click</button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      <NavScrub
+        items={RUDIMENTS.map((r) => ({ id: r.id, label: r.label, preview: r.label }))}
+        index={idx}
+        disabled={playing}
+        onPick={pickRud}
+      />
+      {printOpen ? <PrintDialog sel={sel} onClose={onPrintClose} /> : null}
+    </div>
+  );
+}
