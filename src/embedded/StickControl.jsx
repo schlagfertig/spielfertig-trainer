@@ -394,7 +394,7 @@ export default function StickControl() {
           <div className="dock metro-face">
             <div className="dial-row">
               <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))}>−5</button>
-              <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={96} now />
+              <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={124} now subLabel={playing ? "Stop" : "Start"} />
               <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))}>+5</button>
             </div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
@@ -404,11 +404,6 @@ export default function StickControl() {
                 <button type="button" className={countBars === 1 ? "on" : ""} onClick={() => setCountBars(1)}>1 Takt</button>
                 <button type="button" className={countBars === 2 ? "on" : ""} onClick={() => setCountBars(2)}>2 Takte</button>
               </div>
-            </div>
-            <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
-              <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
-                {playing ? "Stop" : challenge ? `${ex.label}–24` : "Start"}
-              </button>
             </div>
           </div>
         </div>
