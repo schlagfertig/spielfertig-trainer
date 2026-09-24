@@ -181,6 +181,18 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
         .rud-wrap .rud-nav {
           background: transparent;
           box-shadow: none;
+          z-index: 20;
+        }
+        .rud-wrap .rud-metro {
+          z-index: 16;
+          /* Fußzone der Vor/Zurück-Leiste bleibt klickbar */
+          pointer-events: none;
+        }
+        .rud-wrap .rud-metro .dial-row,
+        .rud-wrap .rud-metro .dial-row *,
+        .rud-wrap .rud-metro .seg,
+        .rud-wrap .rud-metro .seg * {
+          pointer-events: auto;
         }
         .rud-wrap .rud-metro .metro-face {
           background: transparent;

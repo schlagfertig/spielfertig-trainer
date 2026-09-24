@@ -81,14 +81,14 @@ function WheelHints() {
   );
 }
 
-/** Hold-and-turn lever: only visible while dragging; length + arc fill follow finger distance. */
-function HoldLever({ angle, distPx, size, pad, visible }) {
-  const W = size + pad * 2;
+/** Hold-and-turn lever: draws past the dial rim without enlarging layout. */
+function HoldLever({ angle, distPx, size, layoutPad, reachExtra, visible }) {
+  const box = size + layoutPad * 2;
+  const W = size + (layoutPad + reachExtra) * 2;
   const cx = W / 2;
   const cy = W / 2;
   const rMin = size * 0.2;
-  // Past dial rim into the pad ring (finer zone).
-  const rMax = size / 2 + pad - 8;
+  const rMax = size / 2 + reachExtra - 4;
   const r = Math.min(rMax, Math.max(rMin, distPx));
   const t = (r - rMin) / Math.max(0.001, rMax - rMin); // 0 near, 1 far
   const coarse = 1 - t; // near = grob (dicker), far = fein (schmaler)
@@ -103,6 +103,7 @@ function HoldLever({ angle, distPx, size, pad, visible }) {
   const x = cx + Math.cos(angle) * r;
   const y = cy + Math.sin(angle) * r;
   const uid = useId().replace(/:/g, "");
+  const offset = (W - box) / 2;
 
   return (
     <svg
@@ -112,7 +113,8 @@ function HoldLever({ angle, distPx, size, pad, visible }) {
       aria-hidden="true"
       style={{
         position: "absolute",
-        inset: 0,
+        left: -offset,
+        top: -offset,
         pointerEvents: "none",
         opacity: visible ? 1 : 0,
         transition: `opacity ${FADE_MS}ms ease`,
@@ -180,7 +182,8 @@ export function MetronomeDial({
   const labelCol = num;
   const bpmSize = Math.max(12, Math.round(size * (large ? 0.36 : 0.34)));
   const labelSize = Math.max(8, Math.round(size * 0.11));
-  const pad = 64; // +60% vs 40, matches larger functional radius
+  const layoutPad = 16; // compact dock footprint (nav stays clear)
+  const reachExtra = 64; // lever + fine zone past rim (drag with capture)
   const drag = useRef(null);
   const fadeTimer = useRef(null);
   const [lever, setLever] = useState({ visible: false, angle: 0, dist: size * 0.35, mounted: false });
@@ -256,26 +259,31 @@ export function MetronomeDial({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, minWidth: 0 }}>
-      <div style={{ position: "relative", width: size + pad * 2, height: size + pad * 2, flexShrink: 0, overflow: "visible" }}>
+      <div style={{ position: "relative", width: size + layoutPad * 2, height: size + layoutPad * 2, flexShrink: 0, overflow: "visible" }}>
         {setBpm ? <WheelHints /> : null}
         {setBpm && lever.mounted ? (
           <HoldLever
             angle={lever.angle}
             distPx={lever.dist}
             size={size}
-            pad={pad}
+            layoutPad={layoutPad}
+            reachExtra={reachExtra}
             visible={lever.visible}
           />
         ) : null}
         <button
           type="button"
-          tabIndex={setBpm ? -1 : undefined}
-          aria-hidden={setBpm ? true : undefined}
           onClick={setBpm ? undefined : () => onToggle?.()}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+          title="Tipp = Start/Stop. Halten und drehen ändert das Tempo."
+          aria-label={active ? "Metronom stoppen. Halten und drehen ändert das Tempo." : "Metronom starten. Halten und drehen ändert das Tempo."}
           style={{
             position: "absolute",
-            left: pad,
-            top: pad,
+            left: layoutPad,
+            top: layoutPad,
             background: fill,
             border: (large ? 3.5 : 2.5) + "px solid " + ring,
             borderRadius: "50%",
@@ -288,7 +296,6 @@ export function MetronomeDial({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            pointerEvents: setBpm ? "none" : "auto",
             boxShadow: beat
               ? "0 0 24px 7px " + TEAL
               : on
@@ -321,34 +328,6 @@ export function MetronomeDial({
             )}
           </div>
         </button>
-        {setBpm ? (
-          <div
-            role="button"
-            tabIndex={0}
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={onPointerUp}
-            onPointerCancel={onPointerUp}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                onToggle?.();
-              }
-            }}
-            title="Tipp = Start/Stop. Halten und drehen ändert das Tempo."
-            aria-label={active ? "Metronom stoppen. Halten und drehen ändert das Tempo." : "Metronom starten. Halten und drehen ändert das Tempo."}
-            style={{
-              position: "absolute",
-              inset: 0,
-              zIndex: 3,
-              borderRadius: "50%",
-              cursor: "grab",
-              touchAction: "none",
-              userSelect: "none",
-              outline: "none",
-            }}
-          />
-        ) : null}
       </div>
       {setBpm ? (
         <div style={{ marginTop: 2, maxWidth: 148, textAlign: "center", font: "600 11px/1.25 Figtree, sans-serif", color: "#8a969c" }}>
