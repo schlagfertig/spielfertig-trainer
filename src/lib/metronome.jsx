@@ -1,10 +1,11 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect, useId } from "react";
 
 const TEAL = "#5cc8b8";
 const INK = "#161a1d";
 const TEAL_GLOW = "rgba(92,200,184,0.45)";
-const RAD_PER_BPM = (10 * Math.PI) / 180;
 const MINUS = "-";
+const MOVE_PX = 8;
+const FADE_MS = 220;
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, Math.round(n)));
@@ -13,6 +14,11 @@ function clamp(n, min, max) {
 function angleOf(el, ev) {
   const r = el.getBoundingClientRect();
   return Math.atan2(ev.clientY - (r.top + r.height / 2), ev.clientX - (r.left + r.width / 2));
+}
+
+function distOf(el, ev) {
+  const r = el.getBoundingClientRect();
+  return Math.hypot(ev.clientX - (r.left + r.width / 2), ev.clientY - (r.top + r.height / 2));
 }
 
 function wrap(d) {
@@ -44,6 +50,14 @@ function arc(cx, cy, r, a0, a1, sweep) {
   return `M ${x0} ${y0} A ${r} ${r} 0 0 ${sweep} ${x1} ${y1}`;
 }
 
+/** Radians of turn per 1 BPM: near center = coarse, far out = fine. */
+function radPerBpm(distPx, halfSize) {
+  const t = Math.min(1, Math.max(0, distPx / Math.max(1, halfSize)));
+  const coarse = (6 * Math.PI) / 180;
+  const fine = (18 * Math.PI) / 180;
+  return coarse + (fine - coarse) * t;
+}
+
 function WheelHints() {
   const cx = 50;
   const cy = 50;
@@ -60,6 +74,84 @@ function WheelHints() {
       <path d={arc(cx, cy, r, 10, 32, 1)} fill="none" stroke={TEAL} strokeWidth="1.5" strokeLinecap="round" />
       <polygon points={tip(cx, cy, r, 32, 1)} fill={TEAL} />
       <text x={rmX} y={rmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="9" fontWeight="800">+</text>
+    </svg>
+  );
+}
+
+/** Hold-and-turn lever: only visible while dragging; length + arc fill follow finger distance. */
+function HoldLever({ angle, distPx, size, pad, visible }) {
+  const W = size + pad * 2;
+  const cx = W / 2;
+  const cy = W / 2;
+  const rMin = size * 0.2;
+  const rMax = size * 0.52;
+  const r = Math.min(rMax, Math.max(rMin, distPx));
+  const t = (r - rMin) / Math.max(0.001, rMax - rMin); // 0 near, 1 far
+  const coarse = 1 - t; // near = grob (dicker), far = fein (schmaler)
+  const strokeW = 2.2 + coarse * 3.2;
+  const arcR = Math.min(rMax + 6, r + 10);
+  const halfSpan = 28 + coarse * 22;
+  const a0 = (angle * 180) / Math.PI - halfSpan;
+  const a1 = (angle * 180) / Math.PI + halfSpan;
+  const fillSpan = 8 + coarse * (halfSpan * 2 - 8);
+  const af0 = (angle * 180) / Math.PI - fillSpan / 2;
+  const af1 = (angle * 180) / Math.PI + fillSpan / 2;
+  const x = cx + Math.cos(angle) * r;
+  const y = cy + Math.sin(angle) * r;
+  const uid = useId().replace(/:/g, "");
+
+  return (
+    <svg
+      viewBox={`0 0 ${W} ${W}`}
+      width={W}
+      height={W}
+      aria-hidden="true"
+      style={{
+        position: "absolute",
+        inset: 0,
+        pointerEvents: "none",
+        opacity: visible ? 1 : 0,
+        transition: `opacity ${FADE_MS}ms ease`,
+        zIndex: 2,
+      }}
+    >
+      <defs>
+        <filter id={`${uid}-glow`} x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="2.4" result="b" />
+          <feMerge>
+            <feMergeNode in="b" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      <g filter={`url(#${uid}-glow)`} opacity={0.92}>
+        <path
+          d={arc(cx, cy, arcR, a0, a1, 1)}
+          fill="none"
+          stroke="rgba(92,200,184,0.28)"
+          strokeWidth={strokeW}
+          strokeLinecap="round"
+        />
+        <path
+          d={arc(cx, cy, arcR, af0, af1, 1)}
+          fill="none"
+          stroke={TEAL}
+          strokeWidth={strokeW}
+          strokeLinecap="round"
+        />
+        <line
+          x1={cx}
+          y1={cy}
+          x2={x}
+          y2={y}
+          stroke={TEAL}
+          strokeWidth={2.2}
+          strokeLinecap="round"
+          opacity={0.9}
+        />
+        <circle cx={x} cy={y} r={5.5} fill={TEAL} stroke="rgba(244,247,246,0.55)" strokeWidth={1.2} />
+        <circle cx={x} cy={y} r={2.2} fill="#f4f7f6" opacity={0.9} />
+      </g>
     </svg>
   );
 }
@@ -86,6 +178,29 @@ export function MetronomeDial({
   const labelSize = Math.max(8, Math.round(size * 0.11));
   const pad = 16;
   const drag = useRef(null);
+  const fadeTimer = useRef(null);
+  const [lever, setLever] = useState({ visible: false, angle: 0, dist: size * 0.35, mounted: false });
+
+  useEffect(() => () => {
+    if (fadeTimer.current) clearTimeout(fadeTimer.current);
+  }, []);
+
+  function showLever(angle, dist) {
+    if (fadeTimer.current) {
+      clearTimeout(fadeTimer.current);
+      fadeTimer.current = null;
+    }
+    setLever({ visible: true, angle, dist, mounted: true });
+  }
+
+  function hideLever() {
+    setLever((prev) => ({ ...prev, visible: false }));
+    if (fadeTimer.current) clearTimeout(fadeTimer.current);
+    fadeTimer.current = setTimeout(() => {
+      setLever((prev) => ({ ...prev, mounted: false }));
+      fadeTimer.current = null;
+    }, FADE_MS + 40);
+  }
 
   function onPointerDown(e) {
     if (!setBpm) return;
@@ -97,6 +212,7 @@ export function MetronomeDial({
       x: e.clientX,
       y: e.clientY,
       bpm: Number(bpm) || min,
+      dragging: false,
     };
   }
 
@@ -104,17 +220,25 @@ export function MetronomeDial({
     const d = drag.current;
     if (!d || !setBpm) return;
     const ang = angleOf(e.currentTarget, e);
+    const dist = distOf(e.currentTarget, e);
     const delta = wrap(ang - d.last);
     d.last = ang;
     d.acc += delta;
     d.moved += Math.hypot(e.clientX - d.x, e.clientY - d.y);
     d.x = e.clientX;
     d.y = e.clientY;
-    if (Math.abs(d.acc) >= RAD_PER_BPM) {
-      const steps = Math.trunc(d.acc / RAD_PER_BPM);
-      d.acc -= steps * RAD_PER_BPM;
-      d.bpm = clamp(d.bpm + steps, min, max);
-      setBpm(d.bpm);
+
+    if (d.moved >= MOVE_PX) {
+      d.dragging = true;
+      showLever(ang, dist);
+      const half = e.currentTarget.getBoundingClientRect().width / 2;
+      const step = radPerBpm(dist, half);
+      if (Math.abs(d.acc) >= step) {
+        const steps = Math.trunc(d.acc / step);
+        d.acc -= steps * step;
+        d.bpm = clamp(d.bpm + steps, min, max);
+        setBpm(d.bpm);
+      }
     }
   }
 
@@ -122,22 +246,32 @@ export function MetronomeDial({
     const d = drag.current;
     drag.current = null;
     try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* already released */ }
+    if (d?.dragging) hideLever();
     if (!d) return;
-    if (d.moved < 8) onToggle?.();
+    if (d.moved < MOVE_PX) onToggle?.();
   }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, minWidth: 0 }}>
       <div style={{ position: "relative", width: size + pad * 2, height: size + pad * 2, flexShrink: 0 }}>
         {setBpm ? <WheelHints /> : null}
+        {setBpm && lever.mounted ? (
+          <HoldLever
+            angle={lever.angle}
+            distPx={lever.dist}
+            size={size}
+            pad={pad}
+            visible={lever.visible}
+          />
+        ) : null}
         <button
           type="button"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
-          title="Tipp = Start/Stop. Halten und drehen aendert das Tempo."
-          aria-label={active ? "Metronom stoppen. Halten und drehen aendert das Tempo." : "Metronom starten. Halten und drehen aendert das Tempo."}
+          title="Tipp = Start/Stop. Halten und drehen ändert das Tempo."
+          aria-label={active ? "Metronom stoppen. Halten und drehen ändert das Tempo." : "Metronom starten. Halten und drehen ändert das Tempo."}
           style={{
             position: "absolute",
             left: pad,
@@ -161,6 +295,7 @@ export function MetronomeDial({
                 : "none",
             transform: beat ? "scale(1.07)" : "scale(1)",
             transition: "transform .05s linear, background .05s linear, box-shadow .05s linear, border-color .05s linear, color .05s linear",
+            zIndex: 1,
           }}
         >
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", lineHeight: 1, pointerEvents: "none" }}>
@@ -188,7 +323,7 @@ export function MetronomeDial({
       </div>
       {setBpm ? (
         <div style={{ marginTop: 2, maxWidth: 148, textAlign: "center", font: "600 11px/1.25 Figtree, sans-serif", color: "#8a969c" }}>
-          Halten und drehen aendert das Tempo
+          Halten und drehen ändert das Tempo
         </div>
       ) : null}
     </div>
