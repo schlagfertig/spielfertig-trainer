@@ -53,7 +53,8 @@ function arc(cx, cy, r, a0, a1, sweep) {
 /** Radians of turn per 1 BPM: near center = coarse, past rim = finer. */
 function radPerBpm(distPx, halfSize) {
   // Reach past the dial rim so fine control lives outside the circle.
-  const reach = halfSize * 1.85;
+  // 1.85 * 1.6 ≈ 2.96 (±60% larger functional radius).
+  const reach = halfSize * 2.96;
   const t = Math.min(1, Math.max(0, distPx / Math.max(1, reach)));
   const coarse = (6 * Math.PI) / 180;
   const fine = (22 * Math.PI) / 180;
@@ -179,7 +180,7 @@ export function MetronomeDial({
   const labelCol = num;
   const bpmSize = Math.max(12, Math.round(size * (large ? 0.36 : 0.34)));
   const labelSize = Math.max(8, Math.round(size * 0.11));
-  const pad = 40;
+  const pad = 64; // +60% vs 40, matches larger functional radius
   const drag = useRef(null);
   const fadeTimer = useRef(null);
   const [lever, setLever] = useState({ visible: false, angle: 0, dist: size * 0.35, mounted: false });
