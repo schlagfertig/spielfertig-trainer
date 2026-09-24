@@ -253,10 +253,10 @@ export default function StickControl() {
           right: 0;
           bottom: 0;
           z-index: 18;
-          background: #1c2226;
+          background: transparent;
           border-top: 1px solid #2f383d;
           border-radius: 18px 18px 0 0;
-          box-shadow: 0 -10px 28px rgba(0,0,0,.45);
+          box-shadow: none;
           overflow: visible;
         }
         .stick-dock .rud-metro {
