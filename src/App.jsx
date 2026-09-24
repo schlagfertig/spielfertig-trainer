@@ -6,6 +6,7 @@ import StickControl from "./embedded/StickControl.jsx";
 import Archive from "./embedded/Archive.jsx";
 import { Help } from "./lib/Help.jsx";
 import FirstLesson from "./lib/FirstLesson.jsx";
+import Legal from "./lib/Legal.jsx";
 import { loadSession } from "./lib/session.js";
 
 const META = {
@@ -15,6 +16,8 @@ const META = {
   pyramid: { title: "Rhythmuspyramide", help: "pyramid" },
   stick: { title: "Stick Control", help: "stick" },
   archive: { title: "Noten", help: "archive" },
+  impressum: { title: "Impressum", help: "home" },
+  datenschutz: { title: "Datenschutz", help: "home" },
 };
 
 export default function App() {
@@ -144,7 +147,13 @@ export default function App() {
             <div className="card-go">Oeffnen</div>
           </button>
         </div>
-        <footer className="foot">Thomas Schuster · schlagfertig</footer>
+        <footer className="foot">
+          <div>Thomas Schuster · schlagfertig</div>
+          <div className="foot-links">
+            <button type="button" className="foot-link" onClick={() => open("impressum")}>Impressum</button>
+            <button type="button" className="foot-link" onClick={() => open("datenschutz")}>Datenschutz</button>
+          </div>
+        </footer>
       </div>
     );
   }
@@ -174,11 +183,13 @@ export default function App() {
               onClick={() => setStage((v) => !v)}
             >{stage ? "Pad aus" : "Uebepad"}</button>
           )}
-          {!stage && !printOpen && view !== "first" && <Help topic={meta.help} />}
+          {!stage && !printOpen && view !== "first" && view !== "impressum" && view !== "datenschutz" && <Help topic={meta.help} />}
         </div>
       </header>
       <main className="main">
         {view === "first" ? <FirstLesson onHome={goHome} onOpen={open} />
+          : view === "impressum" ? <Legal topic="impressum" />
+          : view === "datenschutz" ? <Legal topic="datenschutz" />
           : view === "click" ? <ClickTrainer />
           : view === "pyramid" ? <PyramidTrainer />
           : view === "stick" ? <StickControl />

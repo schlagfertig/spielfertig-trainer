@@ -533,3 +533,37 @@ p { font-size: 17px; line-height: 1.45; }
   .page.tool.stage .staff-card svg { max-height: calc(100dvh - 168px); }
   .page.tool.stage .rud-metro .metro-face { max-height: 30dvh; }
 }
+
+.legal { max-width: 640px; margin: 0 auto; padding: 8px 2px 40px; }
+.legal-title {
+  font-family: Oswald, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: clamp(28px, 8vw, 36px);
+  margin: 8px 0 18px;
+}
+.legal-block { margin: 0 0 18px; }
+.legal-block h2 {
+  color: var(--teal);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+}
+.legal-block p {
+  margin: 0;
+  color: var(--dim);
+  font-size: 16px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+.foot-links { display: flex; flex-wrap: wrap; gap: 10px 14px; justify-content: center; margin-top: 10px; }
+.foot-link {
+  background: none; border: 0; padding: 0;
+  color: #5a666c; font-size: 13px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+}
+.foot-link:hover { color: var(--teal); }
