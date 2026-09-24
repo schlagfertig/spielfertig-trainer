@@ -180,7 +180,19 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
       <style>{`
         .rud-wrap {
           /* Platz für Hören-Umschalter über dem Dial */
-          --rud-dock: 252px;
+          --rud-dock: 240px;
+        }
+        .rud-wrap .rud-metro .seg {
+          padding: 2px;
+          gap: 2px;
+          border-radius: 7px;
+        }
+        .rud-wrap .rud-metro .seg button {
+          height: 30px;
+          padding: 0 10px;
+          font-size: 13px;
+          line-height: 30px;
+          border-radius: 5px;
         }
         .rud-wrap .rud-nav {
           background: transparent;
