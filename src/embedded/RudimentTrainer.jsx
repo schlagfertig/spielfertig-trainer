@@ -15,6 +15,22 @@ const GOALS = [
   { id: "t120", sec: 120, label: "2 Min" },
 ];
 
+// Kurze Hochformat-Screens (z. B. 375×667): kompakter Metronom-Bereich
+const SHORT_MQ = "(max-height: 720px) and (orientation: portrait)";
+
+function useShortScreen() {
+  const [short, setShort] = useState(() => !!window.matchMedia?.(SHORT_MQ).matches);
+  useEffect(() => {
+    const mq = window.matchMedia?.(SHORT_MQ);
+    if (!mq) return undefined;
+    const on = () => setShort(mq.matches);
+    on();
+    mq.addEventListener?.("change", on);
+    return () => mq.removeEventListener?.("change", on);
+  }, []);
+  return short;
+}
+
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, Math.round(n)));
 }
@@ -57,6 +73,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
   const beatsInBar = Math.max(1, Math.round(meterNow.bar / meterNow.pulse));
   const beatN = playT < 0 ? -1 : Math.floor((playT + 1e-4) / meterNow.pulse) % beatsInBar;
   const goal = GOALS.find((g) => g.id === goalId) || GOALS[0];
+  const compact = useShortScreen() && !stage;
 
   useEffect(() => {
     saveSession("rudiments", { sel, bpm, hear, goalId });
@@ -176,7 +193,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
   }
 
   return (
-    <div className="rud-wrap">
+    <div className={compact ? "rud-wrap rud-short" : "rud-wrap"}>
       <style>{`
         .rud-wrap {
           /* Platz für Hören-Umschalter über dem Dial */
@@ -194,6 +211,17 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           line-height: 30px;
           border-radius: 5px;
         }
+        .rud-wrap.rud-short {
+          --rud-dock: 166px;
+          --rud-foot: calc(72px + env(safe-area-inset-bottom, 0px));
+        }
+        .rud-wrap.rud-short .staff-hint,
+        .rud-wrap.rud-short .rud-metro .dial-row > div > div + div {
+          display: none;
+        }
+        .rud-wrap.rud-short .rud-metro .metro-face { padding-top: 4px; }
+        .rud-wrap.rud-short .nudge-lg { width: 40px; height: 40px; font-size: 17px; }
+        .rud-wrap.rud-short .rud-half { min-height: 60px; }
         .rud-wrap .rud-nav {
           background: transparent;
           box-shadow: none;
@@ -275,7 +303,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           )}
           <div className="dial-row">
             <button type="button" className="nudge-lg" onClick={() => setBpm(Math.max(30, bpm - 5))} aria-label="5 BPM langsamer">−5</button>
-            <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={stage ? 152 : 124} now subLabel={playing ? "Stop" : "Start"} />
+            <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={stage ? 152 : compact ? 88 : 124} now subLabel={playing ? "Stop" : "Start"} />
             <button type="button" className="nudge-lg" onClick={() => setBpm(Math.min(260, bpm + 5))} aria-label="5 BPM schneller">+5</button>
           </div>
         </div>
