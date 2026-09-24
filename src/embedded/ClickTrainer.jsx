@@ -237,6 +237,7 @@ export default function ClickTrainer() {
         )}
       </div>
       <div
+        className="click-dock"
         style={{
           position: "fixed",
           left: 0,
@@ -254,7 +255,7 @@ export default function ClickTrainer() {
       >
         <div style={{ pointerEvents: "auto", maxWidth: 880, margin: "0 auto" }}>
           <div className="metro-shell">
-            <div className="metro-face" style={{ position: "static", margin: 0, padding: "8px 8px 4px 0", borderRadius: 0, background: "transparent", border: "none", boxShadow: "none", overflow: "auto" }}>
+            <div style={{ position: "static", margin: 0, padding: "8px 8px 4px 0", borderRadius: 0, background: "transparent", border: "none", boxShadow: "none", overflow: "auto" }}>
               {flipped ? (
                 <div key="back" className="metro-swap">
                   <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 10 }}>Click-Mixer</div>
@@ -296,6 +297,16 @@ export default function ClickTrainer() {
         </div>
       </div>
       <style>{`
+        .click-dock {
+          position: fixed;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 15;
+          background: transparent;
+          border: none;
+          box-shadow: none;
+        }
         .field { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 14px; color: ${DIM}; }
         .field input {
           width: 64px; text-align: center; font-weight: 700; font-size: 16px; color: #5cc8b8;

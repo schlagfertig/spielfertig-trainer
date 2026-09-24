@@ -7,7 +7,7 @@
   --txt: #f4f7f6;
   --dim: #8a969c;
   --rud-foot: calc(84px + env(safe-area-inset-bottom, 0px));
-  --rud-dock: 280px;
+  --rud-dock: 220px;
 }
 * { box-sizing: border-box; }
 html, body, #root {
@@ -226,9 +226,9 @@ p { font-size: 17px; line-height: 1.45; }
   gap: 0;
   margin: 0;
   padding: 0;
-  background: var(--panel);
+  background: transparent;
   border-top: 1px solid var(--line);
-  box-shadow: 0 -8px 20px rgba(0,0,0,.4);
+  box-shadow: none;
   max-width: 100%;
 }
 .rud-half {
@@ -341,7 +341,8 @@ p { font-size: 17px; line-height: 1.45; }
   margin: 0;
   border-radius: 16px 16px 0 0;
   padding: 12px 14px 18px;
-  box-shadow: 0 -8px 24px rgba(0,0,0,.35);
+  background: transparent;
+  box-shadow: none;
 }
 .dock-main { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
 .dock-tempo { margin-top: 12px; }
@@ -358,7 +359,7 @@ p { font-size: 17px; line-height: 1.45; }
   position: fixed;
   left: 0;
   right: 0;
-  bottom: var(--rud-foot);
+  bottom: 0;
   z-index: 16;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -370,9 +371,12 @@ p { font-size: 17px; line-height: 1.45; }
   position: static;
   margin: 0;
   border-radius: 16px 16px 0 0;
-  max-height: var(--rud-dock);
+  max-height: calc(var(--rud-dock) + var(--rud-foot));
+  padding-bottom: var(--rud-foot);
   overflow: auto;
-  box-shadow: 0 -8px 24px rgba(0,0,0,.35);
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 .metro-side {
   margin: 0;
@@ -407,7 +411,7 @@ p { font-size: 17px; line-height: 1.45; }
 .modal { position: fixed; inset: 0; background: rgba(0,0,0,.82); z-index: 40; display: flex; align-items: center; justify-content: center; padding: 16px; }
 .modal-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; width: min(520px, 100%); max-height: 90dvh; overflow: auto; }
 .modal-head { color: var(--teal); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; font-size: 15px; margin-bottom: 8px; }
-@media print { body { background: #161a1d; } .top, .panel, .rud-nav, .rud-metro { display: none !important; } }
+@media print { body { background: #161a1d; } .top, .panel, .rud-nav, .rud-metro { display: none !important; }
 
 .page.tool.stage {
   padding: 4px 10px 0;
@@ -453,7 +457,7 @@ p { font-size: 17px; line-height: 1.45; }
 }
 .page.tool.stage .rud-metro .metro-face {
   border-radius: 16px 16px 0 0;
-  max-height: 168px;
+  max-height: calc(168px + var(--rud-foot));
 }
 .page.tool.stage .rud-half { min-height: 56px; }
 
@@ -521,8 +525,8 @@ p { font-size: 17px; line-height: 1.45; }
     max-height: 34dvh;
   }
   .page.tool:has(.rud-wrap) .rud-metro .metro-face {
-    max-height: 34dvh;
-    padding: 6px 10px 8px;
+    max-height: calc(34dvh + var(--rud-foot));
+    padding: 6px 10px var(--rud-foot);
   }
   .page.tool:has(.rud-wrap) .dock-tempo { display: none; }
   .page.tool:has(.rud-wrap) .rud-half {
@@ -531,7 +535,7 @@ p { font-size: 17px; line-height: 1.45; }
   }
   .page.tool:has(.rud-wrap) .rud-half-name { font-size: 14px; }
   .page.tool.stage .staff-card svg { max-height: calc(100dvh - 168px); }
-  .page.tool.stage .rud-metro .metro-face { max-height: 30dvh; }
+  .page.tool.stage .rud-metro .metro-face { max-height: calc(30dvh + var(--rud-foot)); }
 }
 
 .legal { max-width: 640px; margin: 0 auto; padding: 8px 2px 40px; }

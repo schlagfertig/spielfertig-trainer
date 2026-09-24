@@ -238,7 +238,7 @@ export default function StickControl() {
     <div className="rud-wrap stick-wrap">
       <style>{`
         .stick-wrap {
-          --rud-foot: calc(118px + env(safe-area-inset-bottom, 0px));
+          --rud-foot: calc(84px + env(safe-area-inset-bottom, 0px));
         }
         .stick-pin {
           position: sticky;
@@ -254,7 +254,7 @@ export default function StickControl() {
           bottom: 0;
           z-index: 18;
           background: transparent;
-          border-top: 1px solid #2f383d;
+          border-top: none;
           border-radius: 18px 18px 0 0;
           box-shadow: none;
           overflow: visible;
@@ -265,14 +265,15 @@ export default function StickControl() {
           grid-template-columns: none;
           margin: 0;
         }
-        .stick-dock .metro-face {
+        .stick-dock .metro-face,
+        .stick-dock .dock {
           position: static;
           margin: 0;
           border: 0;
           border-radius: 18px 18px 0 0;
           box-shadow: none;
           background: transparent;
-          padding: 10px 12px 8px;
+          padding: 6px 12px 4px;
           max-height: none;
         }
         .stick-dock .rud-nav {
@@ -282,12 +283,12 @@ export default function StickControl() {
           background: transparent;
         }
         .stick-wrap .rud-half {
-          min-height: 108px;
-          gap: 12px;
-          padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+          min-height: 64px;
+          gap: 8px;
+          padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
         }
-        .stick-wrap .rud-half-arrow { font-size: 52px; }
-        .stick-wrap .rud-half-name { font-size: clamp(18px, 5.2vw, 24px); }
+        .stick-wrap .rud-half-arrow { font-size: 36px; }
+        .stick-wrap .rud-half-name { font-size: clamp(15px, 4.2vw, 20px); }
         .stick-flash, .stick-click-mini { display: none; }
         @media (orientation: landscape) {
           .stick-wrap {
@@ -390,7 +391,7 @@ export default function StickControl() {
       {done ? <p className="stick-done" style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{done}</p> : null}
       <div className="stick-dock">
         <div className="metro-shell rud-metro">
-          <div className="panel dock metro-face">
+          <div className="dock metro-face">
             <div className="dial-row">
               <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))}>−5</button>
               <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={96} now />

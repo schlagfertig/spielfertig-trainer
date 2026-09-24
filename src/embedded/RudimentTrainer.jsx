@@ -222,6 +222,17 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
 
   return (
     <div className="rud-wrap">
+      <style>{`
+        .rud-wrap .rud-nav {
+          background: transparent;
+          box-shadow: none;
+        }
+        .rud-wrap .rud-metro .metro-face {
+          background: transparent;
+          border: none;
+          box-shadow: none;
+        }
+      `}</style>
       <div className="staff-card">
         <div className="rud-title">
           <div className="rud-title-kicker">Rudiment wählen</div>
@@ -262,7 +273,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
       )}
       <div className="metro-shell rud-metro" style={{ gridTemplateColumns: "1fr" }}>
         <div
-          className="panel dock metro-face"
+          className="dock metro-face"
           style={{
             borderRadius: "16px 16px 0 0",
             background: "transparent",
