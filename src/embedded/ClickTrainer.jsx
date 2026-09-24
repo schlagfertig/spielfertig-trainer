@@ -265,13 +265,8 @@ export default function ClickTrainer() {
                 <div key="front" className="metro-swap">
                   <div className="dial-row">
                     <button type="button" className="nudge-lg" onClick={() => setDial(bpm - 5)} aria-label="5 BPM langsamer">−5</button>
-                    <MetronomeDial bpm={bpm} setBpm={setDial} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={108} now />
+                    <MetronomeDial bpm={bpm} setBpm={setDial} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={124} now subLabel={playing ? "Stop" : "Start"} />
                     <button type="button" className="nudge-lg" onClick={() => setDial(bpm + 5)} aria-label="5 BPM schneller">+5</button>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 14 }}>
-                    <button className={playing ? "play stop" : "play"} onClick={() => (playing ? stop() : start())}>
-                      {playing ? "Stop" : "Start"}
-                    </button>
                   </div>
                   {playing && ramp ? (
                     <div className="count">
