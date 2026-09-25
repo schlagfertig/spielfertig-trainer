@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { TempoControl } from "../lib/tempo.jsx";
 import { MetronomeDial } from "../lib/metronome.jsx";
 import { RudimentStaff } from "../lib/staff.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
@@ -229,7 +228,6 @@ export default function PyramidTrainer() {
       </div>
       <div className="panel">
         <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 12 }}>Einstellung</div>
-        <TempoControl bpm={bpm} setBpm={(n) => setBpm(clamp(n, 30, 200))} min={30} max={200} hideNudge />
         <div style={{ marginTop: 14, fontSize: 13, color: DIM }}>Richtung</div>
         <div className="seg" style={{ marginTop: 8, width: "fit-content" }}>
           <button type="button" className={dir === "up" ? "on" : ""} onClick={() => !playing && setDir("up")}>auf</button>
