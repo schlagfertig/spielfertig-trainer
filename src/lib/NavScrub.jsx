@@ -12,7 +12,7 @@ function eight(preview, label) {
   return [];
 }
 
-export function NavScrub({ items, index, disabled, onPick }) {
+export function NavScrub({ items, index, disabled, onPick, renderPreview }) {
   const list = items || [];
   const idx = clamp(index || 0, 0, Math.max(0, list.length - 1));
   const prev = list[idx - 1];
@@ -119,6 +119,7 @@ export function NavScrub({ items, index, disabled, onPick }) {
               {shown.label}
             </div>
           )}
+          {renderPreview ? renderPreview(shown) : null}
           <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 10 }}>
             {list.map((row, i) => {
               const d = Math.abs(i - shownI);

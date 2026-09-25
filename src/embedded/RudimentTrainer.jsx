@@ -222,6 +222,11 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
         .rud-wrap.rud-short .rud-metro .metro-face { padding-top: 4px; }
         .rud-wrap.rud-short .nudge-lg { width: 40px; height: 40px; font-size: 17px; }
         .rud-wrap.rud-short .rud-half { min-height: 60px; }
+        /* ScrubNav-Kurzvorschau: feste Höhe (Pop-up springt nicht), leeren Rand unter der Zählzeile abschneiden */
+        .rud-scrub-pv { display: flex; justify-content: center; align-items: flex-start; height: 90px; overflow: hidden; margin-top: 8px; padding: 2px 6px 0; box-sizing: border-box; background: #fff; border-radius: 8px; }
+        .rud-scrub-pv svg { flex: none; width: auto; height: 126px; max-width: 100%; }
+        .rud-wrap.rud-short .rud-scrub-pv { height: 76px; }
+        .rud-wrap.rud-short .rud-scrub-pv svg { height: 106px; }
         .rud-wrap .rud-nav {
           background: transparent;
           box-shadow: none;
@@ -313,6 +318,11 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
         index={idx}
         disabled={playing}
         onPick={pickRud}
+        renderPreview={(row) => (
+          <div className="rud-scrub-pv">
+            <RudimentStaff rud={RUDIMENTS.find((r) => r.id === row.id)} />
+          </div>
+        )}
       />
       {printOpen ? <PrintDialog sel={sel} onClose={onPrintClose} /> : null}
     </div>
