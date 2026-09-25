@@ -52,15 +52,15 @@ function Phrase({ id, hands, playT }) {
   const letters = String(hands || "").split("");
   const active = playT < 0 ? -1 : Math.round(playT / 2);
   const y = 42;
-  const top = 10;
+  const top = 17;
   const hy = 78;
   const xs = Array.from({ length: 16 }, (_, i) => noteX(i));
   const start = LINE_L;
   const end = xs[15] + GAP;
   const barX = (xs[7] + xs[8]) / 2;
-  const stem = 4.4;
+  const stem = 3.9;
   return (
-    <svg viewBox={`0 0 ${end + 8} 92`} width="100%" role="img" aria-label={`Nummer ${id}`}>
+    <svg viewBox={`0 7 ${end + 8} 85`} width="100%" role="img" aria-label={`Nummer ${id}`}>
       <line x1={start} y1={y} x2={end} y2={y} stroke={LINE} strokeWidth="1.45" />
       <line x1={start} y1={y - 12} x2={start} y2={y + 12} stroke={LINE} strokeWidth="1.6" />
       <line x1={end} y1={y - 12} x2={end} y2={y + 12} stroke={LINE} strokeWidth="1.6" />
@@ -70,7 +70,7 @@ function Phrase({ id, hands, playT }) {
         const c = on ? GOLD : INK;
         return (
           <g key={i}>
-            <ellipse cx={x} cy={y} rx="5.4" ry="3.6" fill={c} transform={`rotate(-18 ${x} ${y})`} />
+            <ellipse cx={x} cy={y} rx="4.8" ry="3.1" fill={c} transform={`rotate(-18 ${x} ${y})`} />
             <line x1={x + stem} y1={y - 1.2} x2={x + stem} y2={top} stroke={c} strokeWidth="0.9" />
           </g>
         );
@@ -92,18 +92,18 @@ function StickRow({ id, hands }) {
   const w = phraseWidth();
   return (
     <svg viewBox={`0 0 ${w} 22`} width="100%" aria-hidden="true">
-      <text x="6" y="16" fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="13">{id}.</text>
+      <text x="6" y="16" fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="500" fontSize="13">{id}.</text>
       {letters.map((ch, i) => (
-        <text key={i} x={xs[i]} y="16" textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="13" fill={INK}>{ch}</text>
+        <text key={i} x={xs[i]} y="16" textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="500" fontSize="13" fill={INK}>{ch}</text>
       ))}
     </svg>
   );
 }
 
-function ListRow({ row, onPick, playing, label, near }) {
+function ListRow({ row, onPick, playing, label, near, far }) {
   return (
-    <button type="button" onClick={() => onPick(row.id)} disabled={playing} style={{ width: "100%", marginTop: 4, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: near ? "8px 8px 6px" : "6px 8px", color: "inherit", textAlign: "left", opacity: near ? 1 : 0.7 }}>
-      {label ? <div style={{ color: TEAL, font: "800 11px Figtree, sans-serif", letterSpacing: "0.12em", padding: "0 4px 4px" }}>{label}</div> : null}
+    <button type="button" className={far ? "stick-far" : undefined} onClick={() => onPick(row.id)} disabled={playing} style={{ width: "100%", marginTop: 4, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: near ? "8px 8px 6px" : "6px 8px", color: "inherit", textAlign: "left", opacity: near ? 1 : 0.7 }}>
+      {label ? <div style={{ color: TEAL, font: "400 14px Figtree, sans-serif", letterSpacing: "0.08em", padding: "0 4px 4px" }}>{label}</div> : null}
       <StickRow id={row.id} hands={row.hands} />
     </button>
   );
@@ -122,6 +122,7 @@ export default function StickControl() {
   const [done, setDone] = useState("");
   const stopRef = useRef(null);
   const pinRef = useRef(null);
+  const wrapRef = useRef(null);
   const bpmRef = useRef(80);
   bpmRef.current = bpm;
   const idx = Math.max(0, EXERCISES.findIndex((e) => e.id === exId));
@@ -132,8 +133,23 @@ export default function StickControl() {
 
   useEffect(() => () => stopRef.current?.(), []);
   useEffect(() => {
-    pinRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
+    // Aktuelle Übung unter der Kopfleiste anpinnen und beim Wechsel dorthin scrollen
+    const head = document.querySelector(".top")?.offsetHeight || 0;
+    wrapRef.current?.style.setProperty("--stick-top", `${head}px`);
+    const before = pinRef.current?.previousElementSibling;
+    if (before) window.scrollTo({ top: before.getBoundingClientRect().bottom + window.scrollY - head, behavior: "instant" });
   }, [exId]);
+  useEffect(() => {
+    // Beim Scrollen Unschärfe aufheben, ~1 s nach dem Scrollen wieder an
+    let t = 0;
+    const onScroll = () => {
+      wrapRef.current?.classList.add("stick-scrolling");
+      window.clearTimeout(t);
+      t = window.setTimeout(() => wrapRef.current?.classList.remove("stick-scrolling"), 1000);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => { window.removeEventListener("scroll", onScroll); window.clearTimeout(t); };
+  }, []);
 
   function pick(id) {
     if (playing) return;
@@ -235,15 +251,27 @@ export default function StickControl() {
   }
 
   return (
-    <div className="rud-wrap stick-wrap">
+    <div className="rud-wrap stick-wrap" ref={wrapRef}>
       <style>{`
         .stick-wrap {
           --rud-foot: calc(84px + env(safe-area-inset-bottom, 0px));
           --rud-dock: 220px;
         }
+        /* overflow-x: hidden würde position: sticky aushebeln */
+        body:has(.stick-wrap), #root:has(.stick-wrap), .page:has(.stick-wrap) { overflow-x: clip; }
+        .stick-far { filter: blur(1.8px); opacity: 0.45 !important; transition: filter 0.3s, opacity 0.3s; }
+        .stick-scrolling .stick-far { filter: none; opacity: 0.7 !important; }
+        @media (prefers-reduced-motion: reduce) { .stick-far { transition: none; } }
+        /* Click läuft: Block teal (80 %) über dunklem Grund, Noten dunkel, aktuelle Note weiß */
+        .stick-card.stick-run { background: linear-gradient(rgba(92,200,184,.8), rgba(92,200,184,.8)), #14191c !important; }
+        .stick-run :is([fill="${INK}"], [fill="${TEAL}"]) { fill: #161a1d; }
+        .stick-run [stroke="${INK}"] { stroke: #161a1d; }
+        .stick-run [fill="${GOLD}"] { fill: #fff; }
+        .stick-run [stroke="${GOLD}"] { stroke: #fff; }
+        .stick-run [stroke="${LINE}"] { stroke: #5d6a70; }
         .stick-pin {
           position: sticky;
-          top: 0;
+          top: var(--stick-top, 0px);
           z-index: 14;
           background: #161a1d;
           padding: 8px 0 10px;
@@ -371,13 +399,13 @@ export default function StickControl() {
             {playing ? "Stop" : "Click"}
           </button>
         </div>
-        <div className="stick-card" style={{ background: "#14191c", border: `1.5px solid ${TEAL}`, borderRadius: 16, padding: "12px 8px 8px" }}>
+        <div className={playing ? "stick-card stick-run" : "stick-card"} style={{ background: "#14191c", border: `1.5px solid ${TEAL}`, borderRadius: 16, padding: "12px 8px 8px" }}>
           <Phrase id={ex.id} hands={ex.hands} playT={counting ? -1 : playT} />
         </div>
       </div>
       <div className="stick-list">
         {upcoming.map((row, i) => (
-          <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === 0} label={i === 0 ? "ALS NÄCHSTES" : ""} />
+          <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === 0} far={i >= 2} label={i === 0 ? "Als Nächstes" : ""} />
         ))}
       </div>
       {done ? <p className="stick-done" style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{done}</p> : null}
