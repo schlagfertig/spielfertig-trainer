@@ -5,7 +5,7 @@ const INK = "#161a1d";
 const TEAL_GLOW = "rgba(92,200,184,0.45)";
 const MINUS = "-";
 const MOVE_PX = 8;
-const FADE_MS = 220;
+const FADE_MS = 260;
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, Math.round(n)));
@@ -44,6 +44,18 @@ function tip(cx, cy, r, deg, dir) {
   return `${x + tx * s},${y + ty * s} ${x - px * b - tx * 0.4},${y - py * b - ty * 0.4} ${x + px * b - tx * 0.4},${y + py * b - ty * 0.4}`;
 }
 
+function fatTip(cx, cy, r, deg, dir) {
+  const [x, y] = polar(cx, cy, r, deg);
+  const t = ((deg + dir * 90) * Math.PI) / 180;
+  const px = Math.cos(t);
+  const py = Math.sin(t);
+  const tx = Math.cos((deg * Math.PI) / 180) * dir;
+  const ty = Math.sin((deg * Math.PI) / 180) * dir;
+  const s = 7;
+  const b = 5.2;
+  return `${x + tx * s},${y + ty * s} ${x - px * b - tx * 0.5},${y - py * b - ty * 0.5} ${x + px * b - tx * 0.5},${y + py * b - ty * 0.5}`;
+}
+
 function arc(cx, cy, r, a0, a1, sweep) {
   const [x0, y0] = polar(cx, cy, r, a0);
   const [x1, y1] = polar(cx, cy, r, a1);
@@ -52,8 +64,6 @@ function arc(cx, cy, r, a0, a1, sweep) {
 
 /** Radians of turn per 1 BPM: near center = coarse, past rim = finer. */
 function radPerBpm(distPx, halfSize) {
-  // Reach past the dial rim so fine control lives outside the circle.
-  // 1.85 * 1.6 ≈ 2.96 (±60% larger functional radius).
   const reach = halfSize * 2.96;
   const t = Math.min(1, Math.max(0, distPx / Math.max(1, reach)));
   const coarse = (6 * Math.PI) / 180;
@@ -81,6 +91,44 @@ function WheelHints() {
   );
 }
 
+/** Large direction arrows above the dial — only while turning. */
+function DragArrows({ size, layoutPad, visible }) {
+  const box = size + layoutPad * 2;
+  const W = box + 88;
+  const H = box + 56;
+  const cx = W / 2;
+  const cy = H / 2 + 10;
+  const r = size / 2 + 28;
+  const offsetX = (W - box) / 2;
+  const offsetY = (H - box) / 2;
+  return (
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      width={W}
+      height={H}
+      aria-hidden="true"
+      style={{
+        position: "absolute",
+        left: -offsetX,
+        top: -offsetY - 4,
+        pointerEvents: "none",
+        opacity: visible ? 1 : 0,
+        transition: `opacity ${FADE_MS}ms ease`,
+        zIndex: 3,
+      }}
+    >
+      <path d={arc(cx, cy, r, 228, 198, 0)} fill="none" stroke={TEAL} strokeWidth="3.2" strokeLinecap="round" />
+      <path d={arc(cx, cy, r, 168, 142, 0)} fill="none" stroke={TEAL} strokeWidth="3.2" strokeLinecap="round" />
+      <polygon points={fatTip(cx, cy, r, 142, -1)} fill={TEAL} />
+      <text x={cx - r - 2} y={cy - 8} textAnchor="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="15" fontWeight="800">{MINUS}</text>
+      <path d={arc(cx, cy, r, 312, 342, 1)} fill="none" stroke={TEAL} strokeWidth="3.2" strokeLinecap="round" />
+      <path d={arc(cx, cy, r, 12, 38, 1)} fill="none" stroke={TEAL} strokeWidth="3.2" strokeLinecap="round" />
+      <polygon points={fatTip(cx, cy, r, 38, 1)} fill={TEAL} />
+      <text x={cx + r + 2} y={cy - 8} textAnchor="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="15" fontWeight="800">+</text>
+    </svg>
+  );
+}
+
 /** Hold-and-turn lever: draws past the dial rim without enlarging layout. */
 function HoldLever({ angle, distPx, size, layoutPad, reachExtra, visible }) {
   const box = size + layoutPad * 2;
@@ -90,8 +138,8 @@ function HoldLever({ angle, distPx, size, layoutPad, reachExtra, visible }) {
   const rMin = size * 0.2;
   const rMax = size / 2 + reachExtra - 4;
   const r = Math.min(rMax, Math.max(rMin, distPx));
-  const t = (r - rMin) / Math.max(0.001, rMax - rMin); // 0 near, 1 far
-  const coarse = 1 - t; // near = grob (dicker), far = fein (schmaler)
+  const t = (r - rMin) / Math.max(0.001, rMax - rMin);
+  const coarse = 1 - t;
   const strokeW = 2.2 + coarse * 3.2;
   const arcR = Math.min(rMax - 2, r + 10);
   const halfSpan = 28 + coarse * 22;
@@ -182,8 +230,8 @@ export function MetronomeDial({
   const labelCol = num;
   const bpmSize = Math.max(12, Math.round(size * (large ? 0.36 : 0.34)));
   const labelSize = Math.max(8, Math.round(size * 0.11));
-  const layoutPad = 16; // compact dock footprint (nav stays clear)
-  const reachExtra = 64; // lever + fine zone past rim (drag with capture)
+  const layoutPad = 16;
+  const reachExtra = 64;
   const drag = useRef(null);
   const fadeTimer = useRef(null);
   const [lever, setLever] = useState({ visible: false, angle: 0, dist: size * 0.35, mounted: false });
@@ -260,7 +308,10 @@ export function MetronomeDial({
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, minWidth: 0 }}>
       <div style={{ position: "relative", width: size + layoutPad * 2, height: size + layoutPad * 2, flexShrink: 0, overflow: "visible" }}>
-        {setBpm ? <WheelHints /> : null}
+        {setBpm && !lever.visible ? <WheelHints /> : null}
+        {setBpm && lever.mounted ? (
+          <DragArrows size={size} layoutPad={layoutPad} visible={lever.visible} />
+        ) : null}
         {setBpm && lever.mounted ? (
           <HoldLever
             angle={lever.angle}
@@ -278,7 +329,7 @@ export function MetronomeDial({
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
-          title="Tipp = Start/Stop. Halten und drehen ändert das Tempo."
+          title="Tipp = Start/Stop. Halten und drehen ändert das Tempo. Außen feiner."
           aria-label={active ? "Metronom stoppen. Halten und drehen ändert das Tempo." : "Metronom starten. Halten und drehen ändert das Tempo."}
           style={{
             position: "absolute",
@@ -330,8 +381,8 @@ export function MetronomeDial({
         </button>
       </div>
       {setBpm ? (
-        <div style={{ marginTop: 2, maxWidth: 148, textAlign: "center", font: "600 11px/1.25 Figtree, sans-serif", color: "#8a969c" }}>
-          Halten und drehen ändert das Tempo
+        <div style={{ marginTop: 2, maxWidth: 168, textAlign: "center", font: "600 11px/1.25 Figtree, sans-serif", color: "#8a969c" }}>
+          Halten und drehen · außen feiner
         </div>
       ) : null}
     </div>
