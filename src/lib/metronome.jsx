@@ -7,6 +7,7 @@ const MINUS = "-";
 const MOVE_PX = 8;
 const HOLD_MS = 480;
 const FADE_MS = 640;
+const GROW = 0.62;
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, Math.round(n)));
@@ -118,21 +119,24 @@ function DragArrows({ cx, cy, size, visible }) {
         height: "100dvh",
         pointerEvents: "none",
         opacity: visible ? 1 : 0,
-        transition: `opacity ${FADE_MS}ms ease-out`,
+        transform: visible ? "scale(1)" : `scale(${GROW})`,
+        transformOrigin: `${cx}px ${cy}px`,
+        transition: `opacity ${FADE_MS}ms ease-out, transform ${FADE_MS}ms ease-out`,
         zIndex: 81,
       }}
     >
       <path d={arc(cx, cy, r, 236, 148, 0)} fill="none" stroke={TEAL} strokeWidth="2.6" strokeLinecap="round" />
       <polygon points={fatTip(cx, cy, r, 148, -1)} fill={TEAL} />
       <text x={lmX} y={lmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="15" fontWeight="800">{MINUS}</text>
-      <text x={lx - 6} y={ly - 16} textAnchor="end" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="800" letterSpacing="0.08em">TIPP LINKS</text>
-      <text x={lx - 6} y={ly - 2} textAnchor="end" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="700" letterSpacing="0.06em">= LANGSAMER</text>
-
+      <g style={{ opacity: visible ? 1 : 0, transition: `opacity ${FADE_MS * 0.6}ms ease-out` }}>
+        <text x={lx - 6} y={ly - 16} textAnchor="end" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="800" letterSpacing="0.08em">TIPP LINKS</text>
+        <text x={lx - 6} y={ly - 2} textAnchor="end" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="700" letterSpacing="0.06em">= LANGSAMER</text>
+        <text x={rx + 6} y={ry - 16} textAnchor="start" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="800" letterSpacing="0.08em">TIPP RECHTS</text>
+        <text x={rx + 6} y={ry - 2} textAnchor="start" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="700" letterSpacing="0.06em">= SCHNELLER</text>
+      </g>
       <path d={arc(cx, cy, r, 304, 32, 1)} fill="none" stroke={TEAL} strokeWidth="2.6" strokeLinecap="round" />
       <polygon points={fatTip(cx, cy, r, 32, 1)} fill={TEAL} />
       <text x={rmX} y={rmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="15" fontWeight="800">+</text>
-      <text x={rx + 6} y={ry - 16} textAnchor="start" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="800" letterSpacing="0.08em">TIPP RECHTS</text>
-      <text x={rx + 6} y={ry - 2} textAnchor="start" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="700" letterSpacing="0.06em">= SCHNELLER</text>
     </svg>
   );
 }
@@ -230,9 +234,23 @@ export function MetronomeDial({
     y: 0,
   });
 
+  useEffect(() => {
+    if (document.getElementById("metro-gesture-css")) return;
+    const s = document.createElement("style");
+    s.id = "metro-gesture-css";
+    s.textContent = ".nudge-lg{transition:opacity .64s ease-out,transform .64s ease-out}body.metro-gesturing .nudge-lg{opacity:0;pointer-events:none;transform:scale(.88)}";
+    document.head.appendChild(s);
+  }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle("metro-gesturing", lever.mounted);
+    return () => document.body.classList.remove("metro-gesturing");
+  }, [lever.mounted]);
+
   useEffect(() => () => {
     if (holdTimer.current) clearTimeout(holdTimer.current);
     if (fadeTimer.current) clearTimeout(fadeTimer.current);
+    document.body.classList.remove("metro-gesturing");
   }, []);
 
   function clearTimers() {
@@ -248,13 +266,23 @@ export function MetronomeDial({
 
   function showLever(origin, ev) {
     clearTimers();
-    setLever({
-      visible: true,
-      mounted: true,
-      cx: origin.cx,
-      cy: origin.cy,
-      x: ev.clientX,
-      y: ev.clientY,
+    setLever((prev) => {
+      const next = {
+        mounted: true,
+        cx: origin.cx,
+        cy: origin.cy,
+        x: ev.clientX,
+        y: ev.clientY,
+        visible: prev.mounted ? true : false,
+      };
+      if (!prev.mounted) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setLever((p) => (p.mounted ? { ...p, visible: true } : p));
+          });
+        });
+      }
+      return next;
     });
   }
 
@@ -323,7 +351,7 @@ export function MetronomeDial({
   return (
     <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, minWidth: 0 }}>
       <div style={{ position: "relative", width: size + layoutPad * 2, height: size + layoutPad * 2, flexShrink: 0, overflow: "visible" }}>
-        {setBpm && !lever.visible && !lever.mounted ? <WheelHints /> : null}
+        {setBpm && !lever.mounted ? <WheelHints /> : null}
         <button
           type="button"
           onClick={setBpm ? undefined : () => onToggle?.()}
