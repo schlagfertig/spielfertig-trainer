@@ -5,7 +5,8 @@ const INK = "#161a1d";
 const TEAL_GLOW = "rgba(92,200,184,0.45)";
 const MINUS = "-";
 const MOVE_PX = 8;
-const FADE_MS = 260;
+const HOLD_MS = 480;
+const FADE_MS = 640;
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, Math.round(n)));
@@ -95,7 +96,6 @@ function WheelHints() {
   );
 }
 
-/** Large hint arrows + copy, anchored to the live dial center. */
 function DragArrows({ cx, cy, size, visible }) {
   const vw = typeof window !== "undefined" ? window.innerWidth : 400;
   const vh = typeof window !== "undefined" ? window.innerHeight : 800;
@@ -118,7 +118,7 @@ function DragArrows({ cx, cy, size, visible }) {
         height: "100dvh",
         pointerEvents: "none",
         opacity: visible ? 1 : 0,
-        transition: `opacity ${FADE_MS}ms ease`,
+        transition: `opacity ${FADE_MS}ms ease-out`,
         zIndex: 81,
       }}
     >
@@ -168,7 +168,7 @@ function HoldLever({ cx, cy, x, y, size, visible }) {
         height: "100dvh",
         pointerEvents: "none",
         opacity: visible ? 1 : 0,
-        transition: `opacity ${FADE_MS}ms ease`,
+        transition: `opacity ${FADE_MS}ms ease-out`,
         zIndex: 80,
       }}
     >
@@ -219,6 +219,7 @@ export function MetronomeDial({
   const labelSize = Math.max(8, Math.round(size * 0.11));
   const layoutPad = 16;
   const drag = useRef(null);
+  const holdTimer = useRef(null);
   const fadeTimer = useRef(null);
   const [lever, setLever] = useState({
     visible: false,
@@ -230,14 +231,23 @@ export function MetronomeDial({
   });
 
   useEffect(() => () => {
+    if (holdTimer.current) clearTimeout(holdTimer.current);
     if (fadeTimer.current) clearTimeout(fadeTimer.current);
   }, []);
 
-  function showLever(origin, ev) {
+  function clearTimers() {
+    if (holdTimer.current) {
+      clearTimeout(holdTimer.current);
+      holdTimer.current = null;
+    }
     if (fadeTimer.current) {
       clearTimeout(fadeTimer.current);
       fadeTimer.current = null;
     }
+  }
+
+  function showLever(origin, ev) {
+    clearTimers();
     setLever({
       visible: true,
       mounted: true,
@@ -249,12 +259,15 @@ export function MetronomeDial({
   }
 
   function hideLever() {
-    setLever((prev) => ({ ...prev, visible: false }));
-    if (fadeTimer.current) clearTimeout(fadeTimer.current);
-    fadeTimer.current = setTimeout(() => {
-      setLever((prev) => ({ ...prev, mounted: false }));
-      fadeTimer.current = null;
-    }, FADE_MS + 40);
+    clearTimers();
+    holdTimer.current = setTimeout(() => {
+      setLever((prev) => ({ ...prev, visible: false }));
+      fadeTimer.current = setTimeout(() => {
+        setLever((prev) => ({ ...prev, mounted: false }));
+        fadeTimer.current = null;
+      }, FADE_MS + 40);
+      holdTimer.current = null;
+    }, HOLD_MS);
   }
 
   function onPointerDown(e) {
@@ -310,7 +323,7 @@ export function MetronomeDial({
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, minWidth: 0 }}>
       <div style={{ position: "relative", width: size + layoutPad * 2, height: size + layoutPad * 2, flexShrink: 0, overflow: "visible" }}>
-        {setBpm && !lever.visible ? <WheelHints /> : null}
+        {setBpm && !lever.visible && !lever.mounted ? <WheelHints /> : null}
         <button
           type="button"
           onClick={setBpm ? undefined : () => onToggle?.()}
