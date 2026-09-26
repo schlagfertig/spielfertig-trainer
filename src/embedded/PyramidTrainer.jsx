@@ -4,6 +4,8 @@ import { RudimentStaff } from "../lib/staff.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
 
 const DIM = "#8a969c";
+const TEAL = "#5cc8b8";
+const INK = "#f4f7f6";
 const BARS = [1, 2, 4];
 
 const STAGES = [
@@ -36,7 +38,6 @@ function barLabel(n) {
   return n === 1 ? "1 Takt" : `${n} Takte`;
 }
 
-/** Always one 4/4 bar of the current subdivision. */
 function barRud(stage) {
   const per = stage.perBeat;
   const dur = 4 / per;
@@ -63,6 +64,41 @@ function barRud(stage) {
     notes,
     sticking: [hands, flipStick(hands)],
   };
+}
+
+/** One quarter-note of the subdivision, compact. */
+function BeatGlyph({ per, tuplet, on }) {
+  const n = Math.max(1, per);
+  const w = 56;
+  const h = 28;
+  const y = 18;
+  const top = n === 1 ? 8 : 6;
+  const ink = on ? "#06120f" : INK;
+  const left = 7;
+  const right = w - 7;
+  const span = right - left;
+  const xs = Array.from({ length: n }, (_, i) => (n === 1 ? w / 2 : left + (span * i) / (n - 1)));
+  const rx = n >= 6 ? 2.1 : n >= 4 ? 2.4 : 2.8;
+  const beams = n === 1 ? 0 : n === 2 || n === 3 ? 1 : n === 8 ? 3 : 2;
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} width={w} height={h} aria-hidden="true">
+      {xs.map((x, i) => (
+        <g key={i}>
+          <ellipse cx={x} cy={y} rx={rx} ry={rx * 0.68} fill={ink} transform={`rotate(-18 ${x} ${y})`} />
+          {n > 1 ? <line x1={x + 1.6} y1={y - 0.6} x2={x + 1.6} y2={top} stroke={ink} strokeWidth="1" /> : (
+            <line x1={x + 1.8} y1={y - 0.4} x2={x + 1.8} y2={4} stroke={ink} strokeWidth="1.15" />
+          )}
+        </g>
+      ))}
+      {n === 1 ? <path d={`M ${xs[0] + 1.8} 4 C ${xs[0] + 10} 6, ${xs[0] + 10} 14, ${xs[0] + 3} 16`} fill="none" stroke={ink} strokeWidth="1.15" /> : null}
+      {Array.from({ length: beams }, (_, b) => (
+        <line key={b} x1={xs[0] + 1.6} y1={top + b * 2.4} x2={xs[n - 1] + 1.6} y2={top + b * 2.4} stroke={ink} strokeWidth={b === 0 ? 2.2 : 1.6} />
+      ))}
+      {tuplet ? (
+        <text x={w / 2} y={5} textAnchor="middle" fill={ink} fontFamily="Figtree, sans-serif" fontSize="8" fontWeight="800">{tuplet}</text>
+      ) : null}
+    </svg>
+  );
 }
 
 export default function PyramidTrainer() {
@@ -196,14 +232,14 @@ export default function PyramidTrainer() {
   return (
     <div className="pyramid-wrap" style={{ paddingBottom: "calc(260px + env(safe-area-inset-bottom, 0px))" }}>
       <p style={{ color: DIM, fontSize: 14, margin: "12px 0 16px" }}>
-        Jede Stufe ist 4/4. Du wählst die Stufen und, wie viele Takte eine Stufe bleibt. Septole ist nicht dabei.
+        Jede Stufe ist 4/4. Du wählst die Stufen und, wie viele Takte eine Stufe bleibt.
       </p>
       <div className="staff-card">
         <div className="staff-label">{rud.label}</div>
         <RudimentStaff rud={rud} playingT={playT} svgId="pyramid-live" />
       </div>
       <div style={{ margin: "0 0 12px" }}>
-        <div style={{ fontSize: 13, color: DIM, marginBottom: 8 }}>Stufen</div>
+        <div style={{ fontSize: 13, color: DIM, marginBottom: 8 }}>Stufen · eine Viertel</div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           {STAGES.map((s) => {
             const on = enabled.has(s.id);
@@ -214,20 +250,27 @@ export default function PyramidTrainer() {
                 type="button"
                 className={on ? "chip on" : "chip"}
                 aria-pressed={on}
+                aria-label={s.label}
+                title={s.label}
                 onClick={() => toggleStage(s.id)}
-                style={current ? { outline: "2px solid #e8b84b", outlineOffset: 2 } : undefined}
+                style={{
+                  padding: "6px 6px 4px",
+                  minWidth: 60,
+                  outline: current ? "2px solid #e8b84b" : undefined,
+                  outlineOffset: current ? 2 : undefined,
+                }}
               >
-                {s.label}
+                <BeatGlyph per={s.perBeat} tuplet={s.tuplet} on={on} />
               </button>
             );
           })}
         </div>
         <p style={{ color: DIM, fontSize: 12, margin: "8px 0 0" }}>
-          Tippen schaltet an oder aus. Mindestens eine Stufe bleibt an. Während dem Laufen gesperrt.
+          Tippen schaltet an oder aus. Mindestens eine Stufe bleibt an.
         </p>
       </div>
       <div className="panel">
-        <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 12 }}>Einstellung</div>
+        <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: TEAL, marginBottom: 12 }}>Einstellung</div>
         <div style={{ marginTop: 14, fontSize: 13, color: DIM }}>Richtung</div>
         <div className="seg" style={{ marginTop: 8, width: "fit-content" }}>
           <button type="button" className={dir === "up" ? "on" : ""} onClick={() => !playing && setDir("up")}>auf</button>
@@ -273,7 +316,7 @@ export default function PyramidTrainer() {
               <span className="count-unit">{leftBars === 1 ? "Takt übrig" : "Takte übrig"}</span>
             </div>
           ) : null}
-          {done ? <p style={{ color: "#5cc8b8", textAlign: "center", margin: "12px 0 0" }}>{done}</p> : null}
+          {done ? <p style={{ color: TEAL, textAlign: "center", margin: "12px 0 0" }}>{done}</p> : null}
         </div>
       </div>
     </div>
