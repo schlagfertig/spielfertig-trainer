@@ -66,36 +66,35 @@ function barRud(stage) {
   };
 }
 
-/** One quarter-note of the subdivision, compact. */
 function BeatGlyph({ per, tuplet, on }) {
   const n = Math.max(1, per);
-  const w = 56;
-  const h = 28;
-  const y = 18;
-  const top = n === 1 ? 8 : 6;
+  const w = 48;
+  const h = 24;
+  const y = 16;
+  const top = n === 1 ? 7 : 5;
   const ink = on ? "#06120f" : INK;
-  const left = 7;
-  const right = w - 7;
+  const left = 6;
+  const right = w - 6;
   const span = right - left;
   const xs = Array.from({ length: n }, (_, i) => (n === 1 ? w / 2 : left + (span * i) / (n - 1)));
-  const rx = n >= 6 ? 2.1 : n >= 4 ? 2.4 : 2.8;
+  const rx = n >= 6 ? 1.8 : n >= 4 ? 2.1 : 2.5;
   const beams = n === 1 ? 0 : n === 2 || n === 3 ? 1 : n === 8 ? 3 : 2;
   return (
     <svg viewBox={`0 0 ${w} ${h}`} width={w} height={h} aria-hidden="true">
       {xs.map((x, i) => (
         <g key={i}>
           <ellipse cx={x} cy={y} rx={rx} ry={rx * 0.68} fill={ink} transform={`rotate(-18 ${x} ${y})`} />
-          {n > 1 ? <line x1={x + 1.6} y1={y - 0.6} x2={x + 1.6} y2={top} stroke={ink} strokeWidth="1" /> : (
-            <line x1={x + 1.8} y1={y - 0.4} x2={x + 1.8} y2={4} stroke={ink} strokeWidth="1.15" />
+          {n > 1 ? <line x1={x + 1.4} y1={y - 0.5} x2={x + 1.4} y2={top} stroke={ink} strokeWidth="0.95" /> : (
+            <line x1={x + 1.6} y1={y - 0.3} x2={x + 1.6} y2={3.5} stroke={ink} strokeWidth="1.1" />
           )}
         </g>
       ))}
-      {n === 1 ? <path d={`M ${xs[0] + 1.8} 4 C ${xs[0] + 10} 6, ${xs[0] + 10} 14, ${xs[0] + 3} 16`} fill="none" stroke={ink} strokeWidth="1.15" /> : null}
+      {n === 1 ? <path d={`M ${xs[0] + 1.6} 3.5 C ${xs[0] + 9} 5, ${xs[0] + 9} 12, ${xs[0] + 2.6} 14`} fill="none" stroke={ink} strokeWidth="1.1" /> : null}
       {Array.from({ length: beams }, (_, b) => (
-        <line key={b} x1={xs[0] + 1.6} y1={top + b * 2.4} x2={xs[n - 1] + 1.6} y2={top + b * 2.4} stroke={ink} strokeWidth={b === 0 ? 2.2 : 1.6} />
+        <line key={b} x1={xs[0] + 1.4} y1={top + b * 2.1} x2={xs[n - 1] + 1.4} y2={top + b * 2.1} stroke={ink} strokeWidth={b === 0 ? 2 : 1.4} />
       ))}
       {tuplet ? (
-        <text x={w / 2} y={5} textAnchor="middle" fill={ink} fontFamily="Figtree, sans-serif" fontSize="8" fontWeight="800">{tuplet}</text>
+        <text x={w / 2} y={4.5} textAnchor="middle" fill={ink} fontFamily="Figtree, sans-serif" fontSize="7.5" fontWeight="800">{tuplet}</text>
       ) : null}
     </svg>
   );
@@ -107,11 +106,14 @@ export default function PyramidTrainer() {
   const [dir, setDir] = useState("updown");
   const [enabled, setEnabled] = useState(() => new Set(STAGES.map((s) => s.id)));
   const [playing, setPlaying] = useState(false);
+  const [counting, setCounting] = useState(false);
+  const [countN, setCountN] = useState(0);
   const [beat, setBeat] = useState(false);
   const [idx, setIdx] = useState(0);
   const [leftBars, setLeftBars] = useState(0);
   const [playT, setPlayT] = useState(-1);
   const [done, setDone] = useState("");
+  const wrapRef = useRef(null);
   const stopRef = useRef(null);
   const bpmRef = useRef(80);
   const barsRef = useRef(2);
@@ -121,9 +123,13 @@ export default function PyramidTrainer() {
   const steps = plan(dir, active.length ? active : STAGES);
   const cur = steps[idx] || steps[0];
   const rud = barRud(cur);
-  const curId = steps[idx]?.id;
+  const focus = playing || counting;
 
   useEffect(() => () => stopRef.current?.(), []);
+  useEffect(() => {
+    wrapRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
+    window.scrollTo(0, 0);
+  }, []);
 
   function toggleStage(id) {
     if (playing) return;
@@ -145,6 +151,8 @@ export default function PyramidTrainer() {
     stopRef.current?.();
     stopRef.current = null;
     setPlaying(false);
+    setCounting(false);
+    setCountN(0);
     setBeat(false);
     setLeftBars(0);
     setPlayT(-1);
@@ -154,6 +162,7 @@ export default function PyramidTrainer() {
   function start() {
     stop();
     setDone("");
+    wrapRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
     const ctx = unlockAudio();
     const selected = STAGES.filter((s) => enabled.has(s.id));
     const run = plan(dir, selected.length ? selected : STAGES);
@@ -161,12 +170,14 @@ export default function PyramidTrainer() {
     let cancelled = false;
     let timer = 0;
     let si = 0;
-    let next = ctx.currentTime + 0.02;
     let sub = 0;
     let barsDone = 0;
     setIdx(0);
     setPlaying(true);
+    setCounting(true);
+    setCountN(1);
     setLeftBars(holdBars);
+    setPlayT(-1);
 
     const pulse = (when) => {
       const delay = Math.max(0, (when - ctx.currentTime) * 1000);
@@ -178,12 +189,25 @@ export default function PyramidTrainer() {
       }, delay);
     };
 
+    const q = 60 / Math.max(30, bpmRef.current);
+    let next = ctx.currentTime + 0.03;
+    for (let i = 0; i < 4; i++) {
+      const when = next + i * q;
+      playClick(ctx, when, i === 0);
+      pulse(when);
+      window.setTimeout(() => { if (!cancelled) setCountN(i + 1); }, Math.max(0, (when - ctx.currentTime) * 1000));
+    }
+    next += 4 * q;
+    window.setTimeout(() => { if (!cancelled) { setCounting(false); setCountN(0); } }, Math.max(0, (next - ctx.currentTime) * 1000));
+
     const finish = () => {
       if (cancelled) return;
       cancelled = true;
       window.clearTimeout(timer);
       stopRef.current = null;
       setPlaying(false);
+      setCounting(false);
+      setCountN(0);
       setBeat(false);
       setLeftBars(0);
       setPlayT(-1);
@@ -194,6 +218,10 @@ export default function PyramidTrainer() {
     const schedule = () => {
       if (cancelled) return;
       const now = ctx.currentTime;
+      if (now < next - 0.02) {
+        timer = window.setTimeout(schedule, 25);
+        return;
+      }
       const horizon = now + 0.16;
       while (next < horizon && !cancelled) {
         const curPer = run[si].perBeat;
@@ -230,63 +258,70 @@ export default function PyramidTrainer() {
   }
 
   return (
-    <div className="pyramid-wrap" style={{ paddingBottom: "calc(260px + env(safe-area-inset-bottom, 0px))" }}>
-      <p style={{ color: DIM, fontSize: 14, margin: "12px 0 16px" }}>
-        Jede Stufe ist 4/4. Du wählst die Stufen und, wie viele Takte eine Stufe bleibt.
-      </p>
-      <div className="staff-card">
+    <div className="pyramid-wrap" ref={wrapRef} style={{ paddingBottom: focus ? "calc(168px + env(safe-area-inset-bottom, 0px))" : "calc(220px + env(safe-area-inset-bottom, 0px))" }}>
+      {!focus ? (
+        <p style={{ color: DIM, fontSize: 13, margin: "8px 0 10px" }}>
+          Stufen wählen · immer 4/4.
+        </p>
+      ) : null}
+      <div className="staff-card" style={{ marginBottom: focus ? 0 : 10 }}>
         <div className="staff-label">{rud.label}</div>
-        <RudimentStaff rud={rud} playingT={playT} svgId="pyramid-live" />
+        <RudimentStaff rud={rud} playingT={counting ? -1 : playT} svgId="pyramid-live" />
       </div>
-      <div style={{ margin: "0 0 12px" }}>
-        <div style={{ fontSize: 13, color: DIM, marginBottom: 8 }}>Stufen · eine Viertel</div>
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          {STAGES.map((s) => {
-            const on = enabled.has(s.id);
-            const current = playing && curId === s.id;
-            return (
-              <button
-                key={s.id}
-                type="button"
-                className={on ? "chip on" : "chip"}
-                aria-pressed={on}
-                aria-label={s.label}
-                title={s.label}
-                onClick={() => toggleStage(s.id)}
-                style={{
-                  padding: "6px 6px 4px",
-                  minWidth: 60,
-                  outline: current ? "2px solid #e8b84b" : undefined,
-                  outlineOffset: current ? 2 : undefined,
-                }}
-              >
-                <BeatGlyph per={s.perBeat} tuplet={s.tuplet} on={on} />
-              </button>
-            );
-          })}
+      {!focus ? (
+        <div className="panel" style={{ padding: "10px 12px 12px", marginBottom: 8 }}>
+          <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 8 }}>
+            {STAGES.map((s) => {
+              const on = enabled.has(s.id);
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  className={on ? "chip on" : "chip"}
+                  aria-pressed={on}
+                  aria-label={s.label}
+                  title={s.label}
+                  onClick={() => toggleStage(s.id)}
+                  style={{ padding: "4px 4px 2px", minWidth: 52 }}
+                >
+                  <BeatGlyph per={s.perBeat} tuplet={s.tuplet} on={on} />
+                </button>
+              );
+            })}
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+            <div className="seg" style={{ width: "fit-content" }}>
+              <button type="button" className={dir === "up" ? "on" : ""} onClick={() => setDir("up")}>auf</button>
+              <button type="button" className={dir === "down" ? "on" : ""} onClick={() => setDir("down")}>ab</button>
+              <button type="button" className={dir === "updown" ? "on" : ""} onClick={() => setDir("updown")}>auf+ab</button>
+            </div>
+            <div className="seg" style={{ width: "fit-content" }}>
+              {BARS.map((n) => (
+                <button key={n} type="button" className={bars === n ? "on" : ""} onClick={() => setBars(n)}>{n === 1 ? "1 Takt" : `${n} T.`}</button>
+              ))}
+            </div>
+          </div>
         </div>
-        <p style={{ color: DIM, fontSize: 12, margin: "8px 0 0" }}>
-          Tippen schaltet an oder aus. Mindestens eine Stufe bleibt an.
-        </p>
-      </div>
-      <div className="panel">
-        <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: TEAL, marginBottom: 12 }}>Einstellung</div>
-        <div style={{ marginTop: 14, fontSize: 13, color: DIM }}>Richtung</div>
-        <div className="seg" style={{ marginTop: 8, width: "fit-content" }}>
-          <button type="button" className={dir === "up" ? "on" : ""} onClick={() => !playing && setDir("up")}>auf</button>
-          <button type="button" className={dir === "down" ? "on" : ""} onClick={() => !playing && setDir("down")}>ab</button>
-          <button type="button" className={dir === "updown" ? "on" : ""} onClick={() => !playing && setDir("updown")}>auf + ab</button>
+      ) : null}
+      {counting ? (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 50,
+            background: "rgba(22,26,29,0.72)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            pointerEvents: "none",
+          }}
+        >
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontFamily: "Oswald, sans-serif", fontSize: "28vw", lineHeight: 0.9, color: TEAL, fontWeight: 700 }}>{countN || 1}</div>
+            <div style={{ color: DIM, letterSpacing: "0.16em", fontWeight: 800, textTransform: "uppercase" }}>Einzählen</div>
+          </div>
         </div>
-        <div style={{ marginTop: 14, fontSize: 13, color: DIM }}>Takte pro Stufe</div>
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
-          {BARS.map((n) => (
-            <button key={n} type="button" className={bars === n ? "chip on" : "chip"} onClick={() => !playing && setBars(n)}>{barLabel(n)}</button>
-          ))}
-        </div>
-        <p style={{ color: DIM, fontSize: 12, margin: "14px 0 0" }}>
-          Immer 4/4. Stufe wechselt nach {barLabel(bars)}, genau an der Taktgrenze.
-        </p>
-      </div>
+      ) : null}
       <div
         className="pyramid-dock"
         style={{
@@ -307,10 +342,10 @@ export default function PyramidTrainer() {
         <div style={{ pointerEvents: "auto", maxWidth: 880, margin: "0 auto" }}>
           <div className="dial-row">
             <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))} aria-label="5 BPM langsamer">−5</button>
-            <MetronomeDial bpm={bpm} setBpm={(n) => setBpm(clamp(n, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={124} now subLabel={playing ? "Stop" : "Start"} />
+            <MetronomeDial bpm={bpm} setBpm={(n) => setBpm(clamp(n, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={focus ? 112 : 124} now subLabel={playing ? "Stop" : "Start"} />
             <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))} aria-label="5 BPM schneller">+5</button>
           </div>
-          {playing ? (
+          {playing && !counting ? (
             <div className="count">
               <span className="count-num">{leftBars}</span>
               <span className="count-unit">{leftBars === 1 ? "Takt übrig" : "Takte übrig"}</span>
