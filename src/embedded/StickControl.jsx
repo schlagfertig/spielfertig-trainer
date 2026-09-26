@@ -133,14 +133,12 @@ export default function StickControl() {
 
   useEffect(() => () => stopRef.current?.(), []);
   useEffect(() => {
-    // Aktuelle Übung unter der Kopfleiste anpinnen und beim Wechsel dorthin scrollen
     const head = document.querySelector(".top")?.offsetHeight || 0;
     wrapRef.current?.style.setProperty("--stick-top", `${head}px`);
     const before = pinRef.current?.previousElementSibling;
     if (before) window.scrollTo({ top: before.getBoundingClientRect().bottom + window.scrollY - head, behavior: "instant" });
   }, [exId]);
   useEffect(() => {
-    // Beim Scrollen Unschärfe aufheben, ~1 s nach dem Scrollen wieder an
     let t = 0;
     const onScroll = () => {
       wrapRef.current?.classList.add("stick-scrolling");
@@ -257,12 +255,25 @@ export default function StickControl() {
           --rud-foot: calc(84px + env(safe-area-inset-bottom, 0px));
           --rud-dock: 220px;
         }
-        /* overflow-x: hidden würde position: sticky aushebeln */
         body:has(.stick-wrap), #root:has(.stick-wrap), .page:has(.stick-wrap) { overflow-x: clip; }
         .stick-far { filter: blur(1.8px); opacity: 0.45 !important; transition: filter 0.3s, opacity 0.3s; }
         .stick-scrolling .stick-far { filter: none; opacity: 0.7 !important; }
         @media (prefers-reduced-motion: reduce) { .stick-far { transition: none; } }
-        /* Click läuft: Block teal (80 %) über dunklem Grund, Noten dunkel, aktuelle Note weiß */
+        .stick-upcoming {
+          position: relative;
+          -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 52px, rgba(0,0,0,.42) 46%, transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 0%, #000 52px, rgba(0,0,0,.42) 46%, transparent 100%);
+        }
+        .stick-fade {
+          pointer-events: none;
+          position: fixed;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 15;
+          height: calc(var(--rud-dock) + var(--rud-foot) + 88px);
+          background: linear-gradient(to bottom, rgba(22,26,29,0) 0%, rgba(22,26,29,.35) 28%, rgba(22,26,29,.82) 62%, #161a1d 88%);
+        }
         .stick-card.stick-run { background: linear-gradient(rgba(92,200,184,.8), rgba(92,200,184,.8)), #14191c !important; }
         .stick-run :is([fill="${INK}"], [fill="${TEAL}"]) { fill: #161a1d; }
         .stick-run [stroke="${INK}"] { stroke: #161a1d; }
@@ -320,7 +331,7 @@ export default function StickControl() {
             min-height: 0;
             overflow: hidden;
           }
-          .stick-list, .stick-done { display: none !important; }
+          .stick-list, .stick-done, .stick-fade { display: none !important; }
           .stick-wrap .rud-metro { display: none !important; }
           .stick-pin {
             flex: 1;
@@ -403,12 +414,13 @@ export default function StickControl() {
           <Phrase id={ex.id} hands={ex.hands} playT={counting ? -1 : playT} />
         </div>
       </div>
-      <div className="stick-list">
+      <div className="stick-list stick-upcoming">
         {upcoming.map((row, i) => (
           <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === 0} far={i >= 2} label={i === 0 ? "Als Nächstes" : ""} />
         ))}
       </div>
       {done ? <p className="stick-done" style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{done}</p> : null}
+      <div className="stick-fade" aria-hidden="true" />
         <div className="metro-shell rud-metro">
           <div className="dock metro-face">
             <div className="dial-row">
