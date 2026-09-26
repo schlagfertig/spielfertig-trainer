@@ -51,8 +51,8 @@ function fatTip(cx, cy, r, deg, dir) {
   const py = Math.sin(t);
   const tx = Math.cos((deg * Math.PI) / 180) * dir;
   const ty = Math.sin((deg * Math.PI) / 180) * dir;
-  const s = 7;
-  const b = 5.2;
+  const s = 8;
+  const b = 5.6;
   return `${x + tx * s},${y + ty * s} ${x - px * b - tx * 0.5},${y - py * b - ty * 0.5} ${x + px * b - tx * 0.5},${y + py * b - ty * 0.5}`;
 }
 
@@ -95,44 +95,48 @@ function WheelHints() {
   );
 }
 
-function DragArrows({ size, layoutPad, visible }) {
-  const box = size + layoutPad * 2;
-  const W = box + 88;
-  const H = box + 56;
-  const cx = W / 2;
-  const cy = H / 2 + 10;
-  const r = size / 2 + 28;
-  const offsetX = (W - box) / 2;
-  const offsetY = (H - box) / 2;
+/** Large hint arrows + copy, anchored to the live dial center. */
+function DragArrows({ cx, cy, size, visible }) {
+  const vw = typeof window !== "undefined" ? window.innerWidth : 400;
+  const vh = typeof window !== "undefined" ? window.innerHeight : 800;
+  const r = size / 2 + 36;
+  const [lx, ly] = polar(cx, cy, r + 8, 228);
+  const [rx, ry] = polar(cx, cy, r + 8, 312);
+  const [lmX, lmY] = polar(cx, cy, r, 186);
+  const [rmX, rmY] = polar(cx, cy, r, 354);
   return (
     <svg
-      viewBox={`0 0 ${W} ${H}`}
-      width={W}
-      height={H}
+      viewBox={`0 0 ${vw} ${vh}`}
+      width={vw}
+      height={vh}
       aria-hidden="true"
       style={{
-        position: "absolute",
-        left: -offsetX,
-        top: -offsetY - 4,
+        position: "fixed",
+        left: 0,
+        top: 0,
+        width: "100vw",
+        height: "100dvh",
         pointerEvents: "none",
         opacity: visible ? 1 : 0,
         transition: `opacity ${FADE_MS}ms ease`,
-        zIndex: 3,
+        zIndex: 81,
       }}
     >
-      <path d={arc(cx, cy, r, 228, 198, 0)} fill="none" stroke={TEAL} strokeWidth="3.2" strokeLinecap="round" />
-      <path d={arc(cx, cy, r, 168, 142, 0)} fill="none" stroke={TEAL} strokeWidth="3.2" strokeLinecap="round" />
-      <polygon points={fatTip(cx, cy, r, 142, -1)} fill={TEAL} />
-      <text x={cx - r - 2} y={cy - 8} textAnchor="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="15" fontWeight="800">{MINUS}</text>
-      <path d={arc(cx, cy, r, 312, 342, 1)} fill="none" stroke={TEAL} strokeWidth="3.2" strokeLinecap="round" />
-      <path d={arc(cx, cy, r, 12, 38, 1)} fill="none" stroke={TEAL} strokeWidth="3.2" strokeLinecap="round" />
-      <polygon points={fatTip(cx, cy, r, 38, 1)} fill={TEAL} />
-      <text x={cx + r + 2} y={cy - 8} textAnchor="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="15" fontWeight="800">+</text>
+      <path d={arc(cx, cy, r, 236, 148, 0)} fill="none" stroke={TEAL} strokeWidth="2.6" strokeLinecap="round" />
+      <polygon points={fatTip(cx, cy, r, 148, -1)} fill={TEAL} />
+      <text x={lmX} y={lmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="15" fontWeight="800">{MINUS}</text>
+      <text x={lx - 6} y={ly - 16} textAnchor="end" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="800" letterSpacing="0.08em">TIPP LINKS</text>
+      <text x={lx - 6} y={ly - 2} textAnchor="end" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="700" letterSpacing="0.06em">= LANGSAMER</text>
+
+      <path d={arc(cx, cy, r, 304, 32, 1)} fill="none" stroke={TEAL} strokeWidth="2.6" strokeLinecap="round" />
+      <polygon points={fatTip(cx, cy, r, 32, 1)} fill={TEAL} />
+      <text x={rmX} y={rmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="15" fontWeight="800">+</text>
+      <text x={rx + 6} y={ry - 16} textAnchor="start" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="800" letterSpacing="0.08em">TIPP RECHTS</text>
+      <text x={rx + 6} y={ry - 2} textAnchor="start" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="700" letterSpacing="0.06em">= SCHNELLER</text>
     </svg>
   );
 }
 
-/** Full-screen lever from dial center to finger. */
 function HoldLever({ cx, cy, x, y, size, visible }) {
   const dx = x - cx;
   const dy = y - cy;
@@ -307,9 +311,6 @@ export function MetronomeDial({
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, minWidth: 0 }}>
       <div style={{ position: "relative", width: size + layoutPad * 2, height: size + layoutPad * 2, flexShrink: 0, overflow: "visible" }}>
         {setBpm && !lever.visible ? <WheelHints /> : null}
-        {setBpm && lever.mounted ? (
-          <DragArrows size={size} layoutPad={layoutPad} visible={lever.visible} />
-        ) : null}
         <button
           type="button"
           onClick={setBpm ? undefined : () => onToggle?.()}
@@ -368,6 +369,9 @@ export function MetronomeDial({
           </div>
         </button>
       </div>
+      {setBpm && lever.mounted ? (
+        <DragArrows cx={lever.cx} cy={lever.cy} size={size} visible={lever.visible} />
+      ) : null}
       {setBpm && lever.mounted ? (
         <HoldLever cx={lever.cx} cy={lever.cy} x={lever.x} y={lever.y} size={size} visible={lever.visible} />
       ) : null}
