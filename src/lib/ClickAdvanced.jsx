@@ -6,11 +6,11 @@ const DIM = "#8a969c";
 
 // Symbol statt Name je Ebene (ein Schlag)
 const GLYPH = {
-  quarter: <BeatGlyph per={1} flag={false} />,
+  quarter: <BeatGlyph per={1} />,
   off: <BeatGlyph per={2} rests={[0]} />,
   sixteenth: <BeatGlyph per={4} rests={[0, 2]} />,
   triplet: <BeatGlyph per={3} tuplet={3} rests={[0]} />,
-  beat: <BeatGlyph per={1} flag={false} accent below="1" />,
+  beat: <BeatGlyph per={1} accent below="1" />,
   master: (
     <svg viewBox="-12 0 48 24" width={48} height={24} aria-hidden="true" fill="none" stroke="#f4f7f6" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="#f4f7f6" />

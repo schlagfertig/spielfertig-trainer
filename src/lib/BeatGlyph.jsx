@@ -1,8 +1,8 @@
 const INK = "#f4f7f6";
 
 // Kleine Notengruppe für einen Schlag (Pyramide, Click-Mixer).
-// rests: Positionen mit Pause statt Note; accent: > über der Note; below: Text darunter; flag: Fähnchen bei einzelner Note
-export function BeatGlyph({ per, tuplet, on, rests = [], accent = false, below = "", flag = true }) {
+// rests: Positionen mit Pause statt Note (einzelne Note in der Gruppe bekommt Fähnchen); accent: > über der Note; below: Text darunter
+export function BeatGlyph({ per, tuplet, on, rests = [], accent = false, below = "" }) {
   const n = Math.max(1, per);
   const w = 48;
   const h = 24;
@@ -19,7 +19,7 @@ export function BeatGlyph({ per, tuplet, on, rests = [], accent = false, below =
   const padTop = accent ? 6 : 0;
   const padBottom = below ? 8 : 0;
   return (
-    <svg viewBox={`0 ${-padTop} ${w} ${h + padTop + padBottom}`} width={w} height={h + padTop + padBottom} aria-hidden="true">
+    <svg viewBox={`0 ${-padTop} ${w} ${h + padTop + padBottom}`} width={w} height={h + padTop + padBottom} aria-hidden="true" style={{ overflow: "visible" }}>
       {xs.map((x, i) => rests.includes(i) ? (
         <g key={i} stroke={ink} strokeWidth="1" fill="none">
           <circle cx={x - 1} cy={10.5} r={1.3} fill={ink} stroke="none" />
@@ -37,14 +37,14 @@ export function BeatGlyph({ per, tuplet, on, rests = [], accent = false, below =
           )}
         </g>
       ))}
-      {single && flag ? Array.from({ length: Math.max(1, beams) }, (_, b) => (
+      {single && n > 1 ? Array.from({ length: beams }, (_, b) => (
         <path key={b} d={`M ${notes[0] + 1.6} ${3.5 + b * 3} C ${notes[0] + 9} ${5 + b * 3}, ${notes[0] + 9} ${12 + b * 3}, ${notes[0] + 2.6} ${14 + b * 3}`} fill="none" stroke={ink} strokeWidth="1.1" />
       )) : null}
       {!single ? Array.from({ length: beams }, (_, b) => (
         <line key={b} x1={notes[0] + 1.4} y1={top + b * 2.1} x2={notes[notes.length - 1] + 1.4} y2={top + b * 2.1} stroke={ink} strokeWidth={b === 0 ? 2 : 1.4} />
       )) : null}
       {tuplet ? (
-        <text x={w / 2} y={4.5} textAnchor="middle" fill={ink} fontFamily="Figtree, sans-serif" fontSize="7.5" fontWeight="800">{tuplet}</text>
+        <text x={w / 2} y={2.5} textAnchor="middle" fill={ink} fontFamily="Figtree, sans-serif" fontSize="7.5" fontWeight="800">{tuplet}</text>
       ) : null}
       {accent ? <path d={`M ${notes[0] - 3} -5 L ${notes[0] + 3.5} -2.8 L ${notes[0] - 3} -0.6`} fill="none" stroke={ink} strokeWidth="1.1" /> : null}
       {below ? <text x={notes[0]} y={h + 6.5} textAnchor="middle" fill={ink} fontFamily="Figtree, sans-serif" fontSize="8" fontWeight="800">{below}</text> : null}

@@ -15,6 +15,7 @@ const STAGES = [
   { id: "s16", label: "16tel", perBeat: 4 },
   { id: "q5", label: "Quintole", perBeat: 5, tuplet: 5 },
   { id: "sx", label: "16tel-Sextole", perBeat: 6, tuplet: 6 },
+  { id: "s7", label: "Septole", perBeat: 7, tuplet: 7 },
   { id: "s32", label: "32tel", perBeat: 8 },
 ];
 
@@ -236,7 +237,7 @@ export default function PyramidTrainer() {
       </div>
       {!focus ? (
         <div className="panel" style={{ padding: "10px 12px 12px", marginBottom: 8 }}>
-          <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 8 }}>
+          <div className="pyr-steps">
             {STAGES.map((s) => {
               const on = enabled.has(s.id);
               return (
@@ -248,7 +249,6 @@ export default function PyramidTrainer() {
                   aria-label={s.label}
                   title={s.label}
                   onClick={() => toggleStage(s.id)}
-                  style={{ padding: "4px 4px 2px", minWidth: 52 }}
                 >
                   <BeatGlyph per={s.perBeat} tuplet={s.tuplet} on={on} />
                 </button>
@@ -320,6 +320,12 @@ export default function PyramidTrainer() {
           {done ? <p style={{ color: TEAL, textAlign: "center", margin: "12px 0 0" }}>{done}</p> : null}
         </div>
       </div>
+      <style>{`
+        /* 4 Kacheln pro Reihe, Notensymbol mitskaliert */
+        .pyr-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
+        .pyr-steps .chip { min-height: 52px; padding: 6px 4px; display: flex; align-items: center; justify-content: center; }
+        .pyr-steps svg { width: 100%; max-width: 64px; height: auto; }
+      `}</style>
     </div>
   );
 }
