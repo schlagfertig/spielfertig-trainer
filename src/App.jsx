@@ -5,6 +5,7 @@ import PyramidTrainer from "./embedded/PyramidTrainer.jsx";
 import StickControl from "./embedded/StickControl.jsx";
 import Archive from "./embedded/Archive.jsx";
 import { Help } from "./lib/Help.jsx";
+import { Welcome } from "./lib/Welcome.jsx";
 import FirstLesson from "./lib/FirstLesson.jsx";
 import Legal from "./lib/Legal.jsx";
 import { loadSession } from "./lib/session.js";
@@ -218,6 +219,7 @@ export default function App() {
             <button type="button" className="foot-link" onClick={() => open("datenschutz")}>{t("Datenschutz")}</button>
           </div>
         </footer>
+        <Welcome />
       </div>
     );
   }
