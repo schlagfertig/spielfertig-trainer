@@ -299,7 +299,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           }}
         >
           {stage ? null : (
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: 4 }}>
+            <div className="rud-hear" style={{ display: "flex", justifyContent: "center", marginBottom: 4 }}>
               <div className="seg">
                 <button type="button" className={hear === "snare" ? "on" : ""} onClick={() => setHear("snare")}>Snare</button>
                 <button type="button" className={hear === "hands" ? "on" : ""} onClick={() => setHear("hands")}>L / R</button>

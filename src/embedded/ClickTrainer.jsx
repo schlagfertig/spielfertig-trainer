@@ -41,6 +41,16 @@ export default function ClickTrainer() {
   const [cap, setCap] = useState(init.cap);
   const [mix, setMix] = useState(() => readMix());
   const [flipped, setFlipped] = useState(false);
+  // Dock ist fixed und wächst beim Laufen (Countdown) – Inhalt bekommt so viel Platz darunter, dass alles über dem Dock scrollbar bleibt.
+  const dockRef = useRef(null);
+  const [dockH, setDockH] = useState(220);
+  useEffect(() => {
+    const el = dockRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return undefined;
+    const ro = new ResizeObserver(() => setDockH(el.offsetHeight));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   const [playing, setPlaying] = useState(false);
   const [beat, setBeat] = useState(false);
   const [left, setLeft] = useState(0);
@@ -195,7 +205,7 @@ export default function ClickTrainer() {
   const atCap = ramp && bpm >= cap;
 
   return (
-    <div style={{ minWidth: 0, maxWidth: "100%", paddingBottom: "calc(220px + env(safe-area-inset-bottom, 0px))" }}>
+    <div style={{ minWidth: 0, maxWidth: "100%", paddingBottom: dockH + 16 }}>
       <p style={{ color: DIM, fontSize: 14, margin: "12px 0 16px" }}>
         {ramp
           ? t("Click starten. Alle paar Sekunden wird das Tempo angehoben — Du bleibst am Pad.")
@@ -238,6 +248,7 @@ export default function ClickTrainer() {
         )}
       </div>
       <div
+        ref={dockRef}
         className="click-dock"
         style={{
           position: "fixed",
