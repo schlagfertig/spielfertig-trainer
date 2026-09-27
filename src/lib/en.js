@@ -51,6 +51,11 @@ export const EN = {
   "Einmalig beim ersten Öffnen — danach jederzeit über ?": "Shown once on first open — after that, anytime via ?",
   "Verstanden": "Got it",
   "Schließen": "Close",
+  // Begrüßung
+  "Willkommen bei Spielfertig Control! 🥁": "Welcome to Spielfertig Control! 🥁",
+  "Hallo {name}, willkommen bei Spielfertig Control! 🥁": "Hi {name}, welcome to Spielfertig Control! 🥁",
+  "Schön, dass du dabei bist und die App testest. Starte am besten mit „Erste Übung“ – das dauert nur eine Minute. Über das „?“ oben rechts findest du überall Hilfe. Ich freue mich über jede Rückmeldung!": "Great to have you here testing the app. Tap “Start your first lesson” – it only takes a minute. Tap “?” at the top right for help anywhere. I'd love to hear your feedback!",
+  "Los geht's": "Let's go",
   "40 PAS-Übungen. Notation lesen, Click hören, Tempo halten.": "40 PAS exercises. Read the notation, hear the click, hold the tempo.",
   "Metronom: Tempo steigern oder halten. Seite ‚Erweitert‘ = Click-Mixer.": "Metronome: speed up or hold the tempo. ‘Advanced’ side = click mixer.",
   "Subdivisionen auf und ab, 4tel bis 32tel.": "Subdivisions up and down, quarters to 32nds.",

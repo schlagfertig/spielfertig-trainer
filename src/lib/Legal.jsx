@@ -55,6 +55,7 @@ function LegalEn({ isPrivacy }) {
           We do not use our own tracking cookies or any analytics tools
           (no Google Analytics, Plausible, Matomo or similar).
           For test access we set a technically necessary cookie (“sf_zugang”) containing a pseudonymous tester code and expiry date; it is used only for access, not for analytics, and ends when the invite link expires (§ 25(2) no. 2 TDDDG).
+          If the invite link contains a first name, we store it in the cookie “sf_name” only for the in-app greeting; it ends when the link expires.
         </p>
       </section>
       <section className="legal-block">
@@ -176,6 +177,7 @@ export default function Legal({ topic = "impressum", onOpen }) {
               Wir setzen keine eigenen Tracking-Cookies und keine Analyse-Tools
               (kein Google Analytics, Plausible, Matomo o. Ä.) ein.
               Für den Testzugang setzen wir ein technisch notwendiges Cookie („sf_zugang“) mit einem pseudonymen Tester-Kürzel und Ablaufdatum; es dient nur dem Zugang, nicht der Analyse, und endet mit Ablauf des Einladungslinks (§ 25 Abs. 2 Nr. 2 TDDDG).
+              Enthält der Einladungslink einen Vornamen, speichern wir ihn im Cookie „sf_name“ nur für die Begrüßung in der App; es endet mit Ablauf des Links.
             </p>
           </section>
           <section className="legal-block">
