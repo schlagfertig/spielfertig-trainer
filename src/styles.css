@@ -34,7 +34,7 @@ p { font-size: 17px; line-height: 1.45; }
 .lang-flag { display: flex; align-items: center; justify-content: center; }
 .lang-flag svg { border-radius: 50%; }
 .logo-metro { position: relative; }
-.logo-metro .logo { cursor: pointer; transition: opacity .25s ease, transform .25s ease; }
+.logo-metro .logo { position: relative; cursor: pointer; transition: opacity .25s ease, transform .25s ease; }
 .logo-metro.open .logo { opacity: 0; transform: scale(.9); pointer-events: none; }
 .logo-dial { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; animation: logoDialIn .25s ease; }
 .logo-dial-x { position: absolute; top: 0; left: 0; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--dim); font-size: 22px; line-height: 1; padding: 0; }
@@ -42,6 +42,14 @@ p { font-size: 17px; line-height: 1.45; }
 /* Beim Tempo-Drehen überlappen die Drehhinweise ×, ? und den Hören-Umschalter (Rudiments) – solange ausblenden */
 .home-help, .logo-dial-x, .rud-hear { transition: opacity .2s ease; }
 body.metro-gesturing .home-help, body.metro-gesturing .logo-dial-x, body.metro-gesturing .rud-hear { opacity: 0; pointer-events: none; }
+/* Easter-Egg-Hinweis: Logo blinkt ca. 1× pro Minute 4 Schläge (100 BPM) wie der Dial, bis es einmal angetippt wurde. Kein scale: macht das Logo in Ruhe unscharf. */
+.logo-metro::before { content: ""; position: absolute; top: 0; left: 0; right: 0; margin: 0 auto; width: min(380px, 88vw); max-width: 100%; aspect-ratio: 1280 / 1024; background: radial-gradient(circle closest-side, rgba(92, 200, 184, 0) 50%, rgba(92, 200, 184, .6) 66%, rgba(92, 200, 184, 0) 90%); opacity: 0; pointer-events: none; }
+@keyframes logoBeat { 0%, .35%, 1%, 1.35%, 2%, 2.35%, 3%, 3.35%, 100% { filter: none; } .1%, 1.1%, 2.1%, 3.1% { filter: brightness(1.45); } }
+@keyframes logoGlow { 0%, .35%, 1%, 1.35%, 2%, 2.35%, 3%, 3.35%, 100% { opacity: 0; } .1%, 1.1%, 2.1%, 3.1% { opacity: 1; } }
+@media (prefers-reduced-motion: no-preference) {
+  .logo-metro:not(.open):not(.found) .logo { animation: logoBeat 60s linear 9s infinite; }
+  .logo-metro:not(.open):not(.found)::before { animation: logoGlow 60s linear 9s infinite; }
+}
 @media (prefers-reduced-motion: reduce) { .logo-metro .logo, .logo-dial, .home-help, .logo-dial-x, .rud-hear { transition: none; animation: none; } }
 .hero { text-align: center; padding: 12px 0 10px; }
 .logo {

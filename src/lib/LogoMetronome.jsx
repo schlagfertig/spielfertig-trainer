@@ -9,6 +9,8 @@ const clamp = (n) => Math.max(30, Math.min(260, Math.round(n)));
 // Easter Egg: Logo antippen = Metronom (gleiches Dial und gleicher Click wie im Click-Trainer)
 export function LogoMetronome() {
   const [open, setOpen] = useState(false);
+  // Einmal entdeckt = Logo blinkt nicht mehr (CSS-Animation nur ohne .found)
+  const [found, setFound] = useState(() => { try { return !!localStorage.getItem("sf.v1.logoFound"); } catch { return false; } });
   const [bpm, setBpm] = useState(() => clamp(Number(loadSession("click", {}).startBpm) || 80));
   const [playing, setPlaying] = useState(false);
   const [beat, setBeat] = useState(false);
@@ -66,9 +68,13 @@ export function LogoMetronome() {
   }, [open]);
 
   const set = (v) => setBpm(clamp(v));
+  const openDial = () => {
+    setOpen(true);
+    if (!found) { setFound(true); try { localStorage.setItem("sf.v1.logoFound", "1"); } catch { /* privater Modus */ } }
+  };
   return (
-    <div className={open ? "logo-metro open" : "logo-metro"} ref={boxRef}>
-      <img className="logo" src="/logo.svg?v=clear" alt="schlagfertig" role="button" tabIndex={0} aria-label={t("Logo: Metronom öffnen")} onClick={() => setOpen(true)} />
+    <div className={"logo-metro" + (open ? " open" : "") + (found ? " found" : "")} ref={boxRef}>
+      <img className="logo" src="/logo.svg?v=clear" alt="schlagfertig" role="button" tabIndex={0} aria-label={t("Logo: Metronom öffnen")} onClick={openDial} />
       {open ? (
         <div className="logo-dial">
           <button type="button" className="logo-dial-x" onClick={close} aria-label={t("Metronom schließen")}>×</button>
