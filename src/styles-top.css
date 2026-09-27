@@ -1,0 +1,36 @@
+.page.tool .top {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  background: transparent !important;
+  border-bottom: 0 !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none;
+  padding: 2px 0 10px;
+}
+.top-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.top-row .top-right {
+  margin-left: auto;
+}
+.page.tool .top-title {
+  flex: none;
+  width: 100%;
+  max-width: 100%;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  font-size: clamp(24px, 7.2vw, 34px);
+  line-height: 1.15;
+}
+.modal-card.help-card {
+  background:
+    linear-gradient(180deg, rgba(92, 200, 184, 0.14), rgba(16, 24, 26, 0.7) 42%),
+    rgba(14, 20, 22, 0.7);
+}
