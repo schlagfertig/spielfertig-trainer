@@ -41,7 +41,6 @@ export default function ClickTrainer() {
   const [cap, setCap] = useState(init.cap);
   const [mix, setMix] = useState(() => readMix());
   const [flipped, setFlipped] = useState(false);
-  // Dock ist fixed und wächst beim Laufen (Countdown) – Inhalt bekommt so viel Platz darunter, dass alles über dem Dock scrollbar bleibt.
   const dockRef = useRef(null);
   const [dockH, setDockH] = useState(220);
   useEffect(() => {
@@ -206,17 +205,17 @@ export default function ClickTrainer() {
 
   return (
     <div style={{ minWidth: 0, maxWidth: "100%", paddingBottom: dockH + 16 }}>
-      <p style={{ color: DIM, fontSize: 14, margin: "12px 0 16px" }}>
-        {ramp
-          ? t("Click starten. Alle paar Sekunden wird das Tempo angehoben — Du bleibst am Pad.")
-          : t("Gleichmäßiges Tempo halten. BPM am Kreis drehen oder ±5.")}
-      </p>
-      <div className="seg" style={{ margin: "0 0 14px", maxWidth: "100%" }}>
+      <div className="seg" style={{ margin: "8px 0 12px", maxWidth: "100%" }}>
         <button type="button" className={!ramp ? "on" : ""} onClick={() => pickMode("hold")}>{t("Tempo halten")}</button>
         <button type="button" className={ramp ? "on" : ""} onClick={() => pickMode("ramp")}>{t("Tempo steigern")}</button>
       </div>
       <div className="panel">
-        <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 12 }}>{t("Einstellung")}</div>
+        <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 8 }}>{t("Einstellung")}</div>
+        <p style={{ color: DIM, fontSize: 13, margin: "0 0 12px", lineHeight: 1.35 }}>
+          {ramp
+            ? t("Alle paar Sekunden wird das Tempo angehoben — Du bleibst am Pad.")
+            : t("Gleichmäßiges Tempo. Kreis drehen oder ±5.")}
+        </p>
         <TempoControl bpm={startBpm} setBpm={setStart} min={30} max={260} hideNudge />
         {ramp ? (
           <>
@@ -267,7 +266,6 @@ export default function ClickTrainer() {
       >
         <div style={{ pointerEvents: "auto", maxWidth: 880, margin: "0 auto" }}>
           <div className="metro-shell">
-            {/* Click-Mixer deckend, leicht türkis: 8 % #5cc8b8 in #1c2226 */}
             <div style={{ position: "static", margin: 0, padding: flipped ? "8px 8px 4px 10px" : "8px 8px 4px 0", borderRadius: flipped ? "12px 0 0 12px" : 0, background: flipped ? "#212f32" : "transparent", border: flipped ? `1px solid ${LINE}` : "none", borderRight: "none", boxShadow: "none", overflow: "auto" }}>
               {flipped ? (
                 <div key="back" className="metro-swap">
@@ -310,7 +308,7 @@ export default function ClickTrainer() {
           left: 0;
           right: 0;
           bottom: 0;
-          z-index: 15;
+          zIndex: 15;
           background: transparent;
           border: none;
           box-shadow: none;
@@ -353,10 +351,8 @@ export default function ClickTrainer() {
           color: #06120f;
           border-color: #5cc8b8;
         }
-        /* Platz für den Hinweis unter dem Kreis (sonst vom Dock abgeschnitten) */
         .click-dock .dial-row { padding-bottom: 16px; }
         .click-dock .count { margin-top: 2px; }
-        /* Schmale Screens (360 px): −5 sonst links angeschnitten */
         @media (max-width: 370px) { .click-dock .dial-row { gap: 6px; } }
         .metro-swap { animation: metroIn .28s ease; min-width: 0; }
         @keyframes metroIn {
