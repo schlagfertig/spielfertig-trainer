@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useId } from "react";
+import { t } from "./i18n.js";
 
 const TEAL = "#5cc8b8";
 const INK = "#161a1d";
@@ -129,10 +130,10 @@ function DragArrows({ cx, cy, size, visible }) {
       <polygon points={fatTip(cx, cy, r, 148, -1)} fill={TEAL} />
       <text x={lmX} y={lmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="15" fontWeight="800">{MINUS}</text>
       <g style={{ opacity: visible ? 1 : 0, transition: `opacity ${FADE_MS * 0.6}ms ease-out` }}>
-        <text x={lx - 6} y={ly - 16} textAnchor="end" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="800" letterSpacing="0.08em">TIPP LINKS</text>
-        <text x={lx - 6} y={ly - 2} textAnchor="end" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="700" letterSpacing="0.06em">= LANGSAMER</text>
-        <text x={rx + 6} y={ry - 16} textAnchor="start" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="800" letterSpacing="0.08em">TIPP RECHTS</text>
-        <text x={rx + 6} y={ry - 2} textAnchor="start" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="700" letterSpacing="0.06em">= SCHNELLER</text>
+        <text x={lx - 6} y={ly - 16} textAnchor="end" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="800" letterSpacing="0.08em">{t("TIPP LINKS")}</text>
+        <text x={lx - 6} y={ly - 2} textAnchor="end" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="700" letterSpacing="0.06em">{t("= LANGSAMER")}</text>
+        <text x={rx + 6} y={ry - 16} textAnchor="start" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="800" letterSpacing="0.08em">{t("TIPP RECHTS")}</text>
+        <text x={rx + 6} y={ry - 2} textAnchor="start" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="700" letterSpacing="0.06em">{t("= SCHNELLER")}</text>
       </g>
       <path d={arc(cx, cy, r, 304, 32, 1)} fill="none" stroke={TEAL} strokeWidth="2.6" strokeLinecap="round" />
       <polygon points={fatTip(cx, cy, r, 32, 1)} fill={TEAL} />
@@ -359,8 +360,8 @@ export function MetronomeDial({
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
-          title="Tipp = Start/Stop. Halten und drehen ändert das Tempo. Außen feiner."
-          aria-label={active ? "Metronom stoppen. Halten und drehen ändert das Tempo." : "Metronom starten. Halten und drehen ändert das Tempo."}
+          title={t("Tipp = Start/Stop. Halten und drehen ändert das Tempo. Außen feiner.")}
+          aria-label={t(active ? "Metronom stoppen. Halten und drehen ändert das Tempo." : "Metronom starten. Halten und drehen ändert das Tempo.")}
           style={{
             position: "absolute",
             left: layoutPad,
@@ -418,7 +419,7 @@ export function MetronomeDial({
       ) : null}
       {setBpm ? (
         <div style={{ position: "absolute", left: "50%", top: "100%", transform: "translateX(-50%)", width: 168, marginTop: 2, textAlign: "center", font: "600 11px/1.25 Figtree, sans-serif", color: "#8a969c", pointerEvents: "none" }}>
-          Halten und drehen · außen feiner
+          {t("Halten und drehen · außen feiner")}
         </div>
       ) : null}
     </div>

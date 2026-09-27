@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { loadSession, saveSession } from "./session.js";
+import { t } from "./i18n.js";
 
 const COPY = {
   home: [
     ["Rudiments", "40 PAS-Übungen. Notation lesen, Click hören, Tempo halten."],
     ["Click-Trainer", "Metronom: Tempo steigern oder halten. Seite ‚Erweitert‘ = Click-Mixer."],
-    ["Rhythmuspyramide", "Subdivisionen auf und ab. Ohne Septole."],
+    ["Rhythmuspyramide", "Subdivisionen auf und ab, 4tel bis 32tel."],
     ["Stick Control", "24 Single-Beat-Nummern. Challenge spielt 1–24 durch."],
     ["Noten", "Eigene Fotos/PDFs nur auf diesem Gerät. Beim Üben über Blatt."],
     ["Kreis", "Tippen = Start/Stop. Halten + drehen = Tempo."],
@@ -25,7 +26,7 @@ const COPY = {
   ],
   pyramid: [
     ["Metronom unten", "Tippen = Start/Stop. Halten + drehen = Tempo, innen grob, außen fein, auch über den Ring hinaus. −5/+5 daneben."],
-    ["Stufen", "4tel → 8tel → 8el-Triole → 16tel → Quintole → 16tel-Sextole → 32tel. Tippen schaltet einzeln an/aus, eine bleibt immer an."],
+    ["Stufen", "4tel → 8tel → 8el-Triole → 16tel → Quintole → 16tel-Sextole → Septole → 32tel. Tippen schaltet einzeln an/aus, eine bleibt immer an."],
     ["Takte", "1, 2 oder 4 Takte pro Stufe, immer im 4/4."],
   ],
   stick: [
@@ -59,23 +60,23 @@ export function Help({ topic = "home" }) {
 
   return (
     <>
-      <button type="button" className="help-dot" onClick={() => setOpen(true)} aria-label="Kurzhilfe">?</button>
+      <button type="button" className="help-dot" onClick={() => setOpen(true)} aria-label={t("Kurzhilfe")}>?</button>
       {open && (
         <div className="modal" onClick={close}>
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-head">{first ? "Kurz anschauen" : "Kurz"}</div>
+            <div className="modal-head">{t(first ? "Kurz anschauen" : "Kurz")}</div>
             {first ? (
               <p style={{ color: "#8a969c", fontSize: 15, margin: "0 0 12px" }}>
-                Einmalig beim ersten Öffnen — danach jederzeit über ?
+                {t("Einmalig beim ersten Öffnen — danach jederzeit über ?")}
               </p>
             ) : null}
             <ul className="help-list">
               {rows.map(([k, v]) => (
-                <li key={k}><strong>{k}</strong> {v}</li>
+                <li key={k}><strong>{t(k)}</strong> {t(v)}</li>
               ))}
             </ul>
             <button className="play" onClick={close} style={{ width: "100%" }}>
-              {first ? "Verstanden" : "Schließen"}
+              {t(first ? "Verstanden" : "Schließen")}
             </button>
           </div>
         </div>

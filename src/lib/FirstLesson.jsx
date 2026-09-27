@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { MetronomeDial } from "./metronome.jsx";
 import { playClick, unlockAudio } from "./audio.js";
 import { saveSession } from "./session.js";
+import { t } from "./i18n.js";
 
 const DIM = "#8a969c";
 const SECS = 60;
@@ -89,22 +90,22 @@ export default function FirstLesson({ onHome, onOpen }) {
   if (phase === "done") {
     return (
       <div>
-        <p style={{ color: "#5cc8b8", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", fontSize: 13, margin: "8px 0 10px" }}>Fertig</p>
-        <h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: 32, margin: "0 0 10px" }}>Eine Minute gehalten.</h2>
+        <p style={{ color: "#5cc8b8", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", fontSize: 13, margin: "8px 0 10px" }}>{t("Fertig")}</p>
+        <h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: 32, margin: "0 0 10px" }}>{t("Eine Minute gehalten.")}</h2>
         <p style={{ color: DIM, fontSize: 17, margin: "0 0 18px" }}>
-          Als Nächstes: eine einfache Figur mit rechts/links — oder die Hände einzeln sauber wechseln.
+          {t("Als Nächstes: eine einfache Figur mit rechts/links — oder die Hände einzeln sauber wechseln.")}
         </p>
         <button className="card" style={{ width: "100%", marginBottom: 10 }} onClick={() => onOpen?.("rudiments")}>
-          <div className="card-kicker">Als Nächstes</div>
+          <div className="card-kicker">{t("Als Nächstes")}</div>
           <div className="card-title" style={{ fontSize: 26 }}>Rudiments</div>
-          <div className="card-lead">Kleine Standard-Übungen. Fang mit Nr. 1 an: abwechselnd rechts und links.</div>
+          <div className="card-lead">{t("Kleine Standard-Übungen. Fang mit Nr. 1 an: abwechselnd rechts und links.")}</div>
         </button>
         <button className="card" style={{ width: "100%", marginBottom: 16 }} onClick={() => onOpen?.("stick")}>
-          <div className="card-kicker">Oder</div>
+          <div className="card-kicker">{t("Oder")}</div>
           <div className="card-title" style={{ fontSize: 26 }}>Stick Control</div>
-          <div className="card-lead">24 kurze Handwechsel. Tempo bleibt gleich, nur die Folge ändert sich.</div>
+          <div className="card-lead">{t("24 kurze Handwechsel. Tempo bleibt gleich, nur die Folge ändert sich.")}</div>
         </button>
-        <button className="ghost" style={{ width: "100%" }} onClick={() => onHome?.()}>Zurück zur Übersicht</button>
+        <button className="ghost" style={{ width: "100%" }} onClick={() => onHome?.()}>{t("Zurück zur Übersicht")}</button>
       </div>
     );
   }
@@ -113,16 +114,16 @@ export default function FirstLesson({ onHome, onOpen }) {
     <div>
       {phase === "intro" ? (
         <>
-          <p style={{ color: "#5cc8b8", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", fontSize: 13, margin: "8px 0 10px" }}>Erste Übung</p>
-          <h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: 30, margin: "0 0 10px" }}>Eine Minute im Puls bleiben</h2>
+          <p style={{ color: "#5cc8b8", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", fontSize: 13, margin: "8px 0 10px" }}>{t("Erste Übung")}</p>
+          <h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: 30, margin: "0 0 10px" }}>{t("Eine Minute im Puls bleiben")}</h2>
           <p style={{ color: DIM, fontSize: 17, margin: "0 0 16px" }}>
-            Du hörst einen gleichmäßigen Klick — 80 Schläge pro Minute, das ist ein ruhiges Gehtempo. Bei jedem Klick ein Schlag auf dem Pad. Nicht schneller werden.
+            {t("Du hörst einen gleichmäßigen Klick — 80 Schläge pro Minute, das ist ein ruhiges Gehtempo. Bei jedem Klick ein Schlag auf dem Pad. Nicht schneller werden.")}
           </p>
         </>
       ) : (
         <>
-          <p style={{ color: "#5cc8b8", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", fontSize: 13, margin: "8px 0 10px" }}>Läuft</p>
-          <p style={{ color: DIM, fontSize: 16, margin: "0 0 8px" }}>Bleib am Pad. Jeder Klick = ein Schlag.</p>
+          <p style={{ color: "#5cc8b8", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", fontSize: 13, margin: "8px 0 10px" }}>{t("Läuft")}</p>
+          <p style={{ color: DIM, fontSize: 16, margin: "0 0 8px" }}>{t("Bleib am Pad. Jeder Klick = ein Schlag.")}</p>
         </>
       )}
       <div className="panel dock" style={{ position: "static", margin: "0 0 14px", borderRadius: 12, boxShadow: "none", border: "1px solid transparent" }}>
@@ -132,11 +133,11 @@ export default function FirstLesson({ onHome, onOpen }) {
         {phase === "play" ? (
           <div className="count">
             <span className="count-num">{left}</span>
-            <span className="count-unit">Sekunden</span>
+            <span className="count-unit">{t("Sekunden")}</span>
           </div>
         ) : null}
       </div>
-      <button className="ghost" style={{ width: "100%", minHeight: 44, border: "1px solid transparent" }} onClick={skip}>Überspringen</button>
+      <button className="ghost" style={{ width: "100%", minHeight: 44, border: "1px solid transparent" }} onClick={skip}>{t("Überspringen")}</button>
     </div>
   );
 }
