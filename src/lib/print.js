@@ -1,4 +1,5 @@
 import { BRAND, brandLine } from "./brand.js";
+import { fmtDate, getLang, t } from "./i18n.js";
 
 function chunk(arr, size) {
   const out = [];
@@ -6,12 +7,8 @@ function chunk(arr, size) {
   return out;
 }
 
-export function todayDe() {
-  try {
-    return new Date().toLocaleDateString("de-DE");
-  } catch {
-    return "";
-  }
+export function today() {
+  return fmtDate();
 }
 
 export function printStyles(cols) {
@@ -79,7 +76,7 @@ export function printStyles(cols) {
 export function sheetHtml(tiles, perPage = 6, section = "Rudiments") {
   const cols = perPage <= 4 ? 1 : 2;
   const pages = chunk(tiles, perPage);
-  const date = todayDe();
+  const date = today();
   const foot = brandLine();
   const body = pages.map((page, i) =>
     `<section class="sheet">
@@ -96,11 +93,11 @@ export function sheetHtml(tiles, perPage = 6, section = "Rudiments") {
       <footer class="foot"><span>${foot}</span><span>${i + 1} / ${pages.length}</span></footer>
     </section>`
   ).join("");
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${BRAND.product} — ${section}</title>
+  return `<!doctype html><html lang="${getLang()}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${BRAND.product} — ${section}</title>
     <style>${printStyles(cols)}</style></head><body>
     <div class="bar">
-      <button type="button" onclick="try{window.close()}catch(e){} if(!window.closed){history.back()}">Zurück</button>
-      <span>Druckvorschau</span>
+      <button type="button" onclick="try{window.close()}catch(e){} if(!window.closed){history.back()}">${t("Zurück")}</button>
+      <span>${t("Druckvorschau")}</span>
     </div>
     ${body}</body></html>`;
 }
@@ -216,7 +213,7 @@ export async function tilesToPng(tiles, scale = 2, perPage = 6, section = "Rudim
     ctx.fillText(section, pageW - pad - 16, top + 42);
     ctx.fillStyle = "#8a969c";
     ctx.font = "600 13px Figtree, sans-serif";
-    ctx.fillText(`${BRAND.product} · ${todayDe()}`, pageW - pad - 16, top + 60);
+    ctx.fillText(`${BRAND.product} · ${today()}`, pageW - pad - 16, top + 60);
     ctx.textAlign = "left";
     const rows = Math.ceil(page.length / cols) || 1;
     const areaTop = top + headH;

@@ -1,5 +1,6 @@
 import { BRAND, brandLine } from "./brand.js";
-import { todayDe } from "./print.js";
+import { today } from "./print.js";
+import { t } from "./i18n.js";
 
 export function PrintPreview({ tiles = [], perPage = 6, section = "Rudiments" }) {
   const cols = perPage <= 4 ? 1 : 2;
@@ -7,13 +8,13 @@ export function PrintPreview({ tiles = [], perPage = 6, section = "Rudiments" })
   const first = tiles.slice(0, perPage);
   return (
     <div className="sheet-prev">
-      <div className="sheet-prev-kicker">Vorschau · erste Seite</div>
+      <div className="sheet-prev-kicker">{t("Vorschau · erste Seite")}</div>
       <div className="sheet-prev-page">
         <div className="sheet-prev-head">
           <img src={BRAND.logo} alt="" />
           <div>
             <div className="sheet-prev-sec">{section}</div>
-            <div className="sheet-prev-sub">{BRAND.product} · {todayDe()}</div>
+            <div className="sheet-prev-sub">{BRAND.product} · {today()}</div>
           </div>
         </div>
         <div className="sheet-prev-grid" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
@@ -22,7 +23,7 @@ export function PrintPreview({ tiles = [], perPage = 6, section = "Rudiments" })
               <h3>{r.label}</h3>
               <div className="sheet-prev-svg" dangerouslySetInnerHTML={{ __html: svg?.outerHTML || "" }} />
             </article>
-          )) : <div className="sheet-prev-empty">Übungen anhaken — die Seite baut sich hier auf.</div>}
+          )) : <div className="sheet-prev-empty">{t("Übungen anhaken — die Seite baut sich hier auf.")}</div>}
         </div>
         <div className="sheet-prev-foot">
           <span>{brandLine()}</span>

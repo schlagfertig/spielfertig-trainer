@@ -1,3 +1,5 @@
+import { t } from "./i18n.js";
+
 const DB = "sf.archive.v1";
 const STORE = "sheets";
 const LAST = "sf.v1.archive.last";
@@ -14,7 +16,7 @@ function openDb() {
       }
     };
     req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error || new Error("Archiv nicht verfügbar"));
+    req.onerror = () => reject(req.error || new Error(t("Archiv nicht verfügbar")));
   });
 }
 
@@ -22,7 +24,7 @@ function txDone(tx) {
   return new Promise((resolve, reject) => {
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
-    tx.onabort = () => reject(tx.error || new Error("abgebrochen"));
+    tx.onabort = () => reject(tx.error || new Error(t("abgebrochen")));
   });
 }
 
@@ -49,15 +51,15 @@ export async function getSheet(id) {
 }
 
 export async function addSheet(file) {
-  if (!file) throw new Error("Keine Datei.");
-  if (file.size > MAX_BYTES) throw new Error("Maximal 12 MB pro Blatt.");
+  if (!file) throw new Error(t("Keine Datei."));
+  if (file.size > MAX_BYTES) throw new Error(t("Maximal 12 MB pro Blatt."));
   const mime = file.type || "";
   const pdf = mime === "application/pdf" || /\.pdf$/i.test(file.name || "");
   const image = mime.startsWith("image/");
-  if (!pdf && !image) throw new Error("Nur Foto oder PDF.");
+  if (!pdf && !image) throw new Error(t("Nur Foto oder PDF."));
   const rec = {
     id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
-    name: (file.name || (pdf ? "Blatt.pdf" : "Foto")).replace(/\.[^.]+$/, "") || "Blatt",
+    name: (file.name || (pdf ? `${t("Blatt")}.pdf` : t("Foto"))).replace(/\.[^.]+$/, "") || t("Blatt"),
     kind: pdf ? "pdf" : "image",
     mime: mime || (pdf ? "application/pdf" : "image/jpeg"),
     size: file.size,

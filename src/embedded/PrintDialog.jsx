@@ -3,6 +3,7 @@ import { RUDIMENTS } from "../lib/rudiments.js";
 import { RudimentStaff } from "../lib/staff.jsx";
 import { deliverPng, printElement, sheetHtml, tilesToPng } from "../lib/print.js";
 import { PrintPreview } from "../lib/PrintPreview.jsx";
+import { t } from "../lib/i18n.js";
 
 const DIM = "#8a969c";
 const SECTION = "Rudiments";
@@ -21,7 +22,7 @@ function Banner({ tone, text }) {
   const fg = tone === "err" ? "#e05c5c" : tone === "warn" ? "#e8b84b" : "#5cc8b8";
   return (
     <p role="status" style={{ background: bg, color: fg, border: `1px solid ${fg}`, borderRadius: 10, padding: "10px 12px", fontSize: 15, fontWeight: 700, margin: "10px 0 0" }}>
-      {text}
+      {t(text)}
     </p>
   );
 }
@@ -105,23 +106,23 @@ export function PrintDialog({ sel, onClose }) {
     <div className="modal" style={{ top: 52, zIndex: 30, alignItems: "stretch" }}>
       <div className="modal-card" style={{ width: "100%", maxWidth: 560, maxHeight: "none", margin: "0 auto" }}>
         <div className="modal-head" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-          <span>Rudiments drucken</span>
-          <button type="button" className="play" onClick={onClose} style={{ padding: "10px 16px", fontSize: 15 }}>Zurück</button>
+          <span>{t("Rudiments drucken")}</span>
+          <button type="button" className="play" onClick={onClose} style={{ padding: "10px 16px", fontSize: 15 }}>{t("Zurück")}</button>
         </div>
         <p style={{ color: DIM, fontSize: 15 }}>
           {onlyCurrent
-            ? `Aktuelles Blatt: ${current?.label || "Übung"}`
-            : `Auswahl: ${picked.length} Übungen`}
-          {" · "}Vorschau unten.
+            ? t("Aktuelles Blatt: {name}", { name: current?.label || t("Übung") })
+            : t(picked.length === 1 ? "Auswahl: 1 Übung" : "Auswahl: {n} Übungen", { n: picked.length })}
+          {" · "}{t("Vorschau unten.")}
         </p>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", margin: "10px 0" }}>
           {[4, 6, 10, 12].map((n) => (
-            <button key={n} type="button" className={perPage === n ? "chip on" : "chip"} onClick={() => setPerPage(n)}>{n} / Seite</button>
+            <button key={n} type="button" className={perPage === n ? "chip on" : "chip"} onClick={() => setPerPage(n)}>{t("{n} / Seite", { n })}</button>
           ))}
         </div>
         <div style={{ display: "flex", gap: 8, margin: "0 0 8px" }}>
-          <button type="button" className="ghost" onClick={() => setPicked(RUDIMENTS.map((r) => r.id))}>Alle</button>
-          <button type="button" className={onlyCurrent ? "ghost on" : "ghost"} onClick={() => setPicked([sel])}>Nur aktuelles Blatt</button>
+          <button type="button" className="ghost" onClick={() => setPicked(RUDIMENTS.map((r) => r.id))}>{t("Alle", null, "print")}</button>
+          <button type="button" className={onlyCurrent ? "ghost on" : "ghost"} onClick={() => setPicked([sel])}>{t("Nur aktuelles Blatt")}</button>
         </div>
         <div style={{ maxHeight: "22dvh", overflow: "auto", display: "flex", flexDirection: "column", gap: 4 }}>
           {RUDIMENTS.map((r) => (
@@ -131,7 +132,7 @@ export function PrintDialog({ sel, onClose }) {
                 checked={picked.includes(r.id)}
                 onChange={() => setPicked((p) => p.includes(r.id) ? p.filter((x) => x !== r.id) : [...p, r.id])}
               />
-              {r.label}{r.id === sel ? " · jetzt" : ""}
+              {r.label}{r.id === sel ? ` · ${t("jetzt")}` : ""}
             </label>
           ))}
         </div>
@@ -142,17 +143,17 @@ export function PrintDialog({ sel, onClose }) {
         </div>
         <PrintPreview tiles={tiles} perPage={perPage} section={SECTION} />
         <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
-          <button className="play" disabled={busy || !picked.length} onClick={() => doPrint("print")}>{busy ? "…" : isStandalone() ? "Speichern" : "Drucken"}</button>
-          <button className="ghost" disabled={busy || !picked.length} onClick={() => doPrint("share")}>Teilen</button>
+          <button className="play" disabled={busy || !picked.length} onClick={() => doPrint("print")}>{busy ? "…" : t(isStandalone() ? "Speichern" : "Drucken")}</button>
+          <button className="ghost" disabled={busy || !picked.length} onClick={() => doPrint("share")}>{t("Teilen")}</button>
           {!isStandalone() ? <button className="ghost" disabled={busy || !picked.length} onClick={() => doPrint("save")}>PNG</button> : null}
-          <button className="ghost" onClick={onClose}>Schließen</button>
+          <button className="ghost" onClick={onClose}>{t("Schließen")}</button>
         </div>
         <Banner tone={tone} text={note} />
         {!note ? (
           <p style={{ color: DIM, fontSize: 14, margin: "10px 0 0" }}>
-            {isStandalone()
+            {t(isStandalone()
               ? "Vom Home-Bildschirm gibt es keinen Systemdruck. Speichern legt ein PNG ab."
-              : "Drucken öffnet den Systemdialog. Die App sagt danach Bescheid."}
+              : "Drucken öffnet den Systemdialog. Die App sagt danach Bescheid.")}
           </p>
         ) : null}
       </div>

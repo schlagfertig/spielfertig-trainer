@@ -19,7 +19,20 @@ export function setLang(next) {
   document.documentElement.lang = lang;
 }
 
-export function t(text, vars) {
-  const s = (lang === "en" && EN[text]) || text;
+// ctx trennt gleiche deutsche Wörter mit verschiedener Übersetzung (EN-Schlüssel "ctx|Text").
+export function t(text, vars, ctx) {
+  const s = (lang === "en" && EN[ctx ? `${ctx}|${text}` : text]) || text;
   return vars ? s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : s;
+}
+
+export function fmtDate(d = Date.now()) {
+  try {
+    const x = new Date(d);
+    // en: "27 Sep 2026" (en-GB liefert je nach Browser "Sept")
+    return lang === "en"
+      ? `${x.getDate()} ${x.toLocaleDateString("en-US", { month: "short" })} ${x.getFullYear()}`
+      : x.toLocaleDateString("de-DE");
+  } catch {
+    return "";
+  }
 }

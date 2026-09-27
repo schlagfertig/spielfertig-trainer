@@ -3,6 +3,7 @@ import {
   addSheet, getSheet, lastId, lastId2, listSheets,
   rememberLast, rememberLast2, removeSheet, renameSheet,
 } from "../lib/archive.js";
+import { fmtDate, t } from "../lib/i18n.js";
 
 function useObjectUrl(blob) {
   const [url, setUrl] = useState("");
@@ -35,7 +36,7 @@ function useSheet(id) {
 
 function Pane({ file, url, overlay, split }) {
   if (!file || !url) {
-    return <div style={{ flex: 1, minHeight: 80, color: "#8a969c", display: "flex", alignItems: "center", justifyContent: "center" }}>Tipp auf ein Blatt</div>;
+    return <div style={{ flex: 1, minHeight: 80, color: "#8a969c", display: "flex", alignItems: "center", justifyContent: "center" }}>{t("Tipp auf ein Blatt")}</div>;
   }
   const h = split ? (overlay ? "42dvh" : "56dvh") : (overlay ? "48dvh" : "68dvh");
   if (file.kind === "pdf") {
@@ -92,7 +93,7 @@ export default function Archive({ overlay = false, onClose }) {
   }
 
   async function drop(id) {
-    if (!window.confirm("Blatt vom Gerät löschen?")) return;
+    if (!window.confirm(t("Blatt vom Gerät löschen?"))) return;
     await removeSheet(id);
     if (openA === id) setOpenA("");
     if (openB === id) setOpenB("");
@@ -101,7 +102,7 @@ export default function Archive({ overlay = false, onClose }) {
   }
 
   async function rename(id, current) {
-    const next = window.prompt("Name", current || "");
+    const next = window.prompt(t("Name"), current || "");
     if (next == null) return;
     await renameSheet(id, next);
     setOk("Name geändert.");
@@ -135,37 +136,37 @@ export default function Archive({ overlay = false, onClose }) {
   const body = (
     <div>
       <div role="note" style={{ background: "#3a2e12", color: "#e8b84b", border: "1px solid #e8b84b", borderRadius: 10, padding: "12px 14px", margin: "0 0 14px", fontSize: 15, lineHeight: 1.4 }}>
-        <strong style={{ display: "block", letterSpacing: "0.06em", textTransform: "uppercase", fontSize: 12, marginBottom: 4 }}>Nur lokal</strong>
-        Liegt nur in diesem Browser. Gerätewechsel, Cache leeren oder App neu installieren kann alles löschen. Backup: Original-PDF/Foto extra in Dateien, Mail oder Cloud behalten.
+        <strong style={{ display: "block", letterSpacing: "0.06em", textTransform: "uppercase", fontSize: 12, marginBottom: 4 }}>{t("Nur lokal")}</strong>
+        {t("Liegt nur in diesem Browser. Gerätewechsel, Cache leeren oder App neu installieren kann alles löschen. Backup: Original-PDF/Foto extra in Dateien, Mail oder Cloud behalten.")}
       </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-        <button type="button" className="play" disabled={busy} onClick={() => pick.current?.click()}>{busy ? "…" : "Hinzufügen"}</button>
+        <button type="button" className="play" disabled={busy} onClick={() => pick.current?.click()}>{busy ? "…" : t("Hinzufügen")}</button>
         <button type="button" className={split ? "ghost on" : "ghost"} onClick={toggleSplit}>2×</button>
-        {overlay && <button type="button" className="ghost" onClick={onClose}>Schließen</button>}
+        {overlay && <button type="button" className="ghost" onClick={onClose}>{t("Schließen")}</button>}
       </div>
       {split ? (
         <div className="seg" style={{ marginBottom: 12, width: "fit-content" }}>
-          <button type="button" className={pickSide === "a" ? "on" : ""} onClick={() => setPickSide("a")}>Links</button>
-          <button type="button" className={pickSide === "b" ? "on" : ""} onClick={() => setPickSide("b")}>Rechts</button>
+          <button type="button" className={pickSide === "a" ? "on" : ""} onClick={() => setPickSide("a")}>{t("Links")}</button>
+          <button type="button" className={pickSide === "b" ? "on" : ""} onClick={() => setPickSide("b")}>{t("Rechts")}</button>
         </div>
       ) : null}
       <input ref={pick} type="file" accept="image/*,application/pdf" hidden onChange={(e) => onFiles(e.target.files)} />
-      {err ? <p role="status" style={{ color: "#e05c5c", fontWeight: 700 }}>{err}</p> : null}
-      {ok ? <p role="status" style={{ color: "#5cc8b8", fontWeight: 700 }}>{ok}</p> : null}
-      {!rows.length && !err ? <p style={{ color: "#8a969c" }}>Noch keine Blätter. Mit „Hinzufügen“ Foto oder PDF ablegen.</p> : null}
+      {err ? <p role="status" style={{ color: "#e05c5c", fontWeight: 700 }}>{t(err)}</p> : null}
+      {ok ? <p role="status" style={{ color: "#5cc8b8", fontWeight: 700 }}>{t(ok)}</p> : null}
+      {!rows.length && !err ? <p style={{ color: "#8a969c" }}>{t("Noch keine Blätter. Mit „Hinzufügen“ Foto oder PDF ablegen.")}</p> : null}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {rows.map((r) => (
           <div key={r.id} style={{ display: "flex", gap: 6, alignItems: "center", padding: 10, border: "1px solid #2f383d", borderRadius: 10, background: r.id === openA || r.id === openB ? "#13211f" : "#1c2226" }}>
             <button type="button" onClick={() => show(r.id)} style={{ flex: 1, textAlign: "left", background: "transparent", border: 0, color: "#f4f7f6" }}>
               <strong style={{ display: "block", fontSize: 18 }}>{r.name}</strong>
               <span style={{ color: "#8a969c", fontSize: 14 }}>
-                {r.kind === "pdf" ? "PDF" : "Foto"}
-                {r.id === openA ? " · links" : r.id === openB && split ? " · rechts" : ""}
-                {" · "}{new Date(r.added).toLocaleDateString()}
+                {r.kind === "pdf" ? "PDF" : t("Foto")}
+                {r.id === openA ? ` · ${t("links")}` : r.id === openB && split ? ` · ${t("rechts")}` : ""}
+                {" · "}{fmtDate(r.added)}
               </span>
             </button>
-            <button type="button" className="ghost" onClick={() => rename(r.id, r.name)}>Name</button>
-            <button type="button" className="ghost" onClick={() => drop(r.id)}>Löschen</button>
+            <button type="button" className="ghost" onClick={() => rename(r.id, r.name)}>{t("Name")}</button>
+            <button type="button" className="ghost" onClick={() => drop(r.id)}>{t("Löschen")}</button>
           </div>
         ))}
       </div>
@@ -182,7 +183,7 @@ export default function Archive({ overlay = false, onClose }) {
   return (
     <div className="modal" onClick={onClose}>
       <div className="modal-card" style={{ width: "min(920px, 100%)", maxHeight: "94dvh" }} onClick={(e) => e.stopPropagation()}>
-        <div className="modal-head">Noten</div>
+        <div className="modal-head">{t("Noten")}</div>
         {body}
       </div>
     </div>
