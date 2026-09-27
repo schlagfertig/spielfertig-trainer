@@ -9,14 +9,22 @@ function initial() {
 }
 
 let lang = initial();
-document.documentElement.lang = lang;
+// Statisches index.html bleibt deutsch; Titel/Beschreibung folgen der Sprache zur Laufzeit.
+const HEAD = { title: document.title, desc: document.querySelector('meta[name="description"]') };
+const HEAD_DESC = HEAD.desc?.content || "";
+function applyHead() {
+  document.documentElement.lang = lang;
+  document.title = t(HEAD.title);
+  if (HEAD.desc) HEAD.desc.content = t(HEAD_DESC);
+}
+applyHead();
 
 export const getLang = () => lang;
 
 export function setLang(next) {
   lang = next;
   saveSession("lang", { lang });
-  document.documentElement.lang = lang;
+  applyHead();
 }
 
 // ctx trennt gleiche deutsche Wörter mit verschiedener Übersetzung (EN-Schlüssel "ctx|Text").

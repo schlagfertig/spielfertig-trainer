@@ -21,7 +21,7 @@ export const EN = {
   "Rhythmuspyramide": "Rhythm Pyramid",
   "Noten": "Sheet Music",
   "Impressum": "Legal Notice",
-  "Datenschutz": "Privacy",
+  "Datenschutz": "Privacy Policy",
   // Kopfleiste
   "Zurück": "Back",
   "Drucken": "Print",
@@ -227,4 +227,10 @@ export const EN = {
   "Teilen nicht verfügbar — PNG gespeichert.": "Sharing not available — PNG saved.",
   "Teilen abgebrochen.": "Sharing cancelled.",
   "Konnte das Blatt nicht erzeugen. Bitte erneut versuchen.": "Couldn’t create the sheet. Please try again.",
+  // Rechtliches
+  "Weitere Angaben": "More information",
+  "Zum Impressum": "Go to Legal Notice",
+  "Zur Datenschutzerklärung": "Go to Privacy Policy",
+  // index.html
+  "Rudiments und Grooves üben. Zeit für guten Sound.": "Practice rudiments and grooves. Time for good sound.",
 };

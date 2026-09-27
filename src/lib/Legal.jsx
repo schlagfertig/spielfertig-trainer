@@ -1,15 +1,133 @@
+import { useState } from "react";
 import { BRAND } from "./brand.js";
+import { getLang, t } from "./i18n.js";
 
 function lines(...parts) {
   return parts.filter(Boolean).join("\n");
 }
 
+// Englische Fassung: nur Komfort-Übersetzung, verbindlich ist die deutsche.
+function LegalEn({ isPrivacy }) {
+  return isPrivacy ? (
+    <>
+      <section className="legal-block">
+        <h2>1. Controller</h2>
+        <p>
+          {lines(BRAND.person, BRAND.addressLine1, BRAND.addressLine2, "Deutschland")}
+          {"\n"}
+          Email:{" "}
+          <a className="legal-a" href={`mailto:${BRAND.email}`}>{BRAND.email}</a>
+          {"\n"}
+          Phone:{" "}
+          <a className="legal-a" href={`tel:${BRAND.phone.replace(/\s/g, "")}`}>{BRAND.phone}</a>
+        </p>
+      </section>
+      <section className="legal-block">
+        <h2>2. General</h2>
+        <p>
+          Spielfertig Trainer is a web app for practicing. There is no registration and no user account.
+          Practice data stays on your device, to the extent that your browser stores it.
+        </p>
+      </section>
+      <section className="legal-block">
+        <h2>3. Hosting</h2>
+        <p>
+          The app is provided by Vercel Inc. ({BRAND.web}). When the app is accessed, the hosting
+          provider processes technically necessary data (e.g. IP address, time of access, browser identifier)
+          in server logs. Legal basis: Art. 6(1)(f) GDPR (provision and security of the website).
+        </p>
+      </section>
+      <section className="legal-block">
+        <h2>4. Local storage</h2>
+        <p>
+          {lines(
+            "localStorage (key prefix “sf.v1.”): e.g. your most recent exercise settings and whether quick-help screens have already been seen.",
+            "",
+            "IndexedDB (“sf.archive.v1”): sheet music you have added (photos/PDFs), stored locally in this browser only — no upload to our cloud.",
+            "",
+            "Legal basis: Art. 6(1)(f) GDPR or § 25(2) TDDDG, as applicable (technically necessary for the function you use). Deletion: clear the browser data for this site or remove sheets in the app.",
+          )}
+        </p>
+      </section>
+      <section className="legal-block">
+        <h2>5. Cookies and analytics</h2>
+        <p>
+          We do not use our own tracking cookies or any analytics tools
+          (no Google Analytics, Plausible, Matomo or similar).
+        </p>
+      </section>
+      <section className="legal-block">
+        <h2>6. Google Fonts</h2>
+        <p>
+          The app loads fonts from Google Fonts (fonts.googleapis.com / fonts.gstatic.com).
+          In the process, your IP address may be transmitted to Google. Legal basis: Art. 6(1)(f) GDPR.
+          The fonts may be hosted locally at a later date to avoid this transfer.
+        </p>
+      </section>
+      <section className="legal-block">
+        <h2>7. Your rights</h2>
+        <p>
+          You have the right of access, rectification, erasure, restriction of processing, objection and
+          data portability, as well as the right to lodge a complaint with a data protection supervisory authority
+          (for Bavaria, e.g. the Bavarian State Commissioner for Data Protection — Bayerischer Landesbeauftragter für den Datenschutz).
+        </p>
+      </section>
+      <section className="legal-block">
+        <h2>Last updated</h2>
+        <p>September 2026</p>
+      </section>
+    </>
+  ) : (
+    <>
+      <section className="legal-block">
+        <h2>Information pursuant to § 5 DDG</h2>
+        <p>{lines(BRAND.person, BRAND.addressLine1, BRAND.addressLine2, "Deutschland")}</p>
+      </section>
+      <section className="legal-block">
+        <h2>Contact</h2>
+        <p>
+          Phone:{" "}
+          <a className="legal-a" href={`tel:${BRAND.phone.replace(/\s/g, "")}`}>{BRAND.phone}</a>
+          {"\n"}
+          Email:{" "}
+          <a className="legal-a" href={`mailto:${BRAND.email}`}>{BRAND.email}</a>
+          {"\n"}
+          Website:{" "}
+          <a className="legal-a" href={`https://${BRAND.web}`}>{BRAND.web}</a>
+        </p>
+      </section>
+      <section className="legal-block">
+        <h2>Responsible for the content</h2>
+        <p>{BRAND.person}</p>
+      </section>
+      <section className="legal-block">
+        <h2>Note</h2>
+        <p>
+          This service is a personal practice tool (drum trainer) without user accounts and without a shop.
+          It is intended for practicing rudiments and groove.
+        </p>
+      </section>
+    </>
+  );
+}
+
 export default function Legal({ topic = "impressum", onOpen }) {
   const isPrivacy = topic === "datenschutz";
+  const en = getLang() === "en";
+  const [showDe, setShowDe] = useState(false);
+  const showEn = en && !showDe;
 
   return (
-    <div className="legal">
-      {isPrivacy ? (
+    <div className="legal" lang={showEn ? "en" : "de"}>
+      {en ? (
+        <section className="legal-block" role="note" lang="en">
+          <p>This translation is provided for convenience. The German version is legally binding.</p>
+          <button type="button" className="legal-nav-btn" onClick={() => setShowDe((v) => !v)}>
+            {showDe ? "Show English version" : "Show German version"}
+          </button>
+        </section>
+      ) : null}
+      {showEn ? <LegalEn isPrivacy={isPrivacy} /> : isPrivacy ? (
         <>
           <section className="legal-block">
             <h2>1. Verantwortlicher</h2>
@@ -113,14 +231,14 @@ export default function Legal({ topic = "impressum", onOpen }) {
       )}
 
       {typeof onOpen === "function" ? (
-        <nav className="legal-nav" aria-label="Weitere Angaben">
+        <nav className="legal-nav" aria-label={t("Weitere Angaben")}>
           {isPrivacy ? (
             <button type="button" className="legal-nav-btn" onClick={() => onOpen("impressum")}>
-              Zum Impressum
+              {t("Zum Impressum")}
             </button>
           ) : (
             <button type="button" className="legal-nav-btn" onClick={() => onOpen("datenschutz")}>
-              Zur Datenschutzerklärung
+              {t("Zur Datenschutzerklärung")}
             </button>
           )}
         </nav>
