@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { MetronomeDial } from "../lib/metronome.jsx";
 import { RudimentStaff } from "../lib/staff.jsx";
+import { BeatGlyph } from "../lib/BeatGlyph.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
 
 const DIM = "#8a969c";
 const TEAL = "#5cc8b8";
-const INK = "#f4f7f6";
 const BARS = [1, 2, 4];
 
 const STAGES = [
@@ -64,40 +64,6 @@ function barRud(stage) {
     notes,
     sticking: [hands, flipStick(hands)],
   };
-}
-
-function BeatGlyph({ per, tuplet, on }) {
-  const n = Math.max(1, per);
-  const w = 48;
-  const h = 24;
-  const y = 16;
-  const top = n === 1 ? 7 : 5;
-  const ink = on ? "#06120f" : INK;
-  const left = 6;
-  const right = w - 6;
-  const span = right - left;
-  const xs = Array.from({ length: n }, (_, i) => (n === 1 ? w / 2 : left + (span * i) / (n - 1)));
-  const rx = n >= 6 ? 1.8 : n >= 4 ? 2.1 : 2.5;
-  const beams = n === 1 ? 0 : n === 2 || n === 3 ? 1 : n === 8 ? 3 : 2;
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} width={w} height={h} aria-hidden="true">
-      {xs.map((x, i) => (
-        <g key={i}>
-          <ellipse cx={x} cy={y} rx={rx} ry={rx * 0.68} fill={ink} transform={`rotate(-18 ${x} ${y})`} />
-          {n > 1 ? <line x1={x + 1.4} y1={y - 0.5} x2={x + 1.4} y2={top} stroke={ink} strokeWidth="0.95" /> : (
-            <line x1={x + 1.6} y1={y - 0.3} x2={x + 1.6} y2={3.5} stroke={ink} strokeWidth="1.1" />
-          )}
-        </g>
-      ))}
-      {n === 1 ? <path d={`M ${xs[0] + 1.6} 3.5 C ${xs[0] + 9} 5, ${xs[0] + 9} 12, ${xs[0] + 2.6} 14`} fill="none" stroke={ink} strokeWidth="1.1" /> : null}
-      {Array.from({ length: beams }, (_, b) => (
-        <line key={b} x1={xs[0] + 1.4} y1={top + b * 2.1} x2={xs[n - 1] + 1.4} y2={top + b * 2.1} stroke={ink} strokeWidth={b === 0 ? 2 : 1.4} />
-      ))}
-      {tuplet ? (
-        <text x={w / 2} y={4.5} textAnchor="middle" fill={ink} fontFamily="Figtree, sans-serif" fontSize="7.5" fontWeight="800">{tuplet}</text>
-      ) : null}
-    </svg>
-  );
 }
 
 export default function PyramidTrainer() {

@@ -1,7 +1,23 @@
 import { MIX_LAYERS, writeMix } from "./clickMix.js";
+import { BeatGlyph } from "./BeatGlyph.jsx";
 
 const TEAL = "#5cc8b8";
 const DIM = "#8a969c";
+
+// Symbol statt Name je Ebene (ein Schlag)
+const GLYPH = {
+  quarter: <BeatGlyph per={1} flag={false} />,
+  off: <BeatGlyph per={2} rests={[0]} />,
+  sixteenth: <BeatGlyph per={4} rests={[0, 2]} />,
+  triplet: <BeatGlyph per={3} tuplet={3} rests={[0]} />,
+  beat: <BeatGlyph per={1} flag={false} accent below="1" />,
+  master: (
+    <svg viewBox="-12 0 48 24" width={48} height={24} aria-hidden="true" fill="none" stroke="#f4f7f6" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="#f4f7f6" />
+      <path d="M15.5 9a4.2 4.2 0 0 1 0 6M18.3 6.5a8 8 0 0 1 0 11" />
+    </svg>
+  ),
+};
 
 export function ClickAdvanced({ mix, setMix, slidersOnly = false }) {
   function patch(partial) {
@@ -21,14 +37,11 @@ export function ClickAdvanced({ mix, setMix, slidersOnly = false }) {
       {(slidersOnly || mix.advanced) && (
         <div className="click-adv-list">
           <p style={{ color: DIM, fontSize: 12, margin: "0 0 4px", lineHeight: 1.35 }}>
-            Jede Ebene extra: BEAT = 1, Offbeat = und, e/a = 16tel dazwischen, Master = alles.
+            Jede Zeile ist eine eigene Click-Ebene, der Lautsprecher regelt alle zusammen.
           </p>
           {MIX_LAYERS.map((layer) => (
             <label key={layer.id} className="click-adv-row">
-              <span className="click-adv-name">
-                {layer.label}
-                <small>{layer.sub}</small>
-              </span>
+              <span className="click-adv-name" title={`${layer.label}: ${layer.sub}`}>{GLYPH[layer.id]}</span>
               <input
                 type="range"
                 min={0}
@@ -49,8 +62,7 @@ export function ClickAdvanced({ mix, setMix, slidersOnly = false }) {
         .click-adv { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
         .click-adv-list { display: flex; flex-direction: column; gap: 8px; max-height: 46dvh; overflow: auto; padding-right: 2px; }
         .click-adv-row { display: grid; grid-template-columns: minmax(72px, 86px) minmax(0, 1fr) 28px; gap: 6px; align-items: center; min-width: 0; }
-        .click-adv-name { font-size: 12px; color: #ddd; font-weight: 700; line-height: 1.15; min-width: 0; }
-        .click-adv-name small { display: block; color: ${DIM}; font-weight: 600; font-size: 10px; }
+        .click-adv-name { display: flex; align-items: center; min-width: 0; }
         .click-adv-row input[type=range] { width: 100%; min-width: 0; accent-color: ${TEAL}; min-height: 28px; }
         .click-adv-val { font-size: 11px; color: ${TEAL}; font-weight: 800; text-align: right; }
       `}</style>
