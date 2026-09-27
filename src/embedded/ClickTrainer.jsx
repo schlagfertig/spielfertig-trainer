@@ -255,7 +255,8 @@ export default function ClickTrainer() {
       >
         <div style={{ pointerEvents: "auto", maxWidth: 880, margin: "0 auto" }}>
           <div className="metro-shell">
-            <div style={{ position: "static", margin: 0, padding: "8px 8px 4px 0", borderRadius: 0, background: "transparent", border: "none", boxShadow: "none", overflow: "auto" }}>
+            {/* Click-Mixer deckend, leicht türkis: 8 % #5cc8b8 in #1c2226 */}
+            <div style={{ position: "static", margin: 0, padding: flipped ? "8px 8px 4px 10px" : "8px 8px 4px 0", borderRadius: flipped ? "12px 0 0 12px" : 0, background: flipped ? "#212f32" : "transparent", border: flipped ? `1px solid ${LINE}` : "none", borderRight: "none", boxShadow: "none", overflow: "auto" }}>
               {flipped ? (
                 <div key="back" className="metro-swap">
                   <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 10 }}>Click-Mixer</div>
