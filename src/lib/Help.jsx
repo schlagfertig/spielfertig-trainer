@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { loadSession, saveSession } from "./session.js";
 import { t } from "./i18n.js";
 import { HELP } from "./helpCopy.js";
@@ -19,29 +20,32 @@ export function Help({ topic = "home" }) {
     setOpen(false);
   }
 
+  const sheet = open ? createPortal(
+    <div className="modal help-modal" onClick={close} role="dialog" aria-modal="true">
+      <div className="modal-card help-card" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-head">{t(first ? "Kurz anschauen" : "Kurz")}</div>
+        {first ? (
+          <p className="help-lead">
+            {t("Einmalig beim ersten Öffnen — danach jederzeit über ?")}
+          </p>
+        ) : null}
+        <ul className="help-list">
+          {rows.map(([k, v]) => (
+            <li key={k}><strong>{t(k)}</strong> {t(v)}</li>
+          ))}
+        </ul>
+        <button className="play" onClick={close} style={{ width: "100%" }}>
+          {t(first ? "Verstanden" : "Schließen")}
+        </button>
+      </div>
+    </div>,
+    document.body,
+  ) : null;
+
   return (
     <>
       <button type="button" className="help-dot" onClick={() => setOpen(true)} aria-label={t("Kurzhilfe")}>?</button>
-      {open && (
-        <div className="modal" onClick={close}>
-          <div className="modal-card help-card" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-head">{t(first ? "Kurz anschauen" : "Kurz")}</div>
-            {first ? (
-              <p className="help-lead">
-                {t("Einmalig beim ersten Öffnen — danach jederzeit über ?")}
-              </p>
-            ) : null}
-            <ul className="help-list">
-              {rows.map(([k, v]) => (
-                <li key={k}><strong>{t(k)}</strong> {t(v)}</li>
-              ))}
-            </ul>
-            <button className="play" onClick={close} style={{ width: "100%" }}>
-              {t(first ? "Verstanden" : "Schließen")}
-            </button>
-          </div>
-        </div>
-      )}
+      {sheet}
     </>
   );
 }
