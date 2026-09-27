@@ -353,6 +353,9 @@ export default function ClickTrainer() {
           color: #06120f;
           border-color: #5cc8b8;
         }
+        /* Platz für den Hinweis unter dem Kreis (sonst vom Dock abgeschnitten) */
+        .click-dock .dial-row { padding-bottom: 16px; }
+        .click-dock .count { margin-top: 2px; }
         .metro-swap { animation: metroIn .28s ease; min-width: 0; }
         @keyframes metroIn {
           from { opacity: 0; transform: rotateY(-80deg); }

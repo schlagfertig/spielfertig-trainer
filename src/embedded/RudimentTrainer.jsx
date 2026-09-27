@@ -220,6 +220,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
         .rud-wrap.rud-short .rud-metro .dial-row > div > div + div {
           display: none;
         }
+        @media (orientation: portrait) { .page.tool:not(.stage) .rud-wrap:not(.rud-short) .rud-metro .dial-row { padding-bottom: 16px; } }
         .rud-wrap.rud-short .rud-metro .metro-face { padding-top: 4px; }
         .rud-wrap.rud-short .nudge-lg { width: 40px; height: 40px; font-size: 17px; }
         .rud-wrap.rud-short .rud-half { min-height: 60px; }
