@@ -30,7 +30,9 @@ p { font-size: 17px; line-height: 1.45; }
   overflow-x: hidden;
 }
 .home { max-width: 640px; margin: 0 auto; position: relative; }
-.home-help { position: absolute; top: 10px; right: 10px; z-index: 3; }
+.home-help { position: absolute; top: 10px; right: 10px; z-index: 3; display: flex; gap: 8px; }
+.lang-flag { display: flex; align-items: center; justify-content: center; }
+.lang-flag svg { border-radius: 50%; }
 .logo-metro { position: relative; }
 .logo-metro .logo { cursor: pointer; transition: opacity .25s ease, transform .25s ease; }
 .logo-metro.open .logo { opacity: 0; transform: scale(.9); pointer-events: none; }

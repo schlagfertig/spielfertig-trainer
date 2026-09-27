@@ -9,6 +9,26 @@ import FirstLesson from "./lib/FirstLesson.jsx";
 import Legal from "./lib/Legal.jsx";
 import { loadSession } from "./lib/session.js";
 import { LogoMetronome } from "./lib/LogoMetronome.jsx";
+import { getLang, setLang, t } from "./lib/i18n.js";
+
+// Flagge der Sprache, auf die umgeschaltet wird
+const FLAG_EN = (
+  <svg viewBox="0 0 60 30" width="30" height="30" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <clipPath id="uj-t"><path d="M30,15h30v15zv15h-30zh-30v-15zv-15h30z" /></clipPath>
+    <path d="M0,0v30h60v-30z" fill="#012169" />
+    <path d="M0,0L60,30M60,0L0,30" stroke="#fff" strokeWidth="6" />
+    <path d="M0,0L60,30M60,0L0,30" clipPath="url(#uj-t)" stroke="#C8102E" strokeWidth="4" />
+    <path d="M30,0v30M0,15h60" stroke="#fff" strokeWidth="10" />
+    <path d="M30,0v30M0,15h60" stroke="#C8102E" strokeWidth="6" />
+  </svg>
+);
+const FLAG_DE = (
+  <svg viewBox="0 0 5 3" width="30" height="30" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <path d="M0,0h5v1h-5z" fill="#000" />
+    <path d="M0,1h5v1h-5z" fill="#DD0000" />
+    <path d="M0,2h5v1h-5z" fill="#FFCE00" />
+  </svg>
+);
 
 const META = {
   first: { title: "Erste Übung", help: "home" },
@@ -35,9 +55,16 @@ export default function App() {
   const [printOpen, setPrintOpen] = useState(false);
   const [stage, setStage] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [lang, setLangState] = useState(getLang);
   const viewRef = useRef(view);
   viewRef.current = view;
   const firstDone = !!loadSession("firstLesson", {}).done;
+
+  function switchLang() {
+    const next = lang === "de" ? "en" : "de";
+    setLang(next);
+    setLangState(next);
+  }
 
   function goHome() {
     setPrintOpen(false);
@@ -127,55 +154,58 @@ export default function App() {
   if (view === "home") {
     return (
       <div className="page home">
-        <div className="home-help"><Help topic="home" /></div>
+        <div className="home-help">
+          <button type="button" className="help-dot lang-flag" onClick={switchLang} aria-label={lang === "de" ? "Switch to English" : "Auf Deutsch umschalten"}>{lang === "de" ? FLAG_EN : FLAG_DE}</button>
+          <Help topic="home" />
+        </div>
         <header className="hero">
           <LogoMetronome />
           <h1>Spielfertig</h1>
-          <p className="tag">schlagfertig · Zeit für guten Sound</p>
+          <p className="tag">schlagfertig · {t("Zeit für guten Sound")}</p>
         </header>
         <button className="card" style={{ width: "100%", borderColor: "#5cc8b8", marginTop: 8 }} onClick={() => open("first")}>
-          <div className="card-kicker">{firstDone ? "Nochmal" : "Loslegen"}</div>
-          <div className="card-title">Erste Übung starten</div>
-          <div className="card-lead">Eine Minute mitklicken. Kein Fachwort nötig.</div>
+          <div className="card-kicker">{t(firstDone ? "Nochmal" : "Loslegen")}</div>
+          <div className="card-title">{t("Erste Übung starten")}</div>
+          <div className="card-lead">{t("Eine Minute mitklicken. Kein Fachwort nötig.")}</div>
           <div className="card-go">Start</div>
         </button>
         <div className="cards">
           <button className="card" onClick={() => open("rudiments")}>
-            <div className="card-kicker">Üben</div>
+            <div className="card-kicker">{t("Üben")}</div>
             <div className="card-title">Rudiments</div>
-            <div className="card-lead">40 PAS-Rudiments. Notation, Click, Tempo.</div>
-            <div className="card-go">Öffnen</div>
+            <div className="card-lead">{t("40 PAS-Rudiments. Notation, Click, Tempo.")}</div>
+            <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card" onClick={() => open("click")}>
             <div className="card-kicker">Tempo</div>
-            <div className="card-title">Click-Trainer</div>
-            <div className="card-lead">Starttempo wählen. Tempo halten oder automatisch steigern.</div>
-            <div className="card-go">Öffnen</div>
+            <div className="card-title">{t("Click-Trainer")}</div>
+            <div className="card-lead">{t("Starttempo wählen. Tempo halten oder automatisch steigern.")}</div>
+            <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card" onClick={() => open("pyramid")}>
             <div className="card-kicker">Subdivision</div>
-            <div className="card-title">Rhythmuspyramide</div>
-            <div className="card-lead">4tel bis 32tel: Puls festigen, sauber zwischen Unterteilungen wechseln, Tempo trotz Dichte halten.</div>
-            <div className="card-go">Öffnen</div>
+            <div className="card-title">{t("Rhythmuspyramide")}</div>
+            <div className="card-lead">{t("4tel bis 32tel: Puls festigen, sauber zwischen Unterteilungen wechseln, Tempo trotz Dichte halten.")}</div>
+            <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card" onClick={() => open("stick")}>
-            <div className="card-kicker">Technik</div>
+            <div className="card-kicker">{t("Technik")}</div>
             <div className="card-title">Stick Control</div>
-            <div className="card-lead">nach G. L. Stone: Schwache Hand verbessern, saubere Wechsel üben, Tempo ohne Verspannungen halten.</div>
-            <div className="card-go">Öffnen</div>
+            <div className="card-lead">{t("nach G. L. Stone: Schwache Hand verbessern, saubere Wechsel üben, Tempo ohne Verspannungen halten.")}</div>
+            <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card" onClick={() => open("archive")}>
-            <div className="card-kicker">Eigene Blätter</div>
-            <div className="card-title">Noten</div>
-            <div className="card-lead">Fotos und PDFs lokal ablegen und währenddessen aufschlagen.</div>
-            <div className="card-go">Öffnen</div>
+            <div className="card-kicker">{t("Eigene Blätter")}</div>
+            <div className="card-title">{t("Noten")}</div>
+            <div className="card-lead">{t("Fotos und PDFs lokal ablegen und währenddessen aufschlagen.")}</div>
+            <div className="card-go">{t("Öffnen")}</div>
           </button>
         </div>
         <footer className="foot">
           <div>Thomas Schuster · schlagfertig</div>
           <div className="foot-links">
-            <button type="button" className="foot-link" onClick={() => open("impressum")}>Impressum</button>
-            <button type="button" className="foot-link" onClick={() => open("datenschutz")}>Datenschutz</button>
+            <button type="button" className="foot-link" onClick={() => open("impressum")}>{t("Impressum")}</button>
+            <button type="button" className="foot-link" onClick={() => open("datenschutz")}>{t("Datenschutz")}</button>
           </div>
         </footer>
       </div>
@@ -187,25 +217,25 @@ export default function App() {
     <div className={stage ? "page tool stage" : "page tool"}>
       <header className="top" style={{ zIndex: 50 }}>
         {stage && !printOpen ? (
-          <button className="ghost" onClick={() => setStage(false)}>Pad aus</button>
+          <button className="ghost" onClick={() => setStage(false)}>{t("Pad aus")}</button>
         ) : (
-          <button className="ghost" onClick={back}>Zurück</button>
+          <button className="ghost" onClick={back}>{t("Zurück")}</button>
         )}
-        <div className="top-title">{printOpen && view === "rudiments" ? "Drucken" : meta.title}</div>
+        <div className="top-title">{t(printOpen && view === "rudiments" ? "Drucken" : meta.title)}</div>
         <div className="top-right">
           {view === "archive" && !printOpen && (
-            <button className={sheetOpen ? "ghost on" : "ghost"} onClick={() => setSheetOpen((v) => !v)}>Blatt</button>
+            <button className={sheetOpen ? "ghost on" : "ghost"} onClick={() => setSheetOpen((v) => !v)}>{t("Blatt")}</button>
           )}
           {view === "rudiments" && !stage && !printOpen && (
-            <button className="ghost" onClick={() => setPrintOpen(true)}>Drucken</button>
+            <button className="ghost" onClick={() => setPrintOpen(true)}>{t("Drucken")}</button>
           )}
           {view === "rudiments" && !printOpen && (
             <button
               className={stage ? "ghost on" : "ghost"}
-              title="Notation groß, weniger Bedienelemente."
-              aria-label={stage ? "Übepad aus" : "Übepad"}
+              title={t("Notation groß, weniger Bedienelemente.")}
+              aria-label={t(stage ? "Übepad aus" : "Übepad")}
               onClick={() => setStage((v) => !v)}
-            >{stage ? "Pad aus" : "Übepad"}</button>
+            >{t(stage ? "Pad aus" : "Übepad")}</button>
           )}
           {!stage && !printOpen && view !== "first" && view !== "impressum" && view !== "datenschutz" && <Help topic={meta.help} />}
         </div>
