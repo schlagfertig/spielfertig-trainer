@@ -5,6 +5,7 @@ import { playClick, unlockAudio } from "../lib/audio.js";
 import { loadSession, saveSession } from "../lib/session.js";
 import { ClickAdvanced } from "../lib/ClickAdvanced.jsx";
 import { createMixClock, extrasOn, readMix, writeMix } from "../lib/clickMix.js";
+import { t } from "../lib/i18n.js";
 
 const INK = "#161a1d";
 const LINE = "#2f383d";
@@ -197,42 +198,42 @@ export default function ClickTrainer() {
     <div style={{ minWidth: 0, maxWidth: "100%", paddingBottom: "calc(220px + env(safe-area-inset-bottom, 0px))" }}>
       <p style={{ color: DIM, fontSize: 14, margin: "12px 0 16px" }}>
         {ramp
-          ? "Click starten. Alle paar Sekunden wird das Tempo angehoben — Du bleibst am Pad."
-          : "Gleichmäßiges Tempo halten. BPM am Kreis drehen oder ±5."}
+          ? t("Click starten. Alle paar Sekunden wird das Tempo angehoben — Du bleibst am Pad.")
+          : t("Gleichmäßiges Tempo halten. BPM am Kreis drehen oder ±5.")}
       </p>
       <div className="seg" style={{ margin: "0 0 14px", maxWidth: "100%" }}>
-        <button type="button" className={!ramp ? "on" : ""} onClick={() => pickMode("hold")}>Tempo halten</button>
-        <button type="button" className={ramp ? "on" : ""} onClick={() => pickMode("ramp")}>Tempo steigern</button>
+        <button type="button" className={!ramp ? "on" : ""} onClick={() => pickMode("hold")}>{t("Tempo halten")}</button>
+        <button type="button" className={ramp ? "on" : ""} onClick={() => pickMode("ramp")}>{t("Tempo steigern")}</button>
       </div>
       <div className="panel">
-        <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 12 }}>Einstellung</div>
+        <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 12 }}>{t("Einstellung")}</div>
         <TempoControl bpm={startBpm} setBpm={setStart} min={30} max={260} hideNudge />
         {ramp ? (
           <>
             <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
               <label className="field">
-                <span>Alle</span>
+                <span>{t("Alle")}</span>
                 <input type="number" min={2} max={60} value={everySec} onChange={(e) => setEverySec(clamp(Number(e.target.value) || 10, 2, 60))} />
-                <span>Sekunden</span>
+                <span>{t("Sekunden")}</span>
               </label>
               <label className="field">
-                <span>um</span>
+                <span>{t("um")}</span>
                 <input type="number" min={1} max={20} value={step} onChange={(e) => setStep(clamp(Number(e.target.value) || 4, 1, 20))} />
-                <span>BPM schneller</span>
+                <span>{t("BPM schneller")}</span>
               </label>
               <label className="field">
-                <span>bis</span>
+                <span>{t("bis")}</span>
                 <input type="number" min={40} max={260} value={cap} onChange={(e) => setCap(clamp(Number(e.target.value) || 160, 40, 260))} />
                 <span>BPM</span>
               </label>
             </div>
             <p style={{ color: DIM, fontSize: 12, margin: "14px 0 0" }}>
-              Beispiel: Start {startBpm}, alle {everySec}s +{step}, Ziel {cap}.
+              {t("Beispiel: Start {start}, alle {every}s +{step}, Ziel {cap}.", { start: startBpm, every: everySec, step, cap })}
             </p>
           </>
         ) : (
           <p style={{ color: DIM, fontSize: 12, margin: "14px 0 0" }}>
-            Fester Puls bei {startBpm} BPM. Drehen ändert das Tempo live.
+            {t("Fester Puls bei {bpm} BPM. Drehen ändert das Tempo live.", { bpm: startBpm })}
           </p>
         )}
       </div>
@@ -259,35 +260,35 @@ export default function ClickTrainer() {
             <div style={{ position: "static", margin: 0, padding: flipped ? "8px 8px 4px 10px" : "8px 8px 4px 0", borderRadius: flipped ? "12px 0 0 12px" : 0, background: flipped ? "#212f32" : "transparent", border: flipped ? `1px solid ${LINE}` : "none", borderRight: "none", boxShadow: "none", overflow: "auto" }}>
               {flipped ? (
                 <div key="back" className="metro-swap">
-                  <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 10 }}>Click-Mixer</div>
+                  <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 10 }}>{t("Click-Mixer")}</div>
                   <ClickAdvanced mix={mix} setMix={setMix} slidersOnly />
                 </div>
               ) : (
                 <div key="front" className="metro-swap">
                   <div className="dial-row">
-                    <button type="button" className="nudge-lg" onClick={() => setDial(bpm - 5)} aria-label="5 BPM langsamer">−5</button>
+                    <button type="button" className="nudge-lg" onClick={() => setDial(bpm - 5)} aria-label={t("5 BPM langsamer")}>−5</button>
                     <MetronomeDial bpm={bpm} setBpm={setDial} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={124} now subLabel={playing ? "Stop" : "Start"} />
-                    <button type="button" className="nudge-lg" onClick={() => setDial(bpm + 5)} aria-label="5 BPM schneller">+5</button>
+                    <button type="button" className="nudge-lg" onClick={() => setDial(bpm + 5)} aria-label={t("5 BPM schneller")}>+5</button>
                   </div>
                   {playing && ramp ? (
                     <div className="count">
                       {atCap ? (
-                        <span className="count-done">Ziel</span>
+                        <span className="count-done">{t("Ziel")}</span>
                       ) : (
                         <>
                           <span className="count-num">{Math.max(0, Math.ceil(left))}</span>
-                          <span className="count-unit">Sek. bis +{step}</span>
+                          <span className="count-unit">{t("Sek. bis +{step}", { step })}</span>
                         </>
                       )}
                     </div>
                   ) : null}
                   {done ? <p style={{ color: "#5cc8b8", textAlign: "center", fontSize: 14, margin: "12px 0 0" }}>{done}</p> : null}
-                  {bgHint ? <p style={{ color: "#e8b84b", textAlign: "center", fontSize: 12, margin: "10px 0 0" }}>App im Hintergrund — der Click kann pausieren. Zurückkommen und ggf. neu starten.</p> : null}
+                  {bgHint ? <p style={{ color: "#e8b84b", textAlign: "center", fontSize: 12, margin: "10px 0 0" }}>{t("App im Hintergrund — der Click kann pausieren. Zurückkommen und ggf. neu starten.")}</p> : null}
                 </div>
               )}
             </div>
             <button type="button" className={flipped ? "metro-side on" : "metro-side"} onClick={() => flip(!flipped)}>
-              {flipped ? "Metronom" : "Erweitert"}
+              {t(flipped ? "Metronom" : "Erweitert")}
             </button>
           </div>
         </div>

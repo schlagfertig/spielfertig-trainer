@@ -3,6 +3,7 @@ import { MetronomeDial } from "../lib/metronome.jsx";
 import { RudimentStaff } from "../lib/staff.jsx";
 import { BeatGlyph } from "../lib/BeatGlyph.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
+import { t } from "../lib/i18n.js";
 
 const DIM = "#8a969c";
 const TEAL = "#5cc8b8";
@@ -11,7 +12,7 @@ const BARS = [1, 2, 4];
 const STAGES = [
   { id: "q", label: "4tel", perBeat: 1 },
   { id: "e", label: "8tel", perBeat: 2 },
-  { id: "et", label: "8el-Triole", perBeat: 3, tuplet: 3 },
+  { id: "et", label: "8tel-Triole", perBeat: 3, tuplet: 3 },
   { id: "s16", label: "16tel", perBeat: 4 },
   { id: "q5", label: "Quintole", perBeat: 5, tuplet: 5 },
   { id: "sx", label: "16tel-Sextole", perBeat: 6, tuplet: 6 },
@@ -59,7 +60,7 @@ function barRud(stage) {
     }
   }
   return {
-    label: `${stage.label} · 4/4`,
+    label: `${t(stage.label)} · 4/4`,
     time: "4/4",
     bars: 1,
     notes,
@@ -228,7 +229,7 @@ export default function PyramidTrainer() {
     <div className="pyramid-wrap" ref={wrapRef} style={{ paddingBottom: focus ? "calc(168px + env(safe-area-inset-bottom, 0px))" : "calc(220px + env(safe-area-inset-bottom, 0px))" }}>
       {!focus ? (
         <p style={{ color: DIM, fontSize: 13, margin: "8px 0 10px" }}>
-          Stufen wählen · immer 4/4.
+          {t("Stufen wählen · immer 4/4.")}
         </p>
       ) : null}
       <div className="staff-card" style={{ marginBottom: focus ? 0 : 10 }}>
@@ -246,8 +247,8 @@ export default function PyramidTrainer() {
                   type="button"
                   className={on ? "chip on" : "chip"}
                   aria-pressed={on}
-                  aria-label={s.label}
-                  title={s.label}
+                  aria-label={t(s.label)}
+                  title={t(s.label)}
                   onClick={() => toggleStage(s.id)}
                 >
                   <BeatGlyph per={s.perBeat} tuplet={s.tuplet} on={on} />
@@ -257,13 +258,13 @@ export default function PyramidTrainer() {
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
             <div className="seg" style={{ width: "fit-content" }}>
-              <button type="button" className={dir === "up" ? "on" : ""} onClick={() => setDir("up")}>auf</button>
-              <button type="button" className={dir === "down" ? "on" : ""} onClick={() => setDir("down")}>ab</button>
-              <button type="button" className={dir === "updown" ? "on" : ""} onClick={() => setDir("updown")}>auf+ab</button>
+              <button type="button" className={dir === "up" ? "on" : ""} onClick={() => setDir("up")}>{t("auf")}</button>
+              <button type="button" className={dir === "down" ? "on" : ""} onClick={() => setDir("down")}>{t("ab")}</button>
+              <button type="button" className={dir === "updown" ? "on" : ""} onClick={() => setDir("updown")}>{t("auf+ab")}</button>
             </div>
             <div className="seg" style={{ width: "fit-content" }}>
               {BARS.map((n) => (
-                <button key={n} type="button" className={bars === n ? "on" : ""} onClick={() => setBars(n)}>{n === 1 ? "1 Takt" : `${n} T.`}</button>
+                <button key={n} type="button" className={bars === n ? "on" : ""} onClick={() => setBars(n)}>{n === 1 ? t("1 Takt") : t("{n} T.", { n })}</button>
               ))}
             </div>
           </div>
@@ -284,7 +285,7 @@ export default function PyramidTrainer() {
         >
           <div style={{ textAlign: "center" }}>
             <div style={{ fontFamily: "Oswald, sans-serif", fontSize: "28vw", lineHeight: 0.9, color: TEAL, fontWeight: 700 }}>{countN || 1}</div>
-            <div style={{ color: DIM, letterSpacing: "0.16em", fontWeight: 800, textTransform: "uppercase" }}>Einzählen</div>
+            <div style={{ color: DIM, letterSpacing: "0.16em", fontWeight: 800, textTransform: "uppercase" }}>{t("Einzählen")}</div>
           </div>
         </div>
       ) : null}
@@ -307,17 +308,17 @@ export default function PyramidTrainer() {
       >
         <div style={{ pointerEvents: "auto", maxWidth: 880, margin: "0 auto" }}>
           <div className="dial-row">
-            <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))} aria-label="5 BPM langsamer">−5</button>
+            <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))} aria-label={t("5 BPM langsamer")}>−5</button>
             <MetronomeDial bpm={bpm} setBpm={(n) => setBpm(clamp(n, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={focus ? 112 : 124} now subLabel={playing ? "Stop" : "Start"} />
-            <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))} aria-label="5 BPM schneller">+5</button>
+            <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))} aria-label={t("5 BPM schneller")}>+5</button>
           </div>
           {playing && !counting ? (
             <div className="count">
               <span className="count-num">{leftBars}</span>
-              <span className="count-unit">{leftBars === 1 ? "Takt übrig" : "Takte übrig"}</span>
+              <span className="count-unit">{t(leftBars === 1 ? "Takt übrig" : "Takte übrig")}</span>
             </div>
           ) : null}
-          {done ? <p style={{ color: TEAL, textAlign: "center", margin: "12px 0 0" }}>{done}</p> : null}
+          {done ? <p style={{ color: TEAL, textAlign: "center", margin: "12px 0 0" }}>{t(done)}</p> : null}
         </div>
       </div>
       <style>{`

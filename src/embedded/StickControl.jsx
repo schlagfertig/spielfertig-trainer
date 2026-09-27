@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
 import { NavScrub } from "../lib/NavScrub.jsx";
+import { t } from "../lib/i18n.js";
 
 const DIM = "#8a969c";
 const TEAL = "#5cc8b8";
@@ -60,7 +61,7 @@ function Phrase({ id, hands, playT }) {
   const barX = (xs[7] + xs[8]) / 2;
   const stem = 3.9;
   return (
-    <svg viewBox={`0 7 ${end + 8} 85`} width="100%" role="img" aria-label={`Nummer ${id}`}>
+    <svg viewBox={`0 7 ${end + 8} 85`} width="100%" role="img" aria-label={t("Nummer {n}", { n: id })}>
       <line x1={start} y1={y} x2={end} y2={y} stroke={LINE} strokeWidth="1.45" />
       <line x1={start} y1={y - 12} x2={start} y2={y + 12} stroke={LINE} strokeWidth="1.6" />
       <line x1={end} y1={y - 12} x2={end} y2={y + 12} stroke={LINE} strokeWidth="1.6" />
@@ -169,7 +170,7 @@ export default function StickControl() {
     const ctx = unlockAudio();
     const isCh = mode === "challenge";
     const per = clamp(reps, 1, 20);
-    const startLabel = EXERCISES[Math.max(0, idx)].label;
+    const startId = EXERCISES[Math.max(0, idx)].id;
     const barsIn = clamp(countBars, 0, 2);
     const clicks = barsIn * Q_PER_BAR;
     let exIdx = Math.max(0, idx);
@@ -208,7 +209,7 @@ export default function StickControl() {
       setCounting(false);
       setBeat(false);
       setPlayT(-1);
-      setDone(isCh ? `Bis Nr. 24 gehalten (ab ${startLabel}).` : "");
+      setDone(isCh ? String(startId) : "");
     };
     const schedule = () => {
       if (cancelled) return;
@@ -390,18 +391,18 @@ export default function StickControl() {
       {beat ? <div className="stick-flash" aria-hidden="true" /> : null}
       <div className="stick-list">
         {previous.map((row, i) => (
-          <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === previous.length - 1} label={i === previous.length - 1 ? "DAVOR" : ""} />
+          <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === previous.length - 1} label={i === previous.length - 1 ? t("DAVOR") : ""} />
         ))}
       </div>
       <div className="stick-pin" ref={pinRef}>
         <div className="stick-tools" style={{ display: "flex", gap: 8, alignItems: "center", margin: "0 0 10px", flexWrap: "wrap" }}>
           <div className="seg" style={{ width: "fit-content" }}>
-            <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>Üben</button>
+            <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>{t("Üben")}</button>
             <button type="button" className={mode === "challenge" ? "on" : ""} onClick={() => !playing && setMode("challenge")}>Challenge</button>
           </div>
           {challenge ? (
             <label style={{ display: "flex", alignItems: "center", gap: 6, color: DIM, fontWeight: 700 }}>
-              Wiederholungen
+              {t("Wiederholungen")}
               <input type="number" min={1} max={20} value={reps} disabled={playing} onChange={(e) => setReps(clamp(Number(e.target.value) || 1, 1, 20))} style={{ width: 52, background: "#161a1d", color: TEAL, border: "1px solid #2f383d", borderRadius: 8, padding: "6px 8px", fontWeight: 800, fontSize: 16, textAlign: "center" }} />
             </label>
           ) : null}
@@ -416,10 +417,10 @@ export default function StickControl() {
       </div>
       <div className="stick-list stick-upcoming">
         {upcoming.map((row, i) => (
-          <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === 0} far={i >= 2} label={i === 0 ? "Als Nächstes" : ""} />
+          <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === 0} far={i >= 2} label={i === 0 ? t("Als Nächstes") : ""} />
         ))}
       </div>
-      {done ? <p className="stick-done" style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{done}</p> : null}
+      {done ? <p className="stick-done" style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{t("Bis Nr. 24 gehalten (ab Nr. {n}).", { n: done })}</p> : null}
       <div className="stick-fade" aria-hidden="true" />
         <div className="metro-shell rud-metro">
           <div className="dock metro-face">
@@ -429,17 +430,17 @@ export default function StickControl() {
               <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))}>+5</button>
             </div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-              <span style={{ color: DIM, fontWeight: 700, fontSize: 14 }}>Einzählen</span>
+              <span style={{ color: DIM, fontWeight: 700, fontSize: 14 }}>{t("Einzählen")}</span>
               <div className="seg" style={{ width: "fit-content" }}>
-                <button type="button" className={countBars === 0 ? "on" : ""} onClick={() => setCountBars(0)}>Aus</button>
-                <button type="button" className={countBars === 1 ? "on" : ""} onClick={() => setCountBars(1)}>1 Takt</button>
-                <button type="button" className={countBars === 2 ? "on" : ""} onClick={() => setCountBars(2)}>2 Takte</button>
+                <button type="button" className={countBars === 0 ? "on" : ""} onClick={() => setCountBars(0)}>{t("Aus")}</button>
+                <button type="button" className={countBars === 1 ? "on" : ""} onClick={() => setCountBars(1)}>{t("1 Takt")}</button>
+                <button type="button" className={countBars === 2 ? "on" : ""} onClick={() => setCountBars(2)}>{t("2 Takte")}</button>
               </div>
             </div>
           </div>
         </div>
         <NavScrub
-          items={EXERCISES.map((e) => ({ id: e.id, label: e.label, preview: e.hands.slice(0, 8) }))}
+          items={EXERCISES.map((e) => ({ id: e.id, label: t("Nr. {n}", { n: e.id }), preview: e.hands.slice(0, 8) }))}
           index={idx}
           disabled={playing}
           onPick={pick}

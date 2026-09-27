@@ -6,6 +6,7 @@ import { playClick, playOrnament, unlockAudio } from "../lib/audio.js";
 import { loadSession, saveSession } from "../lib/session.js";
 import { NavScrub } from "../lib/NavScrub.jsx";
 import { PrintDialog } from "./PrintDialog.jsx";
+import { t } from "../lib/i18n.js";
 
 const HEAR_OK = ["snare", "hands", "click"];
 const GOALS = [
@@ -251,12 +252,12 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
       `}</style>
       <div className="staff-card">
         <div className="rud-title">
-          <div className="rud-title-kicker">Rudiment wählen</div>
+          <div className="rud-title-kicker">{t("Rudiment wählen")}</div>
           <div className="rud-title-row">
             <div className="rud-title-name">{rud.label}</div>
             <span className="rud-title-caret" aria-hidden="true">▾</span>
           </div>
-          <select className="rud-title-select" value={rud.id} onChange={(e) => pickRud(Number(e.target.value))} aria-label="Rudiment wählen">
+          <select className="rud-title-select" value={rud.id} onChange={(e) => pickRud(Number(e.target.value))} aria-label={t("Rudiment wählen")}>
             {CATS.map((c) => (
               <optgroup key={c.id} label={c.label}>
                 {RUDIMENTS.filter((r) => r.cat === c.id).map((r) => (
@@ -277,13 +278,13 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
             {playing && goal.sec ? fmt(leftSec) : playing ? `Loop ${loopN}${goal.loops ? "/" + goal.loops : ""}` : "Loop —"}
           </div>
         </div>
-        {done ? <div className="goal-done">{done}</div> : null}
-        {stage ? null : <div className="staff-hint">Aktueller Schlag oben markiert · R blau · L rot</div>}
+        {done ? <div className="goal-done">{t(done)}</div> : null}
+        {stage ? null : <div className="staff-hint">{t("Aktueller Schlag oben markiert · R blau · L rot")}</div>}
       </div>
       {stage ? null : (
         <div className="seg" style={{ margin: "0 0 12px", width: "fit-content", maxWidth: "100%", flexWrap: "wrap" }}>
           {GOALS.map((g) => (
-            <button key={g.id} type="button" className={goalId === g.id ? "on" : ""} onClick={() => !playing && setGoalId(g.id)}>{g.label}</button>
+            <button key={g.id} type="button" className={goalId === g.id ? "on" : ""} onClick={() => !playing && setGoalId(g.id)}>{t(g.label)}</button>
           ))}
         </div>
       )}
@@ -302,14 +303,14 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
               <div className="seg">
                 <button type="button" className={hear === "snare" ? "on" : ""} onClick={() => setHear("snare")}>Snare</button>
                 <button type="button" className={hear === "hands" ? "on" : ""} onClick={() => setHear("hands")}>L / R</button>
-                <button type="button" className={hear === "click" ? "on" : ""} onClick={() => setHear("click")}>Nur Click</button>
+                <button type="button" className={hear === "click" ? "on" : ""} onClick={() => setHear("click")}>{t("Nur Click")}</button>
               </div>
             </div>
           )}
           <div className="dial-row">
-            <button type="button" className="nudge-lg" onClick={() => setBpm(Math.max(30, bpm - 5))} aria-label="5 BPM langsamer">−5</button>
+            <button type="button" className="nudge-lg" onClick={() => setBpm(Math.max(30, bpm - 5))} aria-label={t("5 BPM langsamer")}>−5</button>
             <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={stage ? 152 : compact ? 88 : 124} now subLabel={playing ? "Stop" : "Start"} />
-            <button type="button" className="nudge-lg" onClick={() => setBpm(Math.min(260, bpm + 5))} aria-label="5 BPM schneller">+5</button>
+            <button type="button" className="nudge-lg" onClick={() => setBpm(Math.min(260, bpm + 5))} aria-label={t("5 BPM schneller")}>+5</button>
           </div>
         </div>
       </div>
