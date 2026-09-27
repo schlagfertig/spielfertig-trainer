@@ -54,6 +54,7 @@ function LegalEn({ isPrivacy }) {
         <p>
           We do not use our own tracking cookies or any analytics tools
           (no Google Analytics, Plausible, Matomo or similar).
+          For test access we set a technically necessary cookie (“sf_zugang”) containing a pseudonymous tester code and expiry date; it is used only for access, not for analytics, and ends when the invite link expires (§ 25(2) no. 2 TDDDG).
         </p>
       </section>
       <section className="legal-block">
@@ -174,6 +175,7 @@ export default function Legal({ topic = "impressum", onOpen }) {
             <p>
               Wir setzen keine eigenen Tracking-Cookies und keine Analyse-Tools
               (kein Google Analytics, Plausible, Matomo o. Ä.) ein.
+              Für den Testzugang setzen wir ein technisch notwendiges Cookie („sf_zugang“) mit einem pseudonymen Tester-Kürzel und Ablaufdatum; es dient nur dem Zugang, nicht der Analyse, und endet mit Ablauf des Einladungslinks (§ 25 Abs. 2 Nr. 2 TDDDG).
             </p>
           </section>
           <section className="legal-block">
