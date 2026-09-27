@@ -36,7 +36,7 @@ function useSheet(id) {
 
 function Pane({ file, url, overlay, split }) {
   if (!file || !url) {
-    return <div style={{ flex: 1, minHeight: 80, color: "#8a969c", display: "flex", alignItems: "center", justifyContent: "center" }}>{t("Tipp auf ein Blatt")}</div>;
+    return <div style={{ flex: 1, minHeight: 80, color: "#8a969c", display: "flex", alignItems: "center", justifyContent: "center", padding: 16, textAlign: "center" }}>{t("Blatt in der Liste wählen")}</div>;
   }
   const h = split ? (overlay ? "42dvh" : "56dvh") : (overlay ? "48dvh" : "68dvh");
   if (file.kind === "pdf") {
@@ -62,7 +62,7 @@ export default function Archive({ overlay = false, onClose }) {
     try {
       setRows(await listSheets());
     } catch {
-      setErr("Archiv auf diesem Gerät nicht verfügbar (privater Modus?).");
+      setErr(t("Hier nicht verfügbar (privater Modus?)."));
     }
   }
 
@@ -84,9 +84,9 @@ export default function Archive({ overlay = false, onClose }) {
         setOpenA(id);
         rememberLast(id);
       }
-      setOk("Gespeichert auf diesem Gerät. Kopie extra in Dateien oder Cloud legen.");
+      setOk(t("Gespeichert. Extra-Kopie in Dateien oder Cloud legen."));
     } catch (e) {
-      setErr(e.message || "Konnte das Blatt nicht speichern.");
+      setErr(e.message || t("Speichern fehlgeschlagen."));
     }
     setBusy(false);
     if (pick.current) pick.current.value = "";
@@ -97,15 +97,15 @@ export default function Archive({ overlay = false, onClose }) {
     await removeSheet(id);
     if (openA === id) setOpenA("");
     if (openB === id) setOpenB("");
-    setOk("Blatt gelöscht.");
+    setOk(t("Gelöscht."));
     await refresh();
   }
 
   async function rename(id, current) {
-    const next = window.prompt(t("Name"), current || "");
+    const next = window.prompt(t("Neuer Name"), current || "");
     if (next == null) return;
     await renameSheet(id, next);
-    setOk("Name geändert.");
+    setOk(t("Name geändert."));
     await refresh();
   }
 
@@ -135,13 +135,13 @@ export default function Archive({ overlay = false, onClose }) {
 
   const body = (
     <div>
-      <div role="note" style={{ background: "#3a2e12", color: "#e8b84b", border: "1px solid #e8b84b", borderRadius: 10, padding: "12px 14px", margin: "0 0 14px", fontSize: 15, lineHeight: 1.4 }}>
-        <strong style={{ display: "block", letterSpacing: "0.06em", textTransform: "uppercase", fontSize: 12, marginBottom: 4 }}>{t("Nur lokal")}</strong>
-        {t("Liegt nur in diesem Browser. Gerätewechsel, Cache leeren oder App neu installieren kann alles löschen. Backup: Original-PDF/Foto extra in Dateien, Mail oder Cloud behalten.")}
+      <div role="note" style={{ background: "rgba(58,46,18,.55)", color: "#e8b84b", border: "1px solid rgba(232,184,75,.45)", borderRadius: 12, padding: "12px 14px", margin: "0 0 14px", fontSize: 15, lineHeight: 1.4 }}>
+        <strong style={{ display: "block", letterSpacing: "0.06em", textTransform: "uppercase", fontSize: 12, marginBottom: 4 }}>{t("Nur auf diesem Gerät")}</strong>
+        {t("Fotos und PDFs bleiben im Browser. Anderes Gerät oder Cache leeren löscht sie — Original extra sichern.")}
       </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
         <button type="button" className="play" disabled={busy} onClick={() => pick.current?.click()}>{busy ? "…" : t("Hinzufügen")}</button>
-        <button type="button" className={split ? "ghost on" : "ghost"} onClick={toggleSplit}>2×</button>
+        <button type="button" className={split ? "ghost on" : "ghost"} onClick={toggleSplit} aria-pressed={split} aria-label={t("Zwei Seiten")}>{t("2 Seiten")}</button>
         {overlay && <button type="button" className="ghost" onClick={onClose}>{t("Schließen")}</button>}
       </div>
       {split ? (
@@ -151,9 +151,9 @@ export default function Archive({ overlay = false, onClose }) {
         </div>
       ) : null}
       <input ref={pick} type="file" accept="image/*,application/pdf" hidden onChange={(e) => onFiles(e.target.files)} />
-      {err ? <p role="status" style={{ color: "#e05c5c", fontWeight: 700 }}>{t(err)}</p> : null}
-      {ok ? <p role="status" style={{ color: "#5cc8b8", fontWeight: 700 }}>{t(ok)}</p> : null}
-      {!rows.length && !err ? <p style={{ color: "#8a969c" }}>{t("Noch keine Blätter. Mit „Hinzufügen“ Foto oder PDF ablegen.")}</p> : null}
+      {err ? <p role="status" style={{ color: "#e05c5c", fontWeight: 700 }}>{err}</p> : null}
+      {ok ? <p role="status" style={{ color: "#5cc8b8", fontWeight: 700 }}>{ok}</p> : null}
+      {!rows.length && !err ? <p style={{ color: "#8a969c" }}>{t("Noch nichts hier. Foto oder PDF hinzufügen.")}</p> : null}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {rows.map((r) => (
           <div key={r.id} style={{ display: "flex", gap: 6, alignItems: "center", padding: 10, border: "1px solid #2f383d", borderRadius: 10, background: r.id === openA || r.id === openB ? "#13211f" : "#1c2226" }}>
@@ -165,7 +165,7 @@ export default function Archive({ overlay = false, onClose }) {
                 {" · "}{fmtDate(r.added)}
               </span>
             </button>
-            <button type="button" className="ghost" onClick={() => rename(r.id, r.name)}>{t("Name")}</button>
+            <button type="button" className="ghost" onClick={() => rename(r.id, r.name)}>{t("Umbenennen")}</button>
             <button type="button" className="ghost" onClick={() => drop(r.id)}>{t("Löschen")}</button>
           </div>
         ))}
