@@ -1,5 +1,6 @@
 import { MIX_LAYERS, writeMix } from "./clickMix.js";
 import { BeatGlyph } from "./BeatGlyph.jsx";
+import { t } from "./i18n.js";
 
 const TEAL = "#5cc8b8";
 const DIM = "#8a969c";
@@ -30,31 +31,31 @@ export function ClickAdvanced({ mix, setMix, slidersOnly = false }) {
     <div className="click-adv">
       {!slidersOnly && (
         <div className="seg" style={{ width: "fit-content", maxWidth: "100%" }}>
-          <button type="button" className={!mix.advanced ? "on" : ""} onClick={() => patch({ advanced: false })}>Normal</button>
-          <button type="button" className={mix.advanced ? "on" : ""} onClick={() => patch({ advanced: true })}>Erweitert</button>
+          <button type="button" className={!mix.advanced ? "on" : ""} onClick={() => patch({ advanced: false })}>{t("Normal")}</button>
+          <button type="button" className={mix.advanced ? "on" : ""} onClick={() => patch({ advanced: true })}>{t("Erweitert")}</button>
         </div>
       )}
       {(slidersOnly || mix.advanced) && (
         <div className="click-adv-list">
           <p style={{ color: DIM, fontSize: 12, margin: "0 0 4px", lineHeight: 1.35 }}>
-            Jede Zeile ist eine eigene Click-Ebene, der Lautsprecher regelt alle zusammen.
+            {t("Jede Zeile ist eine eigene Click-Ebene, der Lautsprecher regelt alle zusammen.")}
           </p>
           {MIX_LAYERS.map((layer) => (
             <label key={layer.id} className="click-adv-row">
-              <span className="click-adv-name" title={`${layer.label}: ${layer.sub}`}>{GLYPH[layer.id]}</span>
+              <span className="click-adv-name" title={`${t(layer.label)}: ${t(layer.sub)}`}>{GLYPH[layer.id]}</span>
               <input
                 type="range"
                 min={0}
                 max={100}
                 value={mix[layer.id]}
-                aria-label={`${layer.label}. ${layer.sub}`}
+                aria-label={`${t(layer.label)}. ${t(layer.sub)}`}
                 onChange={(e) => patch({ [layer.id]: Number(e.target.value) })}
               />
               <span className="click-adv-val">{mix[layer.id]}</span>
             </label>
           ))}
           <p style={{ color: DIM, fontSize: 11, margin: "4px 0 0" }}>
-            Änderungen gelten sofort, der Click läuft weiter.
+            {t("Änderungen gelten sofort, der Click läuft weiter.")}
           </p>
         </div>
       )}
