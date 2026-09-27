@@ -30,7 +30,17 @@ p { font-size: 17px; line-height: 1.45; }
   overflow-x: hidden;
 }
 .home { max-width: 640px; margin: 0 auto; position: relative; }
-.home-help { position: absolute; top: 10px; right: 10px; }
+.home-help { position: absolute; top: 10px; right: 10px; z-index: 3; }
+.logo-metro { position: relative; }
+.logo-metro .logo { cursor: pointer; transition: opacity .25s ease, transform .25s ease; }
+.logo-metro.open .logo { opacity: 0; transform: scale(.9); pointer-events: none; }
+.logo-dial { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; animation: logoDialIn .25s ease; }
+.logo-dial-x { position: absolute; top: 0; left: 0; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--dim); font-size: 22px; line-height: 1; padding: 0; }
+@keyframes logoDialIn { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
+/* Beim Tempo-Drehen überlappen die Drehhinweise × und ? – solange ausblenden */
+.home-help, .logo-dial-x { transition: opacity .2s ease; }
+body.metro-gesturing .home-help, body.metro-gesturing .logo-dial-x { opacity: 0; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .logo-metro .logo, .logo-dial, .home-help, .logo-dial-x { transition: none; animation: none; } }
 .hero { text-align: center; padding: 12px 0 10px; }
 .logo {
   display: block;

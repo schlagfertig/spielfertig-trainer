@@ -8,6 +8,7 @@ import { Help } from "./lib/Help.jsx";
 import FirstLesson from "./lib/FirstLesson.jsx";
 import Legal from "./lib/Legal.jsx";
 import { loadSession } from "./lib/session.js";
+import { LogoMetronome } from "./lib/LogoMetronome.jsx";
 
 const META = {
   first: { title: "Erste Übung", help: "home" },
@@ -128,7 +129,7 @@ export default function App() {
       <div className="page home">
         <div className="home-help"><Help topic="home" /></div>
         <header className="hero">
-          <img className="logo" src="/logo.svg?v=clear" alt="schlagfertig" />
+          <LogoMetronome />
           <h1>Spielfertig</h1>
           <p className="tag">schlagfertig · Zeit für guten Sound</p>
         </header>
