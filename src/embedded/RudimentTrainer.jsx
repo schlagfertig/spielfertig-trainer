@@ -217,7 +217,8 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           --rud-foot: calc(72px + env(safe-area-inset-bottom, 0px));
         }
         .rud-wrap.rud-short .staff-hint,
-        .rud-wrap.rud-short .rud-metro .dial-row > div > div + div {
+        .rud-wrap.rud-short .rud-metro .dial-row > div > div + div,
+        .page.tool.stage .rud-metro .dial-row > div > div + div {
           display: none;
         }
         @media (orientation: portrait) { .page.tool:not(.stage) .rud-wrap:not(.rud-short) .rud-metro .dial-row { padding-bottom: 16px; } }

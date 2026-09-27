@@ -356,6 +356,8 @@ export default function ClickTrainer() {
         /* Platz für den Hinweis unter dem Kreis (sonst vom Dock abgeschnitten) */
         .click-dock .dial-row { padding-bottom: 16px; }
         .click-dock .count { margin-top: 2px; }
+        /* Schmale Screens (360 px): −5 sonst links angeschnitten */
+        @media (max-width: 370px) { .click-dock .dial-row { gap: 6px; } }
         .metro-swap { animation: metroIn .28s ease; min-width: 0; }
         @keyframes metroIn {
           from { opacity: 0; transform: rotateY(-80deg); }
