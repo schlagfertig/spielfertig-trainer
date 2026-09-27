@@ -26,7 +26,7 @@ const COPY = {
   ],
   pyramid: [
     ["Metronom unten", "Tippen = Start/Stop. Halten + drehen = Tempo, innen grob, außen fein, auch über den Ring hinaus. −5/+5 daneben."],
-    ["Stufen", "4tel → 8tel → 8tel-Triole → 16tel → Quintole → 16tel-Sextole → Septole → 32tel. Tippen schaltet einzeln an/aus, eine bleibt immer an."],
+    ["Stufen", "4tel → 8tel → 8tel-Triole → 16tel → Quintole → 16tel-Sextole → 32tel. Tippen schaltet einzeln an/aus, eine bleibt immer an."],
     ["Takte", "1, 2 oder 4 Takte pro Stufe, immer im 4/4."],
   ],
   stick: [
@@ -36,9 +36,10 @@ const COPY = {
     ["Challenge", "1–24 durchspielen. Wiederholungen = komplette Übung (beide Takte). Einzählen nur am Start, nicht zwischen den Nummern."],
   ],
   archive: [
-    ["Lokal", "Dateien bleiben im Browser dieses Geräts. Kein Upload in die Cloud."],
-    ["Format", "Foto oder PDF, bis 12 MB."],
-    ["Üben", "In Rudiments u. a. über Blatt öffnen — Playback läuft weiter."],
+    ["Nur hier", "Fotos und PDFs bleiben in diesem Browser. Kein Upload. Anderes Gerät oder Cache leeren löscht sie."],
+    ["Hinzufügen", "Foto oder PDF, maximal 12 MB."],
+    ["2 Seiten", "Zwei Blätter nebeneinander. Links/Rechts wählt, welches Du tippst."],
+    ["Beim Üben", "In den anderen Modulen oben auf Blatt — der Click läuft weiter."],
   ],
 };
 
