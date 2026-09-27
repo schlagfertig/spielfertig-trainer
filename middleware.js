@@ -14,11 +14,18 @@ function cookieValue(request) {
 }
 
 // Eingefügt wird oft der ganze Link statt nur des Codes
-function inviteCode(raw) {
+function fromPaste(raw) {
   const v = raw.trim();
-  const m = v.match(/[?&]zugang=([^&#\s]+)/);
-  if (!m) return v;
-  try { return decodeURIComponent(m[1]); } catch { return ""; }
+  if (!/[?&]zugang=/.test(v)) return { token: v, name: null };
+  try {
+    const u = new URL(v, "https://x.invalid");
+    return { token: u.searchParams.get("zugang") || "", name: u.searchParams.get("name") };
+  } catch { return { token: "", name: null }; }
+}
+
+// Anzeigename für die Begrüßung (?name=, nicht signiert): nur Buchstaben, - und ', max. 20 Zeichen
+function cleanName(raw) {
+  return Array.from((raw || "").normalize("NFC").replace(/[^\p{L}'-]/gu, "")).slice(0, 20).join("");
 }
 
 function lock(state) {
@@ -36,18 +43,18 @@ export default async function middleware(request) {
 
   const raw = url.searchParams.get("zugang");
   if (raw !== null) {
-    const token = inviteCode(raw);
+    const pasted = fromPaste(raw);
+    const token = pasted.token;
     const r = await verifyToken(secret, token, gesperrt);
     if (!r.ok) return lock(r.reason === "expired" ? { expired: r.exp } : "invalid");
+    const name = cleanName(pasted.name ?? url.searchParams.get("name"));
     url.searchParams.delete("zugang");
-    return new Response(null, {
-      status: 302,
-      headers: {
-        location: url.pathname + url.search,
-        "set-cookie": `${COOKIE}=${token}; Path=/; Expires=${new Date(r.exp * 1000).toUTCString()}; HttpOnly; Secure; SameSite=Lax`,
-        "cache-control": "no-store",
-      },
-    });
+    url.searchParams.delete("name");
+    const attrs = `Path=/; Expires=${new Date(r.exp * 1000).toUTCString()}; Secure; SameSite=Lax`;
+    const headers = new Headers({ location: url.pathname + url.search, "cache-control": "no-store" });
+    headers.append("set-cookie", `${COOKIE}=${token}; ${attrs}; HttpOnly`);
+    if (name) headers.append("set-cookie", `sf_name=${encodeURIComponent(name)}; ${attrs}`);
+    return new Response(null, { status: 302, headers });
   }
 
   const r = await verifyToken(secret, cookieValue(request), gesperrt);

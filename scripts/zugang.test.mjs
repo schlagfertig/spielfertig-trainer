@@ -3,7 +3,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { randomBytes } from "node:crypto";
 import { createToken, verifyToken } from "../access/token.js";
-import { endOfBerlinDay } from "./zugang.mjs";
+import { endOfBerlinDay, nameParam } from "./zugang.mjs";
 import middleware from "../middleware.js";
 import gesperrt from "../access/gesperrt.json" with { type: "json" };
 
@@ -108,6 +108,38 @@ test("middleware", async (t) => {
     assert.match(c, /; Path=\//);
     assert.equal(Date.parse(c.match(/Expires=([^;]+)/)[1]) / 1000, inDays(21));
     assert.equal(r.headers.get("cache-control"), "no-store");
+  });
+
+  await t.test("Name für die Begrüßung (?name=, unsigniert): sf_name-Cookie", async () => {
+    const run = async (q) => (await middleware(req(`/?zugang=${good}${q}`)));
+    const r = await run("&name=J%C3%BCrgen");
+    assert.equal(r.status, 302);
+    assert.equal(r.headers.get("location"), "/");
+    const [zugang, name] = r.headers.getSetCookie();
+    assert.match(zugang, /^sf_zugang=.*; HttpOnly$/);
+    assert.match(name, /^sf_name=J%C3%BCrgen; Path=\/; Expires=[^;]+; Secure; SameSite=Lax$/);
+    assert.equal(decodeURIComponent(name.slice(8, name.indexOf(";"))), "Jürgen");
+    assert.equal(name.match(/Expires=([^;]+)/)[1], zugang.match(/Expires=([^;]+)/)[1]);
+    const bad = (await run(`&name=${encodeURIComponent("<b>Ann;a</b> 1\"")}`)).headers.getSetCookie()[1];
+    assert.equal(bad.split(";")[0], "sf_name=bAnnab");
+    assert.equal((await run(`&name=${encodeURIComponent("Marie-Luise O'Neil")}`)).headers.getSetCookie()[1].split(";")[0], `sf_name=${encodeURIComponent("Marie-LuiseO'Neil")}`);
+    assert.equal((await run(`&name=${"a".repeat(30)}`)).headers.getSetCookie()[1].split(";")[0], `sf_name=${"a".repeat(20)}`);
+    for (const q of ["", "&name=", "&name=123%3C%3E"]) {
+      const c = (await run(q)).headers.getSetCookie();
+      assert.equal(c.length, 1, q);
+      assert.match(c[0], /^sf_zugang=/);
+    }
+    const tom = await createToken(SECRET, "tom", inDays(365));
+    assert.deepEqual((await middleware(req(`/?zugang=${tom}`))).headers.getSetCookie().map((c) => c.split("=")[0]), ["sf_zugang"]);
+    const pasted = encodeURIComponent(`https://spielfertig-trainer.vercel.app/?zugang=${good}&name=J%C3%BCrgen`);
+    assert.equal((await middleware(req(`/?zugang=${pasted}`))).headers.getSetCookie()[1].split(";")[0], "sf_name=J%C3%BCrgen");
+    assert.equal((await middleware(req(`/?zugang=quatsch&name=Anna`))).headers.getSetCookie().length, 0);
+  });
+
+  await t.test("nameParam: Originalschreibweise, Vorname, kodiert", () => {
+    assert.equal(nameParam("Jürgen Müller"), "&name=J%C3%BCrgen");
+    assert.equal(nameParam("anna"), "&name=anna");
+    assert.equal(nameParam("123"), "");
   });
 
   await t.test("eingefügter ganzer Link (Formular) funktioniert", async () => {

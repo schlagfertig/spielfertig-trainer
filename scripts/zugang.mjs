@@ -1,5 +1,6 @@
 // Einladungslink erzeugen. Geheimnis nur aus der Umgebung, nie aus dem Repo.
-//   ZUGANG_SECRET=… node scripts/zugang.mjs anna        → neues Kürzel anna-xx, 21 Tage
+//   ZUGANG_SECRET=… node scripts/zugang.mjs anna        → neues Kürzel anna-xx, 21 Tage, Link mit &name=anna
+//   ZUGANG_SECRET=… node scripts/zugang.mjs "Jürgen M." → Kürzel juergen-xx, Begrüßung „Hallo Jürgen“
 //   ZUGANG_SECRET=… node scripts/zugang.mjs anna 30     → 30 Tage
 //   ZUGANG_SECRET=… node scripts/zugang.mjs --id tom 365 → festes Kürzel (Tom, testbot, Verlängerung)
 // Optional ZUGANG_LISTE=/pfad/links.csv: hängt „id;name;gültig bis;erstellt“ an (Zuordnung bleibt außerhalb des Repos).
@@ -30,6 +31,12 @@ function slug(name) {
     .normalize("NFD").replace(/[^a-z0-9]+/g, "").slice(0, 12) || "t";
 }
 
+// Anzeigename für die Begrüßung in Originalschreibweise ("Jürgen Müller" → "&name=J%C3%BCrgen"), nicht signiert
+export function nameParam(who) {
+  const first = Array.from(who.trim().split(/\s+/)[0].normalize("NFC").replace(/[^\p{L}'-]/gu, "")).slice(0, 20).join("");
+  return first ? `&name=${encodeURIComponent(first)}` : "";
+}
+
 async function main(argv) {
   const fixed = argv[0] === "--id";
   const args = fixed ? argv.slice(1) : argv;
@@ -46,7 +53,7 @@ async function main(argv) {
   try { token = await createToken(process.env.ZUGANG_SECRET, id, exp); } catch (e) { console.error(e.message); process.exit(1); }
   const until = new Date(exp * 1000).toLocaleString("de-DE", { timeZone: "Europe/Berlin", dateStyle: "long", timeStyle: "short" });
   if (process.env.ZUGANG_LISTE) appendFileSync(process.env.ZUGANG_LISTE, `${id};${who};${until};${new Date().toISOString()}\n`);
-  console.log(`Kürzel:     ${id}\nGültig bis: ${until} (Berlin)\nLink:       ${BASE}/?zugang=${token}`);
+  console.log(`Kürzel:     ${id}\nGültig bis: ${until} (Berlin)\nLink:       ${BASE}/?zugang=${token}${fixed ? "" : nameParam(who)}`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) main(process.argv.slice(2));
