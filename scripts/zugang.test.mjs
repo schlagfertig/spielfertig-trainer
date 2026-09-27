@@ -3,7 +3,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { randomBytes } from "node:crypto";
 import { createToken, verifyToken } from "../access/token.js";
-import { endOfBerlinDay, nameParam } from "./zugang.mjs";
+import { endOfBerlinDay, nameParam, langArg, langParam } from "./zugang.mjs";
 import middleware from "../middleware.js";
 import gesperrt from "../access/gesperrt.json" with { type: "json" };
 
@@ -81,6 +81,8 @@ test("middleware", async (t) => {
       assert.match(html, /Testing phase/);
       assert.match(html, /Angaben gemäß § 5 DDG/);
       assert.match(html, /sf_zugang/);
+      assert.match(html, /sf_name/);
+      assert.match(html, /sf_lang/);
       assert.match(html, /name="zugang"/);
       assert.doesNotMatch(html, /fonts\.googleapis|\/assets\//);
     }
@@ -134,6 +136,43 @@ test("middleware", async (t) => {
     const pasted = encodeURIComponent(`https://spielfertig-trainer.vercel.app/?zugang=${good}&name=J%C3%BCrgen`);
     assert.equal((await middleware(req(`/?zugang=${pasted}`))).headers.getSetCookie()[1].split(";")[0], "sf_name=J%C3%BCrgen");
     assert.equal((await middleware(req(`/?zugang=quatsch&name=Anna`))).headers.getSetCookie().length, 0);
+  });
+
+  await t.test("Startsprache (?lang=, unsigniert): sf_lang-Cookie nur für de/en und nur mit gültigem Link", async () => {
+    const run = async (q) => (await middleware(req(`/?zugang=${good}${q}`)));
+    const r = await run("&name=Anna&lang=en");
+    assert.equal(r.status, 302);
+    assert.equal(r.headers.get("location"), "/");
+    const [zugang, name, lang] = r.headers.getSetCookie();
+    assert.match(name, /^sf_name=Anna;/);
+    assert.match(lang, /^sf_lang=en; Path=\/; Expires=[^;]+; Secure; SameSite=Lax$/);
+    assert.equal(lang.match(/Expires=([^;]+)/)[1], zugang.match(/Expires=([^;]+)/)[1]);
+    assert.equal((await run("&lang=de")).headers.getSetCookie()[1].split(";")[0], "sf_lang=de");
+    for (const q of ["&lang=fr", "&lang=EN", "&lang=", "&lang=en%3Bx%3D1", "&lang=en-US"]) {
+      const res = await run(q);
+      assert.equal(res.headers.get("location"), "/", q);
+      assert.deepEqual(res.headers.getSetCookie().map((c) => c.split("=")[0]), ["sf_zugang"], q);
+    }
+    assert.equal((await middleware(req(`/datenschutz?x=1&lang=en&zugang=${good}`))).headers.get("location"), "/datenschutz?x=1");
+    const pasted = encodeURIComponent(`https://spielfertig-trainer.vercel.app/?zugang=${good}&name=Anna&lang=en`);
+    assert.deepEqual((await middleware(req(`/?zugang=${pasted}`))).headers.getSetCookie().map((c) => c.split(";")[0]).slice(1), ["sf_name=Anna", "sf_lang=en"]);
+    const bad = await middleware(req("/?zugang=quatsch&name=Anna&lang=en"));
+    assert.equal(bad.status, 200);
+    assert.equal(bad.headers.getSetCookie().length, 0);
+    const noCookie = await middleware(req("/?lang=en"));
+    assert.equal(noCookie.status, 200);
+    assert.equal(noCookie.headers.getSetCookie().length, 0);
+  });
+
+  await t.test("langArg/langParam: --en, --lang en|de, Standard ohne Parameter", () => {
+    assert.deepEqual(langArg(["anna"]), { lang: "", rest: ["anna"] });
+    assert.deepEqual(langArg(["--en", "anna", "30"]), { lang: "en", rest: ["anna", "30"] });
+    assert.deepEqual(langArg(["anna", "--lang", "en"]), { lang: "en", rest: ["anna"] });
+    assert.deepEqual(langArg(["--id", "tom", "365", "--lang", "de"]), { lang: "de", rest: ["--id", "tom", "365"] });
+    assert.match(langArg(["--lang", "fr", "anna"]).error, /Ungültige Sprache/);
+    assert.match(langArg(["anna", "--lang"]).error, /Ungültige Sprache/);
+    assert.equal(langParam("en"), "&lang=en");
+    assert.equal(langParam(""), "");
   });
 
   await t.test("nameParam: Originalschreibweise, Vorname, kodiert", () => {

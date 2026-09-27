@@ -5,6 +5,9 @@ import { EN } from "./en.js";
 function initial() {
   const saved = loadSession("lang", {}).lang;
   if (saved === "de" || saved === "en") return saved;
+  // Noch keine eigene Wahl: Sprache aus dem Einladungslink (Cookie sf_lang, setzt middleware.js)
+  const invite = /(?:^|;\s*)sf_lang=(de|en)(?:;|$)/.exec(document.cookie || "")?.[1];
+  if (invite) return invite;
   return /^de/i.test(navigator.language || "") ? "de" : "en";
 }
 

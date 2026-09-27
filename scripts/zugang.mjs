@@ -3,6 +3,7 @@
 //   ZUGANG_SECRET=… node scripts/zugang.mjs "Jürgen M." → Kürzel juergen-xx, Begrüßung „Hallo Jürgen“
 //   ZUGANG_SECRET=… node scripts/zugang.mjs anna 30     → 30 Tage
 //   ZUGANG_SECRET=… node scripts/zugang.mjs --id tom 365 → festes Kürzel (Tom, testbot, Verlängerung)
+//   ZUGANG_SECRET=… node scripts/zugang.mjs --en anna   → App startet auf Englisch (&lang=en; auch --lang en|de)
 // Optional ZUGANG_LISTE=/pfad/links.csv: hängt „id;name;gültig bis;erstellt“ an (Zuordnung bleibt außerhalb des Repos).
 import { appendFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
@@ -37,13 +38,30 @@ export function nameParam(who) {
   return first ? `&name=${encodeURIComponent(first)}` : "";
 }
 
-async function main(argv) {
+// Startsprache aus --en oder --lang en|de (überall in den Argumenten); ohne Angabe kein Parameter (Browsersprache)
+export function langArg(argv) {
+  const rest = [];
+  let lang = "";
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === "--en") lang = "en";
+    else if (argv[i] === "--lang") { lang = argv[++i] ?? ""; if (lang !== "de" && lang !== "en") return { error: `Ungültige Sprache: ${lang || "(fehlt)"} (erlaubt: de, en)` }; }
+    else rest.push(argv[i]);
+  }
+  return { lang, rest };
+}
+
+export const langParam = (lang) => (lang ? `&lang=${lang}` : "");
+
+async function main(argv0) {
+  const la = langArg(argv0);
+  if (la.error) { console.error(la.error); process.exit(1); }
+  const argv = la.rest;
   const fixed = argv[0] === "--id";
   const args = fixed ? argv.slice(1) : argv;
   const [who, daysArg] = args;
   const days = daysArg === undefined ? 21 : Number(daysArg);
   if (!who || !Number.isInteger(days) || days < 0 || days > 366) {
-    console.error("Aufruf: node scripts/zugang.mjs <name> [tage=21]   oder   --id <kürzel> [tage=21]");
+    console.error("Aufruf: node scripts/zugang.mjs [--en | --lang de|en] <name> [tage=21]   oder   --id <kürzel> [tage=21]");
     process.exit(1);
   }
   const id = fixed ? who : `${slug(who)}-${randomBytes(2).readUInt16BE(0).toString(36).padStart(2, "0").slice(-2)}`;
@@ -53,7 +71,7 @@ async function main(argv) {
   try { token = await createToken(process.env.ZUGANG_SECRET, id, exp); } catch (e) { console.error(e.message); process.exit(1); }
   const until = new Date(exp * 1000).toLocaleString("de-DE", { timeZone: "Europe/Berlin", dateStyle: "long", timeStyle: "short" });
   if (process.env.ZUGANG_LISTE) appendFileSync(process.env.ZUGANG_LISTE, `${id};${who};${until};${new Date().toISOString()}\n`);
-  console.log(`Kürzel:     ${id}\nGültig bis: ${until} (Berlin)\nLink:       ${BASE}/?zugang=${token}${fixed ? "" : nameParam(who)}`);
+  console.log(`Kürzel:     ${id}\nGültig bis: ${until} (Berlin)\nLink:       ${BASE}/?zugang=${token}${fixed ? "" : nameParam(who)}${langParam(la.lang)}`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) main(process.argv.slice(2));
