@@ -12,7 +12,6 @@ import { loadSession } from "./lib/session.js";
 import { LogoMetronome } from "./lib/LogoMetronome.jsx";
 import { getLang, setLang, t } from "./lib/i18n.js";
 
-// Flagge der Sprache, auf die umgeschaltet wird
 const FLAG_EN = (
   <svg viewBox="0 0 60 30" width="30" height="30" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <clipPath id="uj-t"><path d="M30,15h30v15zv15h-30zh-30v-15zv-15h30z" /></clipPath>
@@ -31,7 +30,6 @@ const FLAG_DE = (
   </svg>
 );
 
-// ‽ aus dem runden Schlagfertig-Logo (public/logo.svg), für das App-Logo „Spielfertig‽ Control“
 const INTERROBANG = (
   <svg className="app-logo-q" viewBox="0 -29.68 16.11 30.25" aria-hidden="true" focusable="false">
     <path d="M 8.61 -8.69 L 5 -8.69 L 4.18 -25.83 C 3.32 -25.54 2.46 -25.17 1.51 -24.64 L 1.51 -24.64 L 0 -27.59 C 1.27 -28.25 2.54 -28.78 3.81 -29.15 C 5.08 -29.52 6.52 -29.68 8.03 -29.68 L 8.03 -29.68 C 10.53 -29.68 12.54 -29.07 13.98 -27.8 C 15.41 -26.53 16.11 -24.76 16.11 -22.51 L 16.11 -22.51 C 16.11 -21.32 15.95 -20.25 15.62 -19.43 C 15.25 -18.57 14.76 -17.75 14.1 -17.02 C 13.4 -16.28 12.58 -15.5 11.56 -14.72 L 11.56 -14.72 C 10.53 -13.9 9.75 -13.12 9.3 -12.42 C 8.85 -11.73 8.61 -10.7 8.61 -9.39 L 8.61 -9.39 L 8.61 -8.69 Z M 8.36 -26.53 L 7.99 -15.42 C 8.11 -15.66 8.32 -15.91 8.57 -16.15 C 8.77 -16.36 9.06 -16.61 9.34 -16.89 L 9.34 -16.89 C 10.21 -17.63 10.82 -18.29 11.23 -18.9 C 11.64 -19.48 11.93 -20.05 12.05 -20.62 C 12.17 -21.16 12.26 -21.77 12.26 -22.47 L 12.26 -22.47 C 12.26 -23.7 11.89 -24.68 11.19 -25.38 C 10.49 -26.08 9.55 -26.45 8.36 -26.53 L 8.36 -26.53 Z M 6.93 0.57 L 6.93 0.57 C 6.11 0.57 5.45 0.33 4.92 -0.16 C 4.38 -0.66 4.14 -1.39 4.14 -2.42 L 4.14 -2.42 C 4.14 -3.44 4.42 -4.18 4.96 -4.63 C 5.49 -5.08 6.15 -5.33 7.01 -5.33 L 7.01 -5.33 C 7.79 -5.33 8.44 -5.08 8.98 -4.63 C 9.51 -4.14 9.75 -3.4 9.75 -2.42 L 9.75 -2.42 C 9.75 -1.39 9.47 -0.66 8.98 -0.16 C 8.44 0.33 7.75 0.57 6.93 0.57 Z" />
@@ -227,30 +225,32 @@ export default function App() {
   const meta = META[view] || META.rudiments;
   return (
     <div className={stage ? "page tool stage" : "page tool"}>
-      <header className="top" style={{ zIndex: 50 }}>
-        {stage && !printOpen ? (
-          <button className="ghost" onClick={() => setStage(false)}>{t("Zurück")}</button>
-        ) : (
-          <button className="ghost" onClick={back}>{t("Zurück")}</button>
-        )}
-        <div className="top-title">{t(printOpen && view === "rudiments" ? "Drucken" : meta.title)}</div>
-        <div className="top-right">
-          {view === "archive" && !printOpen && (
-            <button className={sheetOpen ? "ghost on" : "ghost"} onClick={() => setSheetOpen((v) => !v)}>{t("Blatt")}</button>
+      <header className="top">
+        <div className="top-row">
+          {stage && !printOpen ? (
+            <button className="ghost" onClick={() => setStage(false)}>{t("Zurück")}</button>
+          ) : (
+            <button className="ghost" onClick={back}>{t("Zurück")}</button>
           )}
-          {view === "rudiments" && !stage && !printOpen && (
-            <button className="ghost" onClick={() => setPrintOpen(true)}>{t("Drucken")}</button>
-          )}
-          {view === "rudiments" && !printOpen && (
-            <button
-              className={stage ? "ghost on" : "ghost"}
-              title={t("Notation groß, weniger Bedienelemente.")}
-              aria-label={t(stage ? "Übepad aus" : "Übepad")}
-              onClick={() => setStage((v) => !v)}
-            >{t(stage ? "Pad aus" : "Übepad")}</button>
-          )}
-          {!stage && !printOpen && view !== "first" && view !== "impressum" && view !== "datenschutz" && <Help topic={meta.help} />}
+          <div className="top-right">
+            {view === "archive" && !printOpen && (
+              <button className={sheetOpen ? "ghost on" : "ghost"} onClick={() => setSheetOpen((v) => !v)}>{t("Blatt")}</button>
+            )}
+            {view === "rudiments" && !stage && !printOpen && (
+              <button className="ghost" onClick={() => setPrintOpen(true)}>{t("Drucken")}</button>
+            )}
+            {view === "rudiments" && !printOpen && (
+              <button
+                className={stage ? "ghost on" : "ghost"}
+                title={t("Notation groß, weniger Bedienelemente.")}
+                aria-label={t(stage ? "Übepad aus" : "Übepad")}
+                onClick={() => setStage((v) => !v)}
+              >{t(stage ? "Pad aus" : "Übepad")}</button>
+            )}
+            {!stage && !printOpen && view !== "first" && view !== "impressum" && view !== "datenschutz" && <Help topic={meta.help} />}
+          </div>
         </div>
+        <div className="top-title">{t(printOpen && view === "rudiments" ? "Drucken" : meta.title)}</div>
       </header>
       <main className="main">
         {view === "first" ? <FirstLesson onHome={goHome} onOpen={open} />
