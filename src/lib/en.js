@@ -1,7 +1,7 @@
 // Englisch: deutscher Originaltext → Übersetzung
 export const EN = {
   // Home
-  "Zeit für guten Sound": "Time for good sound",
+  "Zeit für guten Sound": "Time for great sound",
   "Nochmal": "Again",
   "Loslegen": "Get started",
   "Erste Übung starten": "Start your first lesson",
@@ -13,7 +13,7 @@ export const EN = {
   "4tel bis 32tel: Puls festigen, sauber zwischen Unterteilungen wechseln, Tempo trotz Dichte halten.": "Quarters to 32nds: lock in the pulse, switch cleanly between subdivisions, hold the tempo as it gets denser.",
   "Technik": "Technique",
   "nach G. L. Stone: Schwache Hand verbessern, saubere Wechsel üben, Tempo ohne Verspannungen halten.": "After G. L. Stone: strengthen your weak hand, practice clean switches, keep the tempo without tension.",
-  "Eigene Blätter": "Your sheets",
+  "Eigene Blätter": "My sheet music",
   "Fotos und PDFs lokal ablegen und währenddessen aufschlagen.": "Keep photos and PDFs on your device and open them while you play.",
   // Titel
   "Erste Übung": "First Lesson",
@@ -43,7 +43,7 @@ export const EN = {
   "Tipp = Start/Stop. Halten und drehen ändert das Tempo. Außen feiner.": "Tap = start/stop. Hold and turn to change the tempo. Finer further out.",
   "Metronom starten. Halten und drehen ändert das Tempo.": "Start metronome. Hold and turn to change the tempo.",
   "Metronom stoppen. Halten und drehen ändert das Tempo.": "Stop metronome. Hold and turn to change the tempo.",
-  "Halten und drehen · außen feiner": "Hold and turn · finer outside",
+  "Halten und drehen · außen feiner": "Hold and turn · finer at the edge",
   // Kurzhilfe
   "Kurzhilfe": "Quick help",
   "Kurz anschauen": "Quick look",
@@ -128,11 +128,11 @@ export const EN = {
   "Normal": "Normal",
   "Jede Zeile ist eine eigene Click-Ebene, der Lautsprecher regelt alle zusammen.": "Each row is its own click layer; the speaker controls them all.",
   "Änderungen gelten sofort, der Click läuft weiter.": "Changes apply instantly; the click keeps running.",
-  "Viertel": "Quarters",
+  "Viertel": "Quarter notes",
   "Grundpuls 1 2 3 4": "basic pulse 1 2 3 4",
   "Offbeat": "Offbeat",
   "das „und“ dazwischen": "the “and” in between",
-  "16tel e/a": "16ths e/a",
+  "16tel e/a": "16th notes e/a",
   "zwischen den Achteln": "between the 8ths",
   "Triolen": "Triplets",
   "2 und 3, 1 bleibt Viertel": "2 and 3; 1 stays a quarter",
@@ -142,14 +142,14 @@ export const EN = {
   "Lautstärke aller Ebenen": "volume of all layers",
   // Rhythmuspyramide
   "Stufen wählen · immer 4/4.": "Choose levels · always 4/4.",
-  "4tel": "Quarters",
-  "8tel": "8ths",
-  "8tel-Triole": "8th triplets",
-  "16tel": "16ths",
+  "4tel": "Quarter notes",
+  "8tel": "Eighth notes",
+  "8tel-Triole": "Eighth-note triplets",
+  "16tel": "16th notes",
   "Quintole": "Quintuplets",
-  "16tel-Sextole": "16th sextuplets",
+  "16tel-Sextole": "16th-note sextuplets",
   "Septole": "Septuplets",
-  "32tel": "32nds",
+  "32tel": "32nd notes",
   "auf": "up",
   "ab": "down",
   "auf+ab": "up+down",
@@ -232,5 +232,5 @@ export const EN = {
   "Zum Impressum": "Go to Legal Notice",
   "Zur Datenschutzerklärung": "Go to Privacy Policy",
   // index.html
-  "Rudiments und Grooves üben. Zeit für guten Sound.": "Practice rudiments and grooves. Time for good sound.",
+  "Rudiments und Grooves üben. Zeit für guten Sound.": "Practice rudiments and grooves. Time for great sound.",
 };
