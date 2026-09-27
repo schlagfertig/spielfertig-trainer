@@ -3,6 +3,6 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  // Relative Pfade: Capacitor lädt file:// aus dist/
-  base: "./",
+  // Store-Hülle lädt file:// — relative Assets. Vercel bleibt bei "/".
+  base: process.env.CAPACITOR === "1" ? "./" : "/",
 });
