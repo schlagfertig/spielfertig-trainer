@@ -217,7 +217,7 @@ export default function App() {
     <div className={stage ? "page tool stage" : "page tool"}>
       <header className="top" style={{ zIndex: 50 }}>
         {stage && !printOpen ? (
-          <button className="ghost" onClick={() => setStage(false)}>{t("Pad aus")}</button>
+          <button className="ghost" onClick={() => setStage(false)}>{t("Zurück")}</button>
         ) : (
           <button className="ghost" onClick={back}>{t("Zurück")}</button>
         )}
