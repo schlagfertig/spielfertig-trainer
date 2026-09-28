@@ -41,7 +41,7 @@ const META = {
   rudiments: { title: "Rudiments", help: "rudiments" },
   click: { title: "Click-Trainer", help: "click" },
   pyramid: { title: "Rhythmuspyramide", help: "pyramid" },
-  stick: { title: "Stick Control", help: "stick" },
+  stick: { title: "Hand Control", help: "stick" },
   archive: { title: "Noten", help: "archive" },
   impressum: { title: "Impressum", help: "home" },
   datenschutz: { title: "Datenschutz", help: "home" },
@@ -199,8 +199,8 @@ export default function App() {
           </button>
           <button className="card" onClick={() => open("stick")}>
             <div className="card-kicker">{t("Technik")}</div>
-            <div className="card-title">Stick Control</div>
-            <div className="card-lead">{t("nach G. L. Stone: Schwache Hand verbessern, saubere Wechsel üben, Tempo ohne Verspannungen halten.")}</div>
+            <div className="card-title">{t("Hand Control")}</div>
+            <div className="card-lead">{t("Schwache Hand verbessern, saubere Wechsel üben, Tempo ohne Verspannungen halten.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card" onClick={() => open("archive")}>
