@@ -9,6 +9,8 @@ const MOVE_PX = 8;
 const HOLD_MS = 480;
 const FADE_MS = 640;
 const GROW = 0.62;
+// Innere ~62 % des Radius: Tippen startet/stoppt, Drehen ändert dort kein Tempo (nur am Rand).
+const DEAD_R = 0.62;
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, Math.round(n)));
@@ -320,23 +322,34 @@ export function MetronomeDial({
     if (!d || !setBpm) return;
     const ang = angleOf(e.currentTarget, e);
     const dist = distOf(e.currentTarget, e);
-    const delta = wrap(ang - d.last);
-    d.last = ang;
-    d.acc += delta;
     d.moved += Math.hypot(e.clientX - d.x, e.clientY - d.y);
     d.x = e.clientX;
     d.y = e.clientY;
 
-    if (d.moved >= MOVE_PX) {
+    // Mitte (tote Zone) oder noch kein echter Zug: Winkel nachführen, Tempo bleibt.
+    if (d.moved < MOVE_PX || dist < DEAD_R * (size / 2)) {
+      d.last = ang;
+      d.acc = 0;
+      if (d.dragging) showLever(d.origin, e);
+      return;
+    }
+    if (!d.dragging) {
+      // Erster Moment am Rand: nur einrasten, kein Sprung.
       d.dragging = true;
+      d.last = ang;
       showLever(d.origin, e);
-      const step = radPerBpm(dist, size / 2);
-      if (Math.abs(d.acc) >= step) {
-        const steps = Math.trunc(d.acc / step);
-        d.acc -= steps * step;
-        d.bpm = clamp(d.bpm + steps, min, max);
-        setBpm(d.bpm);
-      }
+      return;
+    }
+    const delta = wrap(ang - d.last);
+    d.last = ang;
+    d.acc += delta;
+    showLever(d.origin, e);
+    const step = radPerBpm(dist, size / 2);
+    if (Math.abs(d.acc) >= step) {
+      const steps = Math.trunc(d.acc / step);
+      d.acc -= steps * step;
+      d.bpm = clamp(d.bpm + steps, min, max);
+      setBpm(d.bpm);
     }
   }
 
@@ -346,7 +359,8 @@ export function MetronomeDial({
     try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* already released */ }
     if (d?.dragging) hideLever();
     if (!d) return;
-    if (d.moved < MOVE_PX) onToggle?.();
+    // Nie am Rand gedreht (Tipp oder Wackeln in der Mitte) = Start/Stop.
+    if (!d.dragging) onToggle?.();
   }
 
   return (
@@ -360,7 +374,7 @@ export function MetronomeDial({
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
-          title={t("Tipp = Start/Stop. Halten und drehen ändert das Tempo. Außen feiner.")}
+          title={t("Tipp = Start/Stop. Am Rand drehen ändert das Tempo. Außen feiner.")}
           aria-label={t(active ? "Metronom stoppen. Halten und drehen ändert das Tempo." : "Metronom starten. Halten und drehen ändert das Tempo.")}
           style={{
             position: "absolute",
@@ -419,7 +433,7 @@ export function MetronomeDial({
       ) : null}
       {setBpm ? (
         <div style={{ position: "absolute", left: "50%", top: "100%", transform: "translateX(-50%)", width: 168, marginTop: 2, textAlign: "center", font: "600 11px/1.25 Figtree, sans-serif", color: "#8a969c", pointerEvents: "none" }}>
-          {t("Halten und drehen · außen feiner")}
+          {t("Am Rand drehen · außen feiner")}
         </div>
       ) : null}
     </div>
