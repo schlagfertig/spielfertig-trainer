@@ -12,7 +12,7 @@ export const EN = {
   "Starttempo wählen. Tempo halten oder automatisch steigern.": "Pick a start tempo. Hold it or speed up automatically.",
   "4tel bis 32tel: Puls festigen, sauber zwischen Unterteilungen wechseln, Tempo trotz Dichte halten.": "Quarters to 32nds: lock in the pulse, switch cleanly between subdivisions, hold the tempo as it gets denser.",
   "Technik": "Technique",
-  "nach G. L. Stone: Schwache Hand verbessern, saubere Wechsel üben, Tempo ohne Verspannungen halten.": "After G. L. Stone: strengthen your weak hand, practice clean switches, keep the tempo without tension.",
+  "Schwache Hand verbessern, saubere Wechsel üben, Tempo ohne Verspannungen halten.": "Strengthen your weak hand, practice clean switches, keep the tempo without tension.",
   "Eigene Blätter": "My sheet music",
   "Fotos und PDFs lokal ablegen und währenddessen aufschlagen.": "Keep photos and PDFs on your device and open them while you play.",
   // Titel
@@ -161,7 +161,7 @@ export const EN = {
   "Takt übrig": "bar left",
   "Takte übrig": "bars left",
   "Pyramide fertig.": "Pyramid done.",
-  // Stick Control
+  // Hand Control
   "Nr. {n}": "No. {n}",
   "Nummer {n}": "Exercise {n}",
   "DAVOR": "PREVIOUS",
