@@ -3,6 +3,9 @@ import { createPortal } from "react-dom";
 import { loadSession, saveSession } from "./session.js";
 import { t } from "./i18n.js";
 import { HELP } from "./helpCopy.js";
+import { DialHint } from "./DialHint.jsx";
+
+const DIAL_TOPICS = new Set(["rudiments", "click", "pyramid", "stick"]);
 
 function markSeen(topic) {
   const cur = loadSession("tour", {});
@@ -13,12 +16,14 @@ function markSeen(topic) {
 export function Help({ topic = "home", onFirstClose }) {
   const first = topic !== "home" && !loadSession("tour", {})[topic];
   const [open, setOpen] = useState(first);
+  const [dial, setDial] = useState(false);
   const rows = HELP[topic] || HELP.home;
 
   function close() {
     const wasFirst = first;
     markSeen(topic);
     setOpen(false);
+    if (wasFirst && DIAL_TOPICS.has(topic)) setDial(true);
     if (wasFirst) onFirstClose?.();
   }
 
@@ -48,6 +53,7 @@ export function Help({ topic = "home", onFirstClose }) {
     <>
       <button type="button" className="help-dot" onClick={() => setOpen(true)} aria-label={t("Kurzhilfe")}>?</button>
       {sheet}
+      {dial ? <DialHint onDone={() => setDial(false)} /> : null}
     </>
   );
 }
