@@ -9,7 +9,7 @@ export function DialHint({ onDone }) {
       <div className="modal-card help-card" onClick={(e) => e.stopPropagation()} style={{ textAlign: "center" }}>
         <div className="modal-head">{t("Tempo drehen")}</div>
         <p className="help-lead" style={{ marginBottom: 8 }}>
-          {t("Halten und im Kreis drehen. Rechts schneller, links langsamer. Außen feiner.")}
+          {t("Am Rand drehen. Rechts schneller, links langsamer. Außen feiner.")}
         </p>
         <svg viewBox="0 0 220 200" width="220" height="200" aria-hidden="true" style={{ margin: "0 auto", display: "block" }}>
           <style>{`
