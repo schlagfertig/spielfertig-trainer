@@ -4,7 +4,7 @@ export const HELP = {
     ["Rudiments", "40 PAS-Übungen. Notation lesen, Click hören, Tempo halten."],
     ["Click-Trainer", "Metronom: Tempo steigern oder halten. Seite ‚Erweitert‘ = Click-Mixer."],
     ["Rhythmuspyramide", "Subdivisionen auf und ab, 4tel bis 32tel."],
-    ["Stick Control", "24 Single-Beat-Nummern. Challenge spielt 1–24 durch."],
+    ["Hand Control", "24 Single-Beat-Nummern. Challenge spielt 1–24 durch."],
     ["Noten", "Eigene Fotos/PDFs nur auf diesem Gerät. Beim Üben über Blatt."],
     ["Kreis", "Tippen = Start/Stop. Halten + drehen = Tempo."],
   ],

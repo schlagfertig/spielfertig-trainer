@@ -10,14 +10,16 @@ function markSeen(topic) {
   saveSession("tour", { ...cur, [topic]: true });
 }
 
-export function Help({ topic = "home" }) {
+export function Help({ topic = "home", onFirstClose }) {
   const first = topic !== "home" && !loadSession("tour", {})[topic];
   const [open, setOpen] = useState(first);
   const rows = HELP[topic] || HELP.home;
 
   function close() {
+    const wasFirst = first;
     markSeen(topic);
     setOpen(false);
+    if (wasFirst) onFirstClose?.();
   }
 
   const sheet = open ? createPortal(
