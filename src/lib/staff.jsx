@@ -241,6 +241,7 @@ function StickLine({ x, x2, y, text, flam, handwritten }) {
   const letters = String(text || "").split("").filter(Boolean);
   const long = letters.length > 3;
   const font = handwritten ? SCRIPT : PRINT;
+  const size = handwritten ? (long ? 13 : 15) : (long ? 13 : 14);
   if (!long) {
     return (
       <g stroke="none" fontFamily={font}>
@@ -249,7 +250,7 @@ function StickLine({ x, x2, y, text, flam, handwritten }) {
             {flam}
           </text>
         ) : null}
-        <text x={x + (flam ? 5 : 0)} y={y} textAnchor="middle" fontSize={handwritten ? 15 : 14} fontWeight="800">
+        <text x={x + (flam ? 5 : 0)} y={y} textAnchor="middle" fontSize={size} fontWeight="800">
           {letters.map((ch, i) => (
             <tspan key={i} fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>{ch}</tspan>
           ))}
@@ -257,14 +258,18 @@ function StickLine({ x, x2, y, text, flam, handwritten }) {
       </g>
     );
   }
-  const right = x2 != null && x2 > x ? x2 : x + Math.max(56, letters.length * 9);
+  const pitch = 8.2;
+  const span = Math.max((letters.length - 1) * pitch, 8);
+  const room = x2 != null && x2 > x + 12 ? (x2 - x - 12) : span;
+  const used = Math.max(span, Math.min(room, letters.length * pitch));
+  const left = x;
   return (
     <g stroke="none" fontFamily={font}>
       {letters.map((ch, i) => {
         const t = letters.length === 1 ? 0 : i / (letters.length - 1);
-        const xx = x + t * (right - x);
+        const xx = left + t * used;
         return (
-          <text key={i} x={xx} y={y} textAnchor="middle" fontSize={handwritten ? 14 : 13} fontWeight="800" fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>
+          <text key={i} x={xx} y={y} textAnchor="middle" fontSize={size} fontWeight="800" fill={ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>
             {ch}
           </text>
         );
@@ -288,13 +293,13 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
   const soloWhole = sounded.length === 1 && !!(sounded[0].whole || (sounded[0].dur >= 8 && sounded[0].roll));
   const spanEnd = sounded.reduce((m, nt) => Math.max(m, (nt.t || 0) + (nt.dur || 1)), 0);
   const tShift = Math.max(0, steps - spanEnd) / 2;
-  const w = x0 + Math.max(steps * stepW, soloWhole ? 240 : 0) + (hideTime ? 14 : 18) + sounded.filter((s) => s.tie && s.roll).length * 16;
+  const w = x0 + Math.max(steps * stepW, soloWhole ? 240 : 0) + (hideTime ? 14 : 18);
   const y = hideTime ? 36 : 58;
   const lineGap = hideTime ? 7.2 : 8.5;
   const ny = y - lineGap / 2;
   const h0 = y + 2 * lineGap + (hideTime ? 18 : 26);
   const altRow = rud.altStick ? rud.sticking?.[1] : null;
-  const viewH = hideTime ? 86 : (altRow ? 176 : 156);
+  const viewH = hideTime ? 86 : (altRow ? 184 : 156);
   const groups = beamGroups(notes, pulse);
   const beamed = new Set();
   groups.forEach((g) => g.forEach((note) => beamed.add(note)));
@@ -304,29 +309,15 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
   const primary = rud.sticking && rud.sticking[0];
   const parsed = parseTime(rud.time);
   const slotW = cluster * stepW;
-  const releasePad = 16;
-  const padBefore = (nt) => {
-    let extra = 0;
-    for (const s of sounded) {
-      if (s === nt) break;
-      if (s.tie && s.roll) extra += releasePad;
-      else if (s.roll && (s.dur || 0) <= 2) extra += releasePad * 0.7;
-    }
-    return extra;
-  };
   const noteX = (nt) => {
     if (soloWhole) return x0 + (Math.max(steps * stepW, 240) / 2);
     const t = (nt.t || 0) + tShift;
-    let x;
-    if (pack >= 0.99) x = x0 + t * stepW;
-    else {
-      const g = Math.floor(t / cluster + 1e-6);
-      const local = t - g * cluster;
-      const inner = slotW * pack;
-      const inset = (slotW - inner) / 2;
-      x = x0 + g * slotW + inset + local * stepW * pack;
-    }
-    return x + padBefore(nt);
+    if (pack >= 0.99) return x0 + t * stepW;
+    const g = Math.floor(t / cluster + 1e-6);
+    const local = t - g * cluster;
+    const inner = slotW * pack;
+    const inset = (slotW - inner) / 2;
+    return x0 + g * slotW + inset + local * stepW * pack;
   };
   const barX = (t16) => {
     const left = sounded.filter((nt) => nt.t < t16 - 1e-4).at(-1);
@@ -338,6 +329,10 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
     if (!row) return nt.hand;
     if (Array.isArray(row)) return row[i];
     return row[i];
+  };
+  const endXFor = (i) => {
+    if (i + 1 < sounded.length) return noteX(sounded[i + 1]) - 16;
+    return noteX(sounded[i]) + stepW * 2;
   };
 
   return (
@@ -407,11 +402,11 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
           const top = withDrag(tokenAt(primary, i, nt), nt);
           const alt = altRow ? tokenAt(altRow, i, nt) : "";
           const flamTop = nt.flam ? String(nt.flam) : "";
-          const xEnd = String(top || "").length > 3 ? x + Math.min(stepW * 1.7, 46) : x;
+          const xEnd = String(top || "").length > 3 ? endXFor(i) : x;
           return (
             <g key={`h-${i}`}>
               <StickLine x={x} x2={xEnd} y={h0} text={top} flam={flamTop || null} handwritten={handwritten} />
-              {alt ? <StickLine x={x} x2={xEnd} y={h0 + 18} text={alt} handwritten={handwritten} /> : null}
+              {alt ? <StickLine x={x} x2={xEnd} y={h0 + 22} text={alt} handwritten={handwritten} /> : null}
             </g>
           );
         })}
