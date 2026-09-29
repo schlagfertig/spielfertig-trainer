@@ -29,8 +29,3 @@
   font-size: clamp(24px, 7.2vw, 34px);
   line-height: 1.15;
 }
-.modal-card.help-card {
-  background:
-    linear-gradient(180deg, rgba(92, 200, 184, 0.14), rgba(16, 24, 26, 0.7) 42%),
-    rgba(14, 20, 22, 0.7);
-}
