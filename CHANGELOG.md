@@ -6,6 +6,7 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 
 ## 30.09.2026
 
+- Rudiments: #2 Single Stroke Four als ein 2/4-Takt notiert – je Schlag 16tel-Triole (mit „3“) plus betonte Achtel, pro Schlag gebalkt; Handsatz R L R L / L R L R; Click und Wiedergabe folgen dem neuen Rhythmus
 - Clickwheel in allen Trainern: Rudiments, Rhythmuspyramide und Hand Control nutzen das Clickwheel des Click-Trainers (Ring vergrößert sich beim Antippen, Daumen folgt dem Finger); Ringgröße je Trainer angepasst (Hand Control 1,40×, Pyramide 1,36×, sonst 1,55×), Ring wird nicht mehr vom Dock abgeschnitten, Ring-Hinweis passt sich der Radgröße an; Hand Control: Wiederholungs-Zähler weicht dem offenen Ring aus
 - Seiten federn nicht mehr nach (kein Gummiband/Pull-to-refresh; overscroll-behavior am Dokument plus Touch-Wächter für ältere iOS); Hand Control: Liste steht still, solange der Click läuft (kein Wischen/Scrollen, aktuelle Übung bleibt fest und springt weiter, Vorschau/Zähler/Rad funktionieren; nach Stopp wieder frei)
 - Startseite: Fußzeile „Copyright by Thomas Schuster“ größer, Links (Neuigkeiten, Impressum, Datenschutz) kleiner bei 44-px-Tippflächen; Click-Trainer-Clickwheel: Daumen folgt dem Finger auch nach innen, Hebel blendet beim Zurückgehen in den Ring sofort aus (d608d76)

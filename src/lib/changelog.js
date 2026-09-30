@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-09-30",
     items: [
+      { de: "Rudiments: #2 Single Stroke Four jetzt als 2/4-Takt – pro Schlag eine 16tel-Triole mit betonter Achtel.",
+        en: "Rudiments: #2 Single Stroke Four is now a 2/4 bar – each beat is a sixteenth-note triplet plus an accented eighth note." },
       { de: "Tempo-Rad: Rudiments, Rhythmuspyramide und Hand Control haben jetzt dasselbe Clickwheel wie der Click-Trainer – antippen, am Ring drehen, der Daumen folgt dem Finger. Hand Control: Der Wiederholungs-Zähler bleibt beim Drehen frei sichtbar.",
         en: "Tempo wheel: Rudiments, Rhythm Pyramid and Hand Control now have the same click wheel as the Click Trainer – tap, turn the ring, the thumb follows your finger. Hand Control: the repeat counter stays clearly visible while you turn." },
       { de: "Seiten federn nicht mehr nach; Hand Control: Liste steht still, solange der Click läuft.",
