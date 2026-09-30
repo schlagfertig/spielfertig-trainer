@@ -69,12 +69,14 @@ body.metro-gesturing .home-help, body.metro-gesturing .logo-dial-x, body.metro-g
   margin: 12px 0 6px;
   font-size: clamp(32px, 11vw, 44px);
 }
-/* App-Logo „Spielfertig‽ Control“ nach Toms Vorlage: Bebas Neue, ‽ als SVG aus dem runden Logo, Control türkis rechtsbündig */
-.hero .app-logo { display: inline-flex; flex-direction: column; font-family: "Bebas Neue", Oswald, sans-serif; font-weight: 400; letter-spacing: .01em; font-size: clamp(38px, 13vw, 52px); line-height: .7; }
-.app-logo-main { display: flex; align-items: baseline; }
-.app-logo-q { width: .39em; height: .732em; margin-left: .08em; fill: var(--teal); }
-.app-logo-sub { align-self: flex-end; color: var(--teal); font-size: .753em; letter-spacing: .022em; margin: .2em .01em 0 0; }
-.tag { color: var(--teal); letter-spacing: 0.04em; margin: 0; font-size: 17px; }
+/* App-Name „Schlagfertig Control“: das runde Logo trägt „schlagfertig‽“, darunter nur „Control“ – türkis, Bebas Neue, gesperrt, mittig.
+   Negativer Abstand = transparenter Rand unten im Logo-Bild (≈14,3 % der Bildbreite), sichtbarer Abstand ≈ 15 px. */
+.hero .app-logo { display: block; margin: calc(13px - min(380px, 88vw) * .1432) 0 0; pointer-events: none; font-family: "Bebas Neue", Oswald, sans-serif; font-weight: 400; font-size: clamp(30px, 9.5vw, 38px); line-height: 1; letter-spacing: .22em; text-transform: uppercase; color: var(--teal); }
+.app-logo-sub { display: inline-block; padding-left: .22em; }
+/* Offenes Logo-Metronom: „Control“ blendet wie das Logo aus, sonst überdeckt der Rad-Hinweis das Wort */
+.hero .app-logo { transition: opacity .25s ease; }
+.logo-metro.open + .app-logo { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .hero .app-logo { transition: none; } }
 .cards { display: grid; gap: 14px; margin-top: 24px; }
 .card {
   text-align: left;

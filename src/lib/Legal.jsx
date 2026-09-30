@@ -25,7 +25,7 @@ function LegalEn({ isPrivacy }) {
       <section className="legal-block">
         <h2>2. General</h2>
         <p>
-          Spielfertig Trainer is a web app for practicing. There is no registration and no user account.
+          Schlagfertig Control is a web app for practicing. There is no registration and no user account.
           Practice data stays on your device, to the extent that your browser stores it.
         </p>
       </section>
@@ -146,7 +146,7 @@ export default function Legal({ topic = "impressum", onOpen }) {
           <section className="legal-block">
             <h2>2. Allgemeines</h2>
             <p>
-              Spielfertig Trainer ist eine Web-App zum Üben. Es gibt keine Registrierung und kein Nutzerkonto.
+              Schlagfertig Control ist eine Web-App zum Üben. Es gibt keine Registrierung und kein Nutzerkonto.
               Übungsdaten bleiben auf Ihrem Gerät, soweit der Browser das speichert.
             </p>
           </section>
