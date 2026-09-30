@@ -208,7 +208,7 @@ export default function App() {
           </button>
         </div>
         <footer className="foot">
-          <div>Thomas Schuster · schlagfertig</div>
+          <div className="foot-copy">Copyright by Thomas Schuster</div>
           <div className="foot-links foot-news">
             <button type="button" className="foot-link" onClick={() => open("news")}>
               {t("Neuigkeiten")}
