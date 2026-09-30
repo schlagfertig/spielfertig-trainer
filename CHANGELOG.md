@@ -6,6 +6,7 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 
 ## 30.09.2026
 
+- Hand Control: Übungen 3–24 wieder in der Liste „Danach“
 - Neuer App-Name „Schlagfertig Control“ (Tab-Titel, Willkommen, Einladungs-Sperrseite, Datenschutz, Englisch); Startseite: unter dem Logo nur noch „Control“, Zeile „schlagfertig · Zeit für guten Sound“ entfernt
 - Rudiments: „Übepad“ heißt jetzt „Fokus-Mode“ (EN „Focus mode“); an = Knopf türkis gefüllt
 - Noten: Blätter bekommen eigene Namen und Tags; Suche, Tag-Filter und Sortierung (neueste, älteste, Name A–Z) (164b101)

@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-09-30",
     items: [
+      { de: "Hand Control: Übungen 3–24 wieder in der Liste „Danach“.",
+        en: "Hand Control: exercises 3–24 are back in the “After that” list." },
       { de: "Die App heißt jetzt „Schlagfertig Control“. Auf der Startseite steht unter dem Logo nur noch „Control“.",
         en: "The app is now called “Schlagfertig Control”. On the home screen, only “Control” appears below the logo." },
       { de: "Rudiments: „Übepad“ heißt jetzt „Fokus-Mode“ – große Notation, weniger Bedienelemente. Eingeschaltet ist der Knopf türkis.",
