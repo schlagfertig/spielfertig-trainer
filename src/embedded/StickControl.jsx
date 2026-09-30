@@ -463,13 +463,20 @@ export default function StickControl() {
         .stick-reps-num { color: ${TEAL}; font: 700 34px/1 Oswald, sans-serif; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
         .stick-reps-num .of { color: ${DIM}; font-size: 24px; }
         .stick-reps.last .stick-reps-num { color: ${INK}; }
+        /* Clickwheel offen: Zähler rückt etwas nach oben, damit der Ring ihn nicht überdeckt */
+        .stick-reps { transition: transform .24s cubic-bezier(.2,.8,.2,1); }
+        body.metro-gesturing .stick-reps { transform: translateY(-16px); }
+        @media (prefers-reduced-motion: reduce) { .stick-reps { transition: none; } }
         .stick-next-reps { display: none; color: ${TEAL}; font: 700 20px/1 Oswald, sans-serif; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
         .stick-next-reps .of { color: ${DIM}; font-size: 15px; }
         .stick-next.soon .stick-next-reps { color: ${INK}; }
         @media (max-height: 720px) {
           /* wenig Höhe: Zähler wandert in den Kopf der Vorschau (sonst läge er über der Karte) */
           .stick-reps { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-          .stick-next-reps { display: inline; }
+          .stick-next-reps { display: inline; font-size: 18px; }
+          .stick-next-reps .of { font-size: 14px; }
+          /* Zähler mittig zur Kopfzeile statt an der Grundlinie – sonst stößt die große Ziffer an den oberen Kartenrand */
+          .stick-next-head { align-items: center; min-height: 20px; }
         }
         /* Drehrädchen */
         .reps-field { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
@@ -621,10 +628,10 @@ export default function StickControl() {
           <div className="dock metro-face">
             <div className="dial-row">
               <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))}>−5</button>
-              <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={124} now subLabel={playing ? "Stop" : "Start"} />
+              <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={124} now subLabel={playing ? "Stop" : "Start"} wheel wheelK={1.4} />
               <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))}>+5</button>
             </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+            <div className="stick-count" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
               <span style={{ color: DIM, fontWeight: 700, fontSize: 14 }}>{t("Einzählen")}</span>
               <div className="seg" style={{ width: "fit-content" }}>
                 <button type="button" className={countBars === 0 ? "on" : ""} onClick={() => setCountBars(0)}>{t("Aus")}</button>
