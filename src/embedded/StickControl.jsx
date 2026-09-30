@@ -116,16 +116,16 @@ function StickRow({ id, hands }) {
   );
 }
 
-function ListRow({ row, onPick, playing, label, near, far }) {
+function ListRow({ row, onPick, playing, label, near, className }) {
   return (
-    <button type="button" className={far ? "stick-far" : undefined} onClick={() => onPick(row.id)} disabled={playing} style={{ width: "100%", marginTop: 4, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: near ? "8px 8px 6px" : "6px 8px", color: "inherit", textAlign: "left", opacity: near ? 1 : 0.7 }}>
+    <button type="button" className={className} onClick={() => onPick(row.id)} disabled={playing} style={{ width: "100%", marginTop: 4, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: near ? "8px 8px 6px" : "6px 8px", color: "inherit", textAlign: "left", opacity: near ? 1 : 0.7 }}>
       {label ? <div style={{ color: TEAL, font: "400 14px Figtree, sans-serif", letterSpacing: "0.08em", padding: "0 4px 4px" }}>{label}</div> : null}
       <StickRow id={row.id} hands={row.hands} />
     </button>
   );
 }
 
-export default function StickControl({ focusMode = false }) {
+export default function StickControl() {
   const [exId, setExId] = useState(1);
   const [bpm, setBpm] = useState(80);
   const [mode, setMode] = useState("practice");
@@ -138,13 +138,13 @@ export default function StickControl({ focusMode = false }) {
   const [done, setDone] = useState("");
   const stopRef = useRef(null);
   const pinRef = useRef(null);
+  const prevRef = useRef(null);
   const wrapRef = useRef(null);
   const bpmRef = useRef(80);
   bpmRef.current = bpm;
   const idx = Math.max(0, EXERCISES.findIndex((e) => e.id === exId));
   const ex = EXERCISES[idx] || EXERCISES[0];
   const previous = EXERCISES.slice(0, idx);
-  const upcoming = EXERCISES.slice(idx + 1);
   const nextEx = EXERCISES[idx + 1] || null;
   const challenge = mode === "challenge";
 
@@ -152,7 +152,7 @@ export default function StickControl({ focusMode = false }) {
   useEffect(() => {
     const head = document.querySelector(".top")?.offsetHeight || 0;
     wrapRef.current?.style.setProperty("--stick-top", `${head}px`);
-    const before = pinRef.current?.previousElementSibling;
+    const before = prevRef.current;
     if (before) window.scrollTo({ top: before.getBoundingClientRect().bottom + window.scrollY - head, behavior: "instant" });
   }, [exId]);
   useEffect(() => {
@@ -282,13 +282,12 @@ export default function StickControl({ focusMode = false }) {
         }
         body:has(.stick-wrap), #root:has(.stick-wrap), .page:has(.stick-wrap) { overflow-x: clip; }
         .stick-far { filter: blur(1.8px); opacity: 0.45 !important; transition: filter 0.3s, opacity 0.3s; }
-        .stick-scrolling .stick-far { filter: none; opacity: 0.7 !important; }
-        @media (prefers-reduced-motion: reduce) { .stick-far { transition: none; } }
-        .stick-upcoming {
-          position: relative;
-          -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 52px, rgba(0,0,0,.42) 46%, transparent 100%);
-          mask-image: linear-gradient(to bottom, #000 0%, #000 52px, rgba(0,0,0,.42) 46%, transparent 100%);
-        }
+        /* Frühere (schon gespielte) Übungen: wie die fernen kommenden unscharf und gedämpft – die direkt davor etwas weniger, damit sie lesbar bleibt */
+        .stick-prev { filter: blur(1.1px); opacity: 0.55 !important; transition: filter 0.3s, opacity 0.3s; }
+        .stick-scrolling :is(.stick-far, .stick-prev) { filter: none; opacity: 0.7 !important; }
+        @media (prefers-reduced-motion: reduce) { .stick-far, .stick-prev { transition: none; } }
+        /* Bühne = angeheftete aktuelle Übung + Vorschau; so hoch, dass die frühere Liste darüber immer wegscrollen kann */
+        .stick-stage { min-height: calc(100dvh - var(--stick-top, 0px) - var(--rud-foot) - var(--rud-dock) + 16px); }
         .stick-fade {
           pointer-events: none;
           position: fixed;
@@ -347,7 +346,7 @@ export default function StickControl({ focusMode = false }) {
         .stick-wrap .rud-half-arrow { font-size: 36px; }
         .stick-wrap .rud-half-name { font-size: clamp(15px, 4.2vw, 20px); }
         .stick-flash, .stick-click-mini { display: none; }
-        /* WA-21: Fokus + Preview – nächste Übung kompakt unter der großen aktuellen */
+        /* Fokus-Ansicht (Standard): nächste Übung kompakt unter der großen aktuellen */
         .stick-next {
           position: relative; z-index: 16; margin-top: 4px; padding: 5px 12px 3px;
           background: #14191c; border: 1px solid #2f383d; border-radius: 12px;
@@ -373,7 +372,8 @@ export default function StickControl({ focusMode = false }) {
             min-height: 0;
             overflow: hidden;
           }
-          .stick-list, .stick-done, .stick-fade { display: none !important; }
+          .stick-stage { display: contents; }
+          .stick-list, .stick-next, .stick-done, .stick-fade { display: none !important; }
           .stick-wrap .rud-metro { display: none !important; }
           .stick-pin {
             flex: 1;
@@ -430,16 +430,18 @@ export default function StickControl({ focusMode = false }) {
         }
       `}</style>
       {beat ? <div className="stick-flash" aria-hidden="true" /> : null}
-      <div className="stick-list">
-        {focusMode ? null : previous.map((row, i) => (
-          <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === previous.length - 1} label={i === previous.length - 1 ? t("DAVOR") : ""} />
-        ))}
+      <div className="stick-list" ref={prevRef}>
+        {previous.map((row, i) => {
+          const last = i === previous.length - 1;
+          return <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={last} className={last ? "stick-prev" : "stick-far"} label={last ? t("DAVOR") : ""} />;
+        })}
       </div>
+      <div className="stick-stage">
       <div className="stick-pin" ref={pinRef}>
         <div className="stick-tools" style={{ display: "flex", gap: 8, alignItems: "center", margin: "0 0 10px", flexWrap: "wrap" }}>
           <div className="seg" style={{ width: "fit-content" }}>
             <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>{t("Üben")}</button>
-            <button type="button" className={mode === "challenge" ? "on" : ""} onClick={() => !playing && setMode("challenge")}>Challenge</button>
+            <button type="button" className={mode === "challenge" ? "on" : ""} onClick={() => !playing && setMode("challenge")}>{t("Fokus-Mode")}</button>
           </div>
           {challenge ? (
             <label style={{ display: "flex", alignItems: "center", gap: 6, color: DIM, fontWeight: 700 }}>
@@ -456,27 +458,20 @@ export default function StickControl({ focusMode = false }) {
           <Phrase id={ex.id} hands={ex.hands} playT={counting ? -1 : playT} />
         </div>
       </div>
-      {focusMode ? (
-        <div className="stick-next" data-next={nextEx ? nextEx.id : "end"} role="status" aria-live="polite" aria-atomic="true">
-          <div className="stick-next-head">
-            <span className="stick-next-kick">{nextEx ? t("Als Nächstes") : t("Letzte Übung")}</span>
-            <span className="stick-next-pos">{`${t("Jetzt")} ${ex.id}/${EXERCISES.length}`}</span>
-          </div>
-          {nextEx ? (
-            <button type="button" key={nextEx.id} className="stick-next-body" onClick={() => pick(nextEx.id)} disabled={playing} aria-label={t("Nummer {n}", { n: nextEx.id })}>
-              <NextRow id={nextEx.id} hands={nextEx.hands} />
-            </button>
-          ) : (
-            <div className="stick-next-end">{challenge ? t("danach fertig") : t("Nr. {n}", { n: ex.id })}</div>
-          )}
+      <div className="stick-next" data-next={nextEx ? nextEx.id : "end"} role="status" aria-live="polite" aria-atomic="true">
+        <div className="stick-next-head">
+          <span className="stick-next-kick">{nextEx ? t("Als Nächstes") : t("Letzte Übung")}</span>
+          <span className="stick-next-pos">{`${t("Jetzt")} ${ex.id}/${EXERCISES.length}`}</span>
         </div>
-      ) : (
-        <div className="stick-list stick-upcoming">
-          {upcoming.map((row, i) => (
-            <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === 0} far={i >= 2} label={i === 0 ? t("Als Nächstes") : ""} />
-          ))}
-        </div>
-      )}
+        {nextEx ? (
+          <button type="button" key={nextEx.id} className="stick-next-body" onClick={() => pick(nextEx.id)} disabled={playing} aria-label={t("Nummer {n}", { n: nextEx.id })}>
+            <NextRow id={nextEx.id} hands={nextEx.hands} />
+          </button>
+        ) : (
+          <div className="stick-next-end">{challenge ? t("danach fertig") : t("Nr. {n}", { n: ex.id })}</div>
+        )}
+      </div>
+      </div>
       {done ? <p className="stick-done" style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{t("Bis Nr. 24 gehalten (ab Nr. {n}).", { n: done })}</p> : null}
       <div className="stick-fade" aria-hidden="true" />
         <div className="metro-shell rud-metro">

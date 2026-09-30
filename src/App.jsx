@@ -9,7 +9,7 @@ import { Welcome } from "./lib/Welcome.jsx";
 import FirstLesson from "./lib/FirstLesson.jsx";
 import Legal from "./lib/Legal.jsx";
 import News, { hasUnseenNews } from "./lib/News.jsx";
-import { loadSession, saveSession } from "./lib/session.js";
+import { loadSession } from "./lib/session.js";
 import { LogoMetronome } from "./lib/LogoMetronome.jsx";
 import { getLang, setLang, t } from "./lib/i18n.js";
 
@@ -57,15 +57,11 @@ export default function App() {
   const [printOpen, setPrintOpen] = useState(false);
   const [stage, setStage] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
-  // WA-21: Hand Control „Fokus + Preview“ (optional, gemerkt; Standard = große Ansicht wie bisher)
-  const [handFocus, setHandFocus] = useState(() => !!loadSession("stick", {}).focus);
-  function toggleHandFocus() {
-    setHandFocus((v) => {
-      const next = !v;
-      saveSession("stick", { focus: next });
-      return next;
-    });
-  }
+  // Hand Control startet immer in der Fokus-Ansicht (aktuelle Übung groß, nächste als Vorschau).
+  // Der frühere Schalter „Fokus + Preview“ ist weg – seine gemerkte Einstellung (sf.v1.stick) einmalig aufräumen.
+  useEffect(() => {
+    try { localStorage.removeItem("sf.v1.stick"); } catch { /* Speicher nicht verfügbar */ }
+  }, []);
   const [lang, setLangState] = useState(getLang);
   const viewRef = useRef(view);
   viewRef.current = view;
@@ -249,16 +245,7 @@ export default function App() {
             {view === "rudiments" && !stage && !printOpen && (
               <button className="ghost" onClick={() => setPrintOpen(true)}>{t("Drucken")}</button>
             )}
-            {view === "stick" && (
-              <button
-                type="button"
-                className={handFocus ? "ghost on" : "ghost"}
-                aria-pressed={handFocus}
-                title={t("Große aktuelle Übung, kleine Vorschau der nächsten.")}
-                onClick={toggleHandFocus}
-              >{t("Fokus + Preview")}</button>
-            )}
-            {/* Fokus-Mode (früher „Übepad“): gleicher Name in beiden Zuständen, an = türkis gefüllt + aria-pressed – wie „Fokus + Preview“ in Hand Control */}
+            {/* Fokus-Mode (früher „Übepad“): gleicher Name in beiden Zuständen, an = türkis gefüllt + aria-pressed */}
             {view === "rudiments" && !printOpen && (
               <button
                 type="button"
@@ -280,7 +267,7 @@ export default function App() {
           : view === "news" ? <News />
           : view === "click" ? <ClickTrainer />
           : view === "pyramid" ? <PyramidTrainer />
-          : view === "stick" ? <StickControl focusMode={handFocus} />
+          : view === "stick" ? <StickControl />
           : view === "archive" ? <Archive />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} />}
       </main>
