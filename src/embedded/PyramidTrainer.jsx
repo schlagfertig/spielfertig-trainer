@@ -81,6 +81,9 @@ export default function PyramidTrainer() {
   const [leftBars, setLeftBars] = useState(0);
   const [playT, setPlayT] = useState(-1);
   const [done, setDone] = useState("");
+  // Kurzes visuelles Aufleuchten beim Stufenwechsel (nur Anzeige, kein Einfluss auf Click/Timing).
+  const [flash, setFlash] = useState(0);
+  const flashTimer = useRef(0);
   const wrapRef = useRef(null);
   const stopRef = useRef(null);
   const bpmRef = useRef(80);
@@ -90,10 +93,11 @@ export default function PyramidTrainer() {
   const active = STAGES.filter((s) => enabled.has(s.id));
   const steps = plan(dir, active.length ? active : STAGES);
   const cur = steps[idx] || steps[0];
+  const nextStage = idx + 1 < steps.length ? steps[idx + 1] : null;
   const rud = barRud(cur);
   const focus = playing || counting;
 
-  useEffect(() => () => stopRef.current?.(), []);
+  useEffect(() => () => { stopRef.current?.(); window.clearTimeout(flashTimer.current); }, []);
   useEffect(() => {
     wrapRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
     window.scrollTo(0, 0);
@@ -125,6 +129,8 @@ export default function PyramidTrainer() {
     setLeftBars(0);
     setPlayT(-1);
     setIdx(0);
+    window.clearTimeout(flashTimer.current);
+    setFlash(0);
   }
 
   function start() {
@@ -140,6 +146,7 @@ export default function PyramidTrainer() {
     let si = 0;
     let sub = 0;
     let barsDone = 0;
+    let ended = false;
     setIdx(0);
     setPlaying(true);
     setCounting(true);
@@ -180,18 +187,20 @@ export default function PyramidTrainer() {
       setLeftBars(0);
       setPlayT(-1);
       setIdx(0);
+      window.clearTimeout(flashTimer.current);
+      setFlash(0);
       setDone("Pyramide fertig.");
     };
 
     const schedule = () => {
-      if (cancelled) return;
+      if (cancelled || ended) return;
       const now = ctx.currentTime;
       if (now < next - 0.02) {
         timer = window.setTimeout(schedule, 25);
         return;
       }
       const horizon = now + 0.16;
-      while (next < horizon && !cancelled) {
+      while (next < horizon && !cancelled && !ended) {
         const curPer = run[si].perBeat;
         const down = sub % curPer === 0;
         playClick(ctx, next, down);
@@ -203,17 +212,31 @@ export default function PyramidTrainer() {
         sub += 1;
         if (sub % (curPer * 4) === 0) {
           barsDone += 1;
+          // Anzeige (Stufe, Resttakte, Ende) erst dann umschalten, wenn der Taktwechsel hörbar ist –
+          // der Scheduler plant bis zu ~160 ms voraus.
+          const barDelay = Math.max(0, (next - ctx.currentTime) * 1000);
           if (barsDone >= holdBars) {
             if (si + 1 >= run.length) {
-              finish();
+              ended = true;
+              window.setTimeout(finish, barDelay);
               return;
             }
             si += 1;
             sub = 0;
             barsDone = 0;
-            setIdx(si);
+            const nsi = si;
+            window.setTimeout(() => {
+              if (cancelled) return;
+              setIdx(nsi);
+              setLeftBars(holdBars);
+              window.clearTimeout(flashTimer.current);
+              setFlash(nsi);
+              flashTimer.current = window.setTimeout(() => setFlash(0), 900);
+            }, barDelay);
+          } else {
+            const left = Math.max(0, holdBars - barsDone);
+            window.setTimeout(() => { if (!cancelled) setLeftBars(left); }, barDelay);
           }
-          setLeftBars(Math.max(0, holdBars - barsDone));
         }
       }
       timer = window.setTimeout(schedule, 25);
@@ -236,6 +259,36 @@ export default function PyramidTrainer() {
         <div className="staff-label">{rud.label}</div>
         <RudimentStaff rud={rud} playingT={counting ? -1 : playT} svgId="pyramid-live" />
       </div>
+      {focus ? (
+        <div
+          className={flash ? "pyr-now flash" : "pyr-now"}
+          data-stage={cur.id}
+          data-next={nextStage ? nextStage.id : "end"}
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          {/* Notenfigur (ein Schlag der Unterteilung) statt Name; Name bleibt für Screenreader. */}
+          <span className="pyr-sr">
+            {`${t("Jetzt")}: ${t(cur.label)}. `}
+            {nextStage ? `${t("Als Nächstes")}: ${t(nextStage.label)}.` : `${t("Letzte Stufe")}, ${t("danach fertig")}.`}
+          </span>
+          <div className="pyr-now-col" aria-hidden="true">
+            <span className="pyr-now-kick" aria-hidden="true">{t("Jetzt")}</span>
+            <span className="pyr-now-glyph cur" aria-hidden="true"><BeatGlyph per={cur.perBeat} tuplet={cur.tuplet} /></span>
+          </div>
+          <span className="pyr-now-arrow" aria-hidden="true">→</span>
+          <div className="pyr-now-col" aria-hidden="true">
+            <span className="pyr-now-kick" aria-hidden="true">{nextStage ? t("Als Nächstes") : t("Letzte Stufe")}</span>
+            {nextStage ? (
+              <span className="pyr-now-glyph next" aria-hidden="true"><BeatGlyph per={nextStage.perBeat} tuplet={nextStage.tuplet} /></span>
+            ) : (
+              <span className="pyr-now-val end" aria-hidden="true">{t("danach fertig")}</span>
+            )}
+          </div>
+          <span className="pyr-now-pos" aria-hidden="true">{t("Stufe {i}/{n}", { i: idx + 1, n: steps.length })}</span>
+        </div>
+      ) : null}
       {!focus ? (
         <div className="panel" style={{ padding: "10px 12px 12px", marginBottom: 8 }}>
           <div className="pyr-steps">
@@ -326,6 +379,37 @@ export default function PyramidTrainer() {
         .pyr-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
         .pyr-steps .chip { min-height: 52px; padding: 6px 4px; display: flex; align-items: center; justify-content: center; }
         .pyr-steps svg { width: 100%; max-width: 64px; height: auto; }
+        /* WA-20: Jetzt / Als Nächstes – feste Höhe, damit beim Wechsel nichts springt */
+        .pyr-now {
+          position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+          align-items: center; gap: 10px; height: 84px; box-sizing: border-box; margin-top: 12px;
+          padding: 12px 14px 10px; border-radius: 14px; border: 1.5px solid rgba(92, 200, 184, 0.35);
+          background: rgba(19, 33, 31, 0.92); color: #eef3f2;
+        }
+        .pyr-now-col { display: flex; flex-direction: column; min-width: 0; gap: 3px; }
+        .pyr-now-col:last-of-type { text-align: right; }
+        .pyr-now-kick { font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: ${DIM}; }
+        .pyr-now-val {
+          font-family: Oswald, sans-serif; font-weight: 700; font-size: 20px; line-height: 1.1; color: ${TEAL};
+          display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere;
+        }
+        .pyr-now-val.end { color: ${DIM}; font-size: 17px; }
+        .pyr-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+        .pyr-now-glyph { display: flex; align-items: flex-end; height: 40px; }
+        .pyr-now-col:last-of-type .pyr-now-glyph { justify-content: flex-end; }
+        .pyr-now-glyph svg { width: 76px; height: 38px; }
+        .pyr-now-glyph.next svg { width: 64px; height: 32px; }
+        /* aktuelle Stufe in Teal, nächste hell */
+        .pyr-now-glyph.cur svg [fill="#f4f7f6"] { fill: ${TEAL}; }
+        .pyr-now-glyph.cur svg [stroke="#f4f7f6"] { stroke: ${TEAL}; }
+        .pyr-now-arrow { color: ${DIM}; font-size: 20px; font-weight: 800; }
+        .pyr-now-pos { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 800; letter-spacing: 0.1em; color: ${DIM}; white-space: nowrap; }
+        .pyr-now.flash { border-color: ${TEAL}; background: rgba(92, 200, 184, 0.22); }
+        @media (prefers-reduced-motion: no-preference) {
+          .pyr-now { transition: background-color .5s ease-out, border-color .5s ease-out; }
+          .pyr-now.flash { transition: none; animation: pyrFlash .9s ease-out; }
+          @keyframes pyrFlash { 0% { box-shadow: 0 0 0 0 rgba(92, 200, 184, 0.55); } 100% { box-shadow: 0 0 0 10px rgba(92, 200, 184, 0); } }
+        }
       `}</style>
     </div>
   );

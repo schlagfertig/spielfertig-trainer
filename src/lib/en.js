@@ -165,6 +165,10 @@ export const EN = {
   "Takt übrig": "bar left",
   "Takte übrig": "bars left",
   "Pyramide fertig.": "Pyramid done.",
+  "Jetzt": "Now",
+  "Letzte Stufe": "Last level",
+  "danach fertig": "then done",
+  "Stufe {i}/{n}": "Level {i}/{n}",
   // Hand Control
   "Nr. {n}": "No. {n}",
   "Nummer {n}": "Exercise {n}",
