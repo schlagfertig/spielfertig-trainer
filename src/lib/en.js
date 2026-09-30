@@ -28,9 +28,7 @@ export const EN = {
   "Zurück": "Back",
   "Drucken": "Print",
   "Blatt": "Sheet",
-  "Übepad": "Pad",
-  "Übepad aus": "Pad off",
-  "Pad aus": "Pad off",
+  "Fokus-Mode": "Focus mode",
   "Notation groß, weniger Bedienelemente.": "Large notation, fewer controls.",
   // Logo-Metronom
   "Logo: Metronom öffnen": "Logo: open metronome",

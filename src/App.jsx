@@ -258,13 +258,15 @@ export default function App() {
                 onClick={toggleHandFocus}
               >{t("Fokus + Preview")}</button>
             )}
+            {/* Fokus-Mode (früher „Übepad“): gleicher Name in beiden Zuständen, an = türkis gefüllt + aria-pressed – wie „Fokus + Preview“ in Hand Control */}
             {view === "rudiments" && !printOpen && (
               <button
+                type="button"
                 className={stage ? "ghost on" : "ghost"}
+                aria-pressed={stage}
                 title={t("Notation groß, weniger Bedienelemente.")}
-                aria-label={t(stage ? "Übepad aus" : "Übepad")}
                 onClick={() => setStage((v) => !v)}
-              >{t(stage ? "Pad aus" : "Übepad")}</button>
+              >{t("Fokus-Mode")}</button>
             )}
             {!stage && !printOpen && view !== "first" && view !== "impressum" && view !== "datenschutz" && view !== "news" && <Help topic={meta.help} />}
           </div>

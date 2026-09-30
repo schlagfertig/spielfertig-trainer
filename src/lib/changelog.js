@@ -9,6 +9,8 @@ export const CHANGELOG = [
     items: [
       { de: "Die App heißt jetzt „Schlagfertig Control“. Auf der Startseite steht unter dem Logo nur noch „Control“.",
         en: "The app is now called “Schlagfertig Control”. On the home screen, only “Control” appears below the logo." },
+      { de: "Rudiments: „Übepad“ heißt jetzt „Fokus-Mode“ – große Notation, weniger Bedienelemente. Eingeschaltet ist der Knopf türkis.",
+        en: "Rudiments: “Pad” mode is now called “Focus mode” – large notation, fewer controls. The button turns teal when it is on." },
       { de: "Noten: Blätter bekommen eigene Namen und Tags. Du kannst suchen, nach Tags filtern und sortieren (neueste, älteste, Name A–Z).",
         en: "Sheet Music: give your sheets names and tags. You can search, filter by tag and sort (newest, oldest, name A–Z)." },
       { de: "Hand Control: neuer Modus „Fokus + Preview“ – die aktuelle Übung groß, die nächste klein darunter.",
