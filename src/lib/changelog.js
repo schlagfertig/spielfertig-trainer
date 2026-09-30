@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-09-30",
     items: [
+      { de: "Noten: Große PDFs (z. B. Poster) zeigt das Vollbild jetzt ganz – eingepasst, nichts abgeschnitten. Mit zwei Fingern oder Doppeltipp zoomst du bis 5× hinein (bleibt scharf), gezoomt verschiebst du mit einem Finger. Unten − / + und „Ganz“ zum Zurücksetzen; mehrseitige PDFs blätterst du mit ▲ ▼. Wischen zum nächsten Blatt klappt nur ungezoomt.",
+        en: "Sheet Music: full screen now shows large PDFs (e.g. posters) completely – fitted, nothing cut off. Pinch or double-tap to zoom in up to 5× (stays sharp); when zoomed, drag with one finger. Use − / + and “Fit” at the bottom to reset; flip through multi-page PDFs with ▲ ▼. Swiping to the next sheet only works when not zoomed." },
       { de: "Rudiments: #2 Single Stroke Four jetzt als 2/4-Takt – pro Schlag eine 16tel-Triole mit betonter Achtel.",
         en: "Rudiments: #2 Single Stroke Four is now a 2/4 bar – each beat is a sixteenth-note triplet plus an accented eighth note." },
       { de: "Tempo-Rad: Rudiments, Rhythmuspyramide und Hand Control haben jetzt dasselbe Clickwheel wie der Click-Trainer – antippen, am Ring drehen, der Daumen folgt dem Finger. Hand Control: Der Wiederholungs-Zähler bleibt beim Drehen frei sichtbar.",
