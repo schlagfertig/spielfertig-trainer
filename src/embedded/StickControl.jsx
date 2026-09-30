@@ -220,6 +220,15 @@ export default function StickControl() {
   const lastRep = challenge && playing && repNow > 0 && repNow >= reps;
 
   useEffect(() => () => stopRef.current?.(), []);
+  // Während der Click läuft: Liste fest (kein Wischen/Scrollen); Auto-Weiter scrollt weiter per scrollTo.
+  useEffect(() => {
+    if (!playing) return undefined;
+    const de = document.documentElement;
+    de.classList.add("sf-scroll-lock");
+    const block = (e) => e.preventDefault();
+    window.addEventListener("wheel", block, { passive: false });
+    return () => { de.classList.remove("sf-scroll-lock"); window.removeEventListener("wheel", block); };
+  }, [playing]);
   useEffect(() => {
     const head = document.querySelector(".top")?.offsetHeight || 0;
     wrapRef.current?.style.setProperty("--stick-top", `${head}px`);

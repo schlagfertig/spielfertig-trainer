@@ -372,7 +372,7 @@ export default function ClickTrainer() {
           margin: 0 auto;
           max-height: min(78dvh, 620px);
           overflow: auto;
-          overscroll-behavior: contain;
+          overscroll-behavior: none;
           box-sizing: border-box;
           padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px));
           background: #182427;
