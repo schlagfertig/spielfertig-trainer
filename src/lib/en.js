@@ -170,6 +170,9 @@ export const EN = {
   "danach fertig": "then done",
   "Stufe {i}/{n}": "Level {i}/{n}",
   // Hand Control
+  "Fokus + Preview": "Focus + Preview",
+  "Große aktuelle Übung, kleine Vorschau der nächsten.": "Large current exercise, small preview of the next one.",
+  "Letzte Übung": "Last exercise",
   "Nr. {n}": "No. {n}",
   "Nummer {n}": "Exercise {n}",
   "DAVOR": "PREVIOUS",

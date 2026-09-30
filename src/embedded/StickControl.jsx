@@ -87,6 +87,21 @@ function Phrase({ id, hands, playT }) {
   );
 }
 
+/* WA-21 Vorschau: volle Breite, gleiche Spalten wie die große Übung (noteX), nur die Sticking-Zeile –
+   der Rhythmus (16 Achtel) ist bei allen Nummern gleich, so bleibt die Karte flach genug über dem Kreis. */
+function NextRow({ id, hands }) {
+  const letters = String(hands || "").split("");
+  const xs = Array.from({ length: 16 }, (_, i) => noteX(i));
+  return (
+    <svg viewBox={`0 0 ${phraseWidth()} 22`} width="100%" aria-hidden="true">
+      <text x="6" y="17" fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="15">{id}.</text>
+      {letters.map((ch, i) => (
+        <text key={i} x={xs[i]} y="17" textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="15" fill={INK}>{ch}</text>
+      ))}
+    </svg>
+  );
+}
+
 function StickRow({ id, hands }) {
   const letters = String(hands || "").split("");
   const xs = Array.from({ length: 16 }, (_, i) => noteX(i));
@@ -110,7 +125,7 @@ function ListRow({ row, onPick, playing, label, near, far }) {
   );
 }
 
-export default function StickControl() {
+export default function StickControl({ focusMode = false }) {
   const [exId, setExId] = useState(1);
   const [bpm, setBpm] = useState(80);
   const [mode, setMode] = useState("practice");
@@ -130,6 +145,7 @@ export default function StickControl() {
   const ex = EXERCISES[idx] || EXERCISES[0];
   const previous = EXERCISES.slice(0, idx);
   const upcoming = EXERCISES.slice(idx + 1);
+  const nextEx = EXERCISES[idx + 1] || null;
   const challenge = mode === "challenge";
 
   useEffect(() => () => stopRef.current?.(), []);
@@ -179,6 +195,7 @@ export default function StickControl() {
     let timer = 0;
     let evIndex = 0;
     let repsInEx = 0;
+    let ended = false;
     const stepSec = () => 60 / Math.max(30, bpmRef.current) / 4;
     let cycleStart = ctx.currentTime + 0.03;
     setPlaying(true);
@@ -212,10 +229,10 @@ export default function StickControl() {
       setDone(isCh ? String(startId) : "");
     };
     const schedule = () => {
-      if (cancelled) return;
+      if (cancelled || ended) return;
       const now = ctx.currentTime;
       const horizon = now + 0.18;
-      while (!cancelled) {
+      while (!cancelled && !ended) {
         const nt = notes[evIndex];
         if (!nt) break;
         const when = cycleStart + nt.t * stepSec();
@@ -235,11 +252,18 @@ export default function StickControl() {
           cycleStart += CELL_STEPS * stepSec();
           if (isCh && repsInEx >= per) {
             const nextI = exIdx + 1;
-            if (nextI >= EXERCISES.length) { finishOk(); return; }
+            if (nextI >= EXERCISES.length) {
+              // Ende erst melden, wenn der letzte Durchgang zu Ende gespielt ist.
+              ended = true;
+              window.setTimeout(finishOk, Math.max(0, (cycleStart - ctx.currentTime) * 1000));
+              return;
+            }
             exIdx = nextI;
             notes = EXERCISES[exIdx].notes;
             repsInEx = 0;
-            window.setTimeout(() => { if (!cancelled) setExId(EXERCISES[exIdx].id); }, 0);
+            // Anzeige erst wechseln, wenn die neue Übung hörbar beginnt (Scheduler plant ~180 ms voraus).
+            const nextId = EXERCISES[exIdx].id;
+            window.setTimeout(() => { if (!cancelled) setExId(nextId); }, Math.max(0, (cycleStart - ctx.currentTime) * 1000));
           }
         }
       }
@@ -323,6 +347,23 @@ export default function StickControl() {
         .stick-wrap .rud-half-arrow { font-size: 36px; }
         .stick-wrap .rud-half-name { font-size: clamp(15px, 4.2vw, 20px); }
         .stick-flash, .stick-click-mini { display: none; }
+        /* WA-21: Fokus + Preview – nächste Übung kompakt unter der großen aktuellen */
+        .stick-next {
+          position: relative; z-index: 16; margin-top: 4px; padding: 5px 12px 3px;
+          background: #14191c; border: 1px solid #2f383d; border-radius: 12px;
+        }
+        .stick-next-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+        .stick-next-kick { color: ${TEAL}; font: 800 12px Figtree, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; }
+        .stick-next-pos { color: ${DIM}; font: 700 12px Figtree, sans-serif; letter-spacing: 0.06em; white-space: nowrap; }
+        .stick-next-body {
+          display: block; width: 100%; margin: 0; padding: 0; border: 0; background: none; color: inherit; opacity: 0.9;
+        }
+        .stick-next-body svg { display: block; }
+        .stick-next-end { color: ${DIM}; font: 700 16px/24px Oswald, sans-serif; letter-spacing: 0.04em; padding: 0; text-align: right; }
+        @media (prefers-reduced-motion: no-preference) {
+          .stick-next-body, .stick-next-end { animation: stickNextIn .28s ease-out; }
+          @keyframes stickNextIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 0.9; transform: none; } }
+        }
         @media (orientation: landscape) {
           .stick-wrap {
             --rud-foot: calc(46px + env(safe-area-inset-bottom, 0px));
@@ -390,7 +431,7 @@ export default function StickControl() {
       `}</style>
       {beat ? <div className="stick-flash" aria-hidden="true" /> : null}
       <div className="stick-list">
-        {previous.map((row, i) => (
+        {focusMode ? null : previous.map((row, i) => (
           <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === previous.length - 1} label={i === previous.length - 1 ? t("DAVOR") : ""} />
         ))}
       </div>
@@ -415,11 +456,27 @@ export default function StickControl() {
           <Phrase id={ex.id} hands={ex.hands} playT={counting ? -1 : playT} />
         </div>
       </div>
-      <div className="stick-list stick-upcoming">
-        {upcoming.map((row, i) => (
-          <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === 0} far={i >= 2} label={i === 0 ? t("Als Nächstes") : ""} />
-        ))}
-      </div>
+      {focusMode ? (
+        <div className="stick-next" data-next={nextEx ? nextEx.id : "end"} role="status" aria-live="polite" aria-atomic="true">
+          <div className="stick-next-head">
+            <span className="stick-next-kick">{nextEx ? t("Als Nächstes") : t("Letzte Übung")}</span>
+            <span className="stick-next-pos">{`${t("Jetzt")} ${ex.id}/${EXERCISES.length}`}</span>
+          </div>
+          {nextEx ? (
+            <button type="button" key={nextEx.id} className="stick-next-body" onClick={() => pick(nextEx.id)} disabled={playing} aria-label={t("Nummer {n}", { n: nextEx.id })}>
+              <NextRow id={nextEx.id} hands={nextEx.hands} />
+            </button>
+          ) : (
+            <div className="stick-next-end">{challenge ? t("danach fertig") : t("Nr. {n}", { n: ex.id })}</div>
+          )}
+        </div>
+      ) : (
+        <div className="stick-list stick-upcoming">
+          {upcoming.map((row, i) => (
+            <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={i === 0} far={i >= 2} label={i === 0 ? t("Als Nächstes") : ""} />
+          ))}
+        </div>
+      )}
       {done ? <p className="stick-done" style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{t("Bis Nr. 24 gehalten (ab Nr. {n}).", { n: done })}</p> : null}
       <div className="stick-fade" aria-hidden="true" />
         <div className="metro-shell rud-metro">

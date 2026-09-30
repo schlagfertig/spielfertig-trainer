@@ -8,7 +8,7 @@ import { Help } from "./lib/Help.jsx";
 import { Welcome } from "./lib/Welcome.jsx";
 import FirstLesson from "./lib/FirstLesson.jsx";
 import Legal from "./lib/Legal.jsx";
-import { loadSession } from "./lib/session.js";
+import { loadSession, saveSession } from "./lib/session.js";
 import { LogoMetronome } from "./lib/LogoMetronome.jsx";
 import { getLang, setLang, t } from "./lib/i18n.js";
 
@@ -61,6 +61,15 @@ export default function App() {
   const [printOpen, setPrintOpen] = useState(false);
   const [stage, setStage] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  // WA-21: Hand Control „Fokus + Preview“ (optional, gemerkt; Standard = große Ansicht wie bisher)
+  const [handFocus, setHandFocus] = useState(() => !!loadSession("stick", {}).focus);
+  function toggleHandFocus() {
+    setHandFocus((v) => {
+      const next = !v;
+      saveSession("stick", { focus: next });
+      return next;
+    });
+  }
   const [lang, setLangState] = useState(getLang);
   const viewRef = useRef(view);
   viewRef.current = view;
@@ -239,6 +248,15 @@ export default function App() {
             {view === "rudiments" && !stage && !printOpen && (
               <button className="ghost" onClick={() => setPrintOpen(true)}>{t("Drucken")}</button>
             )}
+            {view === "stick" && (
+              <button
+                type="button"
+                className={handFocus ? "ghost on" : "ghost"}
+                aria-pressed={handFocus}
+                title={t("Große aktuelle Übung, kleine Vorschau der nächsten.")}
+                onClick={toggleHandFocus}
+              >{t("Fokus + Preview")}</button>
+            )}
             {view === "rudiments" && !printOpen && (
               <button
                 className={stage ? "ghost on" : "ghost"}
@@ -258,7 +276,7 @@ export default function App() {
           : view === "datenschutz" ? <Legal topic="datenschutz" onOpen={open} />
           : view === "click" ? <ClickTrainer />
           : view === "pyramid" ? <PyramidTrainer />
-          : view === "stick" ? <StickControl />
+          : view === "stick" ? <StickControl focusMode={handFocus} />
           : view === "archive" ? <Archive />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} />}
       </main>
