@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
 import { NavScrub } from "../lib/NavScrub.jsx";
@@ -116,6 +116,73 @@ function StickRow({ id, hands }) {
   );
 }
 
+/* Drehrädchen (iOS-artiger Walzen-Picker) für die Wiederholungen: senkrecht wischen/scrollen rastet ein,
+   Antippen einer Zahl wählt sie, Tastatur: ↑/↓, Bild↑/↓ (±5), Pos1/Ende. Für Screenreader ein spinbutton. */
+const DRUM_ITEM = 20; // drei Zeilen sichtbar: davor · Auswahl · danach
+function RepsDrum({ value, min = 1, max = 20, onChange, disabled, label }) {
+  const ref = useRef(null);
+  const userScroll = useRef(false);
+  const progUntil = useRef(0); // während die Walze selbst scrollt (Taste/Tippen), Zwischenstände ignorieren
+  const items = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+  const reduced = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (el) el.scrollTop = (value - min) * DRUM_ITEM;
+    // nur beim Einhängen: danach folgt die Walze dem Wert (siehe unten)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (userScroll.current) { userScroll.current = false; return; }
+    const top = (value - min) * DRUM_ITEM;
+    if (Math.abs(el.scrollTop - top) > 1) {
+      progUntil.current = Date.now() + (reduced ? 80 : 450);
+      el.scrollTo({ top, behavior: reduced ? "auto" : "smooth" });
+    }
+  }, [value, min, reduced]);
+  function onScroll(e) {
+    if (disabled || Date.now() < progUntil.current) return;
+    const v = Math.max(min, Math.min(max, min + Math.round(e.currentTarget.scrollTop / DRUM_ITEM)));
+    if (v !== value) { userScroll.current = true; onChange(v); }
+  }
+  function onKeyDown(e) {
+    if (disabled) return;
+    const step = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1, PageUp: 5, PageDown: -5 }[e.key];
+    let v = null;
+    if (step) v = value + step;
+    else if (e.key === "Home") v = min;
+    else if (e.key === "End") v = max;
+    if (v == null) return;
+    e.preventDefault();
+    onChange(Math.max(min, Math.min(max, v)));
+  }
+  return (
+    <div className={disabled ? "reps-drum-wrap off" : "reps-drum-wrap"}>
+      <div
+        ref={ref}
+        className="reps-drum"
+        role="spinbutton"
+        tabIndex={disabled ? -1 : 0}
+        aria-label={label}
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={value}
+        aria-valuetext={`${value}×`}
+        aria-disabled={disabled || undefined}
+        onScroll={onScroll}
+        onKeyDown={onKeyDown}
+      >
+        <div className="reps-drum-pad" aria-hidden="true" />
+        {items.map((v) => (
+          <div key={v} className={v === value ? "reps-drum-item on" : "reps-drum-item"} aria-hidden="true" onClick={() => !disabled && onChange(v)}>{v}×</div>
+        ))}
+        <div className="reps-drum-pad" aria-hidden="true" />
+      </div>
+    </div>
+  );
+}
+
 function ListRow({ row, onPick, playing, label, near, className }) {
   return (
     <button type="button" className={className} onClick={() => onPick(row.id)} disabled={playing} style={{ width: "100%", marginTop: 4, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: near ? "8px 8px 6px" : "6px 8px", color: "inherit", textAlign: "left", opacity: near ? 1 : 0.7 }}>
@@ -136,6 +203,7 @@ export default function StickControl() {
   const [beat, setBeat] = useState(false);
   const [playT, setPlayT] = useState(-1);
   const [done, setDone] = useState("");
+  const [repNow, setRepNow] = useState(0); // Fokus-Mode: laufende Wiederholung der aktuellen Übung (1…reps), 0 = aus
   const stopRef = useRef(null);
   const pinRef = useRef(null);
   const prevRef = useRef(null);
@@ -147,6 +215,7 @@ export default function StickControl() {
   const previous = EXERCISES.slice(0, idx);
   const nextEx = EXERCISES[idx + 1] || null;
   const challenge = mode === "challenge";
+  const lastRep = challenge && playing && repNow > 0 && repNow >= reps;
 
   useEffect(() => () => stopRef.current?.(), []);
   useEffect(() => {
@@ -178,6 +247,7 @@ export default function StickControl() {
     setCounting(false);
     setBeat(false);
     setPlayT(-1);
+    setRepNow(0);
   }
 
   function start() {
@@ -199,6 +269,8 @@ export default function StickControl() {
     const stepSec = () => 60 / Math.max(30, bpmRef.current) / 4;
     let cycleStart = ctx.currentTime + 0.03;
     setPlaying(true);
+    // Zähler erst umschalten, wenn die Wiederholung hörbar beginnt.
+    const repAt = (n, when) => window.setTimeout(() => { if (!cancelled) setRepNow(n); }, Math.max(0, (when - ctx.currentTime) * 1000));
     const pulseAt = (when) => {
       const delay = Math.max(0, (when - ctx.currentTime) * 1000);
       window.setTimeout(() => {
@@ -217,6 +289,7 @@ export default function StickControl() {
       cycleStart += clicks * q;
       window.setTimeout(() => { if (!cancelled) setCounting(false); }, Math.max(0, (cycleStart - ctx.currentTime) * 1000));
     }
+    if (isCh) repAt(1, cycleStart);
     const finishOk = () => {
       if (cancelled) return;
       cancelled = true;
@@ -226,6 +299,7 @@ export default function StickControl() {
       setCounting(false);
       setBeat(false);
       setPlayT(-1);
+      setRepNow(0);
       setDone(isCh ? String(startId) : "");
     };
     const schedule = () => {
@@ -264,6 +338,9 @@ export default function StickControl() {
             // Anzeige erst wechseln, wenn die neue Übung hörbar beginnt (Scheduler plant ~180 ms voraus).
             const nextId = EXERCISES[exIdx].id;
             window.setTimeout(() => { if (!cancelled) setExId(nextId); }, Math.max(0, (cycleStart - ctx.currentTime) * 1000));
+            repAt(1, cycleStart);
+          } else if (isCh) {
+            repAt(repsInEx + 1, cycleStart);
           }
         }
       }
@@ -359,6 +436,45 @@ export default function StickControl() {
         }
         .stick-next-body svg { display: block; }
         .stick-next-end { color: ${DIM}; font: 700 16px/24px Oswald, sans-serif; letter-spacing: 0.04em; padding: 0; text-align: right; }
+        /* Fokus-Mode, letzte Wiederholung: Vorschau hervorheben (hell türkis), damit man sich auf die nächste Nummer einstellen kann */
+        .stick-next { transition: background-color .3s ease-out, border-color .3s ease-out, box-shadow .3s ease-out, padding .3s ease-out; }
+        .stick-next.soon { background: rgba(92,200,184,.2); border-color: ${TEAL}; box-shadow: 0 0 0 1px ${TEAL}, 0 0 18px rgba(92,200,184,.28); padding: 7px 12px 6px; }
+        .stick-next.soon .stick-next-kick { font-size: 14px; }
+        .stick-next.soon .stick-next-pos { color: ${INK}; }
+        .stick-next.soon .stick-next-body { opacity: 1; }
+        .stick-next.soon .stick-next-end { color: ${INK}; }
+        /* Wiederholungs-Zähler: groß und mittig direkt über dem Kreis (sitzt über dem festen Dock, der Kreis bewegt sich nicht) */
+        .stick-reps { position: absolute; left: 0; right: 0; bottom: 100%; display: flex; flex-direction: column; align-items: center; pointer-events: none; padding-bottom: 2px; }
+        .stick-reps-kick { color: ${DIM}; font: 800 11px Figtree, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; }
+        .stick-reps-num { color: ${TEAL}; font: 700 34px/1 Oswald, sans-serif; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
+        .stick-reps-num .of { color: ${DIM}; font-size: 24px; }
+        .stick-reps.last .stick-reps-num { color: ${INK}; }
+        .stick-next-reps { display: none; color: ${TEAL}; font: 700 20px/1 Oswald, sans-serif; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
+        .stick-next-reps .of { color: ${DIM}; font-size: 15px; }
+        .stick-next.soon .stick-next-reps { color: ${INK}; }
+        @media (max-height: 720px) {
+          /* wenig Höhe: Zähler wandert in den Kopf der Vorschau (sonst läge er über der Karte) */
+          .stick-reps { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+          .stick-next-reps { display: inline; }
+        }
+        /* Drehrädchen */
+        .reps-field { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .reps-drum-wrap { position: relative; width: 52px; height: ${DRUM_ITEM * 3}px; flex: 0 0 auto; }
+        .reps-drum-wrap::after { content: ""; position: absolute; left: 4px; right: 4px; top: ${DRUM_ITEM}px; height: ${DRUM_ITEM}px; border-top: 1px solid rgba(92,200,184,.45); border-bottom: 1px solid rgba(92,200,184,.45); pointer-events: none; }
+        .reps-drum-wrap.off { opacity: .5; }
+        .reps-drum-wrap.off .reps-drum { pointer-events: none; }
+        .reps-drum {
+          height: ${DRUM_ITEM * 3}px; overflow-y: auto; scroll-snap-type: y mandatory; overscroll-behavior: contain; touch-action: pan-y;
+          scrollbar-width: none; background: #161a1d; border: 1px solid #2f383d; border-radius: 10px; outline: none;
+          -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.2) 0, #000 38%, #000 62%, rgba(0,0,0,.2) 100%);
+          mask-image: linear-gradient(to bottom, rgba(0,0,0,.2) 0, #000 38%, #000 62%, rgba(0,0,0,.2) 100%);
+        }
+        .reps-drum::-webkit-scrollbar { display: none; }
+        .reps-drum:focus-visible { border-color: ${TEAL}; box-shadow: 0 0 0 2px rgba(92,200,184,.5); }
+        .reps-drum-pad { height: ${DRUM_ITEM}px; }
+        .reps-drum-item { height: ${DRUM_ITEM}px; line-height: ${DRUM_ITEM}px; text-align: center; scroll-snap-align: center; color: ${DIM}; font: 700 13px/${DRUM_ITEM}px Figtree, sans-serif; cursor: pointer; user-select: none; }
+        .reps-drum-item.on { color: ${TEAL}; font-size: 17px; font-weight: 800; }
+        @media (prefers-reduced-motion: reduce) { .stick-next { transition: none; } .reps-drum { scroll-behavior: auto; } }
         @media (prefers-reduced-motion: no-preference) {
           .stick-next-body, .stick-next-end { animation: stickNextIn .28s ease-out; }
           @keyframes stickNextIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 0.9; transform: none; } }
@@ -444,10 +560,10 @@ export default function StickControl() {
             <button type="button" className={mode === "challenge" ? "on" : ""} onClick={() => !playing && setMode("challenge")}>{t("Fokus-Mode")}</button>
           </div>
           {challenge ? (
-            <label style={{ display: "flex", alignItems: "center", gap: 6, color: DIM, fontWeight: 700 }}>
-              {t("Wiederholungen")}
-              <input type="number" min={1} max={20} value={reps} disabled={playing} onChange={(e) => setReps(clamp(Number(e.target.value) || 1, 1, 20))} style={{ width: 52, background: "#161a1d", color: TEAL, border: "1px solid #2f383d", borderRadius: 8, padding: "6px 8px", fontWeight: 800, fontSize: 16, textAlign: "center" }} />
-            </label>
+            <span className="reps-field">
+              <span style={{ color: DIM, fontWeight: 700 }} aria-hidden="true" title={t("Wiederholungen")}>{t("Wdh.")}</span>
+              <RepsDrum value={reps} onChange={(v) => setReps(clamp(v, 1, 20))} disabled={playing} label={t("Wiederholungen")} />
+            </span>
           ) : null}
           {counting ? <span style={{ color: TEAL, fontWeight: 800, letterSpacing: "0.08em" }}>COUNT-IN</span> : null}
           <button type="button" className="stick-click-mini" onClick={() => (playing ? stop() : start())}>
@@ -458,9 +574,10 @@ export default function StickControl() {
           <Phrase id={ex.id} hands={ex.hands} playT={counting ? -1 : playT} />
         </div>
       </div>
-      <div className="stick-next" data-next={nextEx ? nextEx.id : "end"} role="status" aria-live="polite" aria-atomic="true">
+      <div className={lastRep ? "stick-next soon" : "stick-next"} data-next={nextEx ? nextEx.id : "end"} role="status" aria-live="polite" aria-atomic="true">
         <div className="stick-next-head">
           <span className="stick-next-kick">{nextEx ? t("Als Nächstes") : t("Letzte Übung")}</span>
+          {challenge && playing && repNow > 0 ? <span className="stick-next-reps" aria-hidden="true">{repNow}<span className="of"> / {reps}</span></span> : null}
           <span className="stick-next-pos">{`${t("Jetzt")} ${ex.id}/${EXERCISES.length}`}</span>
         </div>
         {nextEx ? (
@@ -475,6 +592,12 @@ export default function StickControl() {
       {done ? <p className="stick-done" style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{t("Bis Nr. 24 gehalten (ab Nr. {n}).", { n: done })}</p> : null}
       <div className="stick-fade" aria-hidden="true" />
         <div className="metro-shell rud-metro">
+          {challenge && playing && repNow > 0 ? (
+            <div className={lastRep ? "stick-reps last" : "stick-reps"} role="status" aria-label={t("Wiederholung {n} von {m}", { n: repNow, m: reps })}>
+              <span className="stick-reps-kick" aria-hidden="true">{t("Wiederholung")}</span>
+              <span className="stick-reps-num" aria-hidden="true">{repNow}<span className="of"> / {reps}</span></span>
+            </div>
+          ) : null}
           <div className="dock metro-face">
             <div className="dial-row">
               <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))}>−5</button>
