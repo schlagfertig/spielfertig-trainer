@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-09-30",
     items: [
+      { de: "Tempo-Rad: Rudiments, Rhythmuspyramide und Hand Control haben jetzt dasselbe Clickwheel wie der Click-Trainer – antippen, am Ring drehen, der Daumen folgt dem Finger. Hand Control: Der Wiederholungs-Zähler bleibt beim Drehen frei sichtbar.",
+        en: "Tempo wheel: Rudiments, Rhythm Pyramid and Hand Control now have the same click wheel as the Click Trainer – tap, turn the ring, the thumb follows your finger. Hand Control: the repeat counter stays clearly visible while you turn." },
       { de: "Seiten federn nicht mehr nach; Hand Control: Liste steht still, solange der Click läuft.",
         en: "Pages no longer bounce; Hand Control: the list stays put while the click is running." },
       { de: "Startseite: Copyright größer, Links kleiner. Clickwheel: Hebel folgt dem Finger.",

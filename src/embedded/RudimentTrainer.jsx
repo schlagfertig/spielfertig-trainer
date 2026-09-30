@@ -311,7 +311,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           )}
           <div className="dial-row">
             <button type="button" className="nudge-lg" onClick={() => setBpm(Math.max(30, bpm - 5))} aria-label={t("5 BPM langsamer")}>−5</button>
-            <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={stage ? 152 : compact ? 88 : 124} now subLabel={playing ? "Stop" : "Start"} />
+            <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={stage ? 152 : compact ? 88 : 124} now subLabel={playing ? "Stop" : "Start"} wheel />
             <button type="button" className="nudge-lg" onClick={() => setBpm(Math.min(260, bpm + 5))} aria-label={t("5 BPM schneller")}>+5</button>
           </div>
         </div>
