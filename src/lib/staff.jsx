@@ -296,7 +296,17 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
   const soloWhole = sounded.length === 1 && !!(sounded[0].whole || (sounded[0].dur >= 8 && sounded[0].roll));
   const spanEnd = sounded.reduce((m, nt) => Math.max(m, (nt.t || 0) + (nt.dur || 1)), 0);
   const tShift = Math.max(0, steps - spanEnd) / 2;
-  const w = x0 + Math.max(steps * stepW, soloWhole ? 240 : 0) + (hideTime ? 14 : 18);
+  // Unter-Balkengruppen (nt.sub): Hauptbalken läuft durch, Nebenbalken + Tuplet-Ziffer je Untergruppe.
+  // Vor jeder neuen Untergruppe mit Vorschlag etwas Luft, damit die Vorschlagsnote nicht gedrängt wirkt.
+  const SUB_PAD = 9;
+  const subPad = new Map();
+  let padSum = 0;
+  sounded.forEach((nt, i) => {
+    const prev = sounded[i - 1];
+    if (prev && nt.sub != null && nt.sub !== prev.sub && (nt.flam || nt.drag)) padSum += SUB_PAD;
+    subPad.set(nt, padSum);
+  });
+  const w = x0 + Math.max(steps * stepW, soloWhole ? 240 : 0) + (hideTime ? 14 : 18) + padSum;
   // Einzelne ganze Note (z. B. Multiple Bounce Roll): optisch mittig zwischen Schlüssel und Schlussstrich.
   const soloX = (24 + (w - 6)) / 2;
   const y = hideTime ? 36 : 58;
@@ -325,7 +335,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
     return x0 + g * slotW + inset + local * stepW * pack;
   };
   const noteX = (nt) => {
-    const x = baseX(nt);
+    const x = baseX(nt) + (subPad.get(nt) || 0);
     if (rud.id !== 13 && rud.id !== 14 && rud.id !== 15) return x;
     if (nt.roll || nt.tie) return x;
     const prevRoll = sounded.filter((s) => s !== nt && (s.roll || s.tie) && (s.t || 0) < (nt.t || 0) - 1e-6).at(-1);
@@ -437,11 +447,12 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
           for (let b = 0; b < maxB; b++) {
             g.forEach((nn, i) => {
               if (beamsFor(nn) <= b) return;
-              if (i > 0 && beamsFor(g[i - 1]) > b) return;
+              const subCut = (a, c) => b >= 1 && a.sub != null && c.sub != null && a.sub !== c.sub;
+              if (i > 0 && beamsFor(g[i - 1]) > b && !subCut(g[i - 1], nn)) return;
               const yy = (xx) => yAt(xx) + b * BEAM_GAP;
-              if (i < g.length - 1 && beamsFor(g[i + 1]) > b) {
+              if (i < g.length - 1 && beamsFor(g[i + 1]) > b && !subCut(nn, g[i + 1])) {
                 let j = i;
-                while (j < g.length - 1 && beamsFor(g[j + 1]) > b) j++;
+                while (j < g.length - 1 && beamsFor(g[j + 1]) > b && !subCut(g[j], g[j + 1])) j++;
                 layers.push(
                   <line key={`${gi}-${b}-${i}`} x1={xs[i]} y1={yy(xs[i])} x2={xs[j]} y2={yy(xs[j])} strokeWidth={BEAM_W} />
                 );
@@ -456,13 +467,21 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
             });
           }
           if (g[0].tuplet) {
-            const mid = (xs[0] + xs[xs.length - 1]) / 2;
             const label = g[0].tuplet === 6 ? "(6)" : String(g[0].tuplet);
-            layers.push(
-              <text key={`${gi}-tup`} x={mid} y={y0 - 12} textAnchor="middle" fontSize="14" fontWeight="800" fill={INK} stroke="none">
-                {label}
-              </text>
-            );
+            // Ohne Untergruppen: eine Ziffer je Balkengruppe; mit nt.sub: je Untergruppe.
+            const spans = [];
+            g.forEach((nn, i) => {
+              if (i === 0 || (nn.sub != null && nn.sub !== g[i - 1].sub)) spans.push([i, i]);
+              else spans[spans.length - 1][1] = i;
+            });
+            spans.forEach(([a, c], si) => {
+              const mid = (xs[a] + xs[c]) / 2;
+              layers.push(
+                <text key={`${gi}-tup-${si}`} x={mid} y={y0 - 12} textAnchor="middle" fontSize="14" fontWeight="800" fill={INK} stroke="none">
+                  {label}
+                </text>
+              );
+            });
           }
           return <g key={gi}>{layers}</g>;
         })}

@@ -12,12 +12,13 @@ const six = (beat, hands, accAt = [], extra = {}) =>
 const flip = (s) => String(s).replace(/R/g, "x").replace(/L/g, "R").replace(/x/g, "L");
 const dual = (s) => [s, flip(s)];
 const dualTok = (arr) => [arr, arr.map(flip)];
-const swiss16 = (start, lead, g) => {
+// sub: Untergruppe je Triole – Achtelbalken verbindet zwei Triolen (g), Sechzehntelbalken + „3“ je Triole.
+const swiss16 = (start, lead, g, sub) => {
   const oth = lead === "R" ? "L" : "R";
   return [
-    n(start, T6, lead, true, { flam: oth, tuplet: 3, g, beams: 2 }),
-    n(start + T6, T6, lead, false, { tuplet: 3, g, beams: 2 }),
-    n(start + 2 * T6, T6, oth, false, { tuplet: 3, g, beams: 2 }),
+    n(start, T6, lead, true, { flam: oth, tuplet: 3, g, sub, beams: 2 }),
+    n(start + T6, T6, lead, false, { tuplet: 3, g, sub, beams: 2 }),
+    n(start + 2 * T6, T6, oth, false, { tuplet: 3, g, sub, beams: 2 }),
   ];
 };
 const flamTap = (start, gR, gL) => [
@@ -188,11 +189,10 @@ export const RUDIMENTS = [
     ...six(0, "RLRRLL", [0], { g: 1 }).map((nt, i) => (i === 0 ? { ...nt, flam: "L" } : nt)),
     ...six(1, "RLRRLL", [0], { g: 2 }).map((nt, i) => (i === 0 ? { ...nt, flam: "L" } : nt)),
   ], sticking: dual("RLRRLLRLRRLL") },
-  { id: 27, cat: "flam", label: "27. Pataflafla", bars: 1, time: "4/4", notes: [...pata(0, "R", 1), ...pata(4, "L", 2), ...pata(8, "R", 3), ...pata(12, "L", 4)], sticking: dual("RLRLLRLRRLRLLRLR") },
-  { id: 28, cat: "flam", label: "28. Swiss Army Triplet", bars: 1, time: "4/4", notes: [
-    ...swiss16(0, "R", 1), ...swiss16(2, "R", 1), ...swiss16(4, "R", 2), ...swiss16(6, "R", 2),
-    ...swiss16(8, "R", 3), ...swiss16(10, "R", 3), ...swiss16(12, "R", 4), ...swiss16(14, "R", 4),
-  ], sticking: dual("RRLRRLRRLRRLRRLRRLRRLRRL") },
+  { id: 27, cat: "flam", label: "27. Pataflafla", bars: 1, time: "2/4", notes: [...pata(0, "R", 1), ...pata(4, "L", 2)], sticking: dual("RLRLLRLR") },
+  { id: 28, cat: "flam", label: "28. Swiss Army Triplet", bars: 1, time: "2/4", notes: [
+    ...swiss16(0, "R", 1, 1), ...swiss16(2, "R", 1, 2), ...swiss16(4, "R", 2, 3), ...swiss16(6, "R", 2, 4),
+  ], sticking: dual("RRLRRLRRLRRL") },
   { id: 29, cat: "flam", label: "29. Inverted Flam Tap", bars: 1, time: "2/4", notes: [...invFlamTap(0, 1), ...invFlamTap(4, 2)], sticking: dual("RLLRRLLR") },
   { id: 30, cat: "flam", label: "30. Flam Drag", bars: 1, time: "2/4", notes: [...flamDrag8(0, "R", 1), ...flamDrag8(1, "L", 2)], sticking: dualTok(["R", "L", "L", "R", "L", "R", "R", "L"]) },
   { id: 31, cat: "drag", label: "31. Drag", bars: 1, time: "2/4", notes: [n(0, 2, "R", true, { drag: "L", g: 1 }), n(2, 2, "L", true, { drag: "R", g: 1 }), n(4, 2, "R", true, { drag: "L", g: 2 }), n(6, 2, "L", true, { drag: "R", g: 2 })], sticking: dual("RLRL") },
