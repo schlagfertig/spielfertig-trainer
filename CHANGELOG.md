@@ -6,6 +6,7 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 
 ## 30.09.2026
 
+- Noten: Antippen öffnet eine Vorschau (Einzelseite), „Auswählen“ öffnet das Vollbild mit ‹ › zum vorigen/nächsten Blatt; ausgewähltes Blatt türkis markiert (aria-current, Label „Ausgewählt“); „2 Seiten“ und doppelter Kopf-Knopf „Blatt“ entfernt; „Hinzufügen“ → „Notenblatt hinzufügen“; gelber Hinweis neu formuliert; Hilfetexte aktualisiert
 - Hand Control: Übungen 3–24 wieder in der Liste „Danach“
 - Neuer App-Name „Schlagfertig Control“ (Tab-Titel, Willkommen, Einladungs-Sperrseite, Datenschutz, Englisch); Startseite: unter dem Logo nur noch „Control“, Zeile „schlagfertig · Zeit für guten Sound“ entfernt
 - Rudiments: „Übepad“ heißt jetzt „Fokus-Mode“ (EN „Focus mode“); an = Knopf türkis gefüllt

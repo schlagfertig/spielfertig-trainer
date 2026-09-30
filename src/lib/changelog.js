@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-09-30",
     items: [
+      { de: "Noten: Blatt antippen öffnet eine Vorschau (Einzelseite), „Auswählen“ zeigt es im Vollbild – mit ‹ › blätterst du zum vorigen oder nächsten Blatt. Das ausgewählte Blatt ist in der Liste türkis markiert. „2 Seiten“ und der doppelte Knopf „Blatt“ sind weg, der Knopf heißt jetzt „Notenblatt hinzufügen“, und der gelbe Hinweis ist verständlicher.",
+        en: "Sheet Music: tap a sheet to open a preview (single page); “Select” shows it full screen – use ‹ › to flip to the previous or next sheet. The selected sheet is marked in teal in the list. “2 pages” and the duplicate “Sheet” button are gone, the button is now called “Add sheet”, and the yellow notice is easier to understand." },
       { de: "Hand Control: Übungen 3–24 wieder in der Liste „Danach“.",
         en: "Hand Control: exercises 3–24 are back in the “After that” list." },
       { de: "Die App heißt jetzt „Schlagfertig Control“. Auf der Startseite steht unter dem Logo nur noch „Control“.",
