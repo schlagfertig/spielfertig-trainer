@@ -174,6 +174,9 @@ export const EN = {
   "Nummer {n}": "Exercise {n}",
   "DAVOR": "PREVIOUS",
   "Wiederholungen": "Repeats",
+  "Wiederholung": "Repeat",
+  "Wdh.": "Reps",
+  "Wiederholung {n} von {m}": "Repeat {n} of {m}",
   "Aus": "Off",
   "Bis Nr. 24 gehalten (ab Nr. {n}).": "Held through No. 24 (from No. {n}).",
   // Rudiments
