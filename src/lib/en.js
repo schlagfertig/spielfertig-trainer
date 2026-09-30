@@ -224,6 +224,17 @@ export const EN = {
   "Ausgewählt": "Selected",
   "Vorheriges Blatt": "Previous sheet",
   "Nächstes Blatt": "Next sheet",
+  // Noten: Zoom
+  "Vergrößern": "Zoom in",
+  "Verkleinern": "Zoom out",
+  "Ganze Seite zeigen": "Show whole page",
+  "Ganz": "Fit",
+  "Vorherige Seite": "Previous page",
+  "Nächste Seite": "Next page",
+  "Seite {n}/{m}": "Page {n}/{m}",
+  "PDF konnte nicht angezeigt werden.": "The PDF could not be displayed.",
+  "Zoomen": "Zoom",
+  "Zwei Finger oder Doppeltipp zoomen bis 5×, gezoomt mit einem Finger verschieben. − / + / „Ganz“ unten; „Ganz“ zeigt wieder die ganze Seite.": "Pinch or double-tap to zoom up to 5×; when zoomed, drag with one finger. Use − / + / “Fit” at the bottom; “Fit” shows the whole page again.",
   // Noten: WA-22 Name + Tags, Suche, Filter, Sortierung
   "Name & Tags": "Name & tags",
   "Name & Tags bearbeiten: {name}": "Edit name & tags: {name}",
@@ -255,6 +266,7 @@ export const EN = {
   "Blatt antippen öffnet die Vorschau (Einzelseite). ‚Auswählen‘ markiert es türkis und zeigt es im Vollbild.": "Tap a sheet to open the preview (single page). ‘Select’ marks it in teal and shows it full screen.",
   "Blättern": "Flip",
   "Im Vollbild mit ‹ › (oder Wischen) zum vorigen bzw. nächsten Blatt der Liste.": "In full screen, use ‹ › (or swipe) to go to the previous or next sheet in the list.",
+  "Im Vollbild mit ‹ › (oder Wischen, wenn nicht gezoomt) zum vorigen bzw. nächsten Blatt der Liste.": "In full screen, use ‹ › (or swipe when not zoomed) to go to the previous or next sheet in the list.",
   // Drucken
   "Druckvorschau": "Print preview",
   "Vorschau · erste Seite": "Preview · first page",

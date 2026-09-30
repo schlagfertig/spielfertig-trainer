@@ -37,6 +37,7 @@ export const HELP = {
     ["Notenblatt hinzufügen", "Foto oder PDF, maximal 12 MB."],
     ["Name & Tags", "Pro Blatt Name und Tags vergeben. Oben suchen, nach Tag filtern, sortieren."],
     ["Ansehen", "Blatt antippen öffnet die Vorschau (Einzelseite). ‚Auswählen‘ markiert es türkis und zeigt es im Vollbild."],
-    ["Blättern", "Im Vollbild mit ‹ › (oder Wischen) zum vorigen bzw. nächsten Blatt der Liste."],
+    ["Blättern", "Im Vollbild mit ‹ › (oder Wischen, wenn nicht gezoomt) zum vorigen bzw. nächsten Blatt der Liste."],
+    ["Zoomen", "Zwei Finger oder Doppeltipp zoomen bis 5×, gezoomt mit einem Finger verschieben. − / + / „Ganz“ unten; „Ganz“ zeigt wieder die ganze Seite."],
   ],
 };
