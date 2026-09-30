@@ -66,8 +66,11 @@ function beamGroups(notes, pulse = 4) {
   return groups.filter((g) => g.length >= 2);
 }
 
+const flipHand = (h) => (h === "R" ? "L" : h === "L" ? "R" : h);
+
 function withDrag(tok, nt) {
-  const main = tok || nt.hand || "";
+  // Leerer Token = bewusst kein Buchstabe (nicht auf nt.hand zurückfallen).
+  const main = tok != null ? tok : (nt.hand || "");
   if (!nt.drag) return main;
   const d = String(nt.drag);
   const s = String(main);
@@ -294,6 +297,8 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
   const spanEnd = sounded.reduce((m, nt) => Math.max(m, (nt.t || 0) + (nt.dur || 1)), 0);
   const tShift = Math.max(0, steps - spanEnd) / 2;
   const w = x0 + Math.max(steps * stepW, soloWhole ? 240 : 0) + (hideTime ? 14 : 18);
+  // Einzelne ganze Note (z. B. Multiple Bounce Roll): optisch mittig zwischen Schlüssel und Schlussstrich.
+  const soloX = (24 + (w - 6)) / 2;
   const y = hideTime ? 36 : 58;
   const lineGap = hideTime ? 7.2 : 8.5;
   const ny = y - lineGap / 2;
@@ -310,7 +315,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
   const parsed = parseTime(rud.time);
   const slotW = cluster * stepW;
   const baseX = (nt) => {
-    if (soloWhole) return x0 + (Math.max(steps * stepW, 240) / 2);
+    if (soloWhole) return soloX;
     const t = (nt.t || 0) + tShift;
     if (pack >= 0.99) return x0 + t * stepW;
     const g = Math.floor(t / cluster + 1e-6);
@@ -409,13 +414,16 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
         {sounded.map((nt, i) => {
           const x = noteX(nt);
           const top = withDrag(tokenAt(primary, i, nt), nt);
-          const alt = altRow ? tokenAt(altRow, i, nt) : "";
+          // Zweite Zeile (Gegenhand): Vorschläge von Flam/Drag ebenfalls notieren, Hände gespiegelt.
+          const altNt = { ...nt, drag: nt.drag ? flipHand(String(nt.drag)) : undefined };
+          const alt = altRow ? withDrag(tokenAt(altRow, i, nt), altNt) : "";
           const flamTop = nt.flam ? String(nt.flam) : "";
+          const flamAlt = altRow && nt.flam ? flipHand(String(nt.flam)) : "";
           const xEnd = String(top || "").length > 3 ? endXFor(i) : x;
           return (
             <g key={`h-${i}`}>
               <StickLine x={x} x2={xEnd} y={h0} text={top} flam={flamTop || null} handwritten={handwritten} />
-              {alt ? <StickLine x={x} x2={xEnd} y={h0 + 22} text={alt} handwritten={handwritten} /> : null}
+              {alt ? <StickLine x={x} x2={xEnd} y={h0 + 22} text={alt} flam={flamAlt || null} handwritten={handwritten} /> : null}
             </g>
           );
         })}
