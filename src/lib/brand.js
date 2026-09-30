@@ -1,6 +1,6 @@
 export const BRAND = {
   mark: "schlagfertig‽",
-  product: "Spielfertig",
+  product: "Schlagfertig Control",
   person: "Thomas Schuster",
   phone: "01522 574 2199",
   email: "Schlagfertig@iCloud.com",

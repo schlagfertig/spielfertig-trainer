@@ -56,7 +56,7 @@ export function PrintDialog({ sel, onClose }) {
 
   async function savePng(list, reason) {
     const canvas = await tilesToPng(list, 2, perPage, SECTION);
-    const result = await deliverPng(canvas, "spielfertig-rudiments.png", "save");
+    const result = await deliverPng(canvas, "schlagfertig-control-rudiments.png", "save");
     if (result) status(reason || "PNG gespeichert — Dateien / Downloads prüfen.");
     else status("Speichern abgebrochen.", "warn");
     return result;
@@ -87,7 +87,7 @@ export function PrintDialog({ sel, onClose }) {
         }
       } else if (mode === "share") {
         const canvas = await tilesToPng(list, 2, perPage, SECTION);
-        const result = await deliverPng(canvas, "spielfertig-rudiments.png", "share");
+        const result = await deliverPng(canvas, "schlagfertig-control-rudiments.png", "share");
         if (result === "share") status("Geteilt.");
         else if (result === "save") status("Teilen nicht verfügbar — PNG gespeichert.", "warn");
         else status("Teilen abgebrochen.", "warn");

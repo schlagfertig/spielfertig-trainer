@@ -2,7 +2,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
   appId: "de.schlagfertig.trainer",
-  appName: "Spielfertig Control",
+  appName: "Schlagfertig Control",
   webDir: "dist",
   backgroundColor: "#161a1d",
   ios: {

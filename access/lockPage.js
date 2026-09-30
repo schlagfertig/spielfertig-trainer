@@ -21,7 +21,7 @@ export function lockPage(state = "none") {
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#161A1D">
-<title>Spielfertig Control — schlagfertig‽</title>
+<title>Schlagfertig Control</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <style>
 *{box-sizing:border-box}
@@ -46,15 +46,15 @@ a{color:#5cc8b8}
 <body>
 <main>
 <img src="/logo.svg" alt="schlagfertig‽">
-<h1>Spielfertig Control</h1>
+<h1>Schlagfertig Control</h1>
 ${n ? `<div class="notice" role="alert"><p>${esc(n[0])}</p><p lang="en">${esc(n[1])}</p></div>` : ""}
 <section>
 <h2>Testphase</h2>
-<p>Spielfertig Control ist gerade nur mit persönlichem Einladungslink nutzbar. Öffne den Link aus deiner Einladung erneut oder frag nach einem neuen.</p>
+<p>Schlagfertig Control ist gerade nur mit persönlichem Einladungslink nutzbar. Öffne den Link aus deiner Einladung erneut oder frag nach einem neuen.</p>
 </section>
 <section lang="en" class="en">
 <h2>Testing phase</h2>
-<p>Spielfertig Control currently requires a personal invite link. Open the link from your invitation again or ask for a new one.</p>
+<p>Schlagfertig Control currently requires a personal invite link. Open the link from your invitation again or ask for a new one.</p>
 </section>
 <form method="get" action="/">
 <label for="zugang">Einladungslink oder Code einfügen · <span lang="en">Paste invite link or code</span></label>
@@ -72,7 +72,7 @@ Telefon: <a href="tel:${esc(tel)}">${esc(BRAND.phone)}</a>
 E-Mail: <a href="mailto:${esc(BRAND.email)}">${esc(BRAND.email)}</a></p>
 <h2>Datenschutz · <span lang="en">Privacy</span></h2>
 <p>Verantwortlich: ${esc(BRAND.person)} (Kontakt siehe oben). Diese Seite wird bei Vercel Inc. bereitgestellt; beim Aufruf verarbeitet der Hosting-Anbieter technisch notwendige Daten (z. B. IP-Adresse, Zeitpunkt, Browserkennung) in Server-Logs (Art. 6 Abs. 1 lit. f DSGVO). Nach Öffnen eines gültigen Einladungslinks setzen wir ein technisch notwendiges Cookie („sf_zugang“) mit pseudonymem Tester-Kürzel und Ablaufdatum (§ 25 Abs. 2 Nr. 2 TDDDG); es dient nur dem Testzugang, nicht der Analyse, und endet mit Ablauf des Links. Enthält der Einladungslink einen Vornamen oder eine Sprache, speichern wir sie in den Cookies „sf_name“ bzw. „sf_lang“ nur für die Begrüßung und die Startsprache der App; sie enden mit Ablauf des Links. Die vollständige Datenschutzerklärung finden Sie in der App unter „Datenschutz“ oder erhalten Sie auf Anfrage.</p>
-<p lang="en">Controller: ${esc(BRAND.person)} (contact above). This page is hosted by Vercel Inc.; when it is accessed, the hosting provider processes technically necessary data (e.g. IP address, time of access, browser identifier) in server logs (Art. 6(1)(f) GDPR). After you open a valid invite link, we set a technically necessary cookie (“sf_zugang”) containing a pseudonymous tester code and expiry date (§ 25(2) no. 2 TDDDG); it is used only for test access, not for analytics, and ends when the link expires. If the invite link contains a first name or a language, we store them in the cookies “sf_name” and “sf_lang” only for the in-app greeting and the app’s starting language; they end when the link expires. The full privacy policy is available in the app under “Privacy Policy” or on request.</p>
+<p lang="en">Controller: ${esc(BRAND.person)} (contact above). This page is hosted by Vercel Inc.; when it is accessed, the hosting provider processes technically necessary data (e.g. IP address, time of access, browser identifier) in server logs (Art. 6(1)(f) GDPR). After you open a valid invite link, we set a technically necessary cookie (“sf_zugang”) containing a pseudonymous tester code and expiry date (§ 25(2) no. 2 TDDDG); it is used only for test access, not for analytics, and ends when the invite link expires. If the invite link contains a first name or a language, we store them in the cookies “sf_name” and “sf_lang” only for the in-app greeting and the app’s starting language; they end when the link expires. The full privacy policy is available in the app under “Privacy Policy” or on request.</p>
 </footer>
 </main>
 </body>

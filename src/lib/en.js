@@ -1,7 +1,6 @@
 // Englisch: deutscher Originaltext → Übersetzung
 export const EN = {
   // Home
-  "Zeit für guten Sound": "Time for great sound",
   "Nochmal": "Again",
   "Loslegen": "Get started",
   "Erste Übung starten": "Start your first lesson",
@@ -57,8 +56,8 @@ export const EN = {
   "Verstanden": "Got it",
   "Schließen": "Close",
   // Begrüßung
-  "Willkommen bei Spielfertig Control! 🥁": "Welcome to Spielfertig Control! 🥁",
-  "Hallo {name}, willkommen bei Spielfertig Control! 🥁": "Hi {name}, welcome to Spielfertig Control! 🥁",
+  "Willkommen bei Schlagfertig Control! 🥁": "Welcome to Schlagfertig Control! 🥁",
+  "Hallo {name}, willkommen bei Schlagfertig Control! 🥁": "Hi {name}, welcome to Schlagfertig Control! 🥁",
   "Schön, dass du dabei bist und die App testest. Starte am besten mit „Erste Übung“ – das dauert nur eine Minute. Über das „?“ oben rechts findest du überall Hilfe. Ich freue mich über jede Rückmeldung!": "Great to have you here testing the app. Tap “Start your first lesson” – it only takes a minute. Tap “?” at the top right for help anywhere. I'd love to hear your feedback!",
   "Los geht's": "Let's go",
   "40 PAS-Übungen. Notation lesen, Click hören, Tempo halten.": "40 PAS exercises. Read the notation, hear the click, hold the tempo.",
