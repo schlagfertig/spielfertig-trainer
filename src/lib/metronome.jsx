@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useId } from "react";
+import { useRef, useState, useEffect, useLayoutEffect, useId } from "react";
 import { t } from "./i18n.js";
 
 const TEAL = "#5cc8b8";
@@ -209,13 +209,15 @@ function HoldLever({ cx, cy, x, y, size, visible }) {
    SVG auf WHEEL_REST verkleinert, so dass nur der äußere Streifen (Striche, − und +) um den
    Kreis herum sichtbar bleibt – der Rest liegt unter dem Kreis. Die Logik bleibt die des Dials:
    Mitte = Start/Stop, am Rand drehen = Tempo, weiter außen feiner. */
-const WHEEL_K = 1.55; // Außenradius offen = Kreisradius × 1.55
+const WHEEL_K = 1.55; // Außenradius offen = Kreisradius × 1.55 (Standard, Click-Trainer); pro Trainer über `wheelK` kleiner, wenn Platz fehlt
 const WHEEL_REST_PX = 14; // in Ruhe ragt der Ring so weit über den Kreis hinaus
 const WHEEL_TICKS = 60;
+const HINT_FS = 10.5; // Schriftgröße des Hinweises im Ring; wird verkleinert, bis er auf den Bogen passt
+const HINT_MIN_FS = 7;
 
-function Clickwheel({ size, bpm, open, thumb }) {
+function Clickwheel({ size, bpm, open, thumb, k = WHEEL_K }) {
   const R0 = size / 2;
-  const ro = R0 * WHEEL_K;
+  const ro = R0 * k;
   const ri = R0 + 1;
   const pad = 22; // Platz für die Richtungspfeile außerhalb
   const D = Math.round(2 * (ro + pad));
@@ -228,6 +230,26 @@ function Clickwheel({ size, bpm, open, thumb }) {
   const [rx, ry] = polar(c, c, ro - 14, 0);
   const ra = ro + 9;
   const cue = { opacity: open ? 1 : 0 };
+  // Hinweis oben im Ring passend machen: Länge ist proportional zur Schriftgröße (Sperrung in em),
+  // also einmal messen und die Größe so setzen, dass der Text auf den Bogen passt (kleine Räder = kleinere Schrift).
+  const hint = t("Am Rand drehen · außen feiner").toUpperCase();
+  const hintRef = useRef(null);
+  const hintPathRef = useRef(null);
+  const [hintFs, setHintFs] = useState(HINT_FS);
+  useLayoutEffect(() => {
+    const fit = () => {
+      const el = hintRef.current;
+      const path = hintPathRef.current;
+      if (!el || !path || !el.getComputedTextLength) return;
+      const len = el.getComputedTextLength();
+      if (!len) return;
+      const perPx = len / hintFs; // Textlänge je px Schriftgröße
+      const want = Math.max(HINT_MIN_FS, Math.min(HINT_FS, (path.getTotalLength() * 0.95) / perPx));
+      if (Math.abs(want - hintFs) > 0.1) setHintFs(Math.round(want * 10) / 10);
+    };
+    fit();
+    document.fonts?.ready?.then(fit);
+  }, [hint, size, k, hintFs]);
   return (
     <svg
       className={open ? "cw-svg open" : "cw-svg"}
@@ -248,7 +270,7 @@ function Clickwheel({ size, bpm, open, thumb }) {
       }}
     >
       <defs>
-        <path id={`${uid}-top`} d={arc(c, c, mid, 200, 340, 1)} />
+        <path id={`${uid}-top`} ref={hintPathRef} d={arc(c, c, mid, 194, 346, 1)} />
         <filter id={`${uid}-glow`} x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="3" result="b" />
           <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
@@ -277,8 +299,8 @@ function Clickwheel({ size, bpm, open, thumb }) {
         <polygon points={fatTip(c, c, ra, 154, -1)} fill={TEAL} />
         <path d={arc(c, c, ra, 334, 26, 1)} fill="none" stroke={TEAL} strokeWidth="2.6" strokeLinecap="round" />
         <polygon points={fatTip(c, c, ra, 26, 1)} fill={TEAL} />
-        <text fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="10.5" fontWeight="800" letterSpacing="0.1em" dominantBaseline="central">
-          <textPath href={`#${uid}-top`} startOffset="50%" textAnchor="middle">{t("Am Rand drehen · außen feiner").toUpperCase()}</textPath>
+        <text ref={hintRef} fill={TEAL} fontFamily="Figtree, sans-serif" fontSize={hintFs} fontWeight="800" letterSpacing="0.1em" dominantBaseline="central">
+          <textPath href={`#${uid}-top`} startOffset="50%" textAnchor="middle">{hint}</textPath>
         </text>
       </g>
       {open && thumb ? (() => {
@@ -308,6 +330,7 @@ export function MetronomeDial({
   now = true,
   subLabel,
   wheel = false,
+  wheelK = WHEEL_K,
 }) {
   const large = size >= 72;
   const on = !!active;
@@ -459,7 +482,7 @@ export function MetronomeDial({
     const lev = (ev) => {
       if (!cw) { showLever(d.origin, ev); return; }
       setThumb({ deg: (ang * 180) / Math.PI, r: dist });
-      if (dist > (size / 2) * WHEEL_K) showLever(d.origin, ev);
+      if (dist > (size / 2) * wheelK) showLever(d.origin, ev);
       else if (lever.mounted && !fadeTimer.current) fadeLeverNow();
     };
     if (d.moved < MOVE_PX || dist < DEAD_R * (size / 2)) {
@@ -510,7 +533,7 @@ export function MetronomeDial({
         style={{ position: "relative", width: size + layoutPad * 2, height: size + layoutPad * 2, flexShrink: 0, overflow: "visible", touchAction: cw ? "none" : undefined }}
         {...(cw ? { onPointerDown, onPointerMove, onPointerUp, onPointerCancel: onPointerUp } : {})}
       >
-        {cw ? <Clickwheel size={size} bpm={bpm} open={wheelOpen} thumb={thumb} /> : null}
+        {cw ? <Clickwheel size={size} bpm={bpm} open={wheelOpen} thumb={thumb} k={wheelK} /> : null}
         {setBpm && !cw && !lever.mounted ? <WheelHints /> : null}
         <button
           type="button"

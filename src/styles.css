@@ -48,6 +48,8 @@ p { font-size: 17px; line-height: 1.45; }
 /* Beim Tempo-Drehen überlappen die Drehhinweise ×, ? und den Hören-Umschalter (Rudiments) – solange ausblenden */
 .home-help, .logo-dial-x, .rud-hear { transition: opacity .2s ease; }
 body.metro-gesturing .home-help, body.metro-gesturing .logo-dial-x, body.metro-gesturing .rud-hear { opacity: 0; pointer-events: none; }
+/* Clickwheel offen: der vergrößerte Ring darf über das (sonst scrollbare) Dock hinausragen, statt oben abgeschnitten zu werden */
+body.metro-gesturing .rud-metro .metro-face { overflow: visible; }
 /* Easter-Egg-Hinweis: Logo blinkt ca. 1× pro Minute 4 Schläge (100 BPM) wie der Dial, bis es einmal angetippt wurde. Kein scale: macht das Logo in Ruhe unscharf. */
 .logo-metro::before { content: ""; position: absolute; top: 0; left: 0; right: 0; margin: 0 auto; width: min(380px, 88vw); max-width: 100%; aspect-ratio: 1280 / 1024; background: radial-gradient(circle closest-side, rgba(92, 200, 184, 0) 50%, rgba(92, 200, 184, .6) 66%, rgba(92, 200, 184, 0) 90%); opacity: 0; pointer-events: none; }
 @keyframes logoBeat { 0%, .35%, 1%, 1.35%, 2%, 2.35%, 3%, 3.35%, 100% { filter: none; } .1%, 1.1%, 2.1%, 3.1% { filter: brightness(1.45); } }
