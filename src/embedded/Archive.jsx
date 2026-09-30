@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  addSheet, getSheet, lastId, lastId2, listSheets, loadArchiveView,
-  rememberLast, rememberLast2, removeSheet, saveArchiveView, updateSheetMeta,
+  addSheet, getSheet, lastId, listSheets, loadArchiveView,
+  rememberLast, removeSheet, saveArchiveView, updateSheetMeta,
 } from "../lib/archive.js";
 import { allTags, filterSheets, fold, MAX_NAME_LEN, MAX_TAG_LEN, MAX_TAGS, normTags, suggestTags } from "../lib/archiveMeta.js";
 import { fmtDate, t } from "../lib/i18n.js";
@@ -26,6 +26,34 @@ const ARCH_CSS = `
   .arch-cur .arch-chip { color: #06120f; background: #5cc8b8; border-color: #5cc8b8; }
   .arch-hint { color: #8a969c; font-size: 13px; margin: 6px 0 0; }
   .arch-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+  /* Liste: ausgewähltes Blatt türkis markiert (Rahmen, Fläche, Label) */
+  .arch-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 10px; border: 1px solid #2f383d; border-radius: 10px; background: #1c2226; }
+  .arch-row.on { border: 2px solid #5cc8b8; padding: 9px; background: rgba(92,200,184,.14); box-shadow: 0 0 0 1px rgba(92,200,184,.25); }
+  .arch-open { flex: 1 1 170px; min-width: 0; text-align: left; background: transparent; border: 0; color: #f4f7f6; padding: 0; cursor: pointer; }
+  .arch-open:focus-visible { outline: 2px solid #5cc8b8; outline-offset: 3px; border-radius: 6px; }
+  .arch-sel { display: inline-block; margin-left: 8px; vertical-align: 2px; background: #5cc8b8; color: #06120f; border-radius: 999px; padding: 2px 8px; font: 800 11px Figtree, sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+  /* Vorschau-Popup (Einzelseite) */
+  .arch-prev .modal-card { width: min(560px, 100%); display: flex; flex-direction: column; gap: 10px; }
+  .arch-kick { color: #5cc8b8; font: 800 12px Figtree, sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+  .arch-prev-name { color: #f4f7f6; font: 700 20px Figtree, sans-serif; overflow-wrap: anywhere; margin: 2px 0 0; }
+  .arch-prev-view { background: #0b0d0e; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 120px; }
+  .arch-prev-view img { display: block; width: 100%; height: auto; max-height: 52dvh; object-fit: contain; }
+  .arch-prev-view iframe { display: block; width: 100%; height: 52dvh; border: 0; background: #fff; }
+  .arch-prev .arch-actions { margin-top: 0; }
+  /* Vollbild: eine Seite, ‹ › blättert durch die Liste */
+  .arch-full { position: fixed; inset: 0; z-index: 60; background: #0b0d0e; display: flex; flex-direction: column; }
+  .arch-full-bar { display: flex; align-items: center; gap: 8px; padding: calc(8px + env(safe-area-inset-top, 0px)) 10px 8px; background: #161a1d; border-bottom: 1px solid #2f383d; }
+  .arch-full-title { flex: 1; min-width: 0; color: #f4f7f6; }
+  .arch-full-title strong { display: block; font: 700 16px Figtree, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .arch-full-title span { color: #8a969c; font: 700 12px Figtree, sans-serif; letter-spacing: .06em; }
+  .arch-full-body { position: relative; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; touch-action: pan-y pinch-zoom; }
+  .arch-full-body img { display: block; max-width: 100%; max-height: 100%; width: 100%; height: 100%; object-fit: contain; }
+  .arch-full-body iframe { display: block; width: 100%; height: 100%; border: 0; background: #fff; }
+  .arch-nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; width: 48px; height: 64px; border-radius: 12px; border: 1px solid rgba(92,200,184,.6); background: rgba(22,26,29,.78); color: #5cc8b8; font: 700 34px/1 Oswald, sans-serif; cursor: pointer; }
+  .arch-nav.prev { left: 6px; }
+  .arch-nav.next { right: 6px; }
+  .arch-nav:disabled { opacity: .25; cursor: default; }
+  .arch-nav:focus-visible { outline: 2px solid #5cc8b8; outline-offset: 2px; }
 `;
 
 function EditDialog({ row, known, onCancel, onSave }) {
@@ -141,23 +169,109 @@ function useSheet(id) {
   return { file, url };
 }
 
-function Pane({ file, url, overlay, split }) {
-  if (!file || !url) {
-    return <div style={{ flex: 1, minHeight: 80, color: "#8a969c", display: "flex", alignItems: "center", justifyContent: "center", padding: 16, textAlign: "center" }}>{t("Blatt in der Liste wählen")}</div>;
-  }
-  const h = split ? (overlay ? "42dvh" : "56dvh") : (overlay ? "48dvh" : "68dvh");
-  if (file.kind === "pdf") {
-    return <iframe title={file.name} src={url} style={{ width: "100%", height: h, border: 0, background: "#fff", flex: 1 }} />;
-  }
-  return <img src={url} alt={file.name} style={{ display: "block", width: "100%", height: "auto", maxHeight: h, objectFit: "contain" }} />;
+function SheetView({ file, url }) {
+  if (!file || !url) return <div style={{ color: "#8a969c", padding: 16 }} aria-busy="true">…</div>;
+  if (file.kind === "pdf") return <iframe title={file.name} src={url} />;
+  return <img src={url} alt={file.name} />;
 }
 
-export default function Archive({ overlay = false, onClose }) {
+/* Vorschau einer Seite im Popup; „Auswählen“ markiert das Blatt und öffnet das Vollbild. */
+function PreviewDialog({ id, onClose, onSelect }) {
+  const { file, url } = useSheet(id);
+  const btn = useRef(null);
+  useEffect(() => {
+    btn.current?.focus();
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  return (
+    <div className="modal arch-prev" style={{ zIndex: 45 }} onClick={onClose}>
+      <div className="modal-card" role="dialog" aria-modal="true" aria-labelledby="arch-prev-h" onClick={(e) => e.stopPropagation()}>
+        <div>
+          <div className="arch-kick">{t("Einzelseite")}</div>
+          <h2 className="arch-prev-name" id="arch-prev-h">{file?.name || "…"}</h2>
+        </div>
+        <div className="arch-prev-view"><SheetView file={file} url={url} /></div>
+        <div className="arch-actions">
+          <button type="button" className="ghost" onClick={onClose}>{t("Schließen")}</button>
+          <button type="button" ref={btn} className="ghost on" onClick={() => onSelect(id)}>{t("Auswählen")}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Vollbild: eine Seite groß; ‹ › (Pfeiltasten, Wischen) springt zum vorigen/nächsten Blatt der Liste. */
+function FullView({ id, list, onMove, onClose }) {
+  const { file, url } = useSheet(id);
+  const ref = useRef(null);
+  const swipe = useRef(null);
+  const pos = list.findIndex((r) => r.id === id);
+  const prevId = pos > 0 ? list[pos - 1].id : "";
+  const nextId = pos >= 0 && pos < list.length - 1 ? list[pos + 1].id : "";
+  const name = file?.name || list[pos]?.name || "";
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    const el = ref.current;
+    // echtes Vollbild, wo der Browser es erlaubt (iPhone: nicht für Elemente – dann bleibt die Fläche bildschirmfüllend)
+    try { el?.requestFullscreen?.().catch(() => {}); } catch { /* ignore */ }
+    const onFs = () => { if (!document.fullscreenElement) onCloseRef.current(); };
+    const t0 = window.setTimeout(() => document.addEventListener("fullscreenchange", onFs), 400);
+    return () => {
+      window.clearTimeout(t0);
+      document.removeEventListener("fullscreenchange", onFs);
+      if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+    };
+  }, []);
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+      else if (e.key === "ArrowLeft" && prevId) onMove(prevId);
+      else if (e.key === "ArrowRight" && nextId) onMove(nextId);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose, onMove, prevId, nextId]);
+
+  return (
+    <div className="arch-full" ref={ref} role="dialog" aria-modal="true" aria-label={`${t("Einzelseite")}: ${name}`}>
+      <div className="arch-full-bar">
+        <div className="arch-full-title">
+          <strong>{name}</strong>
+          <span>{t("Einzelseite")} · {t("{n} von {m}", { n: pos + 1, m: list.length })}</span>
+        </div>
+        <button type="button" className="ghost" onClick={onClose}>{t("Schließen")}</button>
+      </div>
+      <div
+        className="arch-full-body"
+        onTouchStart={(e) => { const p = e.changedTouches[0]; swipe.current = { x: p.clientX, y: p.clientY }; }}
+        onTouchEnd={(e) => {
+          const s0 = swipe.current; swipe.current = null;
+          if (!s0 || e.changedTouches.length !== 1) return;
+          const dx = e.changedTouches[0].clientX - s0.x;
+          const dy = Math.abs(e.changedTouches[0].clientY - s0.y);
+          if (Math.abs(dx) > 60 && dy < 50) {
+            if (dx < 0 && nextId) onMove(nextId);
+            if (dx > 0 && prevId) onMove(prevId);
+          }
+        }}
+      >
+        <button type="button" className="arch-nav prev" onClick={() => onMove(prevId)} disabled={!prevId} aria-label={t("Vorheriges Blatt")}>‹</button>
+        <SheetView file={file} url={url} />
+        <button type="button" className="arch-nav next" onClick={() => onMove(nextId)} disabled={!nextId} aria-label={t("Nächstes Blatt")}>›</button>
+      </div>
+    </div>
+  );
+}
+
+export default function Archive() {
   const [rows, setRows] = useState([]);
-  const [openA, setOpenA] = useState(overlay ? lastId() : "");
-  const [openB, setOpenB] = useState(overlay ? lastId2() : "");
-  const [split, setSplit] = useState(!!(overlay && lastId2()));
-  const [pickSide, setPickSide] = useState("a");
+  const [sel, setSel] = useState(() => lastId());
+  const [preview, setPreview] = useState("");
+  const [full, setFull] = useState("");
   const [err, setErr] = useState("");
   const [ok, setOk] = useState("");
   const [busy, setBusy] = useState(false);
@@ -170,8 +284,7 @@ export default function Archive({ overlay = false, onClose }) {
   const shown = useMemo(() => filterSheets(rows, { q, tag: tagF, sort }), [rows, q, tagF, sort]);
   const filtering = !!(q.trim() || tagF);
   const tools = rows.length >= 2;
-  const a = useSheet(openA);
-  const b = useSheet(split ? openB : "");
+  const list = tools ? shown : rows;
 
   async function refresh() {
     try {
@@ -183,8 +296,13 @@ export default function Archive({ overlay = false, onClose }) {
 
   useEffect(() => { refresh(); }, []);
 
-  async function onFiles(list) {
-    const picked = list?.[0];
+  function choose(id) {
+    setSel(id);
+    rememberLast(id);
+  }
+
+  async function onFiles(files) {
+    const picked = files?.[0];
     if (!picked) return;
     setBusy(true);
     setErr("");
@@ -192,13 +310,7 @@ export default function Archive({ overlay = false, onClose }) {
     try {
       const id = await addSheet(picked);
       await refresh();
-      if (split && pickSide === "b") {
-        setOpenB(id);
-        rememberLast2(id);
-      } else {
-        setOpenA(id);
-        rememberLast(id);
-      }
+      choose(id);
       setOk(t("Gespeichert. Extra-Kopie in Dateien oder Cloud legen."));
     } catch (e) {
       setErr(e.message || t("Speichern fehlgeschlagen."));
@@ -210,8 +322,7 @@ export default function Archive({ overlay = false, onClose }) {
   async function drop(id) {
     if (!window.confirm(t("Blatt vom Gerät löschen?"))) return;
     await removeSheet(id);
-    if (openA === id) setOpenA("");
-    if (openB === id) setOpenB("");
+    if (sel === id) setSel("");
     setOk(t("Gelöscht."));
     await refresh();
   }
@@ -238,48 +349,31 @@ export default function Archive({ overlay = false, onClose }) {
     if (tagF && !known.some((x) => fold(x.tag) === fold(tagF))) setTagF("");
   }, [known, tagF]);
 
-  function show(id) {
-    if (split && pickSide === "b") {
-      setOpenB(id);
-      rememberLast2(id);
-      return;
-    }
-    setOpenA(id);
+  const closePreview = useCallback(() => setPreview(""), []);
+  const closeFull = useCallback(() => setFull(""), []);
+  const selectAndOpen = useCallback((id) => {
+    setSel(id);
     rememberLast(id);
-  }
+    setPreview("");
+    setFull(id);
+  }, []);
+  const moveFull = useCallback((id) => {
+    if (!id) return;
+    setSel(id);
+    rememberLast(id);
+    setFull(id);
+  }, []);
 
-  function toggleSplit() {
-    const on = !split;
-    setSplit(on);
-    if (on) {
-      setPickSide("b");
-      if (!openB && rows[1]?.id && rows[1].id !== openA) {
-        setOpenB(rows[1].id);
-        rememberLast2(rows[1].id);
-      }
-    } else {
-      setPickSide("a");
-    }
-  }
-
-  const body = (
+  return (
     <div>
       <style>{ARCH_CSS}</style>
       <div role="note" style={{ background: "rgba(58,46,18,.55)", color: "#e8b84b", border: "1px solid rgba(232,184,75,.45)", borderRadius: 12, padding: "12px 14px", margin: "0 0 14px", fontSize: 15, lineHeight: 1.4 }}>
-        <strong style={{ display: "block", letterSpacing: "0.06em", textTransform: "uppercase", fontSize: 12, marginBottom: 4 }}>{t("Nur auf diesem Gerät")}</strong>
-        {t("Fotos und PDFs bleiben im Browser. Anderes Gerät oder Cache leeren löscht sie — Original extra sichern.")}
+        <strong style={{ display: "block", fontSize: 15, marginBottom: 4 }}>{t("Deine Noten bleiben auf diesem Gerät")}</strong>
+        {t("Fotos und PDFs werden nur hier im Browser gespeichert. Auf einem anderen Gerät siehst du sie nicht, und wenn du die Browserdaten löschst, sind sie weg. Bewahre deine Originale also zusätzlich woanders auf.")}
       </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-        <button type="button" className="play" disabled={busy} onClick={() => pick.current?.click()}>{busy ? "…" : t("Hinzufügen")}</button>
-        <button type="button" className={split ? "ghost on" : "ghost"} onClick={toggleSplit} aria-pressed={split} aria-label={t("Zwei Seiten")}>{t("2 Seiten")}</button>
-        {overlay && <button type="button" className="ghost" onClick={onClose}>{t("Schließen")}</button>}
+        <button type="button" className="play" disabled={busy} onClick={() => pick.current?.click()}>{busy ? "…" : t("Notenblatt hinzufügen")}</button>
       </div>
-      {split ? (
-        <div className="seg" style={{ marginBottom: 12, width: "fit-content" }}>
-          <button type="button" className={pickSide === "a" ? "on" : ""} onClick={() => setPickSide("a")}>{t("Links")}</button>
-          <button type="button" className={pickSide === "b" ? "on" : ""} onClick={() => setPickSide("b")}>{t("Rechts")}</button>
-        </div>
-      ) : null}
       <input ref={pick} type="file" accept="image/*,application/pdf" hidden onChange={(e) => onFiles(e.target.files)} />
       {err ? <p role="status" style={{ color: "#e05c5c", fontWeight: 700 }}>{err}</p> : null}
       {ok ? <p role="status" style={{ color: "#5cc8b8", fontWeight: 700 }}>{ok}</p> : null}
@@ -316,45 +410,36 @@ export default function Archive({ overlay = false, onClose }) {
         </>
       ) : null}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {(tools ? shown : rows).map((r) => (
-          <div key={r.id} style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center", padding: 10, border: "1px solid #2f383d", borderRadius: 10, background: r.id === openA || r.id === openB ? "#13211f" : "#1c2226" }}>
-            <button type="button" onClick={() => show(r.id)} style={{ flex: "1 1 170px", minWidth: 0, textAlign: "left", background: "transparent", border: 0, color: "#f4f7f6" }}>
-              <strong style={{ display: "block", fontSize: 18 }}>{r.name}</strong>
-              <span style={{ color: "#8a969c", fontSize: 14 }}>
-                {r.kind === "pdf" ? "PDF" : t("Foto")}
-                {r.id === openA ? ` · ${t("links")}` : r.id === openB && split ? ` · ${t("rechts")}` : ""}
-                {" · "}{fmtDate(r.added)}
-              </span>
-              {r.tags?.length ? (
-                <span className="arch-rowtags">
-                  {r.tags.map((tag) => <span key={tag} className="arch-tag">{tag}</span>)}
+        {list.map((r) => {
+          const on = r.id === sel;
+          return (
+            <div key={r.id} className={on ? "arch-row on" : "arch-row"} data-id={r.id}>
+              <button type="button" className="arch-open" onClick={() => setPreview(r.id)} aria-current={on ? "true" : undefined} aria-haspopup="dialog">
+                <strong style={{ display: "block", fontSize: 18 }}>
+                  {r.name}
+                  {on ? <span className="arch-sel">{t("Ausgewählt")}</span> : null}
+                </strong>
+                <span style={{ color: "#8a969c", fontSize: 14 }}>
+                  {r.kind === "pdf" ? "PDF" : t("Foto")}
+                  {" · "}{fmtDate(r.added)}
                 </span>
-              ) : null}
-            </button>
-            <span style={{ display: "flex", gap: 6, marginLeft: "auto", whiteSpace: "nowrap" }}>
-            <button type="button" className="ghost" onClick={() => setEdit(r)} aria-label={t("Name & Tags bearbeiten: {name}", { name: r.name })}>{t("Name & Tags")}</button>
-            <button type="button" className="ghost" onClick={() => drop(r.id)}>{t("Löschen")}</button>
-            </span>
-          </div>
-        ))}
+                {r.tags?.length ? (
+                  <span className="arch-rowtags">
+                    {r.tags.map((tag) => <span key={tag} className="arch-tag">{tag}</span>)}
+                  </span>
+                ) : null}
+              </button>
+              <span style={{ display: "flex", gap: 6, marginLeft: "auto", whiteSpace: "nowrap" }}>
+              <button type="button" className="ghost" onClick={() => setEdit(r)} aria-label={t("Name & Tags bearbeiten: {name}", { name: r.name })}>{t("Name & Tags")}</button>
+              <button type="button" className="ghost" onClick={() => drop(r.id)}>{t("Löschen")}</button>
+              </span>
+            </div>
+          );
+        })}
       </div>
-      {(openA || (split && openB)) ? (
-        <div style={{ marginTop: 14, display: "flex", gap: 8, alignItems: "stretch", background: "#0b0d0e", borderRadius: 10, overflow: "auto", maxHeight: overlay ? "54dvh" : "70dvh" }}>
-          <Pane file={a.file} url={a.url} overlay={overlay} split={split} />
-          {split ? <Pane file={b.file} url={b.url} overlay={overlay} split /> : null}
-        </div>
-      ) : null}
+      {preview ? <PreviewDialog id={preview} onClose={closePreview} onSelect={selectAndOpen} /> : null}
+      {full ? <FullView id={full} list={list.some((r) => r.id === full) ? list : rows} onMove={moveFull} onClose={closeFull} /> : null}
       {edit ? <EditDialog row={edit} known={known} onCancel={() => setEdit(null)} onSave={(meta) => saveMeta(edit.id, meta)} /> : null}
-    </div>
-  );
-
-  if (!overlay) return body;
-  return (
-    <div className="modal" onClick={onClose}>
-      <div className="modal-card" style={{ width: "min(920px, 100%)", maxHeight: "94dvh" }} onClick={(e) => e.stopPropagation()}>
-        <div className="modal-head">{t("Noten")}</div>
-        {body}
-      </div>
     </div>
   );
 }

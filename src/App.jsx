@@ -56,7 +56,6 @@ export default function App() {
   const [view, setView] = useState(viewFromPath);
   const [printOpen, setPrintOpen] = useState(false);
   const [stage, setStage] = useState(false);
-  const [sheetOpen, setSheetOpen] = useState(false);
   // Hand Control startet immer in der Fokus-Ansicht (aktuelle Übung groß, nächste als Vorschau).
   // Der frühere Schalter „Fokus + Preview“ ist weg – seine gemerkte Einstellung (sf.v1.stick) einmalig aufräumen.
   useEffect(() => {
@@ -76,7 +75,6 @@ export default function App() {
   function goHome() {
     setPrintOpen(false);
     setStage(false);
-    setSheetOpen(false);
     setView("home");
     try {
       if (window.location.pathname !== "/") {
@@ -87,7 +85,6 @@ export default function App() {
 
   function back() {
     if (printOpen) { setPrintOpen(false); return; }
-    if (sheetOpen) { setSheetOpen(false); return; }
     if (stage) { setStage(false); return; }
     if (window.history.state?.sf) window.history.back();
     else goHome();
@@ -96,7 +93,6 @@ export default function App() {
   function open(next) {
     setPrintOpen(false);
     setStage(false);
-    setSheetOpen(false);
     setView(next);
     try {
       const path = next === "impressum" ? "/impressum"
@@ -112,7 +108,6 @@ export default function App() {
       const next = viewFromPath();
       setPrintOpen(false);
       setStage(false);
-      setSheetOpen(false);
       setView(next);
     }
     window.addEventListener("popstate", onPop);
@@ -128,6 +123,8 @@ export default function App() {
       const t = e.changedTouches?.[0];
       if (!t) return;
       if (t.clientX > 32) return;
+      // offene Dialoge (z. B. Noten-Vollbild, Vorschau) haben eigene Gesten – kein Zurück-Wischen
+      if (document.querySelector('[aria-modal="true"]')) return;
       startX = t.clientX;
       startY = t.clientY;
       tracking = true;
@@ -156,7 +153,7 @@ export default function App() {
       window.removeEventListener("touchend", onEnd);
       window.removeEventListener("touchcancel", onEnd);
     };
-  }, [view, stage, sheetOpen, printOpen]);
+  }, [view, stage, printOpen]);
 
   if (view === "home") {
     return (
@@ -239,9 +236,6 @@ export default function App() {
             <button className="ghost" onClick={back}>{t("Zurück")}</button>
           )}
           <div className="top-right">
-            {view === "archive" && !printOpen && (
-              <button className={sheetOpen ? "ghost on" : "ghost"} onClick={() => setSheetOpen((v) => !v)}>{t("Blatt")}</button>
-            )}
             {view === "rudiments" && !stage && !printOpen && (
               <button className="ghost" onClick={() => setPrintOpen(true)}>{t("Drucken")}</button>
             )}
@@ -271,7 +265,6 @@ export default function App() {
           : view === "archive" ? <Archive />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} />}
       </main>
-      {sheetOpen && view === "archive" ? <Archive overlay onClose={() => setSheetOpen(false)} /> : null}
     </div>
   );
 }

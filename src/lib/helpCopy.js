@@ -5,7 +5,7 @@ export const HELP = {
     ["Click-Trainer", "Metronom: Tempo steigern oder halten. ‚Erweitert‘ = Click-Mixer."],
     ["Rhythmuspyramide", "Subdivisionen auf und ab, 4tel bis 32tel."],
     ["Hand Control", "24 Single-Beat-Nummern. Fokus-Mode spielt 1–24 durch."],
-    ["Noten", "Eigene Fotos/PDFs nur auf diesem Gerät. Beim Üben über Blatt."],
+    ["Noten", "Eigene Fotos/PDFs, nur auf diesem Gerät. Antippen = Vorschau, ‚Auswählen‘ = Vollbild."],
     ["Kreis", "Tippen = Start/Stop. Halten + drehen = Tempo."],
   ],
   rudiments: [
@@ -33,10 +33,10 @@ export const HELP = {
     ["Fokus-Mode", "1–24 durchspielen. Wiederholungen = komplette Übung (beide Takte). Einzählen nur am Start, nicht zwischen den Nummern."],
   ],
   archive: [
-    ["Nur hier", "Fotos und PDFs bleiben in diesem Browser. Kein Upload. Anderes Gerät oder Cache leeren löscht sie."],
-    ["Hinzufügen", "Foto oder PDF, maximal 12 MB."],
+    ["Nur hier", "Fotos und PDFs bleiben in diesem Browser, nichts wird hochgeladen. Auf einem anderen Gerät sind sie nicht da; Browserdaten löschen entfernt sie."],
+    ["Notenblatt hinzufügen", "Foto oder PDF, maximal 12 MB."],
     ["Name & Tags", "Pro Blatt Name und Tags vergeben. Oben suchen, nach Tag filtern, sortieren."],
-    ["2 Seiten", "Zwei Blätter nebeneinander. Links/Rechts wählt, welches Du tippst."],
-    ["Beim Üben", "In den anderen Modulen oben auf Blatt — der Click läuft weiter."],
+    ["Ansehen", "Blatt antippen öffnet die Vorschau (Einzelseite). ‚Auswählen‘ markiert es türkis und zeigt es im Vollbild."],
+    ["Blättern", "Im Vollbild mit ‹ › (oder Wischen) zum vorigen bzw. nächsten Blatt der Liste."],
   ],
 };
