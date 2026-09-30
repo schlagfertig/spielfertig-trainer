@@ -204,6 +204,92 @@ function HoldLever({ cx, cy, x, y, size, visible }) {
   );
 }
 
+/* Clickwheel (Entwurf, iPod-artig): ein Ring um den Kreis, der in Ruhe leise sichtbar ist
+   und sich beim Antippen vergrößert. Gezeichnet wird immer die offene Größe; in Ruhe ist das
+   SVG auf WHEEL_REST verkleinert, so dass nur der äußere Streifen (Striche, − und +) um den
+   Kreis herum sichtbar bleibt – der Rest liegt unter dem Kreis. Die Logik bleibt die des Dials:
+   Mitte = Start/Stop, am Rand drehen = Tempo, weiter außen feiner. */
+const WHEEL_K = 1.55; // Außenradius offen = Kreisradius × 1.55
+const WHEEL_REST_PX = 14; // in Ruhe ragt der Ring so weit über den Kreis hinaus
+const WHEEL_TICKS = 60;
+
+function Clickwheel({ size, bpm, open, thumbDeg }) {
+  const R0 = size / 2;
+  const ro = R0 * WHEEL_K;
+  const ri = R0 + 1;
+  const pad = 22; // Platz für die Richtungspfeile außerhalb
+  const D = Math.round(2 * (ro + pad));
+  const c = D / 2;
+  const rest = (R0 + WHEEL_REST_PX) / ro;
+  const mid = (ri + ro) / 2;
+  const uid = useId().replace(/:/g, "");
+  const rot = ((Number(bpm) || 0) * 6) % 360; // grob = 6° pro BPM: die Striche wandern mit dem Tempo
+  const [lx, ly] = polar(c, c, ro - 14, 180);
+  const [rx, ry] = polar(c, c, ro - 14, 0);
+  const ra = ro + 9;
+  const cue = { opacity: open ? 1 : 0 };
+  return (
+    <svg
+      className={open ? "cw-svg open" : "cw-svg"}
+      width={D}
+      height={D}
+      viewBox={`0 0 ${D} ${D}`}
+      aria-hidden="true"
+      style={{
+        position: "absolute",
+        left: "50%",
+        top: "50%",
+        margin: `${-D / 2}px 0 0 ${-D / 2}px`,
+        transform: `scale(${open ? 1 : rest})`,
+        transformOrigin: "50% 50%",
+        pointerEvents: open ? "auto" : "none",
+        overflow: "visible",
+        zIndex: 0,
+      }}
+    >
+      <defs>
+        <path id={`${uid}-top`} d={arc(c, c, mid, 200, 340, 1)} />
+        <filter id={`${uid}-glow`} x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" result="b" />
+          <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+      </defs>
+      {/* Trefferfläche, damit man auch im vergrößerten Ring außerhalb des Kreises greifen kann */}
+      <circle cx={c} cy={c} r={ro + 6} fill="transparent" />
+      {/* Drehbahn = Greifzone */}
+      <circle className="cw-track" cx={c} cy={c} r={mid} fill="none" stroke={TEAL} strokeWidth={ro - ri} style={{ opacity: open ? 0.14 : 0.09 }} />
+      <circle cx={c} cy={c} r={ro - 0.75} fill="none" stroke={TEAL} strokeWidth="1.5" style={{ opacity: open ? 0.55 : 0.32 }} />
+      <g className="cw-ticks" transform={`rotate(${rot} ${c} ${c})`} style={{ opacity: open ? 0.75 : 0.3 }}>
+        {Array.from({ length: WHEEL_TICKS }, (_, i) => {
+          const major = i % 5 === 0;
+          const [x0, y0] = polar(c, c, ro - (major ? 7.5 : 5), (i * 360) / WHEEL_TICKS);
+          const [x1, y1] = polar(c, c, ro - 2.5, (i * 360) / WHEEL_TICKS);
+          return <line key={i} x1={x0} y1={y0} x2={x1} y2={y1} stroke={TEAL} strokeWidth={major ? 2 : 1.2} strokeLinecap="round" />;
+        })}
+      </g>
+      <g style={{ opacity: open ? 1 : 0.55 }}>
+        <text x={lx} y={ly} textAnchor="middle" dominantBaseline="central" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="20" fontWeight="800">{MINUS}</text>
+        <text x={rx} y={ry} textAnchor="middle" dominantBaseline="central" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="20" fontWeight="800">+</text>
+      </g>
+      {/* Nur offen: Drehrichtung, Hinweis oben im Ring, Daumen am Finger */}
+      <g className="cw-cue" style={cue}>
+        <path d={arc(c, c, ra, 206, 154, 0)} fill="none" stroke={TEAL} strokeWidth="2.6" strokeLinecap="round" />
+        <polygon points={fatTip(c, c, ra, 154, -1)} fill={TEAL} />
+        <path d={arc(c, c, ra, 334, 26, 1)} fill="none" stroke={TEAL} strokeWidth="2.6" strokeLinecap="round" />
+        <polygon points={fatTip(c, c, ra, 26, 1)} fill={TEAL} />
+        <text fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="10.5" fontWeight="800" letterSpacing="0.1em" dominantBaseline="central">
+          <textPath href={`#${uid}-top`} startOffset="50%" textAnchor="middle">{t("Am Rand drehen · außen feiner").toUpperCase()}</textPath>
+        </text>
+      </g>
+      {open && thumbDeg != null ? (
+        <g filter={`url(#${uid}-glow)`}>
+          <circle cx={polar(c, c, mid, thumbDeg)[0]} cy={polar(c, c, mid, thumbDeg)[1]} r={(ro - ri) * 0.3} fill={TEAL} stroke="rgba(244,247,246,0.75)" strokeWidth="1.4" />
+        </g>
+      ) : null}
+    </svg>
+  );
+}
+
 export function MetronomeDial({
   bpm,
   setBpm,
@@ -215,6 +301,7 @@ export function MetronomeDial({
   size = 124,
   now = true,
   subLabel,
+  wheel = false,
 }) {
   const large = size >= 72;
   const on = !!active;
@@ -228,6 +315,10 @@ export function MetronomeDial({
   const drag = useRef(null);
   const holdTimer = useRef(null);
   const fadeTimer = useRef(null);
+  const cw = wheel && !!setBpm;
+  const [wheelOpen, setWheelOpen] = useState(false);
+  const [thumbDeg, setThumbDeg] = useState(null);
+  const shrinkTimer = useRef(null);
   const [lever, setLever] = useState({
     visible: false,
     mounted: false,
@@ -241,20 +332,40 @@ export function MetronomeDial({
     if (document.getElementById("metro-gesture-css")) return;
     const s = document.createElement("style");
     s.id = "metro-gesture-css";
-    s.textContent = ".nudge-lg{transition:opacity .64s ease-out,transform .64s ease-out}body.metro-gesturing .nudge-lg{opacity:0;pointer-events:none;transform:scale(.88)}";
+    s.textContent = ".nudge-lg{transition:opacity .64s ease-out,transform .64s ease-out}body.metro-gesturing .nudge-lg{opacity:0;pointer-events:none;transform:scale(.88)}"
+      // Clickwheel: weiches Vergrößern/Verkleinern; bei reduzierter Bewegung ohne Animation
+      + ".cw-svg{transition:transform .24s cubic-bezier(.2,.8,.2,1)}.cw-svg:not(.open){transition-duration:.34s}.cw-svg .cw-cue,.cw-svg .cw-track,.cw-svg .cw-ticks{transition:opacity .2s ease-out}.cw-hint{transition:opacity .2s ease-out}"
+      + "@media (prefers-reduced-motion: reduce){.cw-svg,.cw-svg:not(.open),.cw-svg .cw-cue,.cw-svg .cw-track,.cw-svg .cw-ticks,.cw-hint,.nudge-lg{transition:none}}";
     document.head.appendChild(s);
   }, []);
 
   useEffect(() => {
-    document.body.classList.toggle("metro-gesturing", lever.mounted);
+    document.body.classList.toggle("metro-gesturing", lever.mounted || wheelOpen);
     return () => document.body.classList.remove("metro-gesturing");
-  }, [lever.mounted]);
+  }, [lever.mounted, wheelOpen]);
 
   useEffect(() => () => {
     if (holdTimer.current) clearTimeout(holdTimer.current);
     if (fadeTimer.current) clearTimeout(fadeTimer.current);
+    if (shrinkTimer.current) clearTimeout(shrinkTimer.current);
     document.body.classList.remove("metro-gesturing");
   }, []);
+
+  function openWheel() {
+    if (!cw) return;
+    if (shrinkTimer.current) { clearTimeout(shrinkTimer.current); shrinkTimer.current = null; }
+    setWheelOpen(true);
+  }
+
+  function shrinkWheelSoon(ms) {
+    if (!cw) return;
+    if (shrinkTimer.current) clearTimeout(shrinkTimer.current);
+    shrinkTimer.current = setTimeout(() => {
+      shrinkTimer.current = null;
+      setWheelOpen(false);
+      setThumbDeg(null);
+    }, ms);
+  }
 
   function clearTimers() {
     if (holdTimer.current) {
@@ -304,6 +415,7 @@ export function MetronomeDial({
   function onPointerDown(e) {
     if (!setBpm) return;
     e.currentTarget.setPointerCapture(e.pointerId);
+    openWheel();
     const origin = originOf(e.currentTarget);
     drag.current = {
       last: angleOf(e.currentTarget, e),
@@ -327,23 +439,30 @@ export function MetronomeDial({
     d.y = e.clientY;
 
     // Mitte (tote Zone) oder noch kein echter Zug: Winkel nachführen, Tempo bleibt.
+    // Clickwheel: Daumen folgt dem Finger auf dem Ring; der Hebel erscheint erst außerhalb des Rings (= feiner).
+    const lev = (ev) => {
+      if (!cw) { showLever(d.origin, ev); return; }
+      setThumbDeg((ang * 180) / Math.PI);
+      if (dist > (size / 2) * WHEEL_K) showLever(d.origin, ev);
+      else if (lever.mounted) hideLever();
+    };
     if (d.moved < MOVE_PX || dist < DEAD_R * (size / 2)) {
       d.last = ang;
       d.acc = 0;
-      if (d.dragging) showLever(d.origin, e);
+      if (d.dragging) lev(e);
       return;
     }
     if (!d.dragging) {
       // Erster Moment am Rand: nur einrasten, kein Sprung.
       d.dragging = true;
       d.last = ang;
-      showLever(d.origin, e);
+      lev(e);
       return;
     }
     const delta = wrap(ang - d.last);
     d.last = ang;
     d.acc += delta;
-    showLever(d.origin, e);
+    lev(e);
     const step = radPerBpm(dist, size / 2);
     if (Math.abs(d.acc) >= step) {
       const steps = Math.trunc(d.acc / step);
@@ -358,6 +477,8 @@ export function MetronomeDial({
     drag.current = null;
     try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* already released */ }
     if (d?.dragging) hideLever();
+    // Nach dem Loslassen kurz offen lassen, dann zurück auf die leise Ruhegröße.
+    shrinkWheelSoon(d?.dragging ? 700 : 1200);
     if (!d) return;
     // Nie am Rand gedreht (Tipp oder Wackeln in der Mitte) = Start/Stop.
     if (!d.dragging) onToggle?.();
@@ -365,15 +486,26 @@ export function MetronomeDial({
 
   return (
     <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, minWidth: 0 }}>
-      <div style={{ position: "relative", width: size + layoutPad * 2, height: size + layoutPad * 2, flexShrink: 0, overflow: "visible" }}>
-        {setBpm && !lever.mounted ? <WheelHints /> : null}
+      <div
+        className={cw ? "cw-frame" : undefined}
+        style={{ position: "relative", width: size + layoutPad * 2, height: size + layoutPad * 2, flexShrink: 0, overflow: "visible", touchAction: cw ? "none" : undefined }}
+        {...(cw ? { onPointerDown, onPointerMove, onPointerUp, onPointerCancel: onPointerUp } : {})}
+      >
+        {cw ? <Clickwheel size={size} bpm={bpm} open={wheelOpen} thumbDeg={thumbDeg} /> : null}
+        {setBpm && !cw && !lever.mounted ? <WheelHints /> : null}
         <button
           type="button"
-          onClick={setBpm ? undefined : () => onToggle?.()}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
+          onClick={cw ? (e) => { if (e.detail === 0) onToggle?.(); } : setBpm ? undefined : () => onToggle?.()}
+          onKeyDown={cw ? (e) => {
+            const k = e.key;
+            const dir = k === "ArrowRight" || k === "ArrowUp" ? 1 : k === "ArrowLeft" || k === "ArrowDown" ? -1 : 0;
+            if (!dir) return;
+            e.preventDefault();
+            setBpm(clamp((Number(bpm) || min) + dir, min, max));
+            openWheel();
+            shrinkWheelSoon(1200);
+          } : undefined}
+          {...(cw ? {} : { onPointerDown, onPointerMove, onPointerUp, onPointerCancel: onPointerUp })}
           title={t("Tipp = Start/Stop. Am Rand drehen ändert das Tempo. Außen feiner.")}
           aria-label={t(active ? "Metronom stoppen. Halten und drehen ändert das Tempo." : "Metronom starten. Halten und drehen ändert das Tempo.")}
           style={{
@@ -425,14 +557,14 @@ export function MetronomeDial({
           </div>
         </button>
       </div>
-      {setBpm && lever.mounted ? (
+      {setBpm && !cw && lever.mounted ? (
         <DragArrows cx={lever.cx} cy={lever.cy} size={size} visible={lever.visible} />
       ) : null}
       {setBpm && lever.mounted ? (
         <HoldLever cx={lever.cx} cy={lever.cy} x={lever.x} y={lever.y} size={size} visible={lever.visible} />
       ) : null}
       {setBpm ? (
-        <div style={{ position: "absolute", left: "50%", top: "100%", transform: "translateX(-50%)", width: 168, marginTop: 2, textAlign: "center", font: "600 11px/1.25 Figtree, sans-serif", color: "#8a969c", pointerEvents: "none" }}>
+        <div className="cw-hint" style={{ position: "absolute", left: "50%", top: "100%", transform: "translateX(-50%)", width: 168, marginTop: 2, textAlign: "center", font: "600 11px/1.25 Figtree, sans-serif", color: "#8a969c", pointerEvents: "none", opacity: cw && wheelOpen ? 0 : 1 }}>
           {t("Am Rand drehen · außen feiner")}
         </div>
       ) : null}

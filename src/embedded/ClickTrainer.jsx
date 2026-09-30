@@ -274,7 +274,7 @@ export default function ClickTrainer() {
       <div className="ct-stage click-dock">
         <div className="dial-row">
           <button type="button" className="nudge-lg" onClick={() => setDial(bpm - 5)} aria-label={t("5 BPM langsamer")}>−5</button>
-          <MetronomeDial bpm={bpm} setBpm={setDial} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={dialSize} now subLabel={playing ? "Stop" : "Start"} />
+          <MetronomeDial bpm={bpm} setBpm={setDial} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={dialSize} now subLabel={playing ? "Stop" : "Start"} wheel />
           <button type="button" className="nudge-lg" onClick={() => setDial(bpm + 5)} aria-label={t("5 BPM schneller")}>+5</button>
         </div>
         {playing && ramp ? (
