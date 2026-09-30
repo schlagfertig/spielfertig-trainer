@@ -9,7 +9,8 @@ function clamp(n, min, max) {
   return Math.max(min, Math.min(max, Math.round(n)));
 }
 
-export function TempoControl({ bpm, setBpm, min = 30, max = 260, hideNudge = false }) {
+// slider=false: kein Schieberegler (Click-Trainer – dort stellt das Rad das Tempo ein).
+export function TempoControl({ bpm, setBpm, min = 30, max = 260, hideNudge = false, slider = true }) {
   const safe = clamp(Number(bpm) || min, min, max);
   const [draft, setDraft] = useState(String(safe));
   const [focused, setFocused] = useState(false);
@@ -60,7 +61,9 @@ export function TempoControl({ bpm, setBpm, min = 30, max = 260, hideNudge = fal
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
       <span style={{ fontSize: 15, color: DIM }}>Tempo</span>
-      <input type="range" min={min} max={max} value={safe} onChange={(e) => slide(Number(e.target.value))} aria-label="Tempo" style={{ width: 140, accentColor: TEAL }} />
+      {slider && (
+        <input type="range" min={min} max={max} value={safe} onChange={(e) => slide(Number(e.target.value))} aria-label="Tempo" style={{ width: 140, accentColor: TEAL }} />
+      )}
       {!hideNudge && (
         <>
           <button type="button" className="nudge" onClick={() => apply(safe - 5)}>−5</button>

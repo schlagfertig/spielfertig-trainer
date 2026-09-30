@@ -241,7 +241,7 @@ export default function ClickTrainer() {
             ? t("Alle paar Sekunden wird das Tempo angehoben — Du bleibst am Pad.")
             : t("Gleichmäßiges Tempo. Kreis drehen oder ±5.")}
         </p>
-        <TempoControl bpm={startBpm} setBpm={setStart} min={30} max={260} hideNudge />
+        <TempoControl bpm={startBpm} setBpm={setStart} min={30} max={260} hideNudge slider={false} />
         {ramp ? (
           <>
             <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
