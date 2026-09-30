@@ -11,7 +11,8 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 - Rhythmuspyramide: zeigt jetzt die aktuelle und die nächste Stufe (366808b)
 - Hilfe zur Pyramide: Septole ergänzt, auf Deutsch und Englisch (b2e137d)
 - Click-Trainer: Tempo-Rad größer und mittig, „Erweitert“ öffnet als Fenster von unten (e23d066)
-- Click-Trainer: Tempo-Schieberegler entfernt, Tempo nur noch über das Rad
+- Click-Trainer: Tempo-Schieberegler entfernt, Tempo nur noch über das Rad (df717b2)
+- Tempo-Hinweis am Rad erscheint nur noch einmal statt in jedem Trainer
 - Rudiments: Notation korrigiert – #4 mittig, #13 in einem Takt, #20 mit zwei Flams, #27/#28 als 2/4 mit Triolen-Balken, #29, #33 und Handsatz bei Flam/Drag (1e00f75, 9596798, 36a362d)
 - Rudiments: Abschlag bei den Rolls #13–#15 näher an den Roll (0bb037b)
 

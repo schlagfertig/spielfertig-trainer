@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "zugang": "node scripts/zugang.mjs",
-    "test": "node --test scripts/zugang.test.mjs scripts/archiveMeta.test.mjs scripts/changelog.test.mjs",
+    "test": "node --test scripts/zugang.test.mjs scripts/archiveMeta.test.mjs scripts/changelog.test.mjs scripts/dialHint.test.mjs",
     "build:cap": "CAPACITOR=1 vite build",
     "cap:sync": "npm run build:cap && npx cap sync",
     "cap:ios": "npm run cap:sync && npx cap open ios",

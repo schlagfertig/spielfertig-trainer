@@ -17,6 +17,8 @@ export const CHANGELOG = [
         en: "Click Trainer: bigger, centred tempo wheel; “Advanced” opens as a panel from the bottom." },
       { de: "Click-Trainer: Tempo-Schieberegler entfernt, Tempo nur noch über das Rad.",
         en: "Click Trainer: tempo slider removed, tempo is now set only with the wheel." },
+      { de: "Tempo-Hinweis am Rad erscheint nur noch einmal statt in jedem Trainer.",
+        en: "The dial tempo hint now shows only once instead of in every trainer." },
       { de: "Rudiments: Notenbild bei mehreren Rudiments korrigiert (u. a. #4, #13, #20, #27, #28, #29, #33 und die Rolls #13–#15).",
         en: "Rudiments: notation fixed for several rudiments (including #4, #13, #20, #27, #28, #29, #33 and rolls #13–#15)." },
       { de: "Hilfe zur Pyramide erklärt jetzt auch die Septole.",

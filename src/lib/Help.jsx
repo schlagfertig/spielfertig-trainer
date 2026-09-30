@@ -4,8 +4,9 @@ import { loadSession, saveSession } from "./session.js";
 import { t } from "./i18n.js";
 import { HELP } from "./helpCopy.js";
 import { DialHint } from "./DialHint.jsx";
+import { DIAL_TOPICS as DIAL_TOPIC_LIST, dialHintSeen, markDialHintSeen } from "./dialHintOnce.js";
 
-const DIAL_TOPICS = new Set(["rudiments", "click", "pyramid", "stick"]);
+const DIAL_TOPICS = new Set(DIAL_TOPIC_LIST);
 
 function markSeen(topic) {
   const cur = loadSession("tour", {});
@@ -21,9 +22,14 @@ export function Help({ topic = "home", onFirstClose }) {
 
   function close() {
     const wasFirst = first;
+    // Vor markSeen prüfen, sonst zählt die Migration den aktuellen Bereich schon mit.
+    const showDial = wasFirst && DIAL_TOPICS.has(topic) && !dialHintSeen();
     markSeen(topic);
     setOpen(false);
-    if (wasFirst && DIAL_TOPICS.has(topic)) setDial(true);
+    if (showDial) {
+      markDialHintSeen();
+      setDial(true);
+    }
     if (wasFirst) onFirstClose?.();
   }
 
