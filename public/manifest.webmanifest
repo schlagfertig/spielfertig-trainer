@@ -1,0 +1,25 @@
+{
+  "name": "Schlagfertig Control",
+  "short_name": "Control",
+  "description": "Rudiments und Grooves üben. Zeit für guten Sound.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#12161a",
+  "theme_color": "#161A1D",
+  "icons": [
+    {
+      "src": "/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/app-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Schlagfertig Control">
+  <rect width="512" height="512" rx="96" fill="#12161a"/>
+  <g fill="none" stroke="#5cc8b8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="256" cy="236" r="188" stroke-width="10"/>
+    <circle cx="256" cy="236" r="164" stroke-width="5"/>
+    <circle cx="256" cy="236" r="140" stroke-width="5"/>
+  </g>
+  <path id="arcTop" d="M 132 236 A 124 124 0 0 1 380 236" fill="none"/>
+  <text fill="#f4f7f6" font-family="Oswald, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="600" letter-spacing="4">
+    <textPath href="#arcTop" startOffset="50%" text-anchor="middle">ZEIT FÜR GUTEN SOUND</textPath>
+  </text>
+  <g fill="none" stroke="#f4f7f6" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="256" cy="268" rx="46" ry="28"/>
+    <path d="M210 268 V238 H302 V268"/>
+    <path d="M210 238 H174 V258"/>
+    <path d="M302 238 H338 V258"/>
+    <path d="M228 238 L208 214"/>
+    <circle cx="204" cy="208" r="10"/>
+    <path d="M284 238 L318 206"/>
+    <line x1="318" y1="198" x2="318" y2="228"/>
+    <line x1="174" y1="258" x2="164" y2="292"/>
+    <line x1="194" y1="258" x2="188" y2="292"/>
+    <line x1="318" y1="258" x2="328" y2="292"/>
+    <line x1="338" y1="258" x2="344" y2="292"/>
+    <line x1="240" y1="292" x2="232" y2="318"/>
+    <line x1="272" y1="292" x2="280" y2="318"/>
+  </g>
+  <line x1="86" y1="336" x2="426" y2="336" stroke="#5cc8b8" stroke-width="8"/>
+  <text x="256" y="378" text-anchor="middle" fill="#f4f7f6" font-family="Oswald, Helvetica Neue, Arial, sans-serif" font-size="44" font-weight="700" letter-spacing="3">SCHLAGFERTIG?</text>
+  <line x1="86" y1="396" x2="426" y2="396" stroke="#5cc8b8" stroke-width="8"/>
+</svg>
