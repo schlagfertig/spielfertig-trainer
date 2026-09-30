@@ -470,9 +470,11 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
           if (g[0].tuplet) {
             const label = g[0].tuplet === 6 ? "(6)" : String(g[0].tuplet);
             // Ohne Untergruppen: eine Ziffer je Balkengruppe; mit nt.sub: je Untergruppe.
+            // nt.tupOut: Note ist mitgebalkt, gehört aber nicht zur Triole (Ziffer nur über der Triole).
             const spans = [];
             g.forEach((nn, i) => {
-              if (i === 0 || (nn.sub != null && nn.sub !== g[i - 1].sub)) spans.push([i, i]);
+              if (nn.tupOut) return;
+              if (!spans.length || (nn.sub != null && nn.sub !== g[i - 1].sub)) spans.push([i, i]);
               else spans[spans.length - 1][1] = i;
             });
             spans.forEach(([a, c], si) => {

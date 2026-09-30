@@ -61,14 +61,15 @@ const sixStroke = (start, lead, g) => {
     n(start + 3, 1, b, true, { g, beams: 2 }),
   ];
 };
+// Single Stroke Four: je Schlag 16tel-Triole + betonte Achtel, pro Schlag zusammen gebalkt (R L R >L / L R L >R).
 const ss4 = (start, lead, g) => {
   const a = lead;
   const b = lead === "R" ? "L" : "R";
   return [
-    n(start, T3, a, false, { tuplet: 3, g, beams: 1 }),
-    n(start + T3, T3, b, false, { tuplet: 3, g, beams: 1 }),
-    n(start + 2 * T3, T3, a, false, { tuplet: 3, g, beams: 1 }),
-    n(start + 4, 2, b, true),
+    n(start, T6, a, false, { tuplet: 3, g, beams: 2 }),
+    n(start + T6, T6, b, false, { tuplet: 3, g, beams: 2 }),
+    n(start + 2 * T6, T6, a, false, { tuplet: 3, g, beams: 2 }),
+    n(start + 2, 2, b, true, { g, beams: 1, tupOut: true }),
   ];
 };
 const pata = (start, lead, g) => {
@@ -161,7 +162,7 @@ const SS16 = "RLRLRLRLRLRLRLRL";
 
 export const RUDIMENTS = [
   { id: 1, cat: "roll", label: "1. Single Stroke Roll", bars: 1, time: "2/4", notes: [...d32(0, SS16)], sticking: dual(SS16) },
-  { id: 2, cat: "roll", label: "2. Single Stroke Four", bars: 1, time: "4/4", notes: [...ss4(0, "R", 1), ...ss4(8, "L", 2)], sticking: dual("RLRLLRLR"), hint: "Triole + Abschlag" },
+  { id: 2, cat: "roll", label: "2. Single Stroke Four", bars: 1, time: "2/4", notes: [...ss4(0, "R", 1), ...ss4(4, "L", 2)], sticking: dual("RLRLLRLR"), hint: "Triole + Abschlag" },
   { id: 3, cat: "roll", label: "3. Single Stroke Seven", bars: 1, time: "2/4", notes: [...six(0, "RLRLRL", [], { g: 1 }), n(4, 2, "R", true)], sticking: dual("RLRLRLR") },
   { id: 4, cat: "roll", label: "4. Multiple Bounce Roll", bars: 1, time: "2/4", notes: [n(0, 8, "R", false, { roll: 3, whole: true })], sticking: dualTok(["R"]) },
   { id: 5, cat: "roll", label: "5. Triple Stroke Roll", bars: 1, time: "4/4", notes: [...trip(0, "RRR", [0]), ...trip(1, "LLL", [0]), ...trip(2, "RRR", [0]), ...trip(3, "LLL", [0])], sticking: dual("RRRLLLRRRLLL") },
