@@ -6,8 +6,10 @@ import "./styles-glass.css";
 import "./styles-top.css";
 import "./lib/enableAltStick.js";
 import { initNative } from "./lib/native.js";
+import { installNoBounce } from "./lib/noBounce.js";
 
 initNative();
+installNoBounce();
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

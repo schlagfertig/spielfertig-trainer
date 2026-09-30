@@ -19,6 +19,12 @@ html, body, #root {
   color: var(--txt);
 }
 html { font-size: 18px; }
+/* Seiten fest verankern: kein Gummiband/Bounce, kein Pull-to-refresh (siehe lib/noBounce.js für ältere iOS) */
+/* nur html: body ist wegen overflow-x:hidden selbst ein Scroll-Container – overscroll-behavior dort würde das Weiterreichen ans Fenster und damit das Scrollen blockieren */
+html { overscroll-behavior: none; }
+.modal-card, .click-adv-list { overscroll-behavior: none; }
+/* Hand Control während der Click läuft: Liste gesperrt, nur die App selbst scrollt (Auto-Weiter per scrollTo) */
+html.sf-scroll-lock { overflow: hidden; }
 body { font-family: Figtree, sans-serif; font-size: 1rem; -webkit-font-smoothing: antialiased; }
 button { font-family: inherit; font-size: 16px; }
 input, select { font-size: 17px; }

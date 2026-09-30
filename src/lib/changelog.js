@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-09-30",
     items: [
+      { de: "Seiten federn nicht mehr nach; Hand Control: Liste steht still, solange der Click läuft.",
+        en: "Pages no longer bounce; Hand Control: the list stays put while the click is running." },
       { de: "Startseite: Copyright größer, Links kleiner. Clickwheel: Hebel folgt dem Finger.",
         en: "Home screen: copyright larger, links smaller. Click wheel: the lever follows your finger." },
       { de: "Noten: Blatt antippen öffnet eine Vorschau (Einzelseite), „Auswählen“ zeigt es im Vollbild – mit ‹ › blätterst du zum vorigen oder nächsten Blatt. Das ausgewählte Blatt ist in der Liste türkis markiert. „2 Seiten“ und der doppelte Knopf „Blatt“ sind weg, der Knopf heißt jetzt „Notenblatt hinzufügen“, und der gelbe Hinweis ist verständlicher.",

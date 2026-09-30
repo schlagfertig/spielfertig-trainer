@@ -6,6 +6,7 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 
 ## 30.09.2026
 
+- Seiten federn nicht mehr nach (kein Gummiband/Pull-to-refresh; overscroll-behavior am Dokument plus Touch-Wächter für ältere iOS); Hand Control: Liste steht still, solange der Click läuft (kein Wischen/Scrollen, aktuelle Übung bleibt fest und springt weiter, Vorschau/Zähler/Rad funktionieren; nach Stopp wieder frei)
 - Startseite: Fußzeile „Copyright by Thomas Schuster“ größer, Links (Neuigkeiten, Impressum, Datenschutz) kleiner bei 44-px-Tippflächen; Click-Trainer-Clickwheel: Daumen folgt dem Finger auch nach innen, Hebel blendet beim Zurückgehen in den Ring sofort aus (d608d76)
 - Noten: Antippen öffnet eine Vorschau (Einzelseite), „Auswählen“ öffnet das Vollbild mit ‹ › zum vorigen/nächsten Blatt; ausgewähltes Blatt türkis markiert (aria-current, Label „Ausgewählt“); „2 Seiten“ und doppelter Kopf-Knopf „Blatt“ entfernt; „Hinzufügen“ → „Notenblatt hinzufügen“; gelber Hinweis neu formuliert; Hilfetexte aktualisiert
 - Hand Control: Übungen 3–24 wieder in der Liste „Danach“
