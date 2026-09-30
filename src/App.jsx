@@ -8,6 +8,7 @@ import { Help } from "./lib/Help.jsx";
 import { Welcome } from "./lib/Welcome.jsx";
 import FirstLesson from "./lib/FirstLesson.jsx";
 import Legal from "./lib/Legal.jsx";
+import News, { hasUnseenNews } from "./lib/News.jsx";
 import { loadSession, saveSession } from "./lib/session.js";
 import { LogoMetronome } from "./lib/LogoMetronome.jsx";
 import { getLang, setLang, t } from "./lib/i18n.js";
@@ -45,6 +46,7 @@ const META = {
   archive: { title: "Noten", help: "archive" },
   impressum: { title: "Impressum", help: "home" },
   datenschutz: { title: "Datenschutz", help: "home" },
+  news: { title: "Neuigkeiten", help: "home" },
 };
 
 function viewFromPath() {
@@ -221,6 +223,12 @@ export default function App() {
         </div>
         <footer className="foot">
           <div>Thomas Schuster · schlagfertig</div>
+          <div className="foot-links foot-news">
+            <button type="button" className="foot-link" onClick={() => open("news")}>
+              {t("Neuigkeiten")}
+              {hasUnseenNews() && <span className="news-dot" role="img" aria-label={t("neu")} />}
+            </button>
+          </div>
           <div className="foot-links">
             <button type="button" className="foot-link" onClick={() => open("impressum")}>{t("Impressum")}</button>
             <button type="button" className="foot-link" onClick={() => open("datenschutz")}>{t("Datenschutz")}</button>
@@ -265,7 +273,7 @@ export default function App() {
                 onClick={() => setStage((v) => !v)}
               >{t(stage ? "Pad aus" : "Übepad")}</button>
             )}
-            {!stage && !printOpen && view !== "first" && view !== "impressum" && view !== "datenschutz" && <Help topic={meta.help} />}
+            {!stage && !printOpen && view !== "first" && view !== "impressum" && view !== "datenschutz" && view !== "news" && <Help topic={meta.help} />}
           </div>
         </div>
         <div className="top-title">{t(printOpen && view === "rudiments" ? "Drucken" : meta.title)}</div>
@@ -274,6 +282,7 @@ export default function App() {
         {view === "first" ? <FirstLesson onHome={goHome} onOpen={open} />
           : view === "impressum" ? <Legal topic="impressum" onOpen={open} />
           : view === "datenschutz" ? <Legal topic="datenschutz" onOpen={open} />
+          : view === "news" ? <News />
           : view === "click" ? <ClickTrainer />
           : view === "pyramid" ? <PyramidTrainer />
           : view === "stick" ? <StickControl focusMode={handFocus} />

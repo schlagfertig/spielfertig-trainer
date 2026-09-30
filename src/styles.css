@@ -624,3 +624,19 @@ body.metro-gesturing .home-help, body.metro-gesturing .logo-dial-x, body.metro-g
   width: 100%;
 }
 .legal-nav-btn:hover { border-color: var(--teal); }
+
+/* Neuigkeiten / What's new */
+.foot-news { margin-top: 8px; }
+.foot-news + .foot-links { margin-top: 0; }
+.news-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: var(--teal);
+  vertical-align: 2px;
+}
+.news-lead { margin: 4px 0 20px; color: var(--dim); font-size: 16px; line-height: 1.5; }
+.news-list { margin: 0; padding: 0 0 0 20px; color: var(--dim); font-size: 16px; line-height: 1.5; }
+.news-list li { margin: 0 0 6px; }
+.news-list li::marker { color: var(--teal); }

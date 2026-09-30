@@ -22,6 +22,9 @@ export const EN = {
   "Noten": "Sheet Music",
   "Impressum": "Legal Notice",
   "Datenschutz": "Privacy Policy",
+  "Neuigkeiten": "What’s new",
+  "neu": "new",
+  "Was sich in der App geändert hat – das Neueste zuerst.": "What has changed in the app – newest first.",
   // Kopfleiste
   "Zurück": "Back",
   "Drucken": "Print",
