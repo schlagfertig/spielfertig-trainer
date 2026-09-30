@@ -23,7 +23,7 @@ export const HELP = {
   ],
   pyramid: [
     ["Metronom unten", "Tippen = Start/Stop. Halten + drehen = Tempo, innen grob, außen fein, auch über den Ring hinaus. −5/+5 daneben."],
-    ["Stufen", "4tel → 8tel → 8tel-Triole → 16tel → Quintole → 16tel-Sextole → 32tel. Tippen schaltet einzeln an/aus, eine bleibt immer an."],
+    ["Stufen", "4tel → 8tel → 8tel-Triole → 16tel → Quintole → 16tel-Sextole → Septole → 32tel. Tippen schaltet einzeln an/aus, eine bleibt immer an."],
     ["Takte", "1, 2 oder 4 Takte pro Stufe, immer im 4/4."],
   ],
   stick: [
