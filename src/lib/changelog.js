@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-09-30",
     items: [
+      { de: "Die App heißt jetzt „Schlagfertig Control“. Auf der Startseite steht unter dem Logo nur noch „Control“.",
+        en: "The app is now called “Schlagfertig Control”. On the home screen, only “Control” appears below the logo." },
       { de: "Noten: Blätter bekommen eigene Namen und Tags. Du kannst suchen, nach Tags filtern und sortieren (neueste, älteste, Name A–Z).",
         en: "Sheet Music: give your sheets names and tags. You can search, filter by tag and sort (newest, oldest, name A–Z)." },
       { de: "Hand Control: neuer Modus „Fokus + Preview“ – die aktuelle Übung groß, die nächste klein darunter.",
