@@ -13,6 +13,8 @@ export const CHANGELOG = [
         en: "Rudiments: “Pad” mode is now called “Focus mode” – large notation, fewer controls. The button turns teal when it is on." },
       { de: "Noten: Blätter bekommen eigene Namen und Tags. Du kannst suchen, nach Tags filtern und sortieren (neueste, älteste, Name A–Z).",
         en: "Sheet Music: give your sheets names and tags. You can search, filter by tag and sort (newest, oldest, name A–Z)." },
+      { de: "Hand Control, Fokus-Mode: Wiederholungen wählst du jetzt an einem kleinen Drehrädchen. Beim Spielen steht groß über dem Kreis, die wievielte Wiederholung läuft (z. B. 2 / 4). In der letzten Wiederholung leuchtet die nächste Übung hell türkis auf.",
+        en: "Hand Control, Focus mode: pick the number of repeats with a small scroll wheel. While playing, the current repeat is shown large above the dial (e.g. 2 / 4). During the last repeat, the next exercise lights up in light teal." },
       { de: "Hand Control startet jetzt immer groß: aktuelle Übung groß, die nächste als Vorschau darunter – der Schalter „Fokus + Preview“ entfällt. Frühere Übungen sind leicht unscharf, damit die aktuelle heraussticht. „Challenge“ heißt jetzt „Fokus-Mode“.",
         en: "Hand Control now always starts in the large view: the current exercise large, the next one below as a preview – the “Focus + Preview” switch is gone. Earlier exercises are slightly blurred so the current one stands out. “Challenge” is now called “Focus mode”." },
       { de: "Hand Control: neuer Modus „Fokus + Preview“ – die aktuelle Übung groß, die nächste klein darunter.",
