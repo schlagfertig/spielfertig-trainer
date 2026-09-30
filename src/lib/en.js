@@ -173,6 +173,7 @@ export const EN = {
   "Nr. {n}": "No. {n}",
   "Nummer {n}": "Exercise {n}",
   "DAVOR": "PREVIOUS",
+  "Danach": "After that",
   "Wiederholungen": "Repeats",
   "Wiederholung": "Repeat",
   "Wdh.": "Reps",
