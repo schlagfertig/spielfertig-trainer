@@ -31,6 +31,24 @@ function useMixNow(mix, flipped) {
   return flipped || extrasOn(mix);
 }
 
+// Kreisgröße nach verfügbarer Höhe: groß auf normalen Phones, kleiner auf kurzen Screens / Querformat.
+function dialSizeFor(h) {
+  if (h <= 480) return 112;
+  if (h <= 720) return 136;
+  return 156;
+}
+
+function useDialSize() {
+  const [size, setSize] = useState(() => dialSizeFor(typeof window !== "undefined" ? window.innerHeight : 844));
+  useEffect(() => {
+    const on = () => setSize(dialSizeFor(window.innerHeight));
+    on();
+    window.addEventListener("resize", on);
+    return () => window.removeEventListener("resize", on);
+  }, []);
+  return size;
+}
+
 export default function ClickTrainer() {
   const init = useRef(readClickSession()).current;
   const [mode, setMode] = useState(init.mode);
@@ -40,16 +58,12 @@ export default function ClickTrainer() {
   const [step, setStep] = useState(init.step);
   const [cap, setCap] = useState(init.cap);
   const [mix, setMix] = useState(() => readMix());
+  // flipped = Click-Mixer-Sheet offen
   const [flipped, setFlipped] = useState(false);
-  const dockRef = useRef(null);
-  const [dockH, setDockH] = useState(220);
-  useEffect(() => {
-    const el = dockRef.current;
-    if (!el || typeof ResizeObserver === "undefined") return undefined;
-    const ro = new ResizeObserver(() => setDockH(el.offsetHeight));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
+  const dialSize = useDialSize();
+  const advBtnRef = useRef(null);
+  const sheetCloseRef = useRef(null);
+  const sheetRef = useRef(null);
   const [playing, setPlaying] = useState(false);
   const [beat, setBeat] = useState(false);
   const [left, setLeft] = useState(0);
@@ -77,6 +91,17 @@ export default function ClickTrainer() {
     saveSession("click", { mode, startBpm, everySec, step, cap });
   }, [mode, startBpm, everySec, step, cap]);
   useEffect(() => () => stopRef.current?.(), []);
+  // Sheet: Esc schließt; Fokus rein beim Öffnen, zurück zum Erweitert-Knopf beim Schließen.
+  useEffect(() => {
+    if (!flipped) {
+      if (sheetRef.current?.contains(document.activeElement)) advBtnRef.current?.focus();
+      return undefined;
+    }
+    sheetCloseRef.current?.focus({ preventScroll: true });
+    const onKey = (e) => { if (e.key === "Escape") flip(false); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [flipped]);
   useEffect(() => {
     const onVis = () => {
       if (document.hidden && playingRef.current) setBgHint(true);
@@ -204,7 +229,7 @@ export default function ClickTrainer() {
   const atCap = ramp && bpm >= cap;
 
   return (
-    <div style={{ minWidth: 0, maxWidth: "100%", paddingBottom: dockH + 16 }}>
+    <div className="ct-wrap">
       <div className="seg" style={{ margin: "8px 0 12px", maxWidth: "100%" }}>
         <button type="button" className={!ramp ? "on" : ""} onClick={() => pickMode("hold")}>{t("Tempo halten")}</button>
         <button type="button" className={ramp ? "on" : ""} onClick={() => pickMode("ramp")}>{t("Tempo steigern")}</button>
@@ -246,118 +271,139 @@ export default function ClickTrainer() {
           </p>
         )}
       </div>
-      <div
-        ref={dockRef}
-        className="click-dock"
-        style={{
-          position: "fixed",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 15,
-          background: "transparent",
-          border: "none",
-          boxShadow: "none",
-          borderRadius: 0,
-          margin: 0,
-          padding: "8px 14px calc(14px + env(safe-area-inset-bottom, 0px))",
-          pointerEvents: "none",
-        }}
-      >
-        <div style={{ pointerEvents: "auto", maxWidth: 880, margin: "0 auto" }}>
-          <div className="metro-shell">
-            <div style={{ position: "static", margin: 0, padding: flipped ? "8px 8px 4px 10px" : "8px 8px 4px 0", borderRadius: flipped ? "12px 0 0 12px" : 0, background: flipped ? "#212f32" : "transparent", border: flipped ? `1px solid ${LINE}` : "none", borderRight: "none", boxShadow: "none", overflow: "auto" }}>
-              {flipped ? (
-                <div key="back" className="metro-swap">
-                  <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 10 }}>{t("Click-Mixer")}</div>
-                  <ClickAdvanced mix={mix} setMix={setMix} slidersOnly />
-                </div>
-              ) : (
-                <div key="front" className="metro-swap">
-                  <div className="dial-row">
-                    <button type="button" className="nudge-lg" onClick={() => setDial(bpm - 5)} aria-label={t("5 BPM langsamer")}>−5</button>
-                    <MetronomeDial bpm={bpm} setBpm={setDial} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={124} now subLabel={playing ? "Stop" : "Start"} />
-                    <button type="button" className="nudge-lg" onClick={() => setDial(bpm + 5)} aria-label={t("5 BPM schneller")}>+5</button>
-                  </div>
-                  {playing && ramp ? (
-                    <div className="count">
-                      {atCap ? (
-                        <span className="count-done">{t("Ziel")}</span>
-                      ) : (
-                        <>
-                          <span className="count-num">{Math.max(0, Math.ceil(left))}</span>
-                          <span className="count-unit">{t("Sek. bis +{step}", { step })}</span>
-                        </>
-                      )}
-                    </div>
-                  ) : null}
-                  {done ? <p style={{ color: "#5cc8b8", textAlign: "center", fontSize: 14, margin: "12px 0 0" }}>{done}</p> : null}
-                  {bgHint ? <p style={{ color: "#e8b84b", textAlign: "center", fontSize: 12, margin: "10px 0 0" }}>{t("App im Hintergrund — der Click kann pausieren. Zurückkommen und ggf. neu starten.")}</p> : null}
-                </div>
-              )}
-            </div>
-            <button type="button" className={flipped ? "metro-side on" : "metro-side"} onClick={() => flip(!flipped)}>
-              {t(flipped ? "Metronom" : "Erweitert")}
-            </button>
-          </div>
+      <div className="ct-stage click-dock">
+        <div className="dial-row">
+          <button type="button" className="nudge-lg" onClick={() => setDial(bpm - 5)} aria-label={t("5 BPM langsamer")}>−5</button>
+          <MetronomeDial bpm={bpm} setBpm={setDial} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={dialSize} now subLabel={playing ? "Stop" : "Start"} />
+          <button type="button" className="nudge-lg" onClick={() => setDial(bpm + 5)} aria-label={t("5 BPM schneller")}>+5</button>
         </div>
+        {playing && ramp ? (
+          <div className="count">
+            {atCap ? (
+              <span className="count-done">{t("Ziel")}</span>
+            ) : (
+              <>
+                <span className="count-num">{Math.max(0, Math.ceil(left))}</span>
+                <span className="count-unit">{t("Sek. bis +{step}", { step })}</span>
+              </>
+            )}
+          </div>
+        ) : null}
+        {done ? <p style={{ color: "#5cc8b8", textAlign: "center", fontSize: 14, margin: "12px 0 0" }}>{done}</p> : null}
+        {bgHint ? <p style={{ color: "#e8b84b", textAlign: "center", fontSize: 12, margin: "10px 0 0" }}>{t("App im Hintergrund — der Click kann pausieren. Zurückkommen und ggf. neu starten.")}</p> : null}
+        <button
+          ref={advBtnRef}
+          type="button"
+          className={flipped ? "ghost ct-adv-btn on" : "ghost ct-adv-btn"}
+          aria-expanded={flipped}
+          aria-controls="ct-sheet"
+          onClick={() => flip(!flipped)}
+        >
+          {t("Erweitert")} <span aria-hidden="true" className="ct-adv-caret">▴</span>
+        </button>
+      </div>
+      <div className={flipped ? "ct-backdrop open" : "ct-backdrop"} onClick={() => flip(false)} aria-hidden="true" />
+      <div
+        id="ct-sheet"
+        ref={sheetRef}
+        className={flipped ? "ct-sheet open" : "ct-sheet"}
+        role="dialog"
+        aria-modal="false"
+        aria-label={t("Click-Mixer")}
+        inert={!flipped}
+      >
+        <button ref={sheetCloseRef} type="button" className="ct-sheet-handle" onClick={() => flip(false)} aria-label={t("Schließen")}>
+          <span aria-hidden="true" />
+        </button>
+        <div className="ct-sheet-head">
+          <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8" }}>{t("Click-Mixer")}</div>
+          <button type="button" className="ct-sheet-x" onClick={() => flip(false)} aria-label={t("Schließen")}>×</button>
+        </div>
+        <ClickAdvanced mix={mix} setMix={setMix} slidersOnly />
       </div>
       <style>{`
-        .click-dock {
+        .page.tool:has(.ct-wrap) { display: flex; flex-direction: column; }
+        .page.tool:has(.ct-wrap) .main { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
+        .ct-wrap { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; max-width: 100%; }
+        /* Kreis mittig im freien Raum unter der Einstellung */
+        .ct-stage {
+          flex: 1 1 auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
+          min-height: 0;
+          padding: 12px 0 env(safe-area-inset-bottom, 0px);
+        }
+        .ct-stage .dial-row { padding-bottom: 22px; }
+        .ct-stage .count { margin-top: 2px; }
+        @media (max-width: 370px) { .ct-stage .dial-row { gap: 6px; } }
+        .ct-adv-btn {
+          margin-top: 10px;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          color: #5cc8b8;
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+        }
+        .ct-adv-caret { display: inline-block; font-size: 11px; transition: transform .2s ease; }
+        .ct-adv-btn.on .ct-adv-caret { transform: rotate(180deg); }
+        .ct-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 40;
+          background: rgba(6, 10, 12, 0.5);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity .28s ease;
+        }
+        .ct-backdrop.open { opacity: 1; pointer-events: auto; }
+        .ct-sheet {
           position: fixed;
           left: 0;
           right: 0;
           bottom: 0;
-          zIndex: 15;
-          background: transparent;
-          border: none;
-          box-shadow: none;
+          z-index: 41;
+          max-width: 640px;
+          margin: 0 auto;
+          max-height: min(78dvh, 620px);
+          overflow: auto;
+          overscroll-behavior: contain;
+          box-sizing: border-box;
+          padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px));
+          background: #182427;
+          border: 1px solid ${LINE};
+          border-bottom: none;
+          border-radius: 18px 18px 0 0;
+          box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.45);
+          transform: translateY(calc(100% + 24px));
+          visibility: hidden;
+          transition: transform .3s cubic-bezier(.2, .8, .2, 1), visibility 0s linear .3s;
+        }
+        .ct-sheet.open { transform: none; visibility: visible; transition: transform .3s cubic-bezier(.2, .8, .2, 1), visibility 0s; }
+        .ct-sheet-handle {
+          display: flex; justify-content: center; align-items: center;
+          width: 100%; height: 26px; padding: 0; margin: 0;
+          background: transparent; border: none; cursor: pointer;
+        }
+        .ct-sheet-handle span { width: 42px; height: 5px; border-radius: 3px; background: #4a585e; }
+        .ct-sheet-head { display: flex; align-items: center; justify-content: space-between; margin: 0 0 10px; }
+        .ct-sheet-x {
+          width: 36px; height: 36px; border-radius: 50%;
+          border: 1px solid ${LINE}; background: transparent; color: #c9d3d6;
+          font-size: 22px; line-height: 1; cursor: pointer;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .ct-sheet, .ct-sheet.open, .ct-backdrop, .ct-adv-caret { transition: none; }
         }
         .field { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 14px; color: ${DIM}; }
         .field input {
           width: 64px; text-align: center; font-weight: 700; font-size: 16px; color: #5cc8b8;
           background: ${INK}; border: 1px solid ${LINE}; border-radius: 8px; padding: 7px 4px;
-        }
-        .metro-shell {
-          display: grid;
-          grid-template-columns: minmax(0, 1fr) 40px;
-          align-items: stretch;
-          margin: 0;
-          max-width: 100%;
-          min-width: 0;
-        }
-        .metro-side {
-          margin: 0;
-          width: 40px;
-          max-width: 40px;
-          min-width: 40px;
-          padding: 10px 0;
-          overflow: hidden;
-          border: 1px solid ${LINE};
-          border-left: 0;
-          border-radius: 0 12px 12px 0;
-          background: #13211f;
-          color: #5cc8b8;
-          font: 800 10px/1.05 Figtree, sans-serif;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          writing-mode: vertical-rl;
-          text-orientation: mixed;
-          transform: rotate(180deg);
-          cursor: pointer;
-        }
-        .metro-side.on {
-          background: #5cc8b8;
-          color: #06120f;
-          border-color: #5cc8b8;
-        }
-        .click-dock .dial-row { padding-bottom: 16px; }
-        .click-dock .count { margin-top: 2px; }
-        @media (max-width: 370px) { .click-dock .dial-row { gap: 6px; } }
-        .metro-swap { animation: metroIn .28s ease; min-width: 0; }
-        @keyframes metroIn {
-          from { opacity: 0; transform: rotateY(-80deg); }
-          to { opacity: 1; transform: none; }
         }
       `}</style>
     </div>
