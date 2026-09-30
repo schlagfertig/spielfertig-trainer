@@ -4,7 +4,7 @@ export const HELP = {
     ["Rudiments", "40 PAS-Übungen. Notation lesen, Click hören, Tempo halten."],
     ["Click-Trainer", "Metronom: Tempo steigern oder halten. ‚Erweitert‘ = Click-Mixer."],
     ["Rhythmuspyramide", "Subdivisionen auf und ab, 4tel bis 32tel."],
-    ["Hand Control", "24 Single-Beat-Nummern. Challenge spielt 1–24 durch."],
+    ["Hand Control", "24 Single-Beat-Nummern. Fokus-Mode spielt 1–24 durch."],
     ["Noten", "Eigene Fotos/PDFs nur auf diesem Gerät. Beim Üben über Blatt."],
     ["Kreis", "Tippen = Start/Stop. Halten + drehen = Tempo."],
   ],
@@ -29,8 +29,8 @@ export const HELP = {
   stick: [
     ["Metronom unten", "Tippen = Start/Stop. Drehen = Tempo, innen grob, außen fein. −5/+5 daneben."],
     ["Nav unten", "‹ › oder wischen. Halten öffnet das Rad, Vorschau = erste 8 Achtel."],
-    ["Liste", "Nach oben scrollen zeigt frühere Nummern, nach unten die nächsten. Die aktuelle bleibt oben angeheftet."],
-    ["Challenge", "1–24 durchspielen. Wiederholungen = komplette Übung (beide Takte). Einzählen nur am Start, nicht zwischen den Nummern."],
+    ["Liste", "Die aktuelle Nummer groß, darunter die nächste als Vorschau – antippen = weiter. Nach oben scrollen zeigt frühere Nummern, leicht unscharf."],
+    ["Fokus-Mode", "1–24 durchspielen. Wiederholungen = komplette Übung (beide Takte). Einzählen nur am Start, nicht zwischen den Nummern."],
   ],
   archive: [
     ["Nur hier", "Fotos und PDFs bleiben in diesem Browser. Kein Upload. Anderes Gerät oder Cache leeren löscht sie."],
