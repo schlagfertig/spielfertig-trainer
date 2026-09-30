@@ -459,7 +459,8 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
               } else {
                 const neighborX = i > 0 ? xs[i - 1] : (xs[i + 1] ?? xs[i] + stepW);
                 const inward = i > 0 ? -1 : 1;
-                const hook = Math.min(Math.abs(neighborX - xs[i]) * 0.45, stepW * 0.65);
+                // Bruchbalken (Stummel): höchstens etwa eine Notenkopfbreite lang (Standard-Stich).
+                const hook = Math.min(Math.abs(neighborX - xs[i]) * 0.45, stepW * 0.65, HEAD_RX * 2);
                 layers.push(
                   <line key={`${gi}-${b}-${i}`} x1={xs[i]} y1={yy(xs[i])} x2={xs[i] + inward * hook} y2={yy(xs[i])} strokeWidth={BEAM_W} />
                 );
