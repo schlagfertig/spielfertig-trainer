@@ -5,6 +5,7 @@ import {
 } from "../lib/archive.js";
 import { allTags, filterSheets, fold, MAX_NAME_LEN, MAX_TAG_LEN, MAX_TAGS, normTags, suggestTags } from "../lib/archiveMeta.js";
 import { fmtDate, t } from "../lib/i18n.js";
+import { ZoomView, ZOOM_CSS } from "../lib/ZoomView.jsx";
 
 const ARCH_CSS = `
   .arch-tools { display: flex; gap: 8px; margin: 0 0 10px; }
@@ -36,9 +37,7 @@ const ARCH_CSS = `
   .arch-prev .modal-card { width: min(560px, 100%); display: flex; flex-direction: column; gap: 10px; }
   .arch-kick { color: #5cc8b8; font: 800 12px Figtree, sans-serif; letter-spacing: .12em; text-transform: uppercase; }
   .arch-prev-name { color: #f4f7f6; font: 700 20px Figtree, sans-serif; overflow-wrap: anywhere; margin: 2px 0 0; }
-  .arch-prev-view { background: #0b0d0e; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 120px; }
-  .arch-prev-view img { display: block; width: 100%; height: auto; max-height: 52dvh; object-fit: contain; }
-  .arch-prev-view iframe { display: block; width: 100%; height: 52dvh; border: 0; background: #fff; }
+  .arch-prev-view { background: #0b0d0e; border-radius: 10px; overflow: hidden; height: 52dvh; min-height: 120px; }
   .arch-prev .arch-actions { margin-top: 0; }
   /* Vollbild: eine Seite, ‹ › blättert durch die Liste */
   .arch-full { position: fixed; inset: 0; z-index: 60; background: #0b0d0e; display: flex; flex-direction: column; }
@@ -46,15 +45,14 @@ const ARCH_CSS = `
   .arch-full-title { flex: 1; min-width: 0; color: #f4f7f6; }
   .arch-full-title strong { display: block; font: 700 16px Figtree, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .arch-full-title span { color: #8a969c; font: 700 12px Figtree, sans-serif; letter-spacing: .06em; }
-  .arch-full-body { position: relative; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; touch-action: pan-y pinch-zoom; }
-  .arch-full-body img { display: block; max-width: 100%; max-height: 100%; width: 100%; height: 100%; object-fit: contain; }
-  .arch-full-body iframe { display: block; width: 100%; height: 100%; border: 0; background: #fff; }
+  /* Fläche: Zoom/Verschieben/Wischen übernimmt ZoomView (touch-action: none) */
+  .arch-full-body { position: relative; flex: 1; min-height: 0; }
   .arch-nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; width: 48px; height: 64px; border-radius: 12px; border: 1px solid rgba(92,200,184,.6); background: rgba(22,26,29,.78); color: #5cc8b8; font: 700 34px/1 Oswald, sans-serif; cursor: pointer; }
   .arch-nav.prev { left: 6px; }
   .arch-nav.next { right: 6px; }
   .arch-nav:disabled { opacity: .25; cursor: default; }
   .arch-nav:focus-visible { outline: 2px solid #5cc8b8; outline-offset: 2px; }
-`;
+${ZOOM_CSS}`;
 
 function EditDialog({ row, known, onCancel, onSave }) {
   const [name, setName] = useState(row.name || "");
@@ -169,11 +167,6 @@ function useSheet(id) {
   return { file, url };
 }
 
-function SheetView({ file, url }) {
-  if (!file || !url) return <div style={{ color: "#8a969c", padding: 16 }} aria-busy="true">…</div>;
-  if (file.kind === "pdf") return <iframe title={file.name} src={url} />;
-  return <img src={url} alt={file.name} />;
-}
 
 /* Vorschau einer Seite im Popup; „Auswählen“ markiert das Blatt und öffnet das Vollbild. */
 function PreviewDialog({ id, onClose, onSelect }) {
@@ -192,7 +185,7 @@ function PreviewDialog({ id, onClose, onSelect }) {
           <div className="arch-kick">{t("Einzelseite")}</div>
           <h2 className="arch-prev-name" id="arch-prev-h">{file?.name || "…"}</h2>
         </div>
-        <div className="arch-prev-view"><SheetView file={file} url={url} /></div>
+        <div className="arch-prev-view"><ZoomView key={url} file={file} url={url} mini /></div>
         <div className="arch-actions">
           <button type="button" className="ghost" onClick={onClose}>{t("Schließen")}</button>
           <button type="button" ref={btn} className="ghost on" onClick={() => onSelect(id)}>{t("Auswählen")}</button>
@@ -202,11 +195,11 @@ function PreviewDialog({ id, onClose, onSelect }) {
   );
 }
 
-/* Vollbild: eine Seite groß; ‹ › (Pfeiltasten, Wischen) springt zum vorigen/nächsten Blatt der Liste. */
+/* Vollbild: eine Seite groß, eingepasst; zoomen per Zwei-Finger/Doppeltipp/± (siehe ZoomView).
+   ‹ › (Pfeiltasten, Wischen – Wischen nur ungezoomt) springt zum vorigen/nächsten Blatt der Liste. */
 function FullView({ id, list, onMove, onClose }) {
   const { file, url } = useSheet(id);
   const ref = useRef(null);
-  const swipe = useRef(null);
   const pos = list.findIndex((r) => r.id === id);
   const prevId = pos > 0 ? list[pos - 1].id : "";
   const nextId = pos >= 0 && pos < list.length - 1 ? list[pos + 1].id : "";
@@ -245,22 +238,17 @@ function FullView({ id, list, onMove, onClose }) {
         </div>
         <button type="button" className="ghost" onClick={onClose}>{t("Schließen")}</button>
       </div>
-      <div
-        className="arch-full-body"
-        onTouchStart={(e) => { const p = e.changedTouches[0]; swipe.current = { x: p.clientX, y: p.clientY }; }}
-        onTouchEnd={(e) => {
-          const s0 = swipe.current; swipe.current = null;
-          if (!s0 || e.changedTouches.length !== 1) return;
-          const dx = e.changedTouches[0].clientX - s0.x;
-          const dy = Math.abs(e.changedTouches[0].clientY - s0.y);
-          if (Math.abs(dx) > 60 && dy < 50) {
-            if (dx < 0 && nextId) onMove(nextId);
-            if (dx > 0 && prevId) onMove(prevId);
-          }
-        }}
-      >
+      <div className="arch-full-body">
         <button type="button" className="arch-nav prev" onClick={() => onMove(prevId)} disabled={!prevId} aria-label={t("Vorheriges Blatt")}>‹</button>
-        <SheetView file={file} url={url} />
+        <ZoomView
+          key={url}
+          file={file}
+          url={url}
+          onSwipe={(dir) => {
+            if (dir > 0 && nextId) onMove(nextId);
+            if (dir < 0 && prevId) onMove(prevId);
+          }}
+        />
         <button type="button" className="arch-nav next" onClick={() => onMove(nextId)} disabled={!nextId} aria-label={t("Nächstes Blatt")}>›</button>
       </div>
     </div>

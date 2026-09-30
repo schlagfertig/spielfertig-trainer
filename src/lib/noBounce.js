@@ -6,7 +6,8 @@
 //  – html.sf-scroll-lock (z. B. Hand Control während der Click läuft) → gar kein Wischen,
 //  – offene Dialoge/Vollbild (aria-modal) → nur deren eigene Scrollbereiche.
 // Waagerechte Gesten (Zurück-Wischen, Noten blättern), Zwei-Finger-Zoom und das Tempo-Rad
-// (touch-action: none, Pointer-Events) bleiben unberührt.
+// (touch-action: none, Pointer-Events) bleiben unberührt; ebenso Flächen mit eigener Gestensteuerung
+// ([data-sf-gesture], z. B. Noten-Zoom: Verschieben mit einem Finger).
 
 function scrollBox(el, stop) {
   for (let n = el; n && n !== stop && n !== document.body && n !== document.documentElement; n = n.parentElement) {
@@ -44,6 +45,7 @@ export function installNoBounce() {
     lastY = tp.clientY;
     if (Math.abs(dx) > Math.abs(dy)) return; // waagerecht: nicht unsere Sache
     const target = e.target instanceof Element ? e.target : null;
+    if (target?.closest("[data-sf-gesture]")) return;
     const de = document.documentElement;
     const modal = target?.closest('[aria-modal="true"]');
     if (!modal && de.classList.contains("sf-scroll-lock")) { e.preventDefault(); return; }
