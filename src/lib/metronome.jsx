@@ -213,7 +213,7 @@ const WHEEL_K = 1.55; // Außenradius offen = Kreisradius × 1.55
 const WHEEL_REST_PX = 14; // in Ruhe ragt der Ring so weit über den Kreis hinaus
 const WHEEL_TICKS = 60;
 
-function Clickwheel({ size, bpm, open, thumbDeg }) {
+function Clickwheel({ size, bpm, open, thumb }) {
   const R0 = size / 2;
   const ro = R0 * WHEEL_K;
   const ri = R0 + 1;
@@ -281,11 +281,17 @@ function Clickwheel({ size, bpm, open, thumbDeg }) {
           <textPath href={`#${uid}-top`} startOffset="50%" textAnchor="middle">{t("Am Rand drehen · außen feiner").toUpperCase()}</textPath>
         </text>
       </g>
-      {open && thumbDeg != null ? (
-        <g filter={`url(#${uid}-glow)`}>
-          <circle cx={polar(c, c, mid, thumbDeg)[0]} cy={polar(c, c, mid, thumbDeg)[1]} r={(ro - ri) * 0.3} fill={TEAL} stroke="rgba(244,247,246,0.75)" strokeWidth="1.4" />
-        </g>
-      ) : null}
+      {open && thumb ? (() => {
+        // Daumen sitzt auf dem echten Fingerabstand, begrenzt auf den Ring (innen = Kreisrand, außen = Ringrand).
+        const tr = (ro - ri) * 0.3;
+        const r = Math.min(ro - tr, Math.max(ri + tr, thumb.r));
+        const [tx, ty] = polar(c, c, r, thumb.deg);
+        return (
+          <g filter={`url(#${uid}-glow)`} className="cw-thumb">
+            <circle cx={tx} cy={ty} r={tr} fill={TEAL} stroke="rgba(244,247,246,0.75)" strokeWidth="1.4" />
+          </g>
+        );
+      })() : null}
     </svg>
   );
 }
@@ -317,7 +323,7 @@ export function MetronomeDial({
   const fadeTimer = useRef(null);
   const cw = wheel && !!setBpm;
   const [wheelOpen, setWheelOpen] = useState(false);
-  const [thumbDeg, setThumbDeg] = useState(null);
+  const [thumb, setThumb] = useState(null); // { deg, r } – Fingerposition relativ zur Kreismitte
   const shrinkTimer = useRef(null);
   const [lever, setLever] = useState({
     visible: false,
@@ -363,7 +369,7 @@ export function MetronomeDial({
     shrinkTimer.current = setTimeout(() => {
       shrinkTimer.current = null;
       setWheelOpen(false);
-      setThumbDeg(null);
+      setThumb(null);
     }, ms);
   }
 
@@ -412,6 +418,16 @@ export function MetronomeDial({
     }, HOLD_MS);
   }
 
+  // Sofort ausblenden (weich, ohne Halte-Pause) – z. B. wenn der Finger zurück in den Ring geht.
+  function fadeLeverNow() {
+    clearTimers();
+    setLever((prev) => (prev.mounted ? { ...prev, visible: false } : prev));
+    fadeTimer.current = setTimeout(() => {
+      setLever((prev) => ({ ...prev, mounted: false }));
+      fadeTimer.current = null;
+    }, FADE_MS + 40);
+  }
+
   function onPointerDown(e) {
     if (!setBpm) return;
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -442,9 +458,9 @@ export function MetronomeDial({
     // Clickwheel: Daumen folgt dem Finger auf dem Ring; der Hebel erscheint erst außerhalb des Rings (= feiner).
     const lev = (ev) => {
       if (!cw) { showLever(d.origin, ev); return; }
-      setThumbDeg((ang * 180) / Math.PI);
+      setThumb({ deg: (ang * 180) / Math.PI, r: dist });
       if (dist > (size / 2) * WHEEL_K) showLever(d.origin, ev);
-      else if (lever.mounted) hideLever();
+      else if (lever.mounted && !fadeTimer.current) fadeLeverNow();
     };
     if (d.moved < MOVE_PX || dist < DEAD_R * (size / 2)) {
       d.last = ang;
@@ -476,7 +492,10 @@ export function MetronomeDial({
     const d = drag.current;
     drag.current = null;
     try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* already released */ }
-    if (d?.dragging) hideLever();
+    if (d?.dragging) {
+      if (cw) { setThumb(null); if (lever.mounted) fadeLeverNow(); }
+      else hideLever();
+    }
     // Nach dem Loslassen kurz offen lassen, dann zurück auf die leise Ruhegröße.
     shrinkWheelSoon(d?.dragging ? 700 : 1200);
     if (!d) return;
@@ -491,7 +510,7 @@ export function MetronomeDial({
         style={{ position: "relative", width: size + layoutPad * 2, height: size + layoutPad * 2, flexShrink: 0, overflow: "visible", touchAction: cw ? "none" : undefined }}
         {...(cw ? { onPointerDown, onPointerMove, onPointerUp, onPointerCancel: onPointerUp } : {})}
       >
-        {cw ? <Clickwheel size={size} bpm={bpm} open={wheelOpen} thumbDeg={thumbDeg} /> : null}
+        {cw ? <Clickwheel size={size} bpm={bpm} open={wheelOpen} thumb={thumb} /> : null}
         {setBpm && !cw && !lever.mounted ? <WheelHints /> : null}
         <button
           type="button"
