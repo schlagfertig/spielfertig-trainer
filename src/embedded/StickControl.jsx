@@ -214,6 +214,8 @@ export default function StickControl() {
   const ex = EXERCISES[idx] || EXERCISES[0];
   const previous = EXERCISES.slice(0, idx);
   const nextEx = EXERCISES[idx + 1] || null;
+  // Alle weiteren Übungen nach „Als Nächstes“ (idx+2 … 24) – bleiben erreichbar, gedämpft/unscharf wie die früheren
+  const later = EXERCISES.slice(idx + 2);
   const challenge = mode === "challenge";
   const lastRep = challenge && playing && repNow > 0 && repNow >= reps;
 
@@ -362,6 +364,9 @@ export default function StickControl() {
         /* Frühere (schon gespielte) Übungen: wie die fernen kommenden unscharf und gedämpft – die direkt davor etwas weniger, damit sie lesbar bleibt */
         .stick-prev { filter: blur(1.1px); opacity: 0.55 !important; transition: filter 0.3s, opacity 0.3s; }
         .stick-scrolling :is(.stick-far, .stick-prev) { filter: none; opacity: 0.7 !important; }
+        /* Kommende Übungen nach der Vorschau: unter der angehefteten Bühne durchscrollen; Reserve (nur auf hohen Screens), damit #24 ganz unten zwischen Bühne und Dock sichtbar landet */
+        .stick-later { position: relative; z-index: 1; margin-top: 4px; padding-bottom: clamp(0px, calc(100dvh - 700px), 88px); }
+        .stick-later-kick { color: ${DIM}; font: 700 12px Figtree, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; padding: 10px 4px 0; }
         @media (prefers-reduced-motion: reduce) { .stick-far, .stick-prev { transition: none; } }
         /* Bühne = angeheftete aktuelle Übung + Vorschau; so hoch, dass die frühere Liste darüber immer wegscrollen kann */
         .stick-stage { min-height: calc(100dvh - var(--stick-top, 0px) - var(--rud-foot) - var(--rud-dock) + 16px); }
@@ -588,6 +593,12 @@ export default function StickControl() {
           <div className="stick-next-end">{challenge ? t("danach fertig") : t("Nr. {n}", { n: ex.id })}</div>
         )}
       </div>
+      {later.length ? (
+        <div className="stick-list stick-later" role="group" aria-label={t("Danach")}>
+          <div className="stick-later-kick" aria-hidden="true">{t("Danach")}</div>
+          {later.map((row) => <ListRow key={row.id} row={row} onPick={pick} playing={playing} className="stick-far" />)}
+        </div>
+      ) : null}
       </div>
       {done ? <p className="stick-done" style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{t("Bis Nr. 24 gehalten (ab Nr. {n}).", { n: done })}</p> : null}
       <div className="stick-fade" aria-hidden="true" />
