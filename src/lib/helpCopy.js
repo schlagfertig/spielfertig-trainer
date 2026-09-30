@@ -35,6 +35,7 @@ export const HELP = {
   archive: [
     ["Nur hier", "Fotos und PDFs bleiben in diesem Browser. Kein Upload. Anderes Gerät oder Cache leeren löscht sie."],
     ["Hinzufügen", "Foto oder PDF, maximal 12 MB."],
+    ["Name & Tags", "Pro Blatt Name und Tags vergeben. Oben suchen, nach Tag filtern, sortieren."],
     ["2 Seiten", "Zwei Blätter nebeneinander. Links/Rechts wählt, welches Du tippst."],
     ["Beim Üben", "In den anderen Modulen oben auf Blatt — der Click läuft weiter."],
   ],

@@ -1,4 +1,6 @@
 import { t } from "./i18n.js";
+import { applyMeta, normalizeMeta, parseView } from "./archiveMeta.js";
+import { loadSession, saveSession } from "./session.js";
 
 const DB = "sf.archive.v1";
 const STORE = "sheets";
@@ -35,7 +37,8 @@ export async function listSheets() {
     const req = tx.objectStore(STORE).getAll();
     req.onsuccess = () => {
       const rows = (req.result || []).sort((a, b) => (b.added || 0) - (a.added || 0));
-      resolve(rows.map(({ blob, ...meta }) => meta));
+      // WA-22: alte Einträge ohne Tags werden beim Lesen ergänzt (nur Anzeige, nichts wird überschrieben).
+      resolve(rows.map(({ blob, ...meta }) => normalizeMeta(meta, t("Blatt"))));
     };
     req.onerror = () => reject(req.error);
   });
@@ -45,7 +48,7 @@ export async function getSheet(id) {
   const db = await openDb();
   return new Promise((resolve, reject) => {
     const req = db.transaction(STORE, "readonly").objectStore(STORE).get(id);
-    req.onsuccess = () => resolve(req.result || null);
+    req.onsuccess = () => resolve(req.result ? normalizeMeta(req.result, t("Blatt")) : null);
     req.onerror = () => reject(req.error);
   });
 }
@@ -64,6 +67,9 @@ export async function addSheet(file) {
     mime: mime || (pdf ? "application/pdf" : "image/jpeg"),
     size: file.size,
     added: Date.now(),
+    fileName: file.name || "",
+    tags: [],
+    metaV: 1,
     blob: file,
   };
   const db = await openDb();
@@ -83,15 +89,25 @@ export async function removeSheet(id) {
   if (lastId2() === id) rememberLast2("");
 }
 
-export async function renameSheet(id, name) {
-  const rec = await getSheet(id);
-  if (!rec) return;
-  rec.name = String(name || rec.name).trim() || rec.name;
+/** WA-22: Name und/oder Tags ändern. Blob und übrige Felder bleiben unverändert. */
+export async function updateSheetMeta(id, meta) {
   const db = await openDb();
   const tx = db.transaction(STORE, "readwrite");
-  tx.objectStore(STORE).put(rec);
+  const store = tx.objectStore(STORE);
+  const req = store.get(id);
+  req.onsuccess = () => {
+    if (req.result) store.put(applyMeta(req.result, meta));
+  };
   await txDone(tx);
 }
+
+export async function renameSheet(id, name) {
+  await updateSheetMeta(id, { name });
+}
+
+// WA-22: Sortierung merken (Suche/Tag-Filter bewusst nicht – nach dem Neuladen sieht man wieder alles).
+export function loadArchiveView() { return parseView(loadSession("archiveView", {})); }
+export function saveArchiveView(v) { saveSession("archiveView", parseView(v)); }
 
 function readKey(key) {
   try { return localStorage.getItem(key) || ""; } catch { return ""; }

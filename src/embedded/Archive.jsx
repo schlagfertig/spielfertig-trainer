@@ -1,9 +1,116 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  addSheet, getSheet, lastId, lastId2, listSheets,
-  rememberLast, rememberLast2, removeSheet, renameSheet,
+  addSheet, getSheet, lastId, lastId2, listSheets, loadArchiveView,
+  rememberLast, rememberLast2, removeSheet, saveArchiveView, updateSheetMeta,
 } from "../lib/archive.js";
+import { allTags, filterSheets, fold, MAX_NAME_LEN, MAX_TAG_LEN, MAX_TAGS, normTags, suggestTags } from "../lib/archiveMeta.js";
 import { fmtDate, t } from "../lib/i18n.js";
+
+const ARCH_CSS = `
+  .arch-tools { display: flex; gap: 8px; margin: 0 0 10px; }
+  .arch-search { flex: 1; min-width: 0; background: #161a1d; color: #f4f7f6; border: 1px solid #2f383d; border-radius: 10px; padding: 10px 12px; }
+  .arch-sort { flex: 0 0 auto; max-width: 44%; background: #161a1d; color: #f4f7f6; border: 1px solid #2f383d; border-radius: 10px; padding: 10px 8px; }
+  .arch-search:focus-visible, .arch-sort:focus-visible, .arch-field:focus-visible { outline: 2px solid #5cc8b8; outline-offset: 1px; }
+  .arch-tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 10px; }
+  .arch-chip { background: transparent; color: #8a969c; border: 1px solid #2f383d; border-radius: 999px; padding: 7px 12px; font: 700 14px Figtree, sans-serif; cursor: pointer; min-height: 36px; }
+  .arch-chip.on { background: #5cc8b8; color: #06120f; border-color: #5cc8b8; }
+  .arch-chip .n { opacity: .7; font-weight: 600; margin-left: 4px; }
+  .arch-count { color: #8a969c; font-size: 14px; margin: 0 0 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .arch-link { background: none; border: 0; color: #5cc8b8; font: 700 14px Figtree, sans-serif; text-decoration: underline; padding: 6px 0; cursor: pointer; }
+  .arch-rowtags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+  .arch-tag { background: #13211f; color: #5cc8b8; border: 1px solid rgba(92,200,184,.35); border-radius: 999px; padding: 2px 8px; font: 700 12px Figtree, sans-serif; }
+  .arch-edit .modal-card { width: min(460px, 100%); }
+  .arch-label { display: block; color: #8a969c; font-weight: 700; font-size: 14px; margin: 10px 0 6px; }
+  .arch-field { width: 100%; box-sizing: border-box; background: #161a1d; color: #f4f7f6; border: 1px solid #2f383d; border-radius: 10px; padding: 10px 12px; }
+  .arch-cur { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 8px; }
+  .arch-cur .arch-chip { color: #06120f; background: #5cc8b8; border-color: #5cc8b8; }
+  .arch-hint { color: #8a969c; font-size: 13px; margin: 6px 0 0; }
+  .arch-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+`;
+
+function EditDialog({ row, known, onCancel, onSave }) {
+  const [name, setName] = useState(row.name || "");
+  const [tags, setTags] = useState(normTags(row.tags));
+  const [draft, setDraft] = useState("");
+  const [busy, setBusy] = useState(false);
+  const full = tags.length >= MAX_TAGS;
+  const sugg = suggestTags(known, tags, draft);
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") onCancel(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onCancel]);
+
+  function add(raw) {
+    const next = normTags([...tags, ...normTags(raw)]);
+    setTags(next);
+    setDraft("");
+  }
+  function remove(tag) {
+    setTags(tags.filter((x) => fold(x) !== fold(tag)));
+  }
+  async function save(e) {
+    e?.preventDefault();
+    setBusy(true);
+    await onSave({ name, tags: normTags([...tags, ...normTags(draft)]) });
+    setBusy(false);
+  }
+
+  return (
+    <div className="modal arch-edit" style={{ zIndex: 45 }} onClick={onCancel}>
+      <form className="modal-card" role="dialog" aria-modal="true" aria-labelledby="arch-edit-h" onClick={(e) => e.stopPropagation()} onSubmit={save}>
+        <div className="modal-head" id="arch-edit-h">{t("Name & Tags")}</div>
+        <label className="arch-label" htmlFor="arch-name">{t("Name")}</label>
+        <input id="arch-name" className="arch-field" value={name} maxLength={MAX_NAME_LEN} autoFocus onChange={(e) => setName(e.target.value)} />
+        <label className="arch-label" htmlFor="arch-tag">{t("Tags")}</label>
+        {tags.length ? (
+          <div className="arch-cur">
+            {tags.map((tag) => (
+              <button key={tag} type="button" className="arch-chip" onClick={() => remove(tag)} aria-label={t("Tag entfernen: {tag}", { tag })}>{tag} ×</button>
+            ))}
+          </div>
+        ) : null}
+        <div style={{ display: "flex", gap: 8 }}>
+          <input
+            id="arch-tag"
+            className="arch-field"
+            value={draft}
+            maxLength={MAX_TAG_LEN}
+            disabled={full}
+            placeholder={full ? t("Höchstens {n} Tags.", { n: MAX_TAGS }) : t("Tag hinzufügen")}
+            enterKeyHint="done"
+            onChange={(e) => {
+              const v = e.target.value;
+              if (/[,;]/.test(v)) add(v);
+              else setDraft(v);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && draft.trim()) { e.preventDefault(); add(draft); }
+              if (e.key === "Backspace" && !draft && tags.length) remove(tags[tags.length - 1]);
+            }}
+          />
+          <button type="button" className="ghost" disabled={!draft.trim() || full} onClick={() => add(draft)} aria-label={t("Tag hinzufügen")}>+</button>
+        </div>
+        {sugg.length && !full ? (
+          <>
+            <div className="arch-label">{t("Vorschläge")}</div>
+            <div className="arch-cur" style={{ margin: 0 }}>
+              {sugg.map((tag) => (
+                <button key={tag} type="button" className="arch-chip" style={{ background: "transparent", color: "#5cc8b8", borderColor: "rgba(92,200,184,.45)" }} onClick={() => add(tag)}>+ {tag}</button>
+              ))}
+            </div>
+          </>
+        ) : null}
+        <p className="arch-hint">{t("Optional, z. B. Paradiddle, Fills, Groove.")}</p>
+        <div className="arch-actions">
+          <button type="button" className="ghost" onClick={onCancel}>{t("Abbrechen")}</button>
+          <button type="submit" className="ghost on" disabled={busy}>{t("Speichern")}</button>
+        </div>
+      </form>
+    </div>
+  );
+}
 
 function useObjectUrl(blob) {
   const [url, setUrl] = useState("");
@@ -54,7 +161,15 @@ export default function Archive({ overlay = false, onClose }) {
   const [err, setErr] = useState("");
   const [ok, setOk] = useState("");
   const [busy, setBusy] = useState(false);
+  const [q, setQ] = useState("");
+  const [tagF, setTagF] = useState("");
+  const [sort, setSort] = useState(() => loadArchiveView().sort);
+  const [edit, setEdit] = useState(null);
   const pick = useRef(null);
+  const known = useMemo(() => allTags(rows), [rows]);
+  const shown = useMemo(() => filterSheets(rows, { q, tag: tagF, sort }), [rows, q, tagF, sort]);
+  const filtering = !!(q.trim() || tagF);
+  const tools = rows.length >= 2;
   const a = useSheet(openA);
   const b = useSheet(split ? openB : "");
 
@@ -101,13 +216,27 @@ export default function Archive({ overlay = false, onClose }) {
     await refresh();
   }
 
-  async function rename(id, current) {
-    const next = window.prompt(t("Neuer Name"), current || "");
-    if (next == null) return;
-    await renameSheet(id, next);
-    setOk(t("Name geändert."));
+  async function saveMeta(id, meta) {
+    try {
+      await updateSheetMeta(id, meta);
+      setErr("");
+      setOk(t("Name und Tags gespeichert."));
+    } catch (e) {
+      setErr(e.message || t("Speichern fehlgeschlagen."));
+    }
+    setEdit(null);
     await refresh();
   }
+
+  function changeSort(v) {
+    setSort(v);
+    saveArchiveView({ sort: v });
+  }
+
+  // Tag-Filter aufheben, wenn es den Tag nicht mehr gibt (z. B. nach Umbenennen/Löschen)
+  useEffect(() => {
+    if (tagF && !known.some((x) => fold(x.tag) === fold(tagF))) setTagF("");
+  }, [known, tagF]);
 
   function show(id) {
     if (split && pickSide === "b") {
@@ -135,6 +264,7 @@ export default function Archive({ overlay = false, onClose }) {
 
   const body = (
     <div>
+      <style>{ARCH_CSS}</style>
       <div role="note" style={{ background: "rgba(58,46,18,.55)", color: "#e8b84b", border: "1px solid rgba(232,184,75,.45)", borderRadius: 12, padding: "12px 14px", margin: "0 0 14px", fontSize: 15, lineHeight: 1.4 }}>
         <strong style={{ display: "block", letterSpacing: "0.06em", textTransform: "uppercase", fontSize: 12, marginBottom: 4 }}>{t("Nur auf diesem Gerät")}</strong>
         {t("Fotos und PDFs bleiben im Browser. Anderes Gerät oder Cache leeren löscht sie — Original extra sichern.")}
@@ -154,19 +284,57 @@ export default function Archive({ overlay = false, onClose }) {
       {err ? <p role="status" style={{ color: "#e05c5c", fontWeight: 700 }}>{err}</p> : null}
       {ok ? <p role="status" style={{ color: "#5cc8b8", fontWeight: 700 }}>{ok}</p> : null}
       {!rows.length && !err ? <p style={{ color: "#8a969c" }}>{t("Noch nichts hier. Foto oder PDF hinzufügen.")}</p> : null}
+      {tools ? (
+        <>
+          <div className="arch-tools">
+            <input type="search" className="arch-search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("Name/Tag suchen")} aria-label={t("Suchen")} enterKeyHint="search" />
+            <select className="arch-sort" value={sort} onChange={(e) => changeSort(e.target.value)} aria-label={t("Sortieren")}>
+              <option value="new">{t("Neueste zuerst")}</option>
+              <option value="old">{t("Älteste zuerst")}</option>
+              <option value="name">{t("Name A–Z")}</option>
+            </select>
+          </div>
+          {known.length ? (
+            <div className="arch-tags" role="group" aria-label={t("Nach Tag filtern")}>
+              <button type="button" className={tagF ? "arch-chip" : "arch-chip on"} aria-pressed={!tagF} onClick={() => setTagF("")}>{t("Alle", null, "arch")}</button>
+              {known.map(({ tag, count }) => {
+                const on = fold(tag) === fold(tagF);
+                return (
+                  <button key={tag} type="button" className={on ? "arch-chip on" : "arch-chip"} aria-pressed={on} onClick={() => setTagF(on ? "" : tag)}>
+                    {tag}<span className="n">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+          {filtering ? (
+            <div className="arch-count" role="status">
+              <span>{shown.length ? t("{n} von {m}", { n: shown.length, m: rows.length }) : t("Nichts gefunden.")}</span>
+              <button type="button" className="arch-link" onClick={() => { setQ(""); setTagF(""); }}>{t("Filter zurücksetzen")}</button>
+            </div>
+          ) : null}
+        </>
+      ) : null}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {rows.map((r) => (
-          <div key={r.id} style={{ display: "flex", gap: 6, alignItems: "center", padding: 10, border: "1px solid #2f383d", borderRadius: 10, background: r.id === openA || r.id === openB ? "#13211f" : "#1c2226" }}>
-            <button type="button" onClick={() => show(r.id)} style={{ flex: 1, textAlign: "left", background: "transparent", border: 0, color: "#f4f7f6" }}>
+        {(tools ? shown : rows).map((r) => (
+          <div key={r.id} style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center", padding: 10, border: "1px solid #2f383d", borderRadius: 10, background: r.id === openA || r.id === openB ? "#13211f" : "#1c2226" }}>
+            <button type="button" onClick={() => show(r.id)} style={{ flex: "1 1 170px", minWidth: 0, textAlign: "left", background: "transparent", border: 0, color: "#f4f7f6" }}>
               <strong style={{ display: "block", fontSize: 18 }}>{r.name}</strong>
               <span style={{ color: "#8a969c", fontSize: 14 }}>
                 {r.kind === "pdf" ? "PDF" : t("Foto")}
                 {r.id === openA ? ` · ${t("links")}` : r.id === openB && split ? ` · ${t("rechts")}` : ""}
                 {" · "}{fmtDate(r.added)}
               </span>
+              {r.tags?.length ? (
+                <span className="arch-rowtags">
+                  {r.tags.map((tag) => <span key={tag} className="arch-tag">{tag}</span>)}
+                </span>
+              ) : null}
             </button>
-            <button type="button" className="ghost" onClick={() => rename(r.id, r.name)}>{t("Umbenennen")}</button>
+            <span style={{ display: "flex", gap: 6, marginLeft: "auto", whiteSpace: "nowrap" }}>
+            <button type="button" className="ghost" onClick={() => setEdit(r)} aria-label={t("Name & Tags bearbeiten: {name}", { name: r.name })}>{t("Name & Tags")}</button>
             <button type="button" className="ghost" onClick={() => drop(r.id)}>{t("Löschen")}</button>
+            </span>
           </div>
         ))}
       </div>
@@ -176,6 +344,7 @@ export default function Archive({ overlay = false, onClose }) {
           {split ? <Pane file={b.file} url={b.url} overlay={overlay} split /> : null}
         </div>
       ) : null}
+      {edit ? <EditDialog row={edit} known={known} onCancel={() => setEdit(null)} onSave={(meta) => saveMeta(edit.id, meta)} /> : null}
     </div>
   );
 
