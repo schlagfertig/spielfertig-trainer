@@ -309,7 +309,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
   const primary = rud.sticking && rud.sticking[0];
   const parsed = parseTime(rud.time);
   const slotW = cluster * stepW;
-  const noteX = (nt) => {
+  const baseX = (nt) => {
     if (soloWhole) return x0 + (Math.max(steps * stepW, 240) / 2);
     const t = (nt.t || 0) + tShift;
     if (pack >= 0.99) return x0 + t * stepW;
@@ -318,6 +318,15 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
     const inner = slotW * pack;
     const inset = (slotW - inner) / 2;
     return x0 + g * slotW + inset + local * stepW * pack;
+  };
+  const noteX = (nt) => {
+    const x = baseX(nt);
+    if (rud.id !== 13 && rud.id !== 14 && rud.id !== 15) return x;
+    if (nt.roll || nt.tie) return x;
+    const prevRoll = sounded.filter((s) => s !== nt && (s.roll || s.tie) && (s.t || 0) < (nt.t || 0) - 1e-6).at(-1);
+    if (!prevRoll) return x;
+    const px = baseX(prevRoll);
+    return px + (x - px) * 0.52;
   };
   const barX = (t16) => {
     const left = sounded.filter((nt) => nt.t < t16 - 1e-4).at(-1);
