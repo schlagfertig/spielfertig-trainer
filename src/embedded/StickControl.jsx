@@ -230,7 +230,9 @@ export default function StickControl() {
     return () => { de.classList.remove("sf-scroll-lock"); window.removeEventListener("wheel", block); };
   }, [playing]);
   useEffect(() => {
-    const head = document.querySelector(".top")?.offsetHeight || 0;
+    // Kopfzeile ist angeheftet (in der Home-Bildschirm-App unterhalb der Statusleiste): Höhe + Abstand oben
+    const topEl = document.querySelector(".top");
+    const head = topEl ? topEl.offsetHeight + (parseFloat(getComputedStyle(topEl).top) || 0) : 0;
     wrapRef.current?.style.setProperty("--stick-top", `${head}px`);
     const before = prevRef.current;
     if (before) window.scrollTo({ top: before.getBoundingClientRect().bottom + window.scrollY - head, behavior: "instant" });
@@ -369,6 +371,8 @@ export default function StickControl() {
           --rud-dock: 220px;
         }
         body:has(.stick-wrap), #root:has(.stick-wrap), .page:has(.stick-wrap) { overflow-x: clip; }
+        /* Kopfzeile ist hier angeheftet – in der Home-Bildschirm-App unterhalb der Statusleiste (im Browser 0) */
+        .page:has(.stick-wrap) .top { top: env(safe-area-inset-top, 0px); }
         .stick-far { filter: blur(1.8px); opacity: 0.45 !important; transition: filter 0.3s, opacity 0.3s; }
         /* Frühere (schon gespielte) Übungen: wie die fernen kommenden unscharf und gedämpft – die direkt davor etwas weniger, damit sie lesbar bleibt */
         .stick-prev { filter: blur(1.1px); opacity: 0.55 !important; transition: filter 0.3s, opacity 0.3s; }
