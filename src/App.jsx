@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import RudimentTrainer from "./embedded/RudimentTrainer.jsx";
 import ClickTrainer from "./embedded/ClickTrainer.jsx";
 import PyramidTrainer from "./embedded/PyramidTrainer.jsx";
@@ -64,12 +64,18 @@ export default function App() {
   const [lang, setLangState] = useState(getLang);
   const viewRef = useRef(view);
   viewRef.current = view;
+  // Scroll-Position der Startseite (beim Verlassen gemerkt, bei der Rückkehr wiederhergestellt).
+  const homeScrollRef = useRef(0);
   const firstDone = !!loadSession("firstLesson", {}).done;
 
   function switchLang() {
     const next = lang === "de" ? "en" : "de";
     setLang(next);
     setLangState(next);
+  }
+
+  function rememberHomeScroll() {
+    if (viewRef.current === "home") homeScrollRef.current = window.scrollY || 0;
   }
 
   function goHome() {
@@ -91,6 +97,7 @@ export default function App() {
   }
 
   function open(next) {
+    rememberHomeScroll();
     setPrintOpen(false);
     setStage(false);
     setView(next);
@@ -102,10 +109,23 @@ export default function App() {
     } catch { /* ignore */ }
   }
 
+  // Ansichtswechsel ist kein Seitenwechsel: ohne Zurücksetzen erbt die neue Ansicht die
+  // Scroll-Position der Startseite (z. B. Rudiments öffnet halb gescrollt, Zurück-Knopf weg).
+  // Jede Ansicht beginnt oben; die Startseite kehrt dorthin zurück, wo man sie verlassen hat.
+  // Läuft als Layout-Effekt vor den normalen Effekten der Ansicht – deren eigenes Scrollen
+  // (z. B. Hand Control: aktuelle Übung unter die Kopfzeile) gewinnt also weiterhin.
+  useLayoutEffect(() => {
+    try {
+      if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
+      window.scrollTo(0, view === "home" ? homeScrollRef.current : 0);
+    } catch { /* ignore */ }
+  }, [view]);
+
   useEffect(() => {
     function onPop() {
       if (printOpen) { setPrintOpen(false); return; }
       const next = viewFromPath();
+      rememberHomeScroll();
       setPrintOpen(false);
       setStage(false);
       setView(next);
