@@ -29,6 +29,7 @@ html, body, #root {
 .more-btn,
 .nudge,
 .nudge-lg,
+.social-btn,
 .legal-nav-btn,
 .rud-select,
 .top .ghost {
@@ -58,6 +59,7 @@ html, body, #root {
   .more-btn,
   .nudge,
   .nudge-lg,
+  .social-btn,
   .legal-nav-btn,
   .rud-select,
   .modal,
@@ -75,6 +77,7 @@ html, body, #root {
   .help-card,
   .seg,
   .nudge-lg,
+  .social-btn,
   .help-dot,
   .chip,
   .ghost,
@@ -100,11 +103,11 @@ html, body, #root {
     0 14px 36px rgba(0, 0, 0, 0.26);
 }
 
-.chip, .ghost, .play, .seg button, .more-btn, .nudge, .nudge-lg, .help-dot, .legal-nav-btn, .metro-side {
+.chip, .ghost, .play, .seg button, .more-btn, .nudge, .nudge-lg, .social-btn, .help-dot, .legal-nav-btn, .metro-side {
   color: var(--txt);
 }
 
-.nudge, .nudge-lg, .help-dot {
+.nudge, .nudge-lg, .social-btn, .help-dot {
   color: var(--teal);
   border-color: rgba(92, 200, 184, 0.42);
   background: var(--glass-teal);
@@ -201,7 +204,7 @@ html, body, #root {
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  .card, .panel, .modal-card, .chip, .ghost, .seg, .nudge-lg, .help-dot, .stick-list button, .stick-card, .rud-nav {
+  .card, .panel, .modal-card, .chip, .ghost, .seg, .nudge-lg, .social-btn, .help-dot, .stick-list button, .stick-card, .rud-nav {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     -apple-visual-effect: none;

@@ -36,6 +36,10 @@ export const EN = {
   "Metronom schließen": "Close metronome",
   "5 BPM langsamer": "5 BPM slower",
   "5 BPM schneller": "5 BPM faster",
+  // Kontakt-Knöpfe (Footer)
+  "Kontakt": "Contact",
+  "WhatsApp schreiben": "Message on WhatsApp",
+  "E-Mail schreiben": "Send email",
   // Metronom-Kreis
   "TIPP LINKS": "TURN LEFT",
   "= LANGSAMER": "= SLOWER",
