@@ -4,6 +4,10 @@ Alle für Nutzer sichtbaren Änderungen, nach Datum gruppiert (neueste zuerst).
 Kleine Fix-Commits sind dem jeweiligen Feature zugeordnet; reine Technik (Build-Fixes,
 Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SHA).
 
+## 01.10.2026
+
+- Flagge und Fragezeichen liegen nicht mehr unter der iPhone-Statusleiste, wenn die App vom Home-Bildschirm gestartet wird (Abstand oben = safe-area-inset-top auf Seiten, Startseiten-Knöpfen und Fokus-Mode). App-Icon und Manifest werden wieder geladen (Zugangs-Middleware lässt /app-icon.svg und /manifest.webmanifest ohne Cookie durch)
+
 ## 30.09.2026
 
 - Noten: Vollbild/Vorschau rendern PDFs selbst (pdf.js, Canvas) statt im iframe – ganze Seite eingepasst (contain); Pinch-Zoom und Doppeltipp (2,5×) bis 5×, Verschieben mit einem Finger, Ctrl/Trackpad-Zoom, Tasten + − 0; beim Zoomen neu in höherer Auflösung gerendert (bis ca. 12 MP); Knöpfe − / „Ganz“ / +, bei mehrseitigen PDFs ▲ „Seite n/m“ ▼; Wischen für ‹ › nur ungezoomt; No-Bounce-Wächter lässt Gestenflächen ([data-sf-gesture]) in Ruhe; Hilfetext „Zoomen“

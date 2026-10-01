@@ -5,6 +5,13 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-10-01",
+    items: [
+      { de: "Flagge und Fragezeichen liegen nicht mehr unter der iPhone-Statusleiste, wenn die App vom Home-Bildschirm gestartet wird. App-Icon wird wieder geladen.",
+        en: "Flag and help button no longer hide under the iPhone status bar when launched from the home screen. App icon loads again." },
+    ],
+  },
+  {
     date: "2026-09-30",
     items: [
       { de: "Noten: Große PDFs (z. B. Poster) zeigt das Vollbild jetzt ganz – eingepasst, nichts abgeschnitten. Mit zwei Fingern oder Doppeltipp zoomst du bis 5× hinein (bleibt scharf), gezoomt verschiebst du mit einem Finger. Unten − / + und „Ganz“ zum Zurücksetzen; mehrseitige PDFs blätterst du mit ▲ ▼. Wischen zum nächsten Blatt klappt nur ungezoomt.",
