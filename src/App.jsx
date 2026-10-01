@@ -8,7 +8,7 @@ import { Help } from "./lib/Help.jsx";
 import { Welcome } from "./lib/Welcome.jsx";
 import FirstLesson from "./lib/FirstLesson.jsx";
 import Legal from "./lib/Legal.jsx";
-import News, { hasUnseenNews } from "./lib/News.jsx";
+import News, { NewsHint, hasUnseenNews, markNewsHintSeen, shouldShowNewsHint } from "./lib/News.jsx";
 import { loadSession } from "./lib/session.js";
 import { LogoMetronome } from "./lib/LogoMetronome.jsx";
 import { SocialLinks } from "./lib/Social.jsx";
@@ -68,6 +68,14 @@ export default function App() {
   // Scroll-Position der Startseite (beim Verlassen gemerkt, bei der Rückkehr wiederhergestellt).
   const homeScrollRef = useRef(0);
   const firstDone = !!loadSession("firstLesson", {}).done;
+  // Einmaliger Hinweis auf „Neuigkeiten“ – erst nachdem die Begrüßung (Welcome) geschlossen ist.
+  const [welcomeOpen, setWelcomeOpen] = useState(() => !loadSession("welcomeSeen", {}).seen);
+  const [newsHint, setNewsHint] = useState(shouldShowNewsHint);
+
+  function closeNewsHint() {
+    markNewsHintSeen();
+    setNewsHint(false);
+  }
 
   function switchLang() {
     const next = lang === "de" ? "en" : "de";
@@ -183,6 +191,10 @@ export default function App() {
           <button type="button" className="help-dot lang-flag" onClick={switchLang} aria-label={lang === "de" ? "Switch to English" : "Auf Deutsch umschalten"}>{lang === "de" ? FLAG_EN : FLAG_DE}</button>
           <Help topic="home" />
         </div>
+        {/* erneut prüfen: Neuigkeiten über den Footer besucht → Hinweis nach der Rückkehr weg */}
+        {newsHint && !welcomeOpen && shouldShowNewsHint() && (
+          <NewsHint onLater={closeNewsHint} onView={() => { closeNewsHint(); open("news"); }} />
+        )}
         <header className="hero">
           <LogoMetronome />
           {/* Das runde Logo zeigt schon „schlagfertig‽ · Zeit für guten Sound“ – darunter nur „Control“. */}
@@ -242,7 +254,7 @@ export default function App() {
             <button type="button" className="foot-link" onClick={() => open("datenschutz")}>{t("Datenschutz")}</button>
           </div>
         </footer>
-        <Welcome />
+        <Welcome onClose={() => setWelcomeOpen(false)} />
       </div>
     );
   }
