@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-10-01",
     items: [
+      { de: "Jede Seite öffnet jetzt oben – auch wenn du auf der Startseite weit nach unten gescrollt hast, ist der Zurück-Knopf sofort da. Zurück auf der Startseite landest du wieder dort, wo du warst.",
+        en: "Every page now opens at the top – even if you scrolled far down on the home screen, the Back button is right there. Going back to the home screen returns you to where you were." },
       { de: "Flagge und Fragezeichen liegen nicht mehr unter der iPhone-Statusleiste, wenn die App vom Home-Bildschirm gestartet wird. App-Icon wird wieder geladen.",
         en: "Flag and help button no longer hide under the iPhone status bar when launched from the home screen. App icon loads again." },
     ],

@@ -6,6 +6,7 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 
 ## 01.10.2026
 
+- Jede Seite/jeder Trainer öffnet oben: beim Ansichtswechsel wird die Scroll-Position auf 0 gesetzt (vorher erbte z. B. Rudiments die Scroll-Position der Startseite, Zurück-Knopf außerhalb des Bildes); die Startseite stellt beim Zurückkehren ihre Position wieder her (history.scrollRestoration = manual). Angeheftete Kopfzeile (Hand Control) bleibt in der Home-Bildschirm-App unterhalb der Statusleiste (top = safe-area-inset-top, Ausrichtung der aktuellen Übung rechnet den Abstand mit)
 - Flagge und Fragezeichen liegen nicht mehr unter der iPhone-Statusleiste, wenn die App vom Home-Bildschirm gestartet wird (Abstand oben = safe-area-inset-top auf Seiten, Startseiten-Knöpfen und Fokus-Mode). App-Icon und Manifest werden wieder geladen (Zugangs-Middleware lässt /app-icon.svg und /manifest.webmanifest ohne Cookie durch)
 
 ## 30.09.2026
