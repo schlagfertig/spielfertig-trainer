@@ -619,6 +619,20 @@ body.metro-gesturing .rud-metro .metro-face { overflow: visible; }
   cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
 }
 .foot-link:hover { color: var(--teal); }
+/* Kontakt-Knöpfe: rund, 48 px (Tippfläche ≥ 44 px), zwischen Copyright und Neuigkeiten.
+   Hintergrund, Rand, Schatten und Icon-Farbe wie die ±5-Knöpfe am Dial (gleiche Glas-Regeln in styles-glass.css), Icons in Türkis. */
+.foot-social { display: flex; justify-content: center; gap: 18px; margin-top: 16px; }
+.social-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 48px; height: 48px; border-radius: 50%;
+  text-decoration: none;
+  transition: transform .15s ease, filter .15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.social-btn:active { transform: scale(.94); }
+.social-btn:hover { filter: brightness(1.08); }
+.social-btn:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .social-btn { transition: none; } }
 .legal-a {
   color: var(--teal);
   text-decoration: underline;
