@@ -100,9 +100,8 @@ body.metro-gesturing .rud-metro .metro-face { overflow: visible; }
 .card:hover { border-color: var(--teal); }
 .card-kicker { color: var(--teal); font-size: 14px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
 .card-title { font-family: Oswald, sans-serif; font-size: clamp(26px, 8vw, 32px); margin: 6px 0; }
-.card-lead { color: var(--dim); font-size: 17px; }
-/* Rudiments-Kachel: Umbruch ausgleichen, damit kein einzelnes Wort allein steht (ohne Unterstützung: normaler Umbruch) */
-.card-lead-balance { text-wrap: balance; }
+/* Kachel-Texte: Umbruch ausgleichen, damit kein einzelnes Wort allein steht (ohne Unterstützung: normaler Umbruch) */
+.card-lead { color: var(--dim); font-size: 17px; text-wrap: balance; }
 .card-go { margin-top: 14px; color: var(--teal); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; font-size: 15px; }
 .foot { text-align: center; color: #3a4448; font-size: 14px; letter-spacing: 0.12em; margin-top: 36px; text-transform: uppercase; }
 .tool { padding-bottom: 0; }
