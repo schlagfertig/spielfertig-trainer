@@ -6,6 +6,7 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 
 ## 01.10.2026
 
+- Startseite: Kontakt-Knöpfe im Footer zwischen Copyright und Neuigkeiten – WhatsApp (wa.me), Instagram (@xschlagfertigx) und E-Mail (mailto); runde Icon-Knöpfe 48 px im Glas-Stil der ±5-Knöpfe mit türkisen Inline-SVG-Icons, Beschriftung nur als aria-label/title (DE/EN); WhatsApp/Instagram öffnen in neuem Fenster (noopener noreferrer)
 - Startseiten-Hilfe (?): Rudiments-Zeile an den neuen Kacheltext angeglichen – „40 Grundlagen für Technik, Kontrolle und Timing. Mit Notation, Click und Tempo.“ (EN „40 essentials for technique, control and timing. With notation, click and tempo.“); Noten-Zeile ergänzt: „‚Auswählen‘ = Vollbild mit Zoom.“ (EN „‘Select’ = full screen with zoom.“)
 - Startseite: neue Kacheltexte – Erste Übung „Einfach loslegen: eine Minute im Click spielen. Ganz ohne Vorwissen.“, Click-Trainer „Dein Tempo, dein Groove. Tempo sicher halten oder Schritt für Schritt steigern.“, Rhythmuspyramide „4tel bis 32tel: Puls festigen und sauber zwischen den Unterteilungen wechseln.“, Noten „Deine Noten immer dabei. Fotos und PDFs speichern, beim Üben aufschlagen und zoomen.“ (mit Englisch); ausgeglichener Umbruch (text-wrap: balance) jetzt für alle Kacheltexte
 - Verstecktes Logo-Metronom: Clickwheel wie im Click-Trainer (Ring vergrößert sich beim Antippen, Daumen folgt dem Finger, Ring-Hinweis); Ringgröße 1,55× – offener Ring samt Pfeilen bleibt über der ersten Kachel, ±5, × und ? blenden beim Drehen aus
