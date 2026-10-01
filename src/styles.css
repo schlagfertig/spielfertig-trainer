@@ -668,3 +668,19 @@ body.metro-gesturing .rud-metro .metro-face { overflow: visible; }
 .news-list { margin: 0; padding: 0 0 0 20px; color: var(--dim); font-size: 16px; line-height: 1.5; }
 .news-list li { margin: 0 0 6px; }
 .news-list li::marker { color: var(--teal); }
+
+/* Einmaliger Hinweis auf „Neuigkeiten“ oben auf der Startseite: unter Flagge/? (die liegen absolut oben rechts), über dem Logo */
+.news-hint {
+  margin: 46px 0 4px;
+  padding: 12px 14px 12px 16px;
+  border: 1px solid rgba(92, 200, 184, 0.55);
+  border-radius: 18px;
+  display: flex; align-items: center; gap: 10px 12px; flex-wrap: wrap;
+  animation: newsHintIn .3s ease;
+}
+.news-hint-text { flex: 1 1 200px; margin: 0; font-size: 15px; line-height: 1.4; color: var(--txt); }
+.news-hint-actions { display: flex; gap: 8px; margin-left: auto; }
+.news-hint-actions .ghost { min-height: 44px; padding: 8px 14px; font-size: 15px; border-radius: 12px; }
+.news-hint-actions .ghost:not(.on) { color: var(--dim); }
+@keyframes newsHintIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .news-hint { animation: none; } }
