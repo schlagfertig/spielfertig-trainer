@@ -23,6 +23,8 @@ export const EN = {
   "Impressum": "Legal Notice",
   "Datenschutz": "Privacy Policy",
   "Neuigkeiten": "What’s new",
+  "Neu: Unter ‚Neuigkeiten‘ siehst du, was sich in der App geändert hat.": "New: ‘What’s new’ shows what has changed in the app.",
+  "Später": "Later",
   "neu": "new",
   "Was sich in der App geändert hat – das Neueste zuerst.": "What has changed in the app – newest first.",
   // Kopfleiste

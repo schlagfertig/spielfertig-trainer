@@ -11,7 +11,7 @@ function testerName() {
 }
 
 // Einmalige Begrüßung beim ersten Öffnen der Startseite (localStorage sf.v1.welcomeSeen)
-export function Welcome() {
+export function Welcome({ onClose } = {}) {
   const [open, setOpen] = useState(() => !loadSession("welcomeSeen", {}).seen);
   const [name] = useState(testerName);
   const btn = useRef(null);
@@ -19,6 +19,7 @@ export function Welcome() {
   function close() {
     saveSession("welcomeSeen", { seen: true });
     setOpen(false);
+    onClose?.();
   }
 
   useEffect(() => {

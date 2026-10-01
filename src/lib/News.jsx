@@ -4,6 +4,8 @@ import { fmtDate, getLang, t } from "./i18n.js";
 import { loadSession, saveSession } from "./session.js";
 
 const SEEN_KEY = "newsSeen";
+// Einmaliger Hinweis auf der Startseite, dass es die Seite „Neuigkeiten“ gibt (sf.v1.newsHint).
+const HINT_KEY = "newsHint";
 
 // true, wenn es Einträge gibt, die neuer sind als der letzte Besuch der Seite.
 export function hasUnseenNews() {
@@ -13,6 +15,31 @@ export function hasUnseenNews() {
 
 function markNewsSeen() {
   if (CHANGELOG_LATEST) saveSession(SEEN_KEY, { date: CHANGELOG_LATEST });
+  // Wer die Seite (z. B. über den Footer) geöffnet hat, kennt sie – Hinweis nicht mehr zeigen.
+  markNewsHintSeen();
+}
+
+export function markNewsHintSeen() {
+  saveSession(HINT_KEY, { seen: true });
+}
+
+// Hinweis nur, solange er nicht weggetippt wurde und die Seite noch nie geöffnet war.
+export function shouldShowNewsHint() {
+  if (loadSession(HINT_KEY, {}).seen) return false;
+  return !loadSession(SEEN_KEY, { date: "" }).date;
+}
+
+// Kleines Glas-Banner oben auf der Startseite (unter Flagge/?, über dem Logo).
+export function NewsHint({ onView, onLater }) {
+  return (
+    <div className="news-hint glass" role="status">
+      <p className="news-hint-text">{t("Neu: Unter ‚Neuigkeiten‘ siehst du, was sich in der App geändert hat.")}</p>
+      <div className="news-hint-actions">
+        <button type="button" className="ghost" onClick={onLater}>{t("Später")}</button>
+        <button type="button" className="ghost on" onClick={onView}>{t("Ansehen")}</button>
+      </div>
+    </div>
+  );
 }
 
 // „2026-09-30“ als lokales Datum (nicht UTC), damit der Tag nicht verrutscht.
