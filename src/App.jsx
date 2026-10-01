@@ -192,26 +192,26 @@ export default function App() {
         <button className="card" style={{ width: "100%", borderColor: "#5cc8b8", marginTop: 8 }} onClick={() => open("first")}>
           <div className="card-kicker">{t(firstDone ? "Nochmal" : "Loslegen")}</div>
           <div className="card-title">{t("Erste Übung starten")}</div>
-          <div className="card-lead">{t("Eine Minute mitklicken. Kein Fachwort nötig.")}</div>
+          <div className="card-lead">{t("Einfach loslegen: eine Minute im Click spielen. Ganz ohne Vorwissen.")}</div>
           <div className="card-go">Start</div>
         </button>
         <div className="cards">
           <button className="card" onClick={() => open("rudiments")}>
             <div className="card-kicker">{t("Üben")}</div>
             <div className="card-title">Rudiments</div>
-            <div className="card-lead card-lead-balance">{t("40 Grundlagen für Technik, Kontrolle und Timing.")}<br />{t("Mit Notation, Click und Tempo.")}</div>
+            <div className="card-lead">{t("40 Grundlagen für Technik, Kontrolle und Timing.")}<br />{t("Mit Notation, Click und Tempo.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card" onClick={() => open("click")}>
             <div className="card-kicker">Tempo</div>
             <div className="card-title">{t("Click-Trainer")}</div>
-            <div className="card-lead">{t("Starttempo wählen. Tempo halten oder automatisch steigern.")}</div>
+            <div className="card-lead">{t("Dein Tempo, dein Groove. Tempo sicher halten oder Schritt für Schritt steigern.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card" onClick={() => open("pyramid")}>
             <div className="card-kicker">Subdivision</div>
             <div className="card-title">{t("Rhythmuspyramide")}</div>
-            <div className="card-lead">{t("4tel bis 32tel: Puls festigen, sauber zwischen Unterteilungen wechseln, Tempo trotz Dichte halten.")}</div>
+            <div className="card-lead">{t("4tel bis 32tel: Puls festigen und sauber zwischen den Unterteilungen wechseln.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card" onClick={() => open("stick")}>
@@ -223,7 +223,7 @@ export default function App() {
           <button className="card" onClick={() => open("archive")}>
             <div className="card-kicker">{t("Eigene Blätter")}</div>
             <div className="card-title">{t("Noten")}</div>
-            <div className="card-lead">{t("Fotos und PDFs lokal ablegen und währenddessen aufschlagen.")}</div>
+            <div className="card-lead">{t("Deine Noten immer dabei. Fotos und PDFs speichern, beim Üben aufschlagen und zoomen.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
         </div>
