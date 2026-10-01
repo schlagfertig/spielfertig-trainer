@@ -6,7 +6,8 @@ import gesperrt from "./access/gesperrt.json" with { type: "json" };
 export const config = { runtime: "nodejs" };
 
 const COOKIE = "sf_zugang";
-const FREI = new Set(["/logo.svg", "/favicon.svg"]);
+// Ohne Zugang abrufbar: Icons und Manifest (Browser/iOS laden sie ohne Cookies)
+const FREI = new Set(["/logo.svg", "/favicon.svg", "/app-icon.svg", "/manifest.webmanifest"]);
 
 function cookieValue(request) {
   const m = (request.headers.get("cookie") || "").match(/(?:^|;\s*)sf_zugang=([^;]*)/);

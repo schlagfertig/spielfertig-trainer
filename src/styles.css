@@ -31,12 +31,13 @@ input, select { font-size: 17px; }
 p { font-size: 17px; line-height: 1.45; }
 .page {
   min-height: 100dvh;
-  padding: 16px 14px 28px;
+  /* Home-Bildschirm-App (black-translucent): Inhalt beginnt unter der Statusleiste; im Browser ist der Wert 0 */
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 14px 28px;
   max-width: 100%;
   overflow-x: hidden;
 }
 .home { max-width: 640px; margin: 0 auto; position: relative; }
-.home-help { position: absolute; top: 10px; right: 10px; z-index: 3; display: flex; gap: 8px; }
+.home-help { position: absolute; top: calc(10px + env(safe-area-inset-top, 0px)); right: 10px; z-index: 3; display: flex; gap: 8px; }
 .lang-flag { display: flex; align-items: center; justify-content: center; }
 .lang-flag svg { border-radius: 50%; }
 .logo-metro { position: relative; }
@@ -456,7 +457,7 @@ body.metro-gesturing .rud-metro .metro-face { overflow: visible; }
 @media print { body { background: #161a1d; } .top, .panel, .rud-nav, .rud-metro { display: none !important; } }
 
 .page.tool.stage {
-  padding: 4px 10px 0;
+  padding: calc(4px + env(safe-area-inset-top, 0px)) 10px 0;
   height: 100dvh;
   max-height: 100dvh;
   overflow: hidden;
