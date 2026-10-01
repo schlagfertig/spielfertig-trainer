@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-10-01",
     items: [
+      { de: "Hilfe auf der Startseite (?): Die Zeile zu Rudiments nutzt jetzt denselben Text wie die Kachel; bei Noten steht jetzt, dass du im Vollbild zoomen kannst.",
+        en: "Home screen help (?): the Rudiments line now uses the same text as the tile; the Sheet Music line now mentions that you can zoom in full screen." },
       { de: "Startseite: neue Texte auf den Kacheln Erste Übung, Click-Trainer, Rhythmuspyramide und Noten; Zeilen brechen ausgeglichen um.",
         en: "Home screen: new texts on the First Lesson, Click Trainer, Rhythm Pyramid and Sheet Music tiles; lines wrap evenly." },
       { de: "Verstecktes Metronom (Logo auf der Startseite antippen): Jetzt mit demselben Clickwheel wie der Click-Trainer – am Ring drehen, der Daumen folgt dem Finger.",
