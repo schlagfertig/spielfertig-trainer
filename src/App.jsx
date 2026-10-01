@@ -11,6 +11,7 @@ import Legal from "./lib/Legal.jsx";
 import News, { hasUnseenNews } from "./lib/News.jsx";
 import { loadSession } from "./lib/session.js";
 import { LogoMetronome } from "./lib/LogoMetronome.jsx";
+import { SocialLinks } from "./lib/Social.jsx";
 import { getLang, setLang, t } from "./lib/i18n.js";
 
 const FLAG_EN = (
@@ -229,6 +230,7 @@ export default function App() {
         </div>
         <footer className="foot">
           <div className="foot-copy">Copyright by Thomas Schuster</div>
+          <SocialLinks />
           <div className="foot-links foot-news">
             <button type="button" className="foot-link" onClick={() => open("news")}>
               {t("Neuigkeiten")}
