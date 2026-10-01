@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-10-01",
     items: [
+      { de: "Startseite: Ein kurzer Hinweis oben zeigt einmalig, dass du unter „Neuigkeiten“ siehst, was sich in der App geändert hat.",
+        en: "Home screen: a short one-time notice at the top points out that “What’s new” shows what has changed in the app." },
       { de: "Startseite: Unten gibt es jetzt drei Knöpfe für WhatsApp, Instagram und E-Mail – so erreichst du mich direkt.",
         en: "Home screen: three buttons at the bottom for WhatsApp, Instagram and email – get in touch with me directly." },
       { de: "Hilfe auf der Startseite (?): Die Zeile zu Rudiments nutzt jetzt denselben Text wie die Kachel; bei Noten steht jetzt, dass du im Vollbild zoomen kannst.",
