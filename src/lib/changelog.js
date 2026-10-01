@@ -7,6 +7,10 @@ export const CHANGELOG = [
   {
     date: "2026-10-01",
     items: [
+      { de: "Startseite: neue Texte auf den Kacheln Erste Übung, Click-Trainer, Rhythmuspyramide und Noten; Zeilen brechen ausgeglichen um.",
+        en: "Home screen: new texts on the First Lesson, Click Trainer, Rhythm Pyramid and Sheet Music tiles; lines wrap evenly." },
+      { de: "Verstecktes Metronom (Logo auf der Startseite antippen): Jetzt mit demselben Clickwheel wie der Click-Trainer – am Ring drehen, der Daumen folgt dem Finger.",
+        en: "Hidden metronome (tap the logo on the home screen): now has the same clickwheel as the Click Trainer – turn the ring and the thumb follows your finger." },
       { de: "Startseite: neuer Text auf der Rudiments-Kachel – „40 Grundlagen für Technik, Kontrolle und Timing. Mit Notation, Click und Tempo.“",
         en: "Home screen: new text on the Rudiments tile – “40 essentials for technique, control and timing. With notation, click and tempo.”" },
       { de: "Jede Seite öffnet jetzt oben – auch wenn du auf der Startseite weit nach unten gescrollt hast, ist der Zurück-Knopf sofort da. Zurück auf der Startseite landest du wieder dort, wo du warst.",
