@@ -199,7 +199,7 @@ export default function App() {
           <button className="card" onClick={() => open("rudiments")}>
             <div className="card-kicker">{t("Üben")}</div>
             <div className="card-title">Rudiments</div>
-            <div className="card-lead">{t("40 PAS-Rudiments. Notation, Click, Tempo.")}</div>
+            <div className="card-lead card-lead-balance">{t("40 Grundlagen für Technik, Kontrolle und Timing.")}<br />{t("Mit Notation, Click und Tempo.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card" onClick={() => open("click")}>
