@@ -68,7 +68,7 @@ export const EN = {
   "40 Grundlagen für Technik, Kontrolle und Timing. Mit Notation, Click und Tempo.": "40 essentials for technique, control and timing. With notation, click and tempo.",
   "Metronom: Tempo steigern oder halten. ‚Erweitert‘ = Click-Mixer.": "Metronome: speed up or hold the tempo. ‘Advanced’ = click mixer.",
   "Subdivisionen auf und ab, 4tel bis 32tel.": "Subdivisions up and down, quarters to 32nds.",
-  "24 Single-Beat-Nummern. Fokus-Mode spielt 1–24 durch.": "24 single-beat exercises. Focus mode plays 1–24 in a row.",
+  "24 Handübungen. Fokus-Mode spielt 1⁠–⁠24 durch.": "24 hand exercises. Focus mode plays 1⁠–⁠24 in a row.",
   "Eigene Fotos/PDFs, nur auf diesem Gerät. Antippen = Vorschau, ‚Auswählen‘ = Vollbild mit Zoom.": "Your own photos/PDFs, only on this device. Tap = preview, ‘Select’ = full screen with zoom.",
   "Kreis": "Dial",
   "Tippen = Start/Stop. Halten + drehen = Tempo.": "Tap = start/stop. Hold + turn = tempo.",

@@ -42,7 +42,7 @@ const rows = [
   { id: "1", name: "Paradiddle-Variationen", tags: ["Rudiments", "Hände"], added: 1 },
   { id: "2", name: "Fill-Ideen", tags: ["Fills"], added: 3 },
   { id: "3", name: "Groove Übung 3", tags: ["Groove", "rudiments"], added: 2 },
-  { id: "4", name: "Stick Control S. 5", added: 4 },
+  { id: "4", name: "Technik-Blatt S. 5", added: 4 },
 ];
 
 test("allTags: häufigste zuerst, Schreibweise des ersten Vorkommens", () => {

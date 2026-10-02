@@ -4,7 +4,7 @@ export const HELP = {
     ["Rudiments", "40 Grundlagen für Technik, Kontrolle und Timing. Mit Notation, Click und Tempo."],
     ["Click-Trainer", "Metronom: Tempo steigern oder halten. ‚Erweitert‘ = Click-Mixer."],
     ["Rhythmuspyramide", "Subdivisionen auf und ab, 4tel bis 32tel."],
-    ["Hand Control", "24 Single-Beat-Nummern. Fokus-Mode spielt 1–24 durch."],
+    ["Hand Control", "24 Handübungen. Fokus-Mode spielt 1⁠–⁠24 durch."],
     ["Noten", "Eigene Fotos/PDFs, nur auf diesem Gerät. Antippen = Vorschau, ‚Auswählen‘ = Vollbild mit Zoom."],
     ["Kreis", "Tippen = Start/Stop. Halten + drehen = Tempo."],
   ],
