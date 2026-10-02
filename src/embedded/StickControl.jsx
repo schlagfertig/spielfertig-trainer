@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { MetronomeDial } from "../lib/metronome.jsx";
-import { playClick, unlockAudio } from "../lib/audio.js";
+import { playClick, playClickLayer, unlockAudio } from "../lib/audio.js";
 import { NavScrub } from "../lib/NavScrub.jsx";
 import { t } from "../lib/i18n.js";
 
@@ -67,19 +67,46 @@ function phraseWidth() {
   return noteX(15) + GAP + 8;
 }
 
-function Phrase({ id, hands, playT }) {
-  const letters = String(hands || "").split("");
-  const active = playT < 0 ? -1 : Math.round(playT / 2);
-  const y = 42;
-  const top = 17;
-  const hy = 78;
-  const xs = Array.from({ length: 16 }, (_, i) => noteX(i));
-  const start = LINE_L;
-  const end = xs[15] + GAP;
-  const barX = (xs[7] + xs[8]) / 2;
+/* WA-24: dasselbe Sticking auf Achteltriolen, zwei 4/4-Takte = 24 Schläge, Gruppen zu 3. */
+function triHands(hands) {
+  const src = String(hands || "R");
+  let s = "";
+  while (s.length < 24) s += src;
+  return s.slice(0, 24);
+}
+
+function triNotes(hands) {
+  return triHands(hands).split("").map((hand, i) => ({ t: i, dur: 1, hand, acc: false }));
+}
+
+function noteX3(i) {
+  const g = Math.floor(i / 3);
+  const k = i % 3;
+  const inner = 11;
+  const gap = 12;
+  return 26 + gap + g * (inner * 2 + gap) + k * inner;
+}
+
+function phraseWidth3() {
+  return noteX3(23) + 18;
+}
+
+function Phrase({ id, hands, playT, ternary }) {
+  const letters = (ternary ? triHands(hands) : String(hands || "")).split("");
+  const active = playT < 0 ? -1 : (ternary ? Math.round(playT) : Math.round(playT / 2));
+  const y = ternary ? 50 : 42;
+  const top = ternary ? 24 : 17;
+  const hy = ternary ? 86 : 78;
+  const xs = letters.map((_, i) => (ternary ? noteX3(i) : noteX(i)));
+  const start = ternary ? 26 : LINE_L;
+  const end = xs[xs.length - 1] + (ternary ? 16 : GAP);
+  const split = ternary ? 12 : 8;
+  const barX = (xs[split - 1] + xs[split]) / 2;
   const stem = 3.9;
+  const gSize = ternary ? 3 : 4;
+  const groups = ternary ? 8 : 4;
   return (
-    <svg viewBox={`0 7 ${end + 8} 85`} width="100%" role="img" aria-label={t("Nummer {n}", { n: id })}>
+    <svg viewBox={`0 ${ternary ? 4 : 7} ${end + 8} ${ternary ? 96 : 85}`} width="100%" role="img" aria-label={t("Nummer {n}", { n: id })}>
       <line x1={start} y1={y} x2={end} y2={y} stroke={LINE} strokeWidth="1.45" />
       <line x1={start} y1={y - 12} x2={start} y2={y + 12} stroke={LINE} strokeWidth="1.6" />
       <line x1={end} y1={y - 12} x2={end} y2={y + 12} stroke={LINE} strokeWidth="1.6" />
@@ -94,8 +121,13 @@ function Phrase({ id, hands, playT }) {
           </g>
         );
       })}
-      {[0, 1, 2, 3].map((g) => (
-        <line key={g} x1={xs[g * 4] + stem} y1={top} x2={xs[g * 4 + 3] + stem} y2={top} stroke={INK} strokeWidth="3" strokeLinecap="butt" />
+      {Array.from({ length: groups }, (_, g) => (
+        <g key={g}>
+          <line x1={xs[g * gSize] + stem} y1={top} x2={xs[g * gSize + gSize - 1] + stem} y2={top} stroke={INK} strokeWidth="3" strokeLinecap="butt" />
+          {ternary ? (
+            <text x={(xs[g * 3] + xs[g * 3 + 2]) / 2 + stem} y={top - 3} textAnchor="middle" fill={INK} fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="11">3</text>
+          ) : null}
+        </g>
       ))}
       <text x="6" y={hy} fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="16">{id}.</text>
       {letters.map((ch, i) => (
@@ -107,11 +139,11 @@ function Phrase({ id, hands, playT }) {
 
 /* WA-21 Vorschau: volle Breite, gleiche Spalten wie die große Übung (noteX), nur die Sticking-Zeile –
    der Rhythmus (16 Achtel) ist bei allen Nummern gleich, so bleibt die Karte flach genug über dem Kreis. */
-function NextRow({ id, hands }) {
-  const letters = String(hands || "").split("");
-  const xs = Array.from({ length: 16 }, (_, i) => noteX(i));
+function NextRow({ id, hands, ternary }) {
+  const letters = (ternary ? triHands(hands) : String(hands || "")).split("");
+  const xs = letters.map((_, i) => (ternary ? noteX3(i) : noteX(i)));
   return (
-    <svg viewBox={`0 0 ${phraseWidth()} 22`} width="100%" aria-hidden="true">
+    <svg viewBox={`0 0 ${ternary ? phraseWidth3() : phraseWidth()} 22`} width="100%" aria-hidden="true">
       <text x="6" y="17" fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="15">{id}.</text>
       {letters.map((ch, i) => (
         <text key={i} x={xs[i]} y="17" textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="15" fill={INK}>{ch}</text>
@@ -120,10 +152,10 @@ function NextRow({ id, hands }) {
   );
 }
 
-function StickRow({ id, hands }) {
-  const letters = String(hands || "").split("");
-  const xs = Array.from({ length: 16 }, (_, i) => noteX(i));
-  const w = phraseWidth();
+function StickRow({ id, hands, ternary }) {
+  const letters = (ternary ? triHands(hands) : String(hands || "")).split("");
+  const xs = letters.map((_, i) => (ternary ? noteX3(i) : noteX(i)));
+  const w = ternary ? phraseWidth3() : phraseWidth();
   return (
     <svg viewBox={`0 0 ${w} 22`} width="100%" aria-hidden="true">
       <text x="6" y="16" fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="500" fontSize="13">{id}.</text>
@@ -201,11 +233,11 @@ function RepsDrum({ value, min = 1, max = 20, onChange, disabled, label }) {
   );
 }
 
-function ListRow({ row, onPick, playing, label, near, className }) {
+function ListRow({ row, onPick, playing, label, near, className, ternary }) {
   return (
     <button type="button" className={className} onClick={() => onPick(row.id)} disabled={playing} style={{ width: "100%", marginTop: 4, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: near ? "8px 8px 6px" : "6px 8px", color: "inherit", textAlign: "left", opacity: near ? 1 : 0.7 }}>
       {label ? <div style={{ color: TEAL, font: "400 14px Figtree, sans-serif", letterSpacing: "0.08em", padding: "0 4px 4px" }}>{label}</div> : null}
-      <StickRow id={row.id} hands={row.hands} />
+      <StickRow id={row.id} hands={row.hands} ternary={ternary} />
     </button>
   );
 }
@@ -215,6 +247,7 @@ export default function StickControl({ preset = null } = {}) {
   const [exId, setExId] = useState(() => (EXERCISES.some((e) => e.id === preset?.ex) ? preset.ex : 1));
   const [bpm, setBpm] = useState(preset?.bpm || 80);
   const [mode, setMode] = useState("practice");
+  const [ternary, setTernary] = useState(false);
   const [reps, setReps] = useState(4);
   const [countBars, setCountBars] = useState(1);
   const [playing, setPlaying] = useState(false);
@@ -229,6 +262,8 @@ export default function StickControl({ preset = null } = {}) {
   const wrapRef = useRef(null);
   const bpmRef = useRef(preset?.bpm || 80);
   bpmRef.current = bpm;
+  const ternaryRef = useRef(false);
+  ternaryRef.current = ternary;
   const idx = Math.max(0, EXERCISES.findIndex((e) => e.id === exId));
   const ex = EXERCISES[idx] || EXERCISES[0];
   const previous = EXERCISES.slice(0, idx);
@@ -292,13 +327,19 @@ export default function StickControl({ preset = null } = {}) {
     const barsIn = clamp(countBars, 0, 2);
     const clicks = barsIn * Q_PER_BAR;
     let exIdx = Math.max(0, idx);
-    let notes = EXERCISES[exIdx].notes;
+    let notes = is3 ? triNotes(EXERCISES[exIdx].hands) : EXERCISES[exIdx].notes;
     let cancelled = false;
     let timer = 0;
     let evIndex = 0;
     let repsInEx = 0;
     let ended = false;
-    const stepSec = () => 60 / Math.max(30, bpmRef.current) / 4;
+    const is3 = ternaryRef.current;
+    const cellSteps = is3 ? 24 : CELL_STEPS;
+    notes = is3 ? triNotes(EXERCISES[exIdx].hands) : EXERCISES[exIdx].notes;
+    const stepSec = () => {
+      const q = 60 / Math.max(30, bpmRef.current);
+      return is3 ? q / 3 : q / 4;
+    };
     let cycleStart = ctx.currentTime + 0.03;
     setPlaying(true);
     // Zähler erst umschalten, wenn die Wiederholung hörbar beginnt.
@@ -344,7 +385,14 @@ export default function StickControl({ preset = null } = {}) {
         const when = cycleStart + nt.t * stepSec();
         if (when >= horizon) break;
         if (when >= now - 0.02) {
-          if (nt.t % 4 < 0.08) {
+          if (is3) {
+            if (nt.t % 3 === 0) {
+              playClick(ctx, when, nt.t % 12 === 0);
+              pulseAt(when);
+            } else {
+              playClickLayer(ctx, when, "triplet", 0.7);
+            }
+          } else if (nt.t % 4 < 0.08) {
             playClick(ctx, when, nt.t % 16 < 0.08);
             pulseAt(when);
           }
@@ -355,7 +403,7 @@ export default function StickControl({ preset = null } = {}) {
         if (evIndex >= notes.length) {
           repsInEx += 1;
           evIndex = 0;
-          cycleStart += CELL_STEPS * stepSec();
+          cycleStart += cellSteps * stepSec();
           if (isCh && repsInEx >= per) {
             const nextI = exIdx + 1;
             if (nextI >= EXERCISES.length) {
@@ -365,7 +413,7 @@ export default function StickControl({ preset = null } = {}) {
               return;
             }
             exIdx = nextI;
-            notes = EXERCISES[exIdx].notes;
+            notes = is3 ? triNotes(EXERCISES[exIdx].hands) : EXERCISES[exIdx].notes;
             repsInEx = 0;
             // Anzeige erst wechseln, wenn die neue Übung hörbar beginnt (Scheduler plant ~180 ms voraus).
             const nextId = EXERCISES[exIdx].id;
@@ -593,7 +641,7 @@ export default function StickControl({ preset = null } = {}) {
       <div className="stick-list" ref={prevRef}>
         {previous.map((row, i) => {
           const last = i === previous.length - 1;
-          return <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={last} className={last ? "stick-prev" : "stick-far"} label={last ? t("DAVOR") : ""} />;
+          return <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={last} className={last ? "stick-prev" : "stick-far"} label={last ? t("DAVOR") : ""} ternary={ternary} />;
         })}
       </div>
       <div className="stick-stage">
@@ -602,6 +650,10 @@ export default function StickControl({ preset = null } = {}) {
           <div className="seg" style={{ width: "fit-content" }}>
             <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>{t("Üben")}</button>
             <button type="button" className={mode === "challenge" ? "on" : ""} onClick={() => !playing && setMode("challenge")}>{t("Fokus-Mode")}</button>
+          </div>
+          <div className="seg" style={{ width: "fit-content" }} role="group" aria-label={t("Raster")}>
+            <button type="button" className={!ternary ? "on" : ""} onClick={() => !playing && setTernary(false)}>{t("binär")}</button>
+            <button type="button" className={ternary ? "on" : ""} onClick={() => !playing && setTernary(true)}>{t("ternär")}</button>
           </div>
           {challenge ? (
             <span className="reps-field">
@@ -615,7 +667,7 @@ export default function StickControl({ preset = null } = {}) {
           </button>
         </div>
         <div className={playing ? "stick-card stick-run" : "stick-card"} style={{ background: "#14191c", border: `1.5px solid ${TEAL}`, borderRadius: 16, padding: "12px 8px 8px" }}>
-          <Phrase id={ex.id} hands={ex.hands} playT={counting ? -1 : playT} />
+          <Phrase id={ex.id} hands={ex.hands} playT={counting ? -1 : playT} ternary={ternary} />
         </div>
       </div>
       <div className={lastRep ? "stick-next soon" : "stick-next"} data-next={nextEx ? nextEx.id : "end"} role="status" aria-live="polite" aria-atomic="true">
@@ -626,7 +678,7 @@ export default function StickControl({ preset = null } = {}) {
         </div>
         {nextEx ? (
           <button type="button" key={nextEx.id} className="stick-next-body" onClick={() => pick(nextEx.id)} disabled={playing} aria-label={t("Nummer {n}", { n: nextEx.id })}>
-            <NextRow id={nextEx.id} hands={nextEx.hands} />
+            <NextRow id={nextEx.id} hands={nextEx.hands} ternary={ternary} />
           </button>
         ) : (
           <div className="stick-next-end">{challenge ? t("danach fertig") : t("Nr. {n}", { n: ex.id })}</div>
@@ -635,7 +687,7 @@ export default function StickControl({ preset = null } = {}) {
       {later.length ? (
         <div className="stick-list stick-later" role="group" aria-label={t("Danach")}>
           <div className="stick-later-kick" aria-hidden="true">{t("Danach")}</div>
-          {later.map((row) => <ListRow key={row.id} row={row} onPick={pick} playing={playing} className="stick-far" />)}
+          {later.map((row) => <ListRow key={row.id} row={row} onPick={pick} playing={playing} className="stick-far" ternary={ternary} />)}
         </div>
       ) : null}
       </div>
