@@ -68,8 +68,9 @@ function barRud(stage) {
   };
 }
 
-export default function PyramidTrainer() {
-  const [bpm, setBpm] = useState(80);
+export default function PyramidTrainer({ preset = null } = {}) {
+  const startBpm = preset?.bpm || 80; // „Heute“-Karte: ruhigeres Starttempo
+  const [bpm, setBpm] = useState(startBpm);
   const [bars, setBars] = useState(2);
   const [dir, setDir] = useState("updown");
   const [enabled, setEnabled] = useState(() => new Set(STAGES.map((s) => s.id)));
@@ -86,7 +87,7 @@ export default function PyramidTrainer() {
   const flashTimer = useRef(0);
   const wrapRef = useRef(null);
   const stopRef = useRef(null);
-  const bpmRef = useRef(80);
+  const bpmRef = useRef(startBpm);
   const barsRef = useRef(2);
   bpmRef.current = bpm;
   barsRef.current = bars;
