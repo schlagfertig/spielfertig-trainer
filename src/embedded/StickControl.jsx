@@ -210,9 +210,10 @@ function ListRow({ row, onPick, playing, label, near, className }) {
   );
 }
 
-export default function StickControl() {
-  const [exId, setExId] = useState(1);
-  const [bpm, setBpm] = useState(80);
+export default function StickControl({ preset = null } = {}) {
+  // „Heute“-Karte: Startübung und Tempo vorgeben
+  const [exId, setExId] = useState(() => (EXERCISES.some((e) => e.id === preset?.ex) ? preset.ex : 1));
+  const [bpm, setBpm] = useState(preset?.bpm || 80);
   const [mode, setMode] = useState("practice");
   const [reps, setReps] = useState(4);
   const [countBars, setCountBars] = useState(1);
@@ -226,7 +227,7 @@ export default function StickControl() {
   const pinRef = useRef(null);
   const prevRef = useRef(null);
   const wrapRef = useRef(null);
-  const bpmRef = useRef(80);
+  const bpmRef = useRef(preset?.bpm || 80);
   bpmRef.current = bpm;
   const idx = Math.max(0, EXERCISES.findIndex((e) => e.id === exId));
   const ex = EXERCISES[idx] || EXERCISES[0];
