@@ -684,3 +684,26 @@ body.metro-gesturing .rud-metro .metro-face { overflow: visible; }
 .news-hint-actions .ghost:not(.on) { color: var(--dim); }
 @keyframes newsHintIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .news-hint { animation: none; } }
+/* „Heute“-Karte (Startseite): Plan-Wahl A/B/C, Schritte als antippbare Zeilen */
+.card.today { width: 100%; margin-top: 14px; cursor: default; padding: 16px 14px 12px; }
+.today-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 0 4px; }
+.today-title { font-family: Oswald, sans-serif; font-weight: 500; font-size: clamp(22px, 6.6vw, 26px); margin: 4px 0 0; line-height: 1.15; }
+.today-total { margin-left: 10px; color: var(--dim); font: 700 15px Figtree, sans-serif; letter-spacing: 0.04em; white-space: nowrap; }
+.today-seg { flex-shrink: 0; flex-wrap: nowrap; }
+.today-seg button { min-width: 40px; min-height: 40px; padding: 6px 10px; font-size: 16px; }
+.today-steps { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+.today-step {
+  width: 100%; display: flex; align-items: center; gap: 12px; text-align: left;
+  min-height: 56px; padding: 8px 12px 8px 8px; border-radius: 14px; cursor: pointer;
+  background: rgba(10, 14, 16, 0.22); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--txt);
+}
+.today-step:hover, .today-step:focus-visible { border-color: rgba(92, 200, 184, 0.55); }
+.today-min {
+  flex-shrink: 0; width: 48px; display: flex; flex-direction: column; align-items: center; line-height: 1;
+  color: var(--teal); font: 700 12px Figtree, sans-serif; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.today-min b { font: 700 22px "Space Mono", ui-monospace, monospace; letter-spacing: -0.04em; margin-bottom: 3px; }
+.today-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.today-label { font-weight: 700; font-size: 17px; }
+.today-detail { color: var(--dim); font-size: 15px; }
+.today-go { flex-shrink: 0; color: var(--teal); font-size: 26px; line-height: 1; }
