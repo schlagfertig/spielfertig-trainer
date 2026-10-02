@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-10-02",
     items: [
+      { de: "Hand Control: Die Triolen-Ansicht („ternär“) ist vorerst wieder ausgeblendet, und Start funktioniert wieder wie gewohnt.",
+        en: "Hand Control: the triplet view (“Triplets”) is hidden again for now, and Start works as usual again." },
       { de: "Startseite: Auf der Karte „Erste Übung starten“ gibt es jetzt „Nicht heute“ – die Karte ist dann bis morgen ausgeblendet, und die Karte „Heute“ rückt nach oben.",
         en: "Home screen: the “Start your first lesson” card now has “Not today” – the card is hidden until tomorrow and the “Today” card moves up." },
       { de: "Startseite: neue Karte „Heute“ mit drei kurzen Übeplänen (A, B, C). Jeder Schritt öffnet das passende Modul mit ruhigem Starttempo – zurück geht es zur selben Stelle der Startseite.",
