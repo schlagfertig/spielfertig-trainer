@@ -6,6 +6,7 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 
 ## 02.10.2026
 
+- Startseite: Karte „Erste Übung starten“ mit kleinem Glas-Knopf „Nicht heute“ (EN „Not today“) oben rechts – blendet die Karte bis Tagesende aus (lokales Datum, localStorage sf.v1.firstSkip), am nächsten Tag ist sie wieder da; die Karte klappt weich zusammen, „Heute“ rückt nach oben und bekommt den Fokus; ohne Rückfrage
 - Startseite: Karte „Heute“ (EN „Today“) unter „Erste Übung“, über den Modul-Kacheln – drei feste Mini-Pläne mit Minuten-Richtwerten, Wahl über A/B/C (Vorschlag nach Wochentag, eigene Wahl gilt bis Tagesende, localStorage sf.v1.today): A „Grundlagen“ 25 Min (5 Click-Trainer 80 BPM halten → 10 Pyramide 60 BPM → 10 Hand Control ab Übung 1, 70 BPM), B „Rudiments“ 20 Min (5 Click-Trainer 70 BPM → 10 Single Paradiddle 70 BPM → 5 Double Stroke Roll 60 BPM), C „Kurz“ 10 Min (1 Erste Übung → 4 Single Stroke Roll 70 BPM → 5 Noten); jeder Schritt öffnet das Modul mit diesen Startwerten, Zurück führt zur gleichen Scroll-Position; kein Timer, keine Haken
 - Hand Control: eigene Übungsreihe – alle 24 Sticking-Muster neu (u. a. Nr. 8 nur rechts, Nr. 16 nur links), Reihenfolge angepasst (a2c6333, 45fa04f); Texte neutral formuliert (Neuigkeiten, Startseiten-Hilfe „24 Handübungen“, dieses Changelog)
 
