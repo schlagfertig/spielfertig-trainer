@@ -7,6 +7,7 @@ import Archive from "./embedded/Archive.jsx";
 import { Help } from "./lib/Help.jsx";
 import { Welcome } from "./lib/Welcome.jsx";
 import FirstLesson from "./lib/FirstLesson.jsx";
+import Today from "./lib/Today.jsx";
 import Legal from "./lib/Legal.jsx";
 import News, { NewsHint, hasUnseenNews, markNewsHintSeen, shouldShowNewsHint } from "./lib/News.jsx";
 import { loadSession } from "./lib/session.js";
@@ -57,6 +58,8 @@ export default function App() {
   const [view, setView] = useState(viewFromPath);
   const [printOpen, setPrintOpen] = useState(false);
   const [stage, setStage] = useState(false);
+  // Startwerte für ein Modul, wenn es aus der „Heute“-Karte geöffnet wird (sonst null = eigene Werte).
+  const [preset, setPreset] = useState(null);
   // Hand Control startet immer in der Fokus-Ansicht (aktuelle Übung groß, nächste als Vorschau).
   // Der frühere Schalter „Fokus + Preview“ ist weg – seine gemerkte Einstellung (sf.v1.stick) einmalig aufräumen.
   useEffect(() => {
@@ -105,8 +108,9 @@ export default function App() {
     else goHome();
   }
 
-  function open(next) {
+  function open(next, nextPreset = null) {
     rememberHomeScroll();
+    setPreset(nextPreset && typeof nextPreset === "object" && !("nativeEvent" in nextPreset) ? nextPreset : null);
     setPrintOpen(false);
     setStage(false);
     setView(next);
@@ -208,6 +212,7 @@ export default function App() {
           <div className="card-lead">{t("Einfach loslegen: eine Minute im Click spielen. Ganz ohne Vorwissen.")}</div>
           <div className="card-go">Start</div>
         </button>
+        <Today onOpen={open} />
         <div className="cards">
           <button className="card" onClick={() => open("rudiments")}>
             <div className="card-kicker">{t("Üben")}</div>
@@ -293,11 +298,11 @@ export default function App() {
           : view === "impressum" ? <Legal topic="impressum" onOpen={open} />
           : view === "datenschutz" ? <Legal topic="datenschutz" onOpen={open} />
           : view === "news" ? <News />
-          : view === "click" ? <ClickTrainer />
-          : view === "pyramid" ? <PyramidTrainer />
-          : view === "stick" ? <StickControl />
+          : view === "click" ? <ClickTrainer preset={preset} />
+          : view === "pyramid" ? <PyramidTrainer preset={preset} />
+          : view === "stick" ? <StickControl preset={preset} />
           : view === "archive" ? <Archive />
-          : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} />}
+          : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
       </main>
     </div>
   );
