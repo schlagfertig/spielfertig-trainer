@@ -49,8 +49,9 @@ function useDialSize() {
   return size;
 }
 
-export default function ClickTrainer() {
-  const init = useRef(readClickSession()).current;
+export default function ClickTrainer({ preset = null } = {}) {
+  // Aus der „Heute“-Karte: Tempo halten mit vorgegebenem Tempo.
+  const init = useRef(preset?.bpm ? { ...readClickSession(), mode: "hold", startBpm: clamp(preset.bpm, 30, 260) } : readClickSession()).current;
   const [mode, setMode] = useState(init.mode);
   const [startBpm, setStartBpm] = useState(init.startBpm);
   const [bpm, setBpm] = useState(init.startBpm);
