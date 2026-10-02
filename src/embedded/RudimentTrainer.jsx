@@ -53,8 +53,17 @@ function readRudimentSession() {
   };
 }
 
-export default function RudimentTrainer({ printOpen = false, onPrintClose, stage = false }) {
-  const init = useRef(readRudimentSession()).current;
+export default function RudimentTrainer({ printOpen = false, onPrintClose, stage = false, preset = null }) {
+  // Aus der „Heute“-Karte: Rudiment und Tempo vorgeben, Klang/Ziel bleiben wie zuletzt.
+  const init = useRef((() => {
+    const s = readRudimentSession();
+    if (!preset) return s;
+    return {
+      ...s,
+      sel: RUDIMENTS.some((r) => r.id === preset.rud) ? preset.rud : s.sel,
+      bpm: preset.bpm ? clamp(preset.bpm, 30, 260) : s.bpm,
+    };
+  })()).current;
   const [sel, setSel] = useState(init.sel);
   const [bpm, setBpm] = useState(init.bpm);
   const [hear, setHear] = useState(init.hear);
