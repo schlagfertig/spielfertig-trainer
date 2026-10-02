@@ -5,6 +5,13 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-10-02",
+    items: [
+      { de: "Hand Control: eigene Übungen – alle 24 Nummern sind neu.",
+        en: "Hand Control: own exercises – all 24 patterns are new." },
+    ],
+  },
+  {
     date: "2026-10-01",
     items: [
       { de: "Startseite: Ein kurzer Hinweis oben zeigt einmalig, dass du unter „Neuigkeiten“ siehst, was sich in der App geändert hat.",
@@ -80,8 +87,8 @@ export const CHANGELOG = [
   {
     date: "2026-09-28",
     items: [
-      { de: "Stick Control heißt jetzt „Hand Control“.",
-        en: "Stick Control is now called “Hand Control”." },
+      { de: "Hand Control: neuer Name auf der Startseite, im Titel und in der Übersicht.",
+        en: "Hand Control: new name on the home screen, in the title and in the overview." },
       { de: "Rudiments: Gegensticking – viele Rudiments lassen sich auch mit links beginnend üben.",
         en: "Rudiments: opposite sticking – many rudiments can now be practised starting with the left hand." },
       { de: "Tempo-Rad: ruhige Mitte und Hinweis „Am Rand drehen“.",
@@ -168,8 +175,8 @@ export const CHANGELOG = [
     items: [
       { de: "Neu: Rhythmuspyramide – von Vierteln bis 32teln.",
         en: "New: Rhythm Pyramid – from quarter notes to 32nd notes." },
-      { de: "Neu: Hand Control (damals Stick Control) – 24 Übungen mit Challenge.",
-        en: "New: Hand Control (then called Stick Control) – 24 exercises with a challenge." },
+      { de: "Neu: Hand Control – 24 Übungen für Hand- und Stocktechnik.",
+        en: "New: Hand Control – 24 exercises for hand and stick technique." },
       { de: "Neu: Noten – eigene Fotos und PDFs speichern und beim Üben aufschlagen.",
         en: "New: Sheet Music – save your own photos and PDFs and open them while practising." },
       { de: "Neu: erweiterter Click-Mixer mit Achteln, 16teln und Triolen.",

@@ -4,6 +4,10 @@ Alle für Nutzer sichtbaren Änderungen, nach Datum gruppiert (neueste zuerst).
 Kleine Fix-Commits sind dem jeweiligen Feature zugeordnet; reine Technik (Build-Fixes,
 Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SHA).
 
+## 02.10.2026
+
+- Hand Control: eigene Übungsreihe – alle 24 Sticking-Muster neu (u. a. Nr. 8 nur rechts, Nr. 16 nur links), Reihenfolge angepasst (a2c6333, 45fa04f); Texte neutral formuliert (Neuigkeiten, Startseiten-Hilfe „24 Handübungen“, dieses Changelog)
+
 ## 01.10.2026
 
 - Startseite: einmaliger Hinweis auf die Seite „Neuigkeiten“ (EN „What’s new“) als Glas-Banner oben unter Flagge/? und über dem Logo – „Ansehen“ öffnet Neuigkeiten, „Später“ blendet aus; erscheint nicht mehr nach einem der beiden Knöpfe oder nach einem Besuch von Neuigkeiten (localStorage sf.v1.newsHint); bei neuen Nutzern erst nach dem Schließen der Begrüßung
@@ -46,7 +50,7 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 ## 28.09.2026
 
 - Tempo-Rad: ruhige Mitte, Hinweis „Am Rand drehen“ (c89659f, d3eb5f0)
-- Stick Control heißt jetzt „Hand Control“ (Startseite, Titel, Übersicht) (9572e39, 0768e86, d318522, adc2378)
+- Hand Control: neuer Name (Startseite, Titel, Übersicht) (9572e39, 0768e86, d318522, adc2378)
 - Rudiments: Gegensticking (mit links beginnen) für alle Rudiments mit zweiter Sticking-Zeile (6eff065)
 - Rad-Hinweis erscheint erst nach der Hilfe (9572e39, 7873600)
 
@@ -72,7 +76,7 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 
 ## 25.09.2026
 
-- Stick Control: feinere Noten, entfernte Übungen unscharf, aktuelle Übung oben fixiert (95613f9)
+- Hand Control: feinere Noten, entfernte Übungen unscharf, aktuelle Übung oben fixiert (95613f9)
 - Rudiments: Halten der unteren Leiste zeigt eine Kurzvorschau der Noten (9a7d689)
 - Rhythmuspyramide: Tempo nur noch über das Rad (0b84653)
 - Erste Übung: Start/Stop im Rad, größeres Rad, ruhigere Optik (51e459a, 1eb52cb, 87abeec)
@@ -87,16 +91,16 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 - Tempo-Rad: halten und drehen – innen grob, außen fein, größerer Wirkbereich (15e9eba, 34b41dc, 4a20fe1)
 - Rhythmuspyramide: Stufen einzeln an- und abwählbar (d3707e5)
 - Rudiments: ohne Einzählen und Tempo-Rampe; Sound-Umschalter über dem Rad; Rad klar getrennt von Vor/Zurück (5852a1f, 96da9a7, d92f7f9, f3b1e2f, 8aa7a23)
-- Stick Control: Stickings in Weiß (fee3a59, d79845c)
+- Hand Control: Stickings in Weiß (fee3a59, d79845c)
 - Texte: Umlaute überall, konkretere Startkarten, Noten-Leerzustand mit Hinweis (66a24d7, 732c251, 6390bc0, ea3bfae)
 - Größere Tippflächen für Hilfe und Zurück (fb0b251)
 
 ## 21.09.2026
 
-- Stick Control: aktuelle Übung angeheftet, Challenge ab aktueller Übung bis 24, vorherige Übungen darüber, Liste im Setlist-Stil (8559ab1, 22d91cf, 827d075, 0af7dd7, ef87d37, 5946b20, 517c7d2, 3ce14e3, d60ea3e, bb719e9, 5f5e277, b88faf3)
-- Stick Control: Wischen und Halte-Rad in der unteren Leiste, Metronom über der Leiste (63ccdbd, 1e06acd, 3a1cb08, 5f0e5f5, a9af682, adae746, 053b927, 336e227)
-- Stick Control: Challenge wiederholt ganze Übungen, Einzählen 1 oder 2 Takte (f975aa1, ab74647, 047664b)
-- Stick Control im Querformat: ganze Phrase, Mini-Click und Bildschirm-Blitz (7c00e06, cbb98f8)
+- Hand Control: aktuelle Übung angeheftet, Challenge ab aktueller Übung bis 24, vorherige Übungen darüber, Liste im Setlist-Stil (8559ab1, 22d91cf, 827d075, 0af7dd7, ef87d37, 5946b20, 517c7d2, 3ce14e3, d60ea3e, bb719e9, 5f5e277, b88faf3)
+- Hand Control: Wischen und Halte-Rad in der unteren Leiste, Metronom über der Leiste (63ccdbd, 1e06acd, 3a1cb08, 5f0e5f5, a9af682, adae746, 053b927, 336e227)
+- Hand Control: Challenge wiederholt ganze Übungen, Einzählen 1 oder 2 Takte (f975aa1, ab74647, 047664b)
+- Hand Control im Querformat: ganze Phrase, Mini-Click und Bildschirm-Blitz (7c00e06, cbb98f8)
 - Kurzeinführung beim ersten Öffnen jedes Bereichs mit Gesten-Tipps (433ac8c)
 - Rudiments: Titel antippbar mit Auswahlliste, Wischen/Halte-Rad in der unteren Leiste, Hörmodi direkt vorne (2c7296b, 3f038eb, 8ac1a11, dfc42ef)
 - Drucken bleibt in der App: Live-A4-Vorschau mit Branding, Telefon in der Fußzeile, als Home-App PNG speichern, Status-Meldung (0ec9b09, 8cf6f9d, 7a0c5f2, 3aa3cc9, 94c7312, 9c59d3b, 6e70f42, 418e7d4, 6b5837a, c343eb2, 30f208a)
@@ -106,13 +110,13 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 - Tempo-Rad: Hinweispfeile folgen dem Kreis, − und + mittig (b510ea3, 916df74, 4a6e0fb, da72b36)
 - Noten: „Blatt“ nur bei eigenem Archiv, Hinweis auf lokale Speicherung (e08ac56, 4f5af3a)
 - Rudiments-Notation: Single Stroke Four, Six Stroke Roll mit L-Zeile, Drag Paradiddle #2, Flam Tap als Achtel, Single Flammed Mill, kurze Figuren mittig (2ffcbaf, 7ed612c, a092332, 41ee8ca, 14784db, e1dbf0a, fbb1304, 6a32b95, dac9edb, 25e18b1)
-- Startseite: neue Kacheltexte für Stick Control und Pyramide (86c5006, 512dea2, 23ebf19, ab3b08f, e7aedb5)
+- Startseite: neue Kacheltexte für Hand Control und Pyramide (86c5006, 512dea2, 23ebf19, ab3b08f, e7aedb5)
 
 ## 20.09.2026
 
 - Neu: Rhythmuspyramide – Unterteilungen von Vierteln bis 32teln, immer ein voller 4/4-Takt, 1/2/4 Takte pro Stufe (7025526, 510dd56, 2fe2fc9, be1c38d, 1bac767, cd7885d)
-- Neu: Stick Control – 24 Single-Beat-Übungen nach Stone mit Challenge und Viertel-Click (6fdde67, 1438b41, b553f37, f92cf20, c7594f2, 7bfcfda, dcf4a30, d6d6938, a651919, a2f419c, bbe80ec, c2e0142, 492144e)
-- Stick Control: buchähnliches Notenbild, größere Noten und Stickings (b420468, ac8bd2d, 6c16cb3, 8711303, c05786d, 1cb7573, ca493bf, 2d1ed3f)
+- Neu: Hand Control – 24 Handübungen mit Challenge und Viertel-Click (6fdde67, 1438b41, b553f37, f92cf20, c7594f2, 7bfcfda, dcf4a30, d6d6938, a651919, a2f419c, bbe80ec, c2e0142, 492144e)
+- Hand Control: klares Notenbild, größere Noten und Stickings (b420468, ac8bd2d, 6c16cb3, 8711303, c05786d, 1cb7573, ca493bf, 2d1ed3f)
 - Neu: Noten – eigene Fotos und PDFs lokal speichern, beim Üben als „Blatt“ öffnen, umbenennen, zwei Blätter nebeneinander (7b38d06, cdb5eaa, 11e3e82, 9bb26b0, ea8f3bb, b1a2225, ba3563d, e133ac6)
 - Neu: Erweiterter Click-Mixer (Viertel, Achtel, 16tel, Triolen) auf der Rückseite des Metronoms (cd55151, 1039c26, 29005e2, 6c6497f, 5ec6a8c, 4591dac, 79ab55b, 0d95acd, ce1d261, 6a9c336, b4453f4, db15e23, 4cf01db)
 - Einstellungen bleiben gespeichert (Rudiments, Click-Trainer); Stop setzt aufs Starttempo zurück (ceb1ee0, 983ef8e, d91a36e)
