@@ -322,6 +322,9 @@ export const EN = {
   "im Click bleiben · 80 BPM": "stay with the click · 80 BPM",
   "Eigene Noten": "Your sheet music",
   "ein Blatt durchspielen": "play one sheet through",
+  // Startseite: „Nicht heute“ auf der Karte „Erste Übung starten“
+  "Nicht heute": "Not today",
+  "Erste Übung für heute ausblenden": "Hide the first lesson for today",
   // Rechtliches
   "Weitere Angaben": "More information",
   "Zum Impressum": "Go to Legal Notice",
