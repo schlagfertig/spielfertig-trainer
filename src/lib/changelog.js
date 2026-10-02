@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-10-02",
     items: [
+      { de: "Startseite: neue Karte „Heute“ mit drei kurzen Übeplänen (A, B, C). Jeder Schritt öffnet das passende Modul mit ruhigem Starttempo – zurück geht es zur selben Stelle der Startseite.",
+        en: "Home screen: new “Today” card with three short practice plans (A, B, C). Each step opens the matching module at a calm starting tempo – Back returns you to the same spot on the home screen." },
       { de: "Hand Control: eigene Übungen – alle 24 Nummern sind neu.",
         en: "Hand Control: own exercises – all 24 patterns are new." },
     ],
