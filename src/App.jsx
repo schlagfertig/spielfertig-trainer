@@ -8,9 +8,10 @@ import { Help } from "./lib/Help.jsx";
 import { Welcome } from "./lib/Welcome.jsx";
 import FirstLesson from "./lib/FirstLesson.jsx";
 import Today from "./lib/Today.jsx";
+import { FIRST_SKIP_KEY, hideFirstToday, isFirstHidden } from "./lib/firstSkip.js";
 import Legal from "./lib/Legal.jsx";
 import News, { NewsHint, hasUnseenNews, markNewsHintSeen, shouldShowNewsHint } from "./lib/News.jsx";
-import { loadSession } from "./lib/session.js";
+import { loadSession, saveSession } from "./lib/session.js";
 import { LogoMetronome } from "./lib/LogoMetronome.jsx";
 import { SocialLinks } from "./lib/Social.jsx";
 import { getLang, setLang, t } from "./lib/i18n.js";
@@ -74,6 +75,35 @@ export default function App() {
   // Einmaliger Hinweis auf „Neuigkeiten“ – erst nachdem die Begrüßung (Welcome) geschlossen ist.
   const [welcomeOpen, setWelcomeOpen] = useState(() => !loadSession("welcomeSeen", {}).seen);
   const [newsHint, setNewsHint] = useState(shouldShowNewsHint);
+  // „Nicht heute“: Karte „Erste Übung starten“ bis Tagesende ausblenden (gespeichert: nur der Tag).
+  // Der Tag wird bei jedem Rendern neu verglichen – nach Mitternacht ist die Karte wieder da.
+  const [firstSkip, setFirstSkip] = useState(() => loadSession(FIRST_SKIP_KEY, {}));
+  const [firstLeaving, setFirstLeaving] = useState(false);
+  const [, setTick] = useState(0);
+  const firstHidden = isFirstHidden(firstSkip);
+  useEffect(() => {
+    // App kommt nach Stunden aus dem Hintergrund zurück: Tag neu prüfen.
+    const onVis = () => { if (!document.hidden) setTick((n) => n + 1); };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, []);
+
+  function skipFirstToday() {
+    if (firstLeaving) return;
+    const done = () => {
+      const next = hideFirstToday();
+      saveSession(FIRST_SKIP_KEY, next);
+      setFirstSkip(next);
+      setFirstLeaving(false);
+      // Fokus nicht ins Leere fallen lassen: zur „Heute“-Karte (nächster Vorschlag).
+      window.requestAnimationFrame(() => document.querySelector(".today-seg .on")?.focus({ preventScroll: true }));
+    };
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) { done(); return; }
+    // Karte erst weich zusammenklappen (Höhe, Abstand, Deckkraft), dann entfernen – kein Sprung.
+    setFirstLeaving(true);
+    window.setTimeout(done, 300);
+  }
 
   function closeNewsHint() {
     markNewsHintSeen();
@@ -206,12 +236,20 @@ export default function App() {
             <span className="app-logo-sub" aria-hidden="true">Control</span>
           </h1>
         </header>
-        <button className="card" style={{ width: "100%", borderColor: "#5cc8b8", marginTop: 8 }} onClick={() => open("first")}>
-          <div className="card-kicker">{t(firstDone ? "Nochmal" : "Loslegen")}</div>
-          <div className="card-title">{t("Erste Übung starten")}</div>
-          <div className="card-lead">{t("Einfach loslegen: eine Minute im Click spielen. Ganz ohne Vorwissen.")}</div>
-          <div className="card-go">Start</div>
-        </button>
+        {firstHidden ? null : (
+          <div className={firstLeaving ? "first-wrap leaving" : "first-wrap"}>
+            <div className="first-inner">
+              <button className="card" style={{ width: "100%", borderColor: "#5cc8b8" }} onClick={() => open("first")}>
+                <div className="card-kicker">{t(firstDone ? "Nochmal" : "Loslegen")}</div>
+                <div className="card-title">{t("Erste Übung starten")}</div>
+                <div className="card-lead">{t("Einfach loslegen: eine Minute im Click spielen. Ganz ohne Vorwissen.")}</div>
+                <div className="card-go">Start</div>
+              </button>
+              {/* eigener Knopf neben (nicht in) der Karte – Knöpfe dürfen nicht verschachtelt sein */}
+              <button type="button" className="first-skip" onClick={skipFirstToday} aria-label={t("Erste Übung für heute ausblenden")}>{t("Nicht heute")}</button>
+            </div>
+          </div>
+        )}
         <Today onOpen={open} />
         <div className="cards">
           <button className="card" onClick={() => open("rudiments")}>
