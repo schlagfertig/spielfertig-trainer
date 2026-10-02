@@ -3,6 +3,7 @@ import RudimentTrainer from "./embedded/RudimentTrainer.jsx";
 import ClickTrainer from "./embedded/ClickTrainer.jsx";
 import PyramidTrainer from "./embedded/PyramidTrainer.jsx";
 import StickControl from "./embedded/StickControl.jsx";
+import Lexicon from "./embedded/Lexicon.jsx";
 import Archive from "./embedded/Archive.jsx";
 import { Help } from "./lib/Help.jsx";
 import { Welcome } from "./lib/Welcome.jsx";
@@ -41,6 +42,7 @@ const META = {
   pyramid: { title: "Rhythmuspyramide", help: "pyramid" },
   stick: { title: "Hand Control", help: "stick" },
   archive: { title: "Noten", help: "archive" },
+  lexicon: { title: "Lexikon", help: "home" },
   impressum: { title: "Impressum", help: "home" },
   datenschutz: { title: "Datenschutz", help: "home" },
   news: { title: "Neuigkeiten", help: "home" },
@@ -276,6 +278,12 @@ export default function App() {
             <div className="card-lead">{t("Schwache Hand verbessern, saubere Wechsel üben, Tempo ohne Verspannungen halten.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
+          <button className="card" onClick={() => open("lexicon")}>
+            <div className="card-kicker">{t("Nachschlagen")}</div>
+            <div className="card-title">{t("Lexikon")}</div>
+            <div className="card-lead">{t("Downbeat, Flam, Groove: kurze Erklärungen, von A bis Z durchsuchbar.")}</div>
+            <div className="card-go">{t("Öffnen")}</div>
+          </button>
           <button className="card" onClick={() => open("archive")}>
             <div className="card-kicker">{t("Eigene Blätter")}</div>
             <div className="card-title">{t("Noten")}</div>
@@ -340,6 +348,7 @@ export default function App() {
           : view === "pyramid" ? <PyramidTrainer preset={preset} />
           : view === "stick" ? <StickControl preset={preset} />
           : view === "archive" ? <Archive />
+          : view === "lexicon" ? <Lexicon />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
       </main>
     </div>
