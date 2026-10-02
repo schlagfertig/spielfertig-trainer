@@ -3,6 +3,7 @@ import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, playClickLayer, unlockAudio } from "../lib/audio.js";
 import { NavScrub } from "../lib/NavScrub.jsx";
 import { t } from "../lib/i18n.js";
+import { TERNARY_ENABLED, TRI_LEN, triHands, triNotes } from "../lib/handTernary.js";
 
 const DIM = "#8a969c";
 const TEAL = "#5cc8b8";
@@ -67,28 +68,17 @@ function phraseWidth() {
   return noteX(15) + GAP + 8;
 }
 
-/* WA-24: dasselbe Sticking auf Achteltriolen, zwei 4/4-Takte = 24 Schläge, Gruppen zu 3. */
-function triHands(hands) {
-  const src = String(hands || "R");
-  let s = "";
-  while (s.length < 24) s += src;
-  return s.slice(0, 24);
-}
-
-function triNotes(hands) {
-  return triHands(hands).split("").map((hand, i) => ({ t: i, dur: 1, hand, acc: false }));
-}
-
+// Ein Takt mit 12 Triolen-Achteln: Abstände so, dass die Breite etwa der binären Zeile (2 Takte) entspricht.
 function noteX3(i) {
   const g = Math.floor(i / 3);
   const k = i % 3;
-  const inner = 11;
-  const gap = 12;
+  const inner = 17;
+  const gap = 22;
   return 26 + gap + g * (inner * 2 + gap) + k * inner;
 }
 
 function phraseWidth3() {
-  return noteX3(23) + 18;
+  return noteX3(TRI_LEN - 1) + 24;
 }
 
 function Phrase({ id, hands, playT, ternary }) {
@@ -99,18 +89,18 @@ function Phrase({ id, hands, playT, ternary }) {
   const hy = ternary ? 86 : 78;
   const xs = letters.map((_, i) => (ternary ? noteX3(i) : noteX(i)));
   const start = ternary ? 26 : LINE_L;
-  const end = xs[xs.length - 1] + (ternary ? 16 : GAP);
-  const split = ternary ? 12 : 8;
-  const barX = (xs[split - 1] + xs[split]) / 2;
+  const end = xs[xs.length - 1] + (ternary ? 24 : GAP);
+  // binär: zwei Takte mit Taktstrich in der Mitte; ternär: ein Takt, kein Mittelstrich
+  const barX = ternary ? null : (xs[7] + xs[8]) / 2;
   const stem = 3.9;
   const gSize = ternary ? 3 : 4;
-  const groups = ternary ? 8 : 4;
+  const groups = ternary ? TRI_LEN / 3 : 4;
   return (
     <svg viewBox={`0 ${ternary ? 4 : 7} ${end + 8} ${ternary ? 96 : 85}`} width="100%" role="img" aria-label={t("Nummer {n}", { n: id })}>
       <line x1={start} y1={y} x2={end} y2={y} stroke={LINE} strokeWidth="1.45" />
       <line x1={start} y1={y - 12} x2={start} y2={y + 12} stroke={LINE} strokeWidth="1.6" />
       <line x1={end} y1={y - 12} x2={end} y2={y + 12} stroke={LINE} strokeWidth="1.6" />
-      <line x1={barX} y1={y - 12} x2={barX} y2={y + 12} stroke={LINE} strokeWidth="1.25" />
+      {barX == null ? null : <line x1={barX} y1={y - 12} x2={barX} y2={y + 12} stroke={LINE} strokeWidth="1.25" />}
       {xs.map((x, i) => {
         const on = i === active;
         const c = on ? GOLD : INK;
@@ -247,7 +237,9 @@ export default function StickControl({ preset = null } = {}) {
   const [exId, setExId] = useState(() => (EXERCISES.some((e) => e.id === preset?.ex) ? preset.ex : 1));
   const [bpm, setBpm] = useState(preset?.bpm || 80);
   const [mode, setMode] = useState("practice");
-  const [ternary, setTernary] = useState(false);
+  const [ternaryPick, setTernary] = useState(false);
+  // ternär ist vorerst ausgeblendet: ohne Flag immer binär (auch Fokus-Mode, Auto-Weiter, Vorschau)
+  const ternary = TERNARY_ENABLED && ternaryPick;
   const [reps, setReps] = useState(4);
   const [countBars, setCountBars] = useState(1);
   const [playing, setPlaying] = useState(false);
@@ -327,15 +319,15 @@ export default function StickControl({ preset = null } = {}) {
     const barsIn = clamp(countBars, 0, 2);
     const clicks = barsIn * Q_PER_BAR;
     let exIdx = Math.max(0, idx);
+    // Raster zuerst festlegen, dann verwenden (vorher: ReferenceError beim Start)
+    const is3 = ternaryRef.current;
     let notes = is3 ? triNotes(EXERCISES[exIdx].hands) : EXERCISES[exIdx].notes;
     let cancelled = false;
     let timer = 0;
     let evIndex = 0;
     let repsInEx = 0;
     let ended = false;
-    const is3 = ternaryRef.current;
-    const cellSteps = is3 ? 24 : CELL_STEPS;
-    notes = is3 ? triNotes(EXERCISES[exIdx].hands) : EXERCISES[exIdx].notes;
+    const cellSteps = is3 ? TRI_LEN : CELL_STEPS;
     const stepSec = () => {
       const q = 60 / Math.max(30, bpmRef.current);
       return is3 ? q / 3 : q / 4;
@@ -651,10 +643,12 @@ export default function StickControl({ preset = null } = {}) {
             <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>{t("Üben")}</button>
             <button type="button" className={mode === "challenge" ? "on" : ""} onClick={() => !playing && setMode("challenge")}>{t("Fokus-Mode")}</button>
           </div>
-          <div className="seg" style={{ width: "fit-content" }} role="group" aria-label={t("Raster")}>
-            <button type="button" className={!ternary ? "on" : ""} onClick={() => !playing && setTernary(false)}>{t("binär")}</button>
-            <button type="button" className={ternary ? "on" : ""} onClick={() => !playing && setTernary(true)}>{t("ternär")}</button>
-          </div>
+          {TERNARY_ENABLED ? (
+            <div className="seg" style={{ width: "fit-content" }} role="group" aria-label={t("Raster")}>
+              <button type="button" className={!ternary ? "on" : ""} onClick={() => !playing && setTernary(false)}>{t("binär")}</button>
+              <button type="button" className={ternary ? "on" : ""} onClick={() => !playing && setTernary(true)}>{t("ternär")}</button>
+            </div>
+          ) : null}
           {challenge ? (
             <span className="reps-field">
               <span style={{ color: DIM, fontWeight: 700 }} aria-hidden="true" title={t("Wiederholungen")}>{t("Wdh.")}</span>
