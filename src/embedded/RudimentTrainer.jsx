@@ -6,6 +6,7 @@ import { playClick, playOrnament, unlockAudio } from "../lib/audio.js";
 import { loadSession, saveSession } from "../lib/session.js";
 import { NavScrub } from "../lib/NavScrub.jsx";
 import { PrintDialog } from "./PrintDialog.jsx";
+import { rudimentInfo } from "../lib/rudimentInfo.js";
 import { t } from "../lib/i18n.js";
 
 const HEAR_OK = ["snare", "hands", "click"];
@@ -74,6 +75,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
   const [loopN, setLoopN] = useState(0);
   const [leftSec, setLeftSec] = useState(0);
   const [done, setDone] = useState("");
+  const [info, setInfo] = useState(false);
   const stopRef = useRef(null);
   const bpmRef = useRef(bpm); bpmRef.current = bpm;
   const hearRef = useRef(hear); hearRef.current = hear;
@@ -104,6 +106,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
     if (id !== sel) stop();
     setSel(id);
     setDone("");
+    setInfo(false);
   }
 
   function pulse(when, ctx) {
@@ -260,8 +263,18 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           border: none;
           box-shadow: none;
         }
+        .rud-info {
+          position: absolute; top: 10px; right: 10px; z-index: 2;
+          border: 1px solid #5cc8b8; background: #fff; color: #0b3d38;
+          border-radius: 999px; padding: 6px 12px; font: 800 13px Figtree, sans-serif;
+        }
+        .staff-card { position: relative; }
+        .rud-back { padding: 28px 8px 8px; color: #161a1d; text-align: left; }
+        .rud-back h3 { margin: 12px 0 4px; font: 800 13px Figtree, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; color: #0b3d38; }
+        .rud-back p { margin: 0; font: 600 15px/1.4 Figtree, sans-serif; }
       `}</style>
       <div className="staff-card">
+        <button type="button" className="rud-info" onClick={() => setInfo((v) => !v)} aria-pressed={info}>{info ? t("Notation") : t("Info")}</button>
         <div className="rud-title">
           <div className="rud-title-kicker">{t("Rudiment wählen")}</div>
           <div className="rud-title-row">
@@ -278,19 +291,25 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
             ))}
           </select>
         </div>
-        <RudimentStaff rud={rud} playingT={playT} svgId="rud-live" />
-        <div className="beat-track" aria-live="polite">
-          <div className="beat-cells">
-            {Array.from({ length: beatsInBar }, (_, i) => (
-              <span key={i} className={playing && beatN === i ? "on" : ""}>{i + 1}</span>
-            ))}
+        {info ? (
+          <RudimentBack rud={rud} />
+        ) : (
+          <RudimentStaff rud={rud} playingT={playT} svgId="rud-live" />
+        )}
+        {info ? null : (
+          <div className="beat-track" aria-live="polite">
+            <div className="beat-cells">
+              {Array.from({ length: beatsInBar }, (_, i) => (
+                <span key={i} className={playing && beatN === i ? "on" : ""}>{i + 1}</span>
+              ))}
+            </div>
+            <div className="beat-loop">
+              {playing && goal.sec ? fmt(leftSec) : playing ? `Loop ${loopN}${goal.loops ? "/" + goal.loops : ""}` : "Loop —"}
+            </div>
           </div>
-          <div className="beat-loop">
-            {playing && goal.sec ? fmt(leftSec) : playing ? `Loop ${loopN}${goal.loops ? "/" + goal.loops : ""}` : "Loop —"}
-          </div>
-        </div>
+        )}
         {done ? <div className="goal-done">{t(done)}</div> : null}
-        {stage ? null : <div className="staff-hint">{t("Aktueller Schlag oben markiert · R blau · L rot")}</div>}
+        {stage || info ? null : <div className="staff-hint">{t("Aktueller Schlag oben markiert · R blau · L rot")}</div>}
       </div>
       {stage ? null : (
         <div className="seg" style={{ margin: "0 0 12px", width: "fit-content", maxWidth: "100%", flexWrap: "wrap" }}>
@@ -337,6 +356,23 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
         )}
       />
       {printOpen ? <PrintDialog sel={sel} onClose={onPrintClose} /> : null}
+    </div>
+  );
+}
+
+function RudimentBack({ rud }) {
+  const info = rudimentInfo(rud.id);
+  if (!info) return <div className="rud-back"><p>{t("Zu diesem Rudiment liegt noch keine Info.")}</p></div>;
+  return (
+    <div className="rud-back">
+      <h3>{t("Was es ist")}</h3>
+      <p>{info.what}</p>
+      <h3>{t("Name")}</h3>
+      <p>{info.name}</p>
+      <h3>{t("Herkunft")}</h3>
+      <p>{info.origin}</p>
+      <h3>{t("Wofür")}</h3>
+      <p>{info.use}</p>
     </div>
   );
 }
