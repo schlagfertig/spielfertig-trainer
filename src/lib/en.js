@@ -32,6 +32,9 @@ export const EN = {
   "Drucken": "Print",
   "Blatt": "Sheet",
   "Fokus-Mode": "Focus mode",
+  "binär": "Straight",
+  "ternär": "Triplets",
+  "Raster": "Grid",
   "Notation groß, weniger Bedienelemente.": "Large notation, fewer controls.",
   // Logo-Metronom
   "Logo: Metronom öffnen": "Logo: open metronome",
