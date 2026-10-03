@@ -226,11 +226,18 @@ html, body, #root {
   pointer-events: none;
   padding-top: calc(8px + env(safe-area-inset-top, 0px));
 }
-.home .hero { background: transparent; }
+.home .hero,
+.home .hero .logo-metro,
+.home .hero .logo,
+.home .hero .app-logo {
+  background: transparent;
+  background-color: transparent;
+  box-shadow: none;
+}
 .home .hero .logo-metro { pointer-events: auto; position: relative; z-index: 1; }
 .home .hero .logo {
   background: transparent;
-  mix-blend-mode: screen;
+  mix-blend-mode: normal;
 }
 .home .hero .app-logo {
   position: relative;
@@ -247,8 +254,7 @@ html, body, #root {
   height: min(460px, 96vw);
   transform: translate(-50%, 0);
   background: radial-gradient(circle, rgba(92, 200, 184, 0.42) 0%, rgba(92, 200, 184, 0.16) 38%, rgba(92, 200, 184, 0) 70%);
-  filter: blur(10px);
-  pointer-events: none;
+    pointer-events: none;
   z-index: 0;
 }
 .home .home-help {
