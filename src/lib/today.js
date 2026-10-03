@@ -9,7 +9,7 @@ export const PLANS = [
     title: "Grundlagen",
     steps: [
       { min: 5, label: "Puls halten", detail: "Click-Trainer · 80 BPM", view: "click", preset: { bpm: 80 } },
-      { min: 10, label: "Pyramide", detail: "4tel bis 32tel · 60 BPM", view: "pyramid", preset: { bpm: 60 } },
+      { min: 5, label: "Pyramide", detail: "4tel bis 32tel · 60 BPM", view: "pyramid", preset: { bpm: 60 } },
       { min: 10, label: "Hand Control", detail: "ab Übung 1 · 70 BPM", view: "stick", preset: { bpm: 70, ex: 1 } },
     ],
   },
@@ -27,8 +27,7 @@ export const PLANS = [
     title: "Kurz",
     steps: [
       { min: 1, label: "Erste Übung", detail: "im Click bleiben · 80 BPM", view: "first", preset: null },
-      { min: 4, label: "Single Stroke Roll", detail: "Rudiments · 70 BPM", view: "rudiments", preset: { rud: 1, bpm: 70 } },
-      { min: 5, label: "Eigene Noten", detail: "ein Blatt durchspielen", view: "archive", preset: null },
+      { min: 6, label: "Single Stroke Roll", detail: "Rudiments · 70 BPM", view: "rudiments", preset: { rud: 1, bpm: 70 } },
     ],
   },
 ];
