@@ -4,6 +4,11 @@ Alle für Nutzer sichtbaren Änderungen, nach Datum gruppiert (neueste zuerst).
 Kleine Fix-Commits sind dem jeweiligen Feature zugeordnet; reine Technik (Build-Fixes,
 Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SHA).
 
+## 03.10.2026
+
+- Startseite: Logo steht fest (position: fixed) hinter dem Inhalt, die Karten scrollen als Glas darüber (halbtransparent mit backdrop-filter Blur/Sättigung, ohne Unterstützung deckend dunkel; Schrift mit leichtem Schatten, Antippen skaliert leicht, nicht bei reduzierter Bewegung); türkiser Schein hinter dem Logo; Fragezeichen oben rechts bleibt fest; geöffnetes Logo-Metronom liegt über den Karten; Logo-Datei ohne schwarzes Hintergrundrechteck, Logo-Container transparent, „CONTROL“ wieder sichtbar, Cache-Bust logo.svg?v=clear2 (c5ebcce, 822b679, fa32c1b, 7771dd3, 073ea87)
+- Karte „Heute“: Plan A „Grundlagen“ Pyramide 10 → 5 Min (gesamt 20 Min); Plan C „Kurz“ ohne Schritt „Eigene Noten“, Single Stroke Roll 4 → 6 Min (gesamt 7 Min) (477a7d2)
+
 ## 02.10.2026
 
 - Neu: Lexikon (EN „Glossary“) – Startseiten-Kachel „Nachschlagen · Lexikon“ öffnet kurze Erklärungen zu Begriffen wie Downbeat, Flam oder Groove, von A bis Z mit Suche und Buchstaben-Leiste; Rudiments: Knopf „Info“ zeigt zum jeweiligen Rudiment Was es ist, Name, Herkunft und Wofür, „Notation“ führt zurück zum Notenbild (f2913a6..b062505)
