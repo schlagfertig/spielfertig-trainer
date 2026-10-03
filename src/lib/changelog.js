@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-10-03",
     items: [
+      { de: "Lexikon: Begriffe und Rudiment-Infos gibt es jetzt auch auf Englisch.",
+        en: "Glossary: terms and rudiment info are now available in English too." },
       { de: "Startseite: „Nicht heute“ sitzt jetzt unten rechts auf der Karte und wird beim Scrollen nicht mehr verdeckt.",
         en: "Home screen: “Not today” now sits at the bottom right of the card and is no longer covered when you scroll." },
       { de: "Startseite: Das Logo bleibt beim Scrollen stehen, die Karten gleiten wie Glas darüber.",
