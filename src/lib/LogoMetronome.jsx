@@ -76,7 +76,7 @@ export function LogoMetronome() {
   };
   return (
     <div className={"logo-metro" + (open ? " open" : "") + (found ? " found" : "")} ref={boxRef}>
-      <img className="logo" src="/logo.svg?v=clear" alt="schlagfertig" role="button" tabIndex={0} aria-label={t("Logo: Metronom öffnen")} onClick={openDial} />
+      <img className="logo" src="/logo.svg?v=clear2" alt="schlagfertig" role="button" tabIndex={0} aria-label={t("Logo: Metronom öffnen")} onClick={openDial} />
       {open ? (
         <div className="logo-dial">
           <button type="button" className="logo-dial-x" onClick={close} aria-label={t("Metronom schließen")}>×</button>
