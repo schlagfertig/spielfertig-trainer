@@ -5,6 +5,15 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-10-03",
+    items: [
+      { de: "Startseite: Das Logo bleibt beim Scrollen stehen, die Karten gleiten wie Glas darüber.",
+        en: "Home screen: the logo stays in place while you scroll, and the cards glide over it like glass." },
+      { de: "Karte „Heute“: Plan A mit 5 Minuten Pyramide, Plan C „Kurz“ jetzt ohne Noten, dafür 6 Minuten Single Stroke Roll.",
+        en: "“Today” card: plan A now has 5 minutes of pyramid; plan C “Short” drops the sheet music and has 6 minutes of single stroke roll instead." },
+    ],
+  },
+  {
     date: "2026-10-02",
     items: [
       { de: "Neu: Lexikon – kurze Erklärungen zu Begriffen wie Downbeat, Flam oder Groove, von A bis Z durchsuchbar. Bei den Rudiments zeigt „Info“ jetzt mehr zum jeweiligen Rudiment.",
