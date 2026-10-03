@@ -38,6 +38,7 @@ export const EN = {
   "Begriff suchen": "Search a term",
   "Buchstaben": "Letters",
   "Kein Treffer.": "No matches.",
+  "Zu diesem Rudiment liegt noch keine Info.": "There is no info for this rudiment yet.",
   "Kurze Erklärungen zum Nachschlagen. Kein Geschichtsbuch.": "Short explanations to look up. Not a history book.",
   "Info": "Info",
   "Notation": "Notation",
