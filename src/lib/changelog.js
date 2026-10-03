@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-10-03",
     items: [
+      { de: "Startseite: Die Kacheln sind jetzt deutlich durchsichtiger – das Logo scheint durch.",
+        en: "Home screen: the tiles are now much more see-through – the logo shows through." },
       { de: "Lexikon: Begriffe und Rudiment-Infos gibt es jetzt auch auf Englisch. Neu ist der Eintrag „Schlagfertig“, und ein Tipp auf einen Buchstaben springt jetzt zum Buchstaben statt zur Startseite.",
         en: "Glossary: terms and rudiment info are now available in English too. New: an entry for “Schlagfertig”, and tapping a letter now jumps to that letter instead of the home screen." },
       { de: "Startseite: „Nicht heute“ sitzt jetzt unten rechts auf der Karte und wird beim Scrollen nicht mehr verdeckt.",
