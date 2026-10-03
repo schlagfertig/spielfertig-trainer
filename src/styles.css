@@ -708,7 +708,8 @@ body.metro-gesturing .rud-metro .metro-face { overflow: visible; }
 .today-detail { color: var(--dim); font-size: 15px; }
 .today-go { flex-shrink: 0; color: var(--teal); font-size: 26px; line-height: 1; }
 
-/* „Nicht heute“ auf der Karte „Erste Übung starten“: kleiner Glas-Knopf oben rechts; Karte klappt weich zu */
+/* „Nicht heute“ auf der Karte „Erste Übung starten“: kleiner Glas-Knopf unten rechts auf Höhe von START
+   (oben rechts lag er unter den festen Knöpfen Flagge/? der Startseite); Karte klappt weich zu */
 .first-wrap { display: grid; grid-template-rows: 1fr; margin-top: 8px; opacity: 1; }
 .first-inner { position: relative; min-height: 0; border-radius: 14px; }
 .first-wrap.leaving .first-inner { overflow: hidden; }
@@ -717,7 +718,8 @@ body.metro-gesturing .rud-metro .metro-face { overflow: visible; }
   .first-wrap { transition: grid-template-rows .28s ease, margin-top .28s ease, opacity .2s ease; }
 }
 .first-skip {
-  position: absolute; top: 12px; right: 12px;
+  /* Mitte des Knopfs = Mitte der START-Zeile: Karten-Innenabstand 20px + halbe Zeilenhöhe (15px Figtree ≈ 20px) − halbe Knopfhöhe 17px */
+  position: absolute; right: 14px; bottom: calc(20px + 20px / 2 - 17px);
   min-height: 34px; padding: 0 12px; border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.05);
   -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
