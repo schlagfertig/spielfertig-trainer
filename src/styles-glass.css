@@ -279,11 +279,31 @@ html, body, #root {
 .home .card-title { color: #fff; text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55); }
 .home .card-lead { color: #e7eeef; }
 .home .card-kicker, .home .card-go { text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45); }
+/* Glasstufe der Startseiten-Karten (Modul-Kacheln, „Erste Übung“, „Heute“). Umschalten:
+   Standard = „deutlich“; data-glass="leicht" an .page.home (oder die drei Werte hier ändern).
+   Vorher (bis 03.10.): Deckkraft 0.46, Blur 16px, Sättigung 150 %. */
+.page.home {
+  --home-card-a: 0.22;      /* deutlich */
+  --home-card-blur: 9px;
+  --home-card-sat: 150%;
+}
+.page.home[data-glass="leicht"] {
+  --home-card-a: 0.34;
+  --home-card-blur: 13px;
+  --home-card-sat: 150%;
+}
+/* Kräftigerer Textschatten, damit Text über dem durchscheinenden Logo lesbar bleibt. */
+.page.home .card-title,
+.page.home .card-lead,
+.page.home .today-title,
+.page.home .today-label {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 1px 12px rgba(0, 0, 0, 0.7);
+}
 @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
   .home .card {
-    background: rgba(14, 20, 24, 0.46);
-    -webkit-backdrop-filter: blur(16px) saturate(150%);
-    backdrop-filter: blur(16px) saturate(150%);
+    background: rgba(14, 20, 24, var(--home-card-a));
+    -webkit-backdrop-filter: blur(var(--home-card-blur)) saturate(var(--home-card-sat));
+    backdrop-filter: blur(var(--home-card-blur)) saturate(var(--home-card-sat));
   }
 }
 .home .card:active {
