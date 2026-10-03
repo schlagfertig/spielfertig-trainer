@@ -1,301 +1,374 @@
-/** Kleines Lexikon. Nur beschreibende, übliche Begriffe. Keine erfundenen Personen oder Jahreszahlen. */
+/** Kleines Lexikon. Nur beschreibende, übliche Begriffe. Keine erfundenen Personen oder Jahreszahlen.
+ *  Jeder Eintrag: deutscher Begriff/Text plus `en` (englischer Begriff und Text, Standard-Schlagzeugbegriffe). */
 
 export const LEXICON = [
   {
     id: "achtel",
     term: "Achtel",
     text: "Eine Achtel ist halb so lang wie eine Viertel. In einem 4/4-Takt liegen acht Achtel. Zwei Achtel füllen also eine Zählzeit. In der App sind die Hand-Control-Übungen im binären Raster Achtel.",
+    en: { term: "Eighth note", text: "An eighth note is half as long as a quarter note. A 4/4 bar holds eight eighth notes, so two eighths fill one beat. In the app, the Hand Control exercises in the straight grid are eighth notes." },
   },
   {
     id: "akzent",
     term: "Akzent",
     text: "Ein Akzent ist ein Schlag, der lauter oder klarer ist als die anderen. In der Notation steht oft ein Keil darüber. Akzente geben einer Übung oder einem Groove eine Richtung, ohne dass sich die Notenwerte ändern.",
+    en: { term: "Accent", text: "An accent is a stroke that is louder or clearer than the others. In notation it is often marked with a wedge above the note. Accents give an exercise or a groove direction without changing the note values." },
   },
   {
     id: "auftakt",
     term: "Auftakt",
     text: "Ein Auftakt sind Schläge vor der 1, also vor dem ersten vollen Takt. Viele Melodien und Fills beginnen so. Der Auftakt gehört noch zur Vorbereitung, der Downbeat danach ist die 1.",
+    en: { term: "Pickup", text: "A pickup is one or more notes before the 1, that is, before the first full bar. Many melodies and fills start this way. The pickup is still part of the preparation; the downbeat after it is the 1." },
   },
   {
     id: "backbeat",
     term: "Backbeat",
     text: "Der Backbeat ist die Betonung auf Zählzeit 2 und 4 in einem geraden Takt. So klingt viel Rock, Pop und Funk. Die Snare spielt diese Schläge oft, der Bass liegt eher auf 1 und 3.",
+    en: { term: "Backbeat", text: "The backbeat is the emphasis on beats 2 and 4 in an even meter. A lot of rock, pop and funk sounds like this. The snare often plays these beats, while the bass drum tends to sit on 1 and 3." },
   },
   {
     id: "bassdrum",
     term: "Bassdrum",
     text: "Die Bassdrum ist die große, tiefe Trommel, meist mit dem Fuß gespielt. Sie setzt den Grund des Grooves, oft auf 1 und 3 oder auf jeder Viertel. Am Set heißt sie oft auch Kick.",
+    en: { term: "Bass drum", text: "The bass drum is the big, low drum, usually played with the foot. It lays the foundation of the groove, often on 1 and 3 or on every quarter note. On the kit it is often called the kick." },
   },
   {
     id: "becken",
     term: "Becken",
     text: "Becken sind Metallplatten, die man anschlägt oder aneinander schlägt. Am Set sind das vor allem Hi-Hat, Ride und Crash. Sie klingen länger als ein Trommelfell und tragen oft das Zeitspiel.",
+    en: { term: "Cymbals", text: "Cymbals are metal plates that you strike or clash together. On the kit these are mainly the hi-hat, ride and crash. They ring longer than a drumhead and often carry the timekeeping." },
   },
   {
     id: "click",
     term: "Click",
     text: "Der Click ist ein Metronom-Ton, an dem man das Tempo hält. In der App meint die BPM-Zahl die Viertel. Zusätzliche Ebenen können Offbeat, Sechzehntel oder Triolen markieren, der Puls bleibt die Viertel.",
+    en: { term: "Click", text: "The click is a metronome sound you use to hold the tempo. In the app, the BPM number refers to quarter notes. Extra layers can mark offbeats, sixteenths or triplets; the pulse stays on the quarter note." },
   },
   {
     id: "cowbell",
     term: "Cowbell",
     text: "Die Cowbell ist eine kleine Metallglocke mit kurzem, hellem Anschlag. Sie spielt oft ein wiederkehrendes Muster über dem Groove. Geschlossen klingt sie trockener, offen länger.",
+    en: { term: "Cowbell", text: "The cowbell is a small metal bell with a short, bright attack. It often plays a repeating pattern over the groove. Muted it sounds drier, open it rings longer." },
   },
   {
     id: "crash",
     term: "Crash",
     text: "Die Crash ist ein Becken für Einsätze und Akzente, nicht für das durchgehende Zeitspiel. Ein Schlag klingt lang und breit. Danach lässt man sie meist ausklingen, statt jede Zählzeit zu spielen.",
+    en: { term: "Crash", text: "The crash is a cymbal for entrances and accents, not for continuous timekeeping. A single hit sounds long and wide. Afterwards you usually let it ring out instead of playing it on every beat." },
   },
   {
     id: "cross",
     term: "Cross-Stick",
     text: "Beim Cross-Stick liegt der Stock auf dem Fell, der Schaft schlägt auf den Rand. In der Notation steht dafür oft ein Kreuz. Der Ton ist trockener als ein normaler Snare-Schlag und leiser als ein Rimshot.",
+    en: { term: "Cross-stick", text: "For a cross-stick, the stick lies on the head and the shaft strikes the rim. In notation it is often written with an x. The sound is drier than a normal snare stroke and quieter than a rimshot." },
   },
   {
     id: "doppelschlag",
     term: "Doppelschlag",
     text: "Ein Doppelschlag sind zwei Schläge derselben Hand hintereinander, R R oder L L. Der offene Doppelschlag-Wirbel besteht daraus. Beide Schläge sollen gleich laut und gleich weit auseinander sein.",
+    en: { term: "Double stroke", text: "A double stroke is two strokes in a row with the same hand, R R or L L. The open double stroke roll is built from them. Both strokes should be equally loud and evenly spaced." },
   },
   {
     id: "downbeat",
     term: "Downbeat",
     text: "Der Downbeat ist der Schlag, der auf eine Zählzeit fällt, also auf 1, 2, 3 oder 4. Die 1 ist der erste Schlag des Taktes. Alles dazwischen ist nicht der Downbeat.",
+    en: { term: "Downbeat", text: "The downbeat is the stroke that falls on a beat, that is, on 1, 2, 3 or 4. The 1 is the first beat of the bar. Anything in between is not the downbeat." },
   },
   {
     id: "drag",
     term: "Drag",
     text: "Ein Drag sind zwei leise Vorschläge derselben Hand vor einem Hauptschlag. In der PAS-Liste heißt die Figur Drag, im Unterricht auch Ruff. Die Vorschläge bleiben eng und leise, der Hauptschlag trägt den Ton.",
+    en: { term: "Drag", text: "A drag is two soft grace notes from the same hand before a main stroke. The PAS list calls this figure a drag; teachers also call it a ruff. The grace notes stay close and soft, the main stroke carries the sound." },
   },
   {
     id: "dynamik",
     term: "Dynamik",
     text: "Dynamik ist der Unterschied zwischen laut und leise. Ein Akzent ist lauter, eine Ghost Note leiser, der Rest liegt dazwischen. Dieselbe Figur klingt anders, wenn nur die Lautstärke wechselt.",
+    en: { term: "Dynamics", text: "Dynamics are the difference between loud and soft. An accent is louder, a ghost note softer, and everything else sits in between. The same figure sounds different when only the volume changes." },
   },
   {
     id: "einzaehlen",
     term: "Einzählen",
     text: "Einzählen ist der Count-in vor dem Start, meist ein oder zwei Takte Click. Man kommt so auf die 1, statt mitten in die Figur zu fallen. In Hand Control kann man ein oder zwei Takte einzählen.",
+    en: { term: "Count-in", text: "The count-in comes before you start, usually one or two bars of click. It lets you land on the 1 instead of dropping into the middle of the figure. In Hand Control you can choose a count-in of one or two bars." },
   },
   {
     id: "fill",
     term: "Fill",
     text: "Ein Fill ist eine kurze Figur, die eine Lücke füllt, meist am Ende einer Phrase. Er führt in den nächsten Teil des Stücks. Danach geht es zurück in den Groove.",
+    en: { term: "Fill", text: "A fill is a short figure that fills a gap, usually at the end of a phrase. It leads into the next section of the song. Afterwards you go back into the groove." },
   },
   {
     id: "flam",
     term: "Flam",
     text: "Ein Flam sind zwei Schläge fast gleichzeitig: ein leiser Vorschlag und ein Hauptschlag. Die Hände bleiben ungleich, eine ist knapp vorher. Der Flam ist auch ein Rudiment und macht einzelne Schläge dicker.",
+    en: { term: "Flam", text: "A flam is two strokes played almost at once: a soft grace note and a main stroke. The hands stay uneven, one lands just before the other. The flam is also a rudiment and makes single strokes sound fuller." },
   },
   {
     id: "four",
     term: "Four on the Floor",
     text: "Four on the Floor heißt: die Bassdrum auf jeder Viertel, also auf 1, 2, 3 und 4. Das gibt einen gleichmäßigen Puls, wie man ihn oft in Disco und House hört. Die Snare kann trotzdem auf 2 und 4 bleiben.",
+    en: { term: "Four on the floor", text: "Four on the floor means the bass drum plays every quarter note, on 1, 2, 3 and 4. This gives an even pulse, as often heard in disco and house. The snare can still stay on 2 and 4." },
   },
   {
     id: "fuss",
     term: "Fußmaschine",
     text: "Die Fußmaschine schlägt die Bassdrum über Pedal und Schlegel. Der Fuß ersetzt dort den Stock. Ferse hoch oder flach ändert das Gefühl, der Schlag soll trotzdem auf der Zählzeit landen.",
+    en: { term: "Bass drum pedal", text: "The bass drum pedal strikes the bass drum with a beater. Here the foot takes the place of the stick. Heel up or heel down changes the feel, but the stroke should still land on the beat." },
   },
   {
     id: "ghost",
     term: "Ghost Note",
     text: "Eine Ghost Note ist ein sehr leiser Schlag zwischen den lauten. Sie ist noch da, soll aber fast verschwinden. In Grooves liegen Ghost Notes oft auf der Snare zwischen Backbeat und Akzenten. Die Herkunft des Wortes ist nicht eindeutig belegt.",
+    en: { term: "Ghost note", text: "A ghost note is a very soft stroke between the loud ones. It is still there but should almost disappear. In grooves, ghost notes often sit on the snare between the backbeat and the accents. The origin of the term is not clearly documented." },
   },
   {
     id: "groove",
     term: "Groove",
     text: "Ein Groove ist ein Muster, das sich wiederholt und dem Stück sein Gefühl gibt. Dazu gehören Bassdrum, Snare und Hi-Hat oder Ride. Timing und Dynamik gehören dazu, nicht nur die richtigen Hände.",
+    en: { term: "Groove", text: "A groove is a repeating pattern that gives a song its feel. It includes bass drum, snare and hi-hat or ride. Timing and dynamics are part of it, not just the right hands." },
   },
   {
     id: "halbe",
     term: "Halbe",
     text: "Eine Halbe ist so lang wie zwei Viertel. In einem 4/4-Takt liegen zwei Halbe. Sie ist ein langer Notenwert, kein einzelner kurzer Anschlag. Der Puls darunter kann trotzdem Viertel bleiben.",
+    en: { term: "Half note", text: "A half note is as long as two quarter notes. A 4/4 bar holds two half notes. It is a long note value, not a single short stroke. The pulse underneath can still be quarter notes." },
   },
   {
     id: "hihat",
     term: "Hi-Hat",
     text: "Die Hi-Hat sind zwei Becken übereinander, die man mit dem Fuß schließt und öffnet. Zu spielt man sie mit dem Stock, oft als durchgehende Unterteilung. Offen klingt sie länger, geschlossen kurz und trocken.",
+    en: { term: "Hi-hat", text: "The hi-hat is two cymbals on top of each other that you close and open with your foot. Closed, you play it with the stick, often as a continuous subdivision. Open it rings longer, closed it sounds short and dry." },
   },
   {
     id: "improvisation",
     term: "Improvisation",
     text: "Improvisation heißt, eine Figur im Moment zu spielen, nicht nur abzulesen. Am Schlagzeug sind das oft Fills, Varianten im Groove oder ein Solo. Sie sitzt besser, wenn Puls und Grundmuster schon halten.",
+    en: { term: "Improvisation", text: "Improvisation means playing a figure in the moment rather than just reading it. On the drums this is often fills, variations in the groove or a solo. It works better once the pulse and the basic pattern are solid." },
   },
   {
     id: "jazzfeel",
     term: "Jazz-Feel",
     text: "Jazz-Feel meint hier das schwingende Zeitspiel, oft mit Triolen statt gerader Achtel. Die Ride trägt den Puls, Snare und Bass setzen Akzente eher leicht. Ein einzelnes richtiges Muster gibt es nicht, das Gefühl ist die Triole unter der Viertel.",
+    en: { term: "Jazz feel", text: "Jazz feel here means swinging timekeeping, often with triplets instead of straight eighths. The ride carries the pulse; snare and bass drum add light accents. There is no single correct pattern; the feel is the triplet under the quarter note." },
   },
   {
     id: "kessel",
     term: "Kessel",
     text: "Der Kessel ist der Korpus der Trommel, also der Topf unter dem Fell. Holz, Metall und Tiefe ändern den Ton. Die Snare hat zusätzlich Schnarrseiten, Tom und Bassdrum nicht.",
+    en: { term: "Shell", text: "The shell is the body of the drum, the cylinder under the head. Wood, metal and depth change the sound. The snare also has snare wires; toms and bass drum do not." },
   },
   {
     id: "kick",
     term: "Kick",
     text: "Kick ist der übliche Name für die Bassdrum am Set, gespielt mit der Fußmaschine. Im Groove liegt sie oft auf 1 und 3 oder auf jeder Viertel. Der Anschlag soll kurz und auf der Zählzeit sein.",
+    en: { term: "Kick", text: "Kick is the common name for the bass drum on the kit, played with the pedal. In a groove it often sits on 1 and 3 or on every quarter note. The stroke should be short and on the beat." },
   },
   {
     id: "lage",
     term: "Lage",
     text: "Die Lage ist, wie die Hände und Stöcke über Trommel oder Set stehen. Tief und entspannt hält länger durch als hohe Schultern. Dieselbe Figur wird unsicher, wenn die Lage bei jedem Wechsel kippt.",
+    en: { term: "Playing position", text: "Playing position is how your hands and sticks sit above the drum or the kit. Low and relaxed lasts longer than raised shoulders. The same figure gets shaky if your position tips over with every change." },
   },
   {
     id: "mallets",
     term: "Mallets",
     text: "Mallets sind Schlegel mit Kopf aus Garn, Filz oder Gummi statt einer Stockspitze. Sie liegen auf Pauke, Marimba oder Becken weicher auf. Der Puls bleibt derselbe, der Ton wird runder.",
+    en: { term: "Mallets", text: "Mallets have a head of yarn, felt or rubber instead of a stick tip. On timpani, marimba or cymbals they sound softer. The pulse stays the same, the tone gets rounder." },
   },
   {
     id: "metronom",
     term: "Metronom",
     text: "Ein Metronom gibt einen gleichmäßigen Puls vor. Die Zahl ist das Tempo in Schlägen pro Minute. In der App ist das der Click, die Viertel blinken, feinere Ebenen kann man dazuschalten.",
+    en: { term: "Metronome", text: "A metronome gives you a steady pulse. The number is the tempo in beats per minute. In the app this is the click: the quarter notes flash, and you can add finer layers." },
   },
   {
     id: "notation",
     term: "Notation",
     text: "Notation ist die Schrift für Rhythmus und Schläge. Notenköpfe, Balken und Pausen zeigen, wann etwas kommt. R und L darunter sind der Fingersatz, kein eigener Rhythmus.",
+    en: { term: "Notation", text: "Notation is the written form of rhythm and strokes. Noteheads, beams and rests show when something happens. The R and L below are the sticking, not a rhythm of their own." },
   },
   {
     id: "notenwert",
     term: "Notenwert",
     text: "Der Notenwert ist die Länge eines Schlags: ganze Note, Halbe, Viertel, Achtel, Sechzehntel. Ein kürzerer Wert heißt nicht automatisch schnellerer Puls. Das Tempo steht extra, als BPM.",
+    en: { term: "Note value", text: "The note value is the length of a stroke: whole note, half, quarter, eighth, sixteenth. A shorter value does not automatically mean a faster pulse. The tempo is given separately, in BPM." },
   },
   {
     id: "offbeat",
     term: "Offbeat",
     text: "Der Offbeat liegt zwischen den Zählzeiten. Im geraden Takt ist das oft das „und“ zwischen 1 und 2. Wer den Offbeat hört, hält den Puls, auch wenn der Downbeat gerade nicht gespielt wird.",
+    en: { term: "Offbeat", text: "The offbeat falls between the beats. In an even meter it is often the “and” between 1 and 2. If you can hear the offbeat, you keep the pulse even when the downbeat is not being played." },
   },
   {
     id: "paradiddle",
     term: "Paradiddle",
     text: "Ein Paradiddle ist ein Rudiment mit Einzel- und Doppelschlägen, beim Single Paradiddle R L R R und umgekehrt. Man übt damit saubere Wechsel und Akzente. Das Wort diddle meint im Unterricht oft den Doppelschlag. Die genaue Wortherkunft ist nicht eindeutig belegt.",
+    en: { term: "Paradiddle", text: "A paradiddle is a rudiment of single and double strokes; the single paradiddle is R L R R and the reverse. It trains clean hand changes and accents. Teachers often use the word diddle for the double stroke. The exact origin of the word is not clearly documented." },
   },
   {
     id: "pause",
     term: "Pause",
     text: "Eine Pause ist Stille mit einer festen Länge. Sie zählt im Takt mit, auch wenn kein Schlag kommt. Wer die Pause kürzt, schiebt den nächsten Schlag nach vorn.",
+    en: { term: "Rest", text: "A rest is silence with a fixed length. It counts in the bar even when no stroke is played. Cutting a rest short pushes the next stroke forward." },
   },
   {
     id: "phrase",
     term: "Phrase",
     text: "Eine Phrase ist ein zusammenhängendes Stück Musik, oft zwei oder vier Takte. Der Groove läuft durch, ein Fill markiert oft das Ende. Danach beginnt die nächste Phrase meist wieder auf der 1.",
+    en: { term: "Phrase", text: "A phrase is a connected piece of music, often two or four bars long. The groove keeps going, and a fill often marks the end. The next phrase then usually starts on the 1 again." },
   },
   {
     id: "puls",
     term: "Puls",
     text: "Der Puls ist der gleichmäßige Schlag, an dem man mitzählt. In der App ist das die Viertel. Unterteilungen wie Achtel oder Triolen liegen darauf, ersetzen ihn aber nicht.",
+    en: { term: "Pulse", text: "The pulse is the steady beat you count along to. In the app it is the quarter note. Subdivisions such as eighths or triplets sit on top of it but do not replace it." },
   },
   {
     id: "quintole",
     term: "Quintole",
     text: "Eine Quintole sind fünf gleichmäßige Schläge in der Zeit von vier. Sie füllt also eine Viertel oder einen Taktteil, je nach Notierung. Der Puls bleibt liegen, nur die Unterteilung wird fünfteilig.",
+    en: { term: "Quintuplet", text: "A quintuplet is five even strokes in the time of four. It fills a quarter note or part of the bar, depending on how it is written. The pulse stays put; only the subdivision becomes fivefold." },
   },
   {
     id: "ride",
     term: "Ride",
     text: "Die Ride ist ein Becken für das durchgehende Zeitspiel, oft mit dem Muster Viertel und Achtel. Sie trägt den Puls, während Snare und Bassdrum die Figur spielen. Der Rand klingt heller, die Kuppe trockener.",
+    en: { term: "Ride", text: "The ride is a cymbal for continuous timekeeping, often with a quarter-and-eighth pattern. It carries the pulse while snare and bass drum play the figure. The edge sounds brighter, the bell drier." },
   },
   {
     id: "rimshot",
     term: "Rimshot",
     text: "Ein Rimshot trifft Fell und Rand gleichzeitig. Der Ton ist kürzer und heller als ein normaler Schlag. Er ist lauter als ein Cross-Stick, bei dem nur der Schaft den Rand trifft.",
+    en: { term: "Rimshot", text: "A rimshot hits the head and the rim at the same time. The sound is shorter and brighter than a normal stroke. It is louder than a cross-stick, where only the shaft hits the rim." },
   },
   {
     id: "rudiment",
     term: "Rudiment",
     text: "Ein Rudiment ist eine feste kleine Figur für die Hände, zum Beispiel Wirbel, Paradiddle oder Flam. Man übt sie langsam und sauber, danach im Tempo. Die Percussive Arts Society hat 1984 eine Liste von 40 International Drum Rudiments veröffentlicht. Die National Association of Rudimental Drummers hatte 1933 zuvor 26 amerikanische Rudiments festgelegt.",
+    en: { term: "Rudiment", text: "A rudiment is a fixed short figure for the hands, for example a roll, paradiddle or flam. You practise it slowly and cleanly first, then at tempo. In 1984 the Percussive Arts Society published a list of 40 International Drum Rudiments. Before that, in 1933, the National Association of Rudimental Drummers had set out 26 American rudiments." },
   },
   {
     id: "ruff",
     term: "Ruff",
     text: "Ruff ist eine ältere Bezeichnung für den Drag: zwei leise Vorschläge vor dem Hauptschlag. In der PAS-Liste heißt dieselbe Idee Drag. Die Vorschläge bleiben leise, der Hauptschlag ist der Ton, den man zählt.",
+    en: { term: "Ruff", text: "Ruff is an older name for the drag: two soft grace notes before the main stroke. The PAS list calls the same idea a drag. The grace notes stay soft; the main stroke is the note you count." },
+  },
+  {
+    id: "schlagfertig",
+    term: "Schlagfertig",
+    text: "Schlagfertig ist, wer schnell ist und immer eine passende Antwort hat. Hier steckt noch mehr drin: der Schlag auf der Trommel und fertig wie bereit. Schlagfertig heißt also auch: bereit zum Spielen.",
+    en: { term: "Schlagfertig", text: "Schlagfertig is German for quick-witted: always ready with the right reply. The word hides a pun: Schlag is a stroke or beat on the drum, fertig means ready. So schlagfertig also means ready to play." },
   },
   {
     id: "sechzehntel",
     term: "Sechzehntel",
     text: "Eine Sechzehntel ist halb so lang wie eine Achtel. Auf eine Viertel kommen vier Sechzehntel. Im Click kann man sie als feine Ebene zwischen den Achteln dazunehmen. Der Puls bleibt die Viertel.",
+    en: { term: "Sixteenth note", text: "A sixteenth note is half as long as an eighth. Four sixteenths fit into one quarter note. In the click you can add them as a fine layer between the eighths. The pulse stays on the quarter note." },
   },
   {
     id: "shuffle",
     term: "Shuffle",
     text: "Ein Shuffle schwingt: die Unterteilung ist eine Triole, gespielt werden oft der erste und dritte Schlag. Es klingt nicht wie zwei gleiche Achtel. Der Puls bleibt die Viertel.",
+    en: { term: "Shuffle", text: "A shuffle swings: the subdivision is a triplet, and often the first and third notes are played. It does not sound like two even eighths. The pulse stays on the quarter note." },
   },
   {
     id: "snare",
     term: "Snare",
     text: "Die Snare ist die Trommel mit einem Teppich aus Schnarrseiten am unteren Fell. Die Seiten schnarren mit, wenn man schlägt. Ohne Seiten klingt sie dumpfer. Die meisten Rudiments sind zuerst für die Snare gedacht.",
+    en: { term: "Snare", text: "The snare is the drum with a set of snare wires under the bottom head. The wires buzz along when you strike it. Without them it sounds duller. Most rudiments were written for the snare first." },
   },
   {
     id: "stick",
     term: "Stick",
     text: "Der Stick ist der Stock. Spitze, Schulter und Schaft treffen je nach Schlag anders auf. Ein fester, lockerer Griff hält länger als ein zugekniffener. Die Übung Hand Control trainiert genau diese Wechsel.",
+    en: { term: "Stick", text: "The stick is what you play with. Tip, shoulder and shaft hit differently depending on the stroke. A firm but relaxed grip lasts longer than a tight one. The Hand Control exercises train exactly these changes." },
   },
   {
     id: "takt",
     term: "Takt",
     text: "Ein Takt fasst eine feste Zahl von Schlägen zusammen. 4/4 hat vier Viertel, 6/8 zwei Gruppen zu drei Achteln. Der Taktstrich zeigt, wo ein neuer Takt beginnt. Die 1 ist der erste Schlag danach.",
+    en: { term: "Bar", text: "A bar (or measure) groups a fixed number of beats. 4/4 has four quarter notes, 6/8 two groups of three eighths. The bar line shows where a new bar begins. The 1 is the first beat after it." },
   },
   {
     id: "tempo",
     term: "Tempo",
     text: "Das Tempo ist die Geschwindigkeit des Pulses, angegeben in BPM, also Schlägen pro Minute. In dieser App meint die Zahl die Viertel. Schneller wird es erst sinnvoll, wenn die Figur langsam sauber sitzt.",
+    en: { term: "Tempo", text: "Tempo is the speed of the pulse, given in BPM, beats per minute. In this app the number refers to quarter notes. Going faster only makes sense once the figure sits cleanly at a slow tempo." },
   },
   {
     id: "tom",
     term: "Tom",
     text: "Toms sind die Trommeln ohne Schnarrseiten, gestimmt von hoch nach tief. Man nutzt sie für Melodien über das Set und für Fills. Der Schlag soll so klar sein wie auf der Snare, nur der Ton ist anders.",
+    en: { term: "Tom", text: "Toms are the drums without snare wires, tuned from high to low. You use them for melodic lines around the kit and for fills. The stroke should be as clear as on the snare; only the pitch is different." },
   },
   {
     id: "triole",
     term: "Triole",
     text: "Eine Triole sind drei gleichmäßige Schläge in der Zeit von zwei. Eine Achteltriole füllt also eine Viertel. Man zählt sie oft als „1-trip-let“ oder „ein-und-a“. Der Puls bleibt die Viertel.",
+    en: { term: "Triplet", text: "A triplet is three even strokes in the time of two. An eighth-note triplet therefore fills one quarter note. It is often counted as “1-trip-let” or “1-and-a”. The pulse stays on the quarter note." },
   },
   {
     id: "upbeat",
     term: "Upbeat",
     text: "Upbeat ist ein anderes Wort für den Schlag vor der schweren Zeit, oft der Offbeat oder der Auftakt vor der 1. Er zieht in den nächsten Downbeat hinein. Die 1 selbst ist kein Upbeat.",
+    en: { term: "Upbeat", text: "Upbeat is another word for the stroke before the strong beat, often the offbeat or the pickup before the 1. It pulls into the next downbeat. The 1 itself is not an upbeat." },
   },
   {
     id: "viertel",
     term: "Viertel",
     text: "Die Viertel ist der Grundschlag, an dem die App das Tempo zählt. In einem 4/4-Takt liegen vier Viertel. Achtel, Sechzehntel und Triolen sind Unterteilungen davon, nicht ein anderes Tempo.",
+    en: { term: "Quarter note", text: "The quarter note is the basic beat the app counts the tempo in. A 4/4 bar holds four quarter notes. Eighths, sixteenths and triplets are subdivisions of it, not a different tempo." },
   },
   {
     id: "vorschlag",
     term: "Vorschlag",
     text: "Ein Vorschlag ist ein kurzer, leiser Schlag direkt vor dem Hauptschlag. Beim Flam ist es eine andere Hand, beim Drag zweimal dieselbe. Er zählt nicht als eigene Zählzeit.",
+    en: { term: "Grace note", text: "A grace note is a short, soft stroke right before the main stroke. In a flam it comes from the other hand, in a drag it is two strokes from the same hand. It does not count as a beat of its own." },
   },
   {
     id: "wechsel",
     term: "Wechsel",
     text: "Ein Wechsel ist der Übergang von einer Hand zur anderen, oder von einer Unterteilung in die nächste. Sauber heißt: kein Hänger, keine Extra-Lautstärke. Hand Control und die Rhythmuspyramide üben genau das.",
+    en: { term: "Transition", text: "A transition is the change from one hand to the other, or from one subdivision to the next. Clean means no hesitation and no extra volume. Hand Control and the Rhythm Pyramid practise exactly that." },
   },
   {
     id: "wirbel",
     term: "Wirbel",
     text: "Ein Wirbel ist ein langer, gleichmäßiger Ton aus vielen schnellen Schlägen. Beim Single Stroke Roll wechselt jede Hand einzeln, beim Double Stroke Roll kommen Doppelschläge. Ein geschlossener Wirbel klingt wie ein Liegen, kein einzelnes Klopfen.",
+    en: { term: "Roll", text: "A roll is a long, even sound made of many fast strokes. In the single stroke roll each hand alternates single strokes; in the double stroke roll the hands play doubles. A closed roll sounds like one sustained note, not individual taps." },
   },
   {
     id: "xstick",
     term: "X-Stick",
     text: "X-Stick ist eine andere Bezeichnung für den Cross-Stick. In der Notation steht ein Kreuz, weil der Schaft den Rand trifft und der Kopf auf dem Fell liegen bleibt. Der Ton ist kurz und trockener als ein normaler Schlag.",
+    en: { term: "X-stick", text: "X-stick is another name for the cross-stick. Notation uses an x because the shaft hits the rim while the tip stays on the head. The sound is short and drier than a normal stroke." },
   },
   {
     id: "yoruba",
     term: "Yoruba-Rhythmen",
     text: "Yoruba-Rhythmen sind Trommelmuster aus der Yoruba-Tradition in Westafrika. Im Unterricht kommen daraus oft clave-artige Figuren und Gespräch zwischen Trommeln vor. Eine einzelne Ursprungsgeschichte lässt sich hier nicht seriös verkürzen.",
+    en: { term: "Yoruba rhythms", text: "Yoruba rhythms are drum patterns from the Yoruba tradition in West Africa. In lessons they often appear as clave-like figures and as conversation between drums. A single origin story cannot be honestly shortened here." },
   },
   {
     id: "zaehlzeit",
     term: "Zählzeit",
     text: "Die Zählzeit ist ein Schlag des Pulses, den man laut zählen kann: 1, 2, 3, 4. Darauf liegt der Downbeat. Was dazwischen liegt, ist Unterteilung oder Offbeat, keine neue Zählzeit.",
+    en: { term: "Beat", text: "A beat is one pulse of the bar that you can count out loud: 1, 2, 3, 4. The downbeat falls on it. What lies in between is a subdivision or an offbeat, not a new beat." },
   },
 ];
 
-export function searchLexicon(q) {
+/** Eintrag in der gewünschten Sprache: { id, term, text }. Englisch aus `en`, sonst Deutsch. */
+export function lexEntry(e, lang = "de") {
+  const en = lang === "en" && e.en;
+  return { id: e.id, term: en ? e.en.term : e.term, text: en ? e.en.text : e.text };
+}
+
+/** Liste in der gewünschten Sprache, A–Z nach dem Begriff dieser Sprache; Suche in Begriff und Text. */
+export function searchLexicon(q, lang = "de") {
   const s = String(q || "").trim().toLowerCase();
-  const list = LEXICON.slice().sort((a, b) => a.term.localeCompare(b.term, "de"));
+  const loc = lang === "en" ? "en" : "de";
+  const list = LEXICON.map((e) => lexEntry(e, loc)).sort((a, b) => a.term.localeCompare(b.term, loc));
   if (!s) return list;
   return list.filter((e) => e.term.toLowerCase().includes(s) || e.text.toLowerCase().includes(s));
 }
