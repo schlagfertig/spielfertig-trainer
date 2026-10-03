@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react";
 import { searchLexicon } from "../lib/lexicon.js";
-import { t } from "../lib/i18n.js";
+import { t, getLang } from "../lib/i18n.js";
 
 export default function Lexicon() {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState("");
-  const list = useMemo(() => searchLexicon(q), [q]);
-  const letters = useMemo(() => [...new Set(list.map((e) => e.term[0].toLocaleUpperCase("de")))], [list]);
+  const lang = getLang();
+  const list = useMemo(() => searchLexicon(q, lang), [q, lang]);
+  const letters = useMemo(() => [...new Set(list.map((e) => e.term[0].toLocaleUpperCase(lang)))], [list, lang]);
 
   return (
     <div className="lex">
@@ -26,7 +27,7 @@ export default function Lexicon() {
           border: 1px solid #2f383d; font: 800 13px Figtree, sans-serif; text-decoration: none;
         }
         .lex-empty { color: #8a969c; font: 600 14px Figtree, sans-serif; }
-        .lex-item { border-bottom: 1px solid #2f383d; }
+        .lex-item { border-bottom: 1px solid #2f383d; scroll-margin-top: 76px; }
         .lex-item button {
           width: 100%; text-align: left; background: none; border: 0; color: #f4f7f6;
           padding: 14px 2px; font: 700 18px/1.2 Figtree, sans-serif;
@@ -48,14 +49,22 @@ export default function Lexicon() {
       {letters.length > 1 ? (
         <nav className="lex-az" aria-label={t("Buchstaben")}>
           {letters.map((ch) => (
-            <a key={ch} href={`#lex-${ch}`}>{ch}</a>
+            <a
+              key={ch}
+              href={`#lex-${ch}`}
+              onClick={(ev) => {
+                // Kein Hash-Sprung: der würde popstate auslösen und die App zur Startseite schicken.
+                ev.preventDefault();
+                document.getElementById(`lex-${ch}`)?.scrollIntoView({ block: "start" });
+              }}
+            >{ch}</a>
           ))}
         </nav>
       ) : null}
       {list.length === 0 ? <p className="lex-empty">{t("Kein Treffer.")}</p> : null}
       {list.map((e, i) => {
-        const ch = e.term[0].toLocaleUpperCase("de");
-        const prev = i > 0 ? list[i - 1].term[0].toLocaleUpperCase("de") : "";
+        const ch = e.term[0].toLocaleUpperCase(lang);
+        const prev = i > 0 ? list[i - 1].term[0].toLocaleUpperCase(lang) : "";
         const on = open === e.id;
         return (
           <div key={e.id} className="lex-item" id={ch !== prev ? `lex-${ch}` : undefined}>
