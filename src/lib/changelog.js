@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-10-02",
     items: [
+      { de: "Neu: Lexikon – kurze Erklärungen zu Begriffen wie Downbeat, Flam oder Groove, von A bis Z durchsuchbar. Bei den Rudiments zeigt „Info“ jetzt mehr zum jeweiligen Rudiment.",
+        en: "New: Lexicon – short explanations of terms like downbeat, flam or groove, searchable from A to Z. In Rudiments, “Info” now tells you more about each rudiment." },
       { de: "Hand Control: Die Triolen-Ansicht („ternär“) ist vorerst wieder ausgeblendet, und Start funktioniert wieder wie gewohnt.",
         en: "Hand Control: the triplet view (“Triplets”) is hidden again for now, and Start works as usual again." },
       { de: "Startseite: Auf der Karte „Erste Übung starten“ gibt es jetzt „Nicht heute“ – die Karte ist dann bis morgen ausgeblendet, und die Karte „Heute“ rückt nach oben.",
