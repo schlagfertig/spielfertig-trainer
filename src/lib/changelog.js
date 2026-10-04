@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-10-04",
     items: [
+      { de: "Datenschutz: Erklärung aktualisiert (keine Google-Schriften mehr) und jetzt auch öffentlich im Web lesbar.",
+        en: "Privacy: policy updated (no more Google fonts) and now also publicly readable on the web." },
       { de: "Schriften sind jetzt in der App eingebaut – schneller, offline nutzbar und ohne Verbindung zu Google.",
         en: "Fonts are now built into the app – faster, works offline and no connection to Google." },
       { de: "Rudiments: Hörmodus „Tom / Snare“ – rechts Floortom, links Snare (statt L / R).",
