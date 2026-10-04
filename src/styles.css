@@ -708,8 +708,7 @@ body.metro-gesturing .rud-metro .metro-face { overflow: visible; }
 .today-detail { color: var(--dim); font-size: 15px; }
 .today-go { flex-shrink: 0; color: var(--teal); font-size: 26px; line-height: 1; }
 
-/* „Nicht heute“ auf der Karte „Erste Übung starten“: kleiner Glas-Knopf unten rechts auf Höhe von START
-   (oben rechts lag er unter den festen Knöpfen Flagge/? der Startseite); Karte klappt weich zu */
+/* „Nicht heute“ auf der Karte „Erste Übung starten“: kleiner Glas-Knopf oben rechts; Karte klappt weich zu */
 .first-wrap { display: grid; grid-template-rows: 1fr; margin-top: 8px; opacity: 1; }
 .first-inner { position: relative; min-height: 0; border-radius: 14px; }
 .first-wrap.leaving .first-inner { overflow: hidden; }
@@ -718,8 +717,7 @@ body.metro-gesturing .rud-metro .metro-face { overflow: visible; }
   .first-wrap { transition: grid-template-rows .28s ease, margin-top .28s ease, opacity .2s ease; }
 }
 .first-skip {
-  /* Mitte des Knopfs = Mitte der START-Zeile: Karten-Innenabstand 20px + halbe Zeilenhöhe (15px Figtree ≈ 20px) − halbe Knopfhöhe 17px */
-  position: absolute; right: 14px; bottom: calc(20px + 20px / 2 - 17px);
+  position: absolute; top: 12px; right: 12px;
   min-height: 34px; padding: 0 12px; border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.05);
   -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
@@ -728,3 +726,20 @@ body.metro-gesturing .rud-metro .metro-face { overflow: visible; }
 /* größere Tippfläche ohne größeren Knopf */
 .first-skip::before { content: ""; position: absolute; inset: -6px -4px; }
 .first-skip:hover, .first-skip:focus-visible { color: var(--txt); border-color: rgba(92, 200, 184, 0.55); }
+
+.home-help-col { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.news-bang { position: relative; }
+.news-bang-dot {
+  position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%;
+  background: #5cc8b8; box-shadow: 0 0 0 2px rgba(22,26,29,.7);
+}
+.news-card { max-height: min(78dvh, 640px); display: flex; flex-direction: column; }
+.news-card .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.news-x {
+  width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,.28);
+  background: transparent; color: #f4f7f6; font: 700 22px/1 Figtree, sans-serif;
+}
+.news-scroll { overflow: auto; padding-right: 2px; }
+.news-scroll .news-lead { color: #8a969c; font-size: 15px; margin: 0 0 12px; }
+.news-scroll h2 { margin: 14px 0 6px; font-size: 16px; color: #5cc8b8; }
+.news-scroll .news-list { margin: 0 0 8px; padding-left: 18px; color: #e7eeef; }
