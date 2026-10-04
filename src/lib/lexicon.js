@@ -206,9 +206,11 @@ export const LEXICON = [
   },
   {
     id: "notenwert",
+    img: "/lexikon/noten-uebersicht-dunkel.webp",
+    alt: "Übersicht der Notenwerte und Pausen von der ganzen Note bis zur Zweiunddreißigstel",
     term: "Notenwert",
-    text: "Der Notenwert ist die Länge eines Schlags: ganze Note, Halbe, Viertel, Achtel, Sechzehntel. Ein kürzerer Wert heißt nicht automatisch schnellerer Puls. Das Tempo steht extra, als BPM.",
-    en: { term: "Note value", text: "The note value is the length of a stroke: whole note, half, quarter, eighth, sixteenth. A shorter value does not automatically mean a faster pulse. The tempo is given separately, in BPM." },
+    text: "Der Notenwert ist die Länge eines Schlags: ganze Note, Halbe, Viertel, Achtel, Sechzehntel, Zweiunddreißigstel. Zu jedem Wert gibt es eine gleich lange Pause. Ein kürzerer Wert heißt nicht automatisch schnellerer Puls. Das Tempo steht extra, als BPM.",
+    en: { term: "Note value", alt: "Overview of note values and rests from the whole note to the thirty-second note", text: "The note value is the length of a stroke: whole note, half, quarter, eighth, sixteenth, thirty-second. Each value has a rest of the same length. A shorter value does not automatically mean a faster pulse. The tempo is given separately, in BPM." },
   },
   {
     id: "offbeat",
@@ -224,9 +226,11 @@ export const LEXICON = [
   },
   {
     id: "pause",
+    img: "/lexikon/pausen-teal.webp",
+    alt: "Notenwerte-Übersicht, Pausen hervorgehoben",
     term: "Pause",
     text: "Eine Pause ist Stille mit einer festen Länge. Sie zählt im Takt mit, auch wenn kein Schlag kommt. Wer die Pause kürzt, schiebt den nächsten Schlag nach vorn.",
-    en: { term: "Rest", text: "A rest is silence with a fixed length. It counts in the bar even when no stroke is played. Cutting a rest short pushes the next stroke forward." },
+    en: { term: "Rest", alt: "Note values overview, rests highlighted", text: "A rest is silence with a fixed length. It counts in the bar even when no stroke is played. Cutting a rest short pushes the next stroke forward." },
   },
   {
     id: "phrase",
@@ -372,12 +376,6 @@ export const LEXICON = [
     en: { term: "X-stick", text: "X-stick is another name for the cross-stick. Notation uses an x because the shaft hits the rim while the tip stays on the head. The sound is short and drier than a normal stroke." },
   },
   {
-    id: "yoruba",
-    term: "Yoruba-Rhythmen",
-    text: "Yoruba-Rhythmen sind Trommelmuster aus der Yoruba-Tradition in Westafrika. Im Unterricht kommen daraus oft clave-artige Figuren und Gespräch zwischen Trommeln vor. Eine einzelne Ursprungsgeschichte lässt sich hier nicht seriös verkürzen.",
-    en: { term: "Yoruba rhythms", text: "Yoruba rhythms are drum patterns from the Yoruba tradition in West Africa. In lessons they often appear as clave-like figures and as conversation between drums. A single origin story cannot be honestly shortened here." },
-  },
-  {
     id: "zaehlzeit",
     term: "Zählzeit",
     text: "Die Zählzeit ist ein Schlag des Pulses, den man laut zählen kann: 1, 2, 3, 4. Darauf liegt der Downbeat. Was dazwischen liegt, ist Unterteilung oder Offbeat, keine neue Zählzeit.",
@@ -399,14 +397,6 @@ export const LEXICON = [
     alt: "Zweiunddreißigstel und passende Pause",
     text: "Eine Zweiunddreißigstel ist halb so lang wie eine Sechzehntel. Auf eine Viertel kommen acht davon. Im Wirbel und in kurzen Verzierungen tauchen sie oft auf. Der Puls bleibt die Viertel.",
     en: { term: "Thirty-second note", alt: "Thirty-second note and rest", text: "A thirty-second note is half as long as a sixteenth note. Eight of them fill one quarter note. They often show up in rolls and short ornaments. The pulse stays the quarter note." },
-  },
-  {
-    id: "notenwerte",
-    term: "Notenwerte",
-    img: "/lexikon/noten-uebersicht-dunkel.webp",
-    alt: "Übersicht der Notenwerte und Pausen von der ganzen Note bis zur Zweiunddreißigstel",
-    text: "Notenwerte sind die Längen der Schläge: ganze Note, Halbe, Viertel, Achtel, Sechzehntel, Zweiunddreißigstel. Die Pause daneben ist die gleich lange Stille. Das Tempo steht extra, als BPM, und ändert die Länge nicht auf dem Papier.",
-    en: { term: "Note values", alt: "Overview of note values and rests from the whole note to the thirty-second note", text: "Note values are the lengths of the strokes: whole note, half, quarter, eighth, sixteenth, thirty-second. The rest beside each one is silence of the same length. The tempo is written separately, as BPM, and does not change the written length." },
   },
   {
     id: "drumset",
