@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-10-04",
     items: [
+      { de: "Lexikon: 22 Einträge haben jetzt Bilder – Notenwerte und Teile des Drumsets. Antippen zeigt das Bild groß. Neu sind 9 Einträge: Ganze Note, Zweiunddreißigstel, Notenwerte, Das Drumset, Hängetom, Standtom, Splash, Hardware und Hi-Hat-Maschine.",
+        en: "Glossary: 22 entries now have pictures – note values and parts of the drum kit. Tap a picture to see it full size. 9 new entries: whole note, thirty-second note, note values, the drum kit, rack tom, floor tom, splash, hardware and hi-hat stand." },
       { de: "Datenschutz: Erklärung aktualisiert (keine Google-Schriften mehr) und jetzt auch öffentlich im Web lesbar.",
         en: "Privacy: policy updated (no more Google fonts) and now also publicly readable on the web." },
       { de: "Schriften sind jetzt in der App eingebaut – schneller, offline nutzbar und ohne Verbindung zu Google.",
