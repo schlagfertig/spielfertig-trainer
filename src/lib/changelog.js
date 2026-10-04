@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-10-04",
     items: [
+      { de: "Rudiments: Hörmodus „Tom / Snare“ – rechts Floortom, links Snare (statt L / R).",
+        en: "Rudiments: new sound mode “Tom / Snare” – right hand floor tom, left hand snare (replaces L / R)." },
       { de: "Lexikon: Der Eintrag „Schlagfertig‽“ sieht jetzt aus wie im Logo – türkis und mit ‽. Neu erklärt: das ‽ ist Frage- und Ausrufezeichen zugleich.",
         en: "Glossary: the “Schlagfertig‽” entry now looks like the logo – teal and with ‽. New: it explains that ‽ is a question mark and exclamation mark in one." },
     ],
