@@ -382,7 +382,7 @@ export const LEXICON = [
     term: "Zählzeit",
     text: "Die Zählzeit ist ein Schlag des Pulses, den man laut zählen kann: 1, 2, 3, 4. Darauf liegt der Downbeat. Was dazwischen liegt, ist Unterteilung oder Offbeat, keine neue Zählzeit.",
     en: { term: "Beat", text: "A beat is one pulse of the bar that you can count out loud: 1, 2, 3, 4. The downbeat falls on it. What lies in between is a subdivision or an offbeat, not a new beat." },
-  },,
+  },
 
   {
     id: "ganze",
