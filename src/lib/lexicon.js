@@ -478,8 +478,8 @@ export const LEXICON = [
     term: "Fell",
     img: "/lexikon/begriffe/fell.webp",
     alt: "Fell",
-    text: "Das Fell ist die gespannte Haut über der Trommel, auf die man schlägt. Oben liegt das Schlagfell, unten oft ein Resonanzfell. Wie straff es ist, ändert die Tonhöhe.",
-    en: { term: "Drumhead", alt: "Drumhead", text: "The head is the skin stretched over the drum, the surface you strike. The top one is the batter head, the bottom one is often a resonant head. How tight it is changes the pitch." },
+    text: "Trommeln gehören zu den Membranophonen. Diese Membran heißt am Schlagzeug Fell. Sie nimmt den Anschlag von Stock, Besen oder Hand auf und gibt ihn in den Kessel weiter. Die Schwingung kommt zum Teil ins Fell zurück und wird so hörbar. Die meisten Felle sind aus Mylar-Kunststoff. Wie straff das Fell sitzt, ändert Tonhöhe und Klang.",
+    en: { term: "Drumhead", alt: "Drumhead", text: "Drums belong to the membranophones. On the kit that membrane is called the head. It takes the stroke from a stick, a brush or the hand and passes it into the shell. Part of the vibration comes back into the head and becomes audible. Most heads are made of Mylar plastic. How tight the head sits changes pitch and sound." },
   },
   {
     id: "spannreifen",
