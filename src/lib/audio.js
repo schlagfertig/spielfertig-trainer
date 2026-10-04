@@ -94,7 +94,7 @@ export function playMetronome(c, downbeat, t) {
   playClick(c, t, downbeat);
 }
 
-/* L/R: rechts 16er Floortom, links 14er Snare. Akzent nur lauter. */
+/* Tom / Snare: rechts 16er Floortom, links 14er Snare. Akzent nur lauter. */
 function playFloorTom(c, t, accent, grace) {
   const a = grace ? 0.45 : accent ? 1.65 : 1;
   const dur = grace ? 0.05 : accent ? 0.2 : 0.15;
