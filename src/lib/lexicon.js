@@ -8,7 +8,7 @@ export const LEXICON = [
     alt: "Achtelnote und Achtelpause",
     term: "Achtel",
     text: "Eine Achtel ist halb so lang wie eine Viertel. In einem 4/4-Takt liegen acht Achtel. Zwei Achtel füllen also eine Zählzeit. In der App sind die Hand-Control-Übungen im binären Raster Achtel.",
-    en: { term: "Eighth note", text: "An eighth note is half as long as a quarter note. A 4/4 bar holds eight eighth notes, so two eighths fill one beat. In the app, the Hand Control exercises in the straight grid are eighth notes." },
+    en: { term: "Eighth note", alt: "Eighth note and eighth rest", text: "An eighth note is half as long as a quarter note. A 4/4 bar holds eight eighth notes, so two eighths fill one beat. In the app, the Hand Control exercises in the straight grid are eighth notes." },
   },
   {
     id: "akzent",
@@ -34,7 +34,7 @@ export const LEXICON = [
     alt: "Bassdrum am Schlagzeug, hervorgehoben",
     term: "Bassdrum",
     text: "Die Bassdrum ist die große, tiefe Trommel, meist mit dem Fuß gespielt. Sie setzt den Grund des Grooves, oft auf 1 und 3 oder auf jeder Viertel. Am Set heißt sie oft auch Kick.",
-    en: { term: "Bass drum", text: "The bass drum is the big, low drum, usually played with the foot. It lays the foundation of the groove, often on 1 and 3 or on every quarter note. On the kit it is often called the kick." },
+    en: { term: "Bass drum", alt: "Bass drum on the kit, highlighted", text: "The bass drum is the big, low drum, usually played with the foot. It lays the foundation of the groove, often on 1 and 3 or on every quarter note. On the kit it is often called the kick." },
   },
   {
     id: "becken",
@@ -42,7 +42,7 @@ export const LEXICON = [
     alt: "Becken am Schlagzeug, hervorgehoben",
     term: "Becken",
     text: "Becken sind Metallplatten, die man anschlägt oder aneinander schlägt. Am Set sind das vor allem Hi-Hat, Ride und Crash. Sie klingen länger als ein Trommelfell und tragen oft das Zeitspiel.",
-    en: { term: "Cymbals", text: "Cymbals are metal plates that you strike or clash together. On the kit these are mainly the hi-hat, ride and crash. They ring longer than a drumhead and often carry the timekeeping." },
+    en: { term: "Cymbals", alt: "Cymbals on the kit, highlighted", text: "Cymbals are metal plates that you strike or clash together. On the kit these are mainly the hi-hat, ride and crash. They ring longer than a drumhead and often carry the timekeeping." },
   },
   {
     id: "click",
@@ -62,7 +62,7 @@ export const LEXICON = [
     alt: "Crash-Becken am Schlagzeug, hervorgehoben",
     term: "Crash",
     text: "Die Crash ist ein Becken für Einsätze und Akzente, nicht für das durchgehende Zeitspiel. Ein Schlag klingt lang und breit. Danach lässt man sie meist ausklingen, statt jede Zählzeit zu spielen.",
-    en: { term: "Crash", text: "The crash is a cymbal for entrances and accents, not for continuous timekeeping. A single hit sounds long and wide. Afterwards you usually let it ring out instead of playing it on every beat." },
+    en: { term: "Crash", alt: "Crash cymbal on the kit, highlighted", text: "The crash is a cymbal for entrances and accents, not for continuous timekeeping. A single hit sounds long and wide. Afterwards you usually let it ring out instead of playing it on every beat." },
   },
   {
     id: "cross",
@@ -124,7 +124,7 @@ export const LEXICON = [
     alt: "Fußmaschine an der Bassdrum, hervorgehoben",
     term: "Fußmaschine",
     text: "Die Fußmaschine schlägt die Bassdrum über Pedal und Schlegel. Der Fuß ersetzt dort den Stock. Ferse hoch oder flach ändert das Gefühl, der Schlag soll trotzdem auf der Zählzeit landen.",
-    en: { term: "Bass drum pedal", text: "The bass drum pedal strikes the bass drum with a beater. Here the foot takes the place of the stick. Heel up or heel down changes the feel, but the stroke should still land on the beat." },
+    en: { term: "Bass drum pedal", alt: "Bass drum pedal, highlighted", text: "The bass drum pedal strikes the bass drum with a beater. Here the foot takes the place of the stick. Heel up or heel down changes the feel, but the stroke should still land on the beat." },
   },
   {
     id: "ghost",
@@ -144,7 +144,7 @@ export const LEXICON = [
     alt: "Halbe Note und Halbe Pause",
     term: "Halbe",
     text: "Eine Halbe ist so lang wie zwei Viertel. In einem 4/4-Takt liegen zwei Halbe. Sie ist ein langer Notenwert, kein einzelner kurzer Anschlag. Der Puls darunter kann trotzdem Viertel bleiben.",
-    en: { term: "Half note", text: "A half note is as long as two quarter notes. A 4/4 bar holds two half notes. It is a long note value, not a single short stroke. The pulse underneath can still be quarter notes." },
+    en: { term: "Half note", alt: "Half note and half rest", text: "A half note is as long as two quarter notes. A 4/4 bar holds two half notes. It is a long note value, not a single short stroke. The pulse underneath can still be quarter notes." },
   },
   {
     id: "hihat",
@@ -152,7 +152,7 @@ export const LEXICON = [
     alt: "Hi-Hat am Schlagzeug, hervorgehoben",
     term: "Hi-Hat",
     text: "Die Hi-Hat sind zwei Becken übereinander, die man mit dem Fuß schließt und öffnet. Zu spielt man sie mit dem Stock, oft als durchgehende Unterteilung. Offen klingt sie länger, geschlossen kurz und trocken.",
-    en: { term: "Hi-hat", text: "The hi-hat is two cymbals on top of each other that you close and open with your foot. Closed, you play it with the stick, often as a continuous subdivision. Open it rings longer, closed it sounds short and dry." },
+    en: { term: "Hi-hat", alt: "Hi-hat on the kit, highlighted", text: "The hi-hat is two cymbals on top of each other that you close and open with your foot. Closed, you play it with the stick, often as a continuous subdivision. Open it rings longer, closed it sounds short and dry." },
   },
   {
     id: "improvisation",
@@ -178,7 +178,7 @@ export const LEXICON = [
     alt: "Bassdrum am Schlagzeug, hervorgehoben",
     term: "Kick",
     text: "Kick ist der übliche Name für die Bassdrum am Set, gespielt mit der Fußmaschine. Im Groove liegt sie oft auf 1 und 3 oder auf jeder Viertel. Der Anschlag soll kurz und auf der Zählzeit sein.",
-    en: { term: "Kick", text: "Kick is the common name for the bass drum on the kit, played with the pedal. In a groove it often sits on 1 and 3 or on every quarter note. The stroke should be short and on the beat." },
+    en: { term: "Kick", alt: "Bass drum on the kit, highlighted", text: "Kick is the common name for the bass drum on the kit, played with the pedal. In a groove it often sits on 1 and 3 or on every quarter note. The stroke should be short and on the beat." },
   },
   {
     id: "lage",
@@ -252,7 +252,7 @@ export const LEXICON = [
     alt: "Ride-Becken am Schlagzeug, hervorgehoben",
     term: "Ride",
     text: "Die Ride ist ein Becken für das durchgehende Zeitspiel, oft mit dem Muster Viertel und Achtel. Sie trägt den Puls, während Snare und Bassdrum die Figur spielen. Der Rand klingt heller, die Kuppe trockener.",
-    en: { term: "Ride", text: "The ride is a cymbal for continuous timekeeping, often with a quarter-and-eighth pattern. It carries the pulse while snare and bass drum play the figure. The edge sounds brighter, the bell drier." },
+    en: { term: "Ride", alt: "Ride cymbal on the kit, highlighted", text: "The ride is a cymbal for continuous timekeeping, often with a quarter-and-eighth pattern. It carries the pulse while snare and bass drum play the figure. The edge sounds brighter, the bell drier." },
   },
   {
     id: "rimshot",
@@ -285,7 +285,7 @@ export const LEXICON = [
     alt: "Sechzehntelnote und Sechzehntelpause",
     term: "Sechzehntel",
     text: "Eine Sechzehntel ist halb so lang wie eine Achtel. Auf eine Viertel kommen vier Sechzehntel. Im Click kann man sie als feine Ebene zwischen den Achteln dazunehmen. Der Puls bleibt die Viertel.",
-    en: { term: "Sixteenth note", text: "A sixteenth note is half as long as an eighth. Four sixteenths fit into one quarter note. In the click you can add them as a fine layer between the eighths. The pulse stays on the quarter note." },
+    en: { term: "Sixteenth note", alt: "Sixteenth note and sixteenth rest", text: "A sixteenth note is half as long as an eighth. Four sixteenths fit into one quarter note. In the click you can add them as a fine layer between the eighths. The pulse stays on the quarter note." },
   },
   {
     id: "shuffle",
@@ -299,7 +299,7 @@ export const LEXICON = [
     alt: "Snare am Schlagzeug, hervorgehoben",
     term: "Snare",
     text: "Die Snare ist die Trommel mit einem Teppich aus Schnarrseiten am unteren Fell. Die Seiten schnarren mit, wenn man schlägt. Ohne Seiten klingt sie dumpfer. Die meisten Rudiments sind zuerst für die Snare gedacht.",
-    en: { term: "Snare", text: "The snare is the drum with a set of snare wires under the bottom head. The wires buzz along when you strike it. Without them it sounds duller. Most rudiments were written for the snare first." },
+    en: { term: "Snare", alt: "Snare on the kit, highlighted", text: "The snare is the drum with a set of snare wires under the bottom head. The wires buzz along when you strike it. Without them it sounds duller. Most rudiments were written for the snare first." },
   },
   {
     id: "stick",
@@ -325,7 +325,7 @@ export const LEXICON = [
     alt: "Toms am Schlagzeug, hervorgehoben",
     term: "Tom",
     text: "Toms sind die Trommeln ohne Schnarrseiten, gestimmt von hoch nach tief. Man nutzt sie für Melodien über das Set und für Fills. Der Schlag soll so klar sein wie auf der Snare, nur der Ton ist anders.",
-    en: { term: "Tom", text: "Toms are the drums without snare wires, tuned from high to low. You use them for melodic lines around the kit and for fills. The stroke should be as clear as on the snare; only the pitch is different." },
+    en: { term: "Tom", alt: "Toms on the kit, highlighted", text: "Toms are the drums without snare wires, tuned from high to low. You use them for melodic lines around the kit and for fills. The stroke should be as clear as on the snare; only the pitch is different." },
   },
   {
     id: "triole",
@@ -345,7 +345,7 @@ export const LEXICON = [
     alt: "Viertelnote und Viertelpause",
     term: "Viertel",
     text: "Die Viertel ist der Grundschlag, an dem die App das Tempo zählt. In einem 4/4-Takt liegen vier Viertel. Achtel, Sechzehntel und Triolen sind Unterteilungen davon, nicht ein anderes Tempo.",
-    en: { term: "Quarter note", text: "The quarter note is the basic beat the app counts the tempo in. A 4/4 bar holds four quarter notes. Eighths, sixteenths and triplets are subdivisions of it, not a different tempo." },
+    en: { term: "Quarter note", alt: "Quarter note and quarter rest", text: "The quarter note is the basic beat the app counts the tempo in. A 4/4 bar holds four quarter notes. Eighths, sixteenths and triplets are subdivisions of it, not a different tempo." },
   },
   {
     id: "vorschlag",
