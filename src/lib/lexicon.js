@@ -256,9 +256,10 @@ export const LEXICON = [
   },
   {
     id: "schlagfertig",
-    term: "Schlagfertig",
-    text: "Schlagfertig ist, wer schnell ist und immer eine passende Antwort hat. Hier steckt noch mehr drin: der Schlag auf der Trommel und fertig wie bereit. Schlagfertig heißt also auch: bereit zum Spielen.",
-    en: { term: "Schlagfertig", text: "Schlagfertig is German for quick-witted: always ready with the right reply. The word hides a pun: Schlag is a stroke or beat on the drum, fertig means ready. So schlagfertig also means ready to play." },
+    term: "Schlagfertig‽",
+    brand: true, // wie im Logo: türkis, Titelschrift, mit Interrobang
+    text: "Schlagfertig ist, wer schnell ist und immer eine passende Antwort hat. Hier steckt noch mehr drin: der Schlag auf der Trommel und fertig wie bereit. Schlagfertig heißt also auch: bereit zum Spielen. Das ‽ (Interrobang) ist Frage- und Ausrufezeichen zugleich: „Bist du schon schlagfertig?“ und „Mach dich oder dein Schlagzeug schlagfertig!“",
+    en: { term: "Schlagfertig‽", text: "Schlagfertig is German for quick-witted: always ready with the right reply. The word hides a pun: Schlag is a stroke or beat on the drum, fertig means ready. So schlagfertig also means ready to play. The ‽ is an interrobang, a question mark and exclamation mark in one (?+!): “Are you schlagfertig yet?” and “Get yourself or your drums schlagfertig!”" },
   },
   {
     id: "sechzehntel",
@@ -358,10 +359,10 @@ export const LEXICON = [
   },
 ];
 
-/** Eintrag in der gewünschten Sprache: { id, term, text }. Englisch aus `en`, sonst Deutsch. */
+/** Eintrag in der gewünschten Sprache: { id, term, text, brand }. Englisch aus `en`, sonst Deutsch. */
 export function lexEntry(e, lang = "de") {
   const en = lang === "en" && e.en;
-  return { id: e.id, term: en ? e.en.term : e.term, text: en ? e.en.text : e.text };
+  return { id: e.id, term: en ? e.en.term : e.term, text: en ? e.en.text : e.text, brand: !!e.brand };
 }
 
 /** Liste in der gewünschten Sprache, A–Z nach dem Begriff dieser Sprache; Suche in Begriff und Text. */
