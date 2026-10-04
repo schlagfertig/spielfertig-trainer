@@ -5,6 +5,13 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-10-04",
+    items: [
+      { de: "Lexikon: Der Eintrag „Schlagfertig‽“ sieht jetzt aus wie im Logo – türkis und mit ‽. Neu erklärt: das ‽ ist Frage- und Ausrufezeichen zugleich.",
+        en: "Glossary: the “Schlagfertig‽” entry now looks like the logo – teal and with ‽. New: it explains that ‽ is a question mark and exclamation mark in one." },
+    ],
+  },
+  {
     date: "2026-10-03",
     items: [
       { de: "Startseite: Die Kacheln sind jetzt deutlich durchsichtiger – das Logo scheint durch.",
