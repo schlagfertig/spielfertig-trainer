@@ -11,7 +11,7 @@ import FirstLesson from "./lib/FirstLesson.jsx";
 import Today from "./lib/Today.jsx";
 import { FIRST_SKIP_KEY, hideFirstToday, isFirstHidden } from "./lib/firstSkip.js";
 import Legal from "./lib/Legal.jsx";
-import News, { NewsHint, hasUnseenNews, markNewsHintSeen, shouldShowNewsHint } from "./lib/News.jsx";
+import News, { NewsButton, hasUnseenNews } from "./lib/News.jsx";
 import { loadSession, saveSession } from "./lib/session.js";
 import { LogoMetronome } from "./lib/LogoMetronome.jsx";
 import { SocialLinks } from "./lib/Social.jsx";
@@ -76,7 +76,6 @@ export default function App() {
   const firstDone = !!loadSession("firstLesson", {}).done;
   // Einmaliger Hinweis auf „Neuigkeiten“ – erst nachdem die Begrüßung (Welcome) geschlossen ist.
   const [welcomeOpen, setWelcomeOpen] = useState(() => !loadSession("welcomeSeen", {}).seen);
-  const [newsHint, setNewsHint] = useState(shouldShowNewsHint);
   // „Nicht heute“: Karte „Erste Übung starten“ bis Tagesende ausblenden (gespeichert: nur der Tag).
   // Der Tag wird bei jedem Rendern neu verglichen – nach Mitternacht ist die Karte wieder da.
   const [firstSkip, setFirstSkip] = useState(() => loadSession(FIRST_SKIP_KEY, {}));
@@ -105,11 +104,6 @@ export default function App() {
     // Karte erst weich zusammenklappen (Höhe, Abstand, Deckkraft), dann entfernen – kein Sprung.
     setFirstLeaving(true);
     window.setTimeout(done, 300);
-  }
-
-  function closeNewsHint() {
-    markNewsHintSeen();
-    setNewsHint(false);
   }
 
   function switchLang() {
@@ -225,12 +219,11 @@ export default function App() {
       <div className="page home">
         <div className="home-help">
           <button type="button" className="help-dot lang-flag" onClick={switchLang} aria-label={lang === "de" ? "Switch to English" : "Auf Deutsch umschalten"}>{lang === "de" ? FLAG_EN : FLAG_DE}</button>
-          <Help topic="home" />
+          <div className="home-help-col">
+            <Help topic="home" />
+            <NewsButton />
+          </div>
         </div>
-        {/* erneut prüfen: Neuigkeiten über den Footer besucht → Hinweis nach der Rückkehr weg */}
-        {newsHint && !welcomeOpen && shouldShowNewsHint() && (
-          <NewsHint onLater={closeNewsHint} onView={() => { closeNewsHint(); open("news"); }} />
-        )}
         <header className="hero">
           <LogoMetronome />
           {/* Das runde Logo zeigt schon „schlagfertig‽ · Zeit für guten Sound“ – darunter nur „Control“. */}
