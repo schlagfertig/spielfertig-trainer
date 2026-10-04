@@ -154,6 +154,23 @@ test("middleware", async (t) => {
     assert.equal((await middleware(req(`/?zugang=quatsch&name=Anna`))).headers.getSetCookie().length, 0);
   });
 
+  await t.test("persönlicher Gruß: sf_gruss nur für Kürzel claudi, nur mit gültigem Link", async () => {
+    const claudi = await createToken(SECRET, "claudi", inDays(21));
+    const c = (await middleware(req(`/?zugang=${claudi}&name=Claudi`))).headers.getSetCookie();
+    assert.deepEqual(c.map((x) => x.split(";")[0]), [`sf_zugang=${claudi}`, "sf_name=Claudi", "sf_gruss=schatz"]);
+    assert.match(c[2], /^sf_gruss=schatz; Path=\/; Expires=[^;]+; Secure; SameSite=Lax$/);
+    assert.doesNotMatch(c[2], /claudi|HttpOnly/);
+    assert.deepEqual((await middleware(req(`/?zugang=${good}&name=Claudi`))).headers.getSetCookie().map((x) => x.split("=")[0]), ["sf_zugang", "sf_name"]);
+    for (const id of ["claudi-x", "claud", "tom"]) {
+      const tk = await createToken(SECRET, id, inDays(21));
+      assert.deepEqual((await middleware(req(`/?zugang=${tk}`))).headers.getSetCookie().map((x) => x.split("=")[0]), ["sf_zugang"], id);
+    }
+    const expired = await createToken(SECRET, "claudi", inDays(-1));
+    assert.equal((await middleware(req(`/?zugang=${expired}`))).headers.getSetCookie().length, 0);
+    assert.equal((await middleware(req("/", "sf_gruss=schatz"))).status, 200);
+    assert.match(await (await middleware(req("/", "sf_gruss=schatz"))).text(), /zugang|Einladung/i);
+  });
+
   await t.test("Startsprache (?lang=, unsigniert): sf_lang-Cookie nur für de/en und nur mit gültigem Link", async () => {
     const run = async (q) => (await middleware(req(`/?zugang=${good}${q}`)));
     const r = await run("&name=Anna&lang=en");
