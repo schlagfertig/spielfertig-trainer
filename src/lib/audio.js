@@ -94,12 +94,58 @@ export function playMetronome(c, downbeat, t) {
   playClick(c, t, downbeat);
 }
 
+/* L/R: zwei Snares. R = 14x6,5 (tiefer, länger), L = 12x5 (höher, kürzer). Akzent nur lauter. */
+function playSizedSnare(c, t, accent, grace, small) {
+  const a = grace ? 0.4 : accent ? 1.7 : 1;
+  const dur = grace ? 0.036 : small ? (accent ? 0.09 : 0.062) : (accent ? 0.14 : 0.1);
+  const body = c.createOscillator();
+  const bg = c.createGain();
+  body.type = "triangle";
+  body.frequency.setValueAtTime(grace ? (small ? 280 : 210) : (small ? 248 : 178), t);
+  body.frequency.exponentialRampToValueAtTime(small ? 156 : 104, t + (grace ? 0.026 : 0.05));
+  bg.gain.setValueAtTime(0.0001, t);
+  bg.gain.exponentialRampToValueAtTime((small ? 0.12 : 0.17) * a, t + 0.003);
+  bg.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  body.connect(bg);
+  bg.connect(c.destination);
+  body.start(t);
+  body.stop(t + dur + 0.02);
+
+  const src = c.createBufferSource();
+  src.buffer = warmNoise(c);
+  const hp = c.createBiquadFilter();
+  hp.type = "highpass";
+  hp.frequency.value = small ? 1400 : 720;
+  const bp = c.createBiquadFilter();
+  bp.type = "bandpass";
+  bp.frequency.value = small ? 3600 : 2400;
+  bp.Q.value = small ? 1.05 : 0.7;
+  const ng = c.createGain();
+  ng.gain.setValueAtTime(0.0001, t);
+  ng.gain.exponentialRampToValueAtTime((grace ? 0.1 : small ? 0.16 : 0.22) * a, t + 0.002);
+  ng.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  src.connect(hp);
+  hp.connect(bp);
+  bp.connect(ng);
+  ng.connect(c.destination);
+  src.start(t);
+  src.stop(t + dur + 0.02);
+
+  const click = c.createOscillator();
+  const cg = c.createGain();
+  click.type = "square";
+  click.frequency.setValueAtTime(small ? 980 : 700, t);
+  cg.gain.setValueAtTime(0.0001, t);
+  cg.gain.exponentialRampToValueAtTime((grace ? 0.03 : 0.05) * a, t + 0.001);
+  cg.gain.exponentialRampToValueAtTime(0.0001, t + (grace ? 0.008 : 0.012));
+  click.connect(cg);
+  cg.connect(c.destination);
+  click.start(t);
+  click.stop(t + 0.02);
+}
+
 export function playStick(c, hand, t, accent, grace = false) {
-  const high = hand === "R";
-  const g = grace ? 0.055 : accent ? 0.18 : 0.1;
-  const d = grace ? 0.05 : accent ? 0.12 : 0.09;
-  tone(c, t, high ? 420 : 280, d, "triangle", g);
-  noiseHit(c, t, grace ? 0.035 : accent ? 0.08 : 0.05, grace ? 0.03 : accent ? 0.1 : 0.05, high ? 1800 : 900);
+  playSizedSnare(c, t, accent, grace, hand !== "R");
 }
 
 export function playSnare(c, t, accent = false, grace = false) {
