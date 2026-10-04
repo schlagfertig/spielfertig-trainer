@@ -6,6 +6,7 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 
 ## 04.10.2026
 
+- Rudiments: Hörmodus „L / R“ heißt jetzt „Tom / Snare“ – rechts 16er Floortom, links 14er Snare, Akzent nur lauter (src/lib/audio.js playStick/playFloorTom; aria-label DE/EN „rechts Floortom, links 14er Snare“ / “right hand floor tom, left hand 14-inch snare”) (43a5353, 553ecc9, 2f4d377, f5e150c); Rudiment-Info zeigt auf Englisch wieder den englischen Text (rudimentInfo mit getLang(), war in f5e150c entfallen)
 - Lexikon/Glossary: Eintrag „Schlagfertig“ heißt jetzt „Schlagfertig‽“ (DE/EN) und ist wie das Logo gestaltet – türkis (#5cc8b8), Titelschrift Oswald 600 (Bebas Neue des Logo-Schriftzugs hat keine Kleinbuchstaben), nicht in Versalien (Feld brand: true in src/lib/lexicon.js, Klasse .lex-brand in src/embedded/Lexicon.jsx); Text erklärt das Interrobang ‽ als Frage- und Ausrufezeichen zugleich („Bist du schon schlagfertig?“ / „Mach dich oder dein Schlagzeug schlagfertig!“, EN “Are you schlagfertig yet?” / “Get yourself or your drums schlagfertig!”); Suche „schlagfertig“ findet ihn weiter, Sortierung unter S
 
 ## 03.10.2026
