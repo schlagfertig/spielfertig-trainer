@@ -7,8 +7,12 @@ export const CHANGELOG = [
   {
     date: "2026-10-04",
     items: [
-      { de: "Lexikon: 23 Einträge haben jetzt Bilder – Notenwerte, Pausen und Teile des Drumsets. Antippen zeigt das Bild groß. Neu sind 8 Einträge: Ganze Note, Zweiunddreißigstel, Das Drumset, Hängetom, Standtom, Splash, Hardware und Hi-Hat-Maschine.",
-        en: "Glossary: 23 entries now have pictures – note values, rests and parts of the drum kit. Tap a picture to see it full size. 8 new entries: whole note, thirty-second note, the drum kit, rack tom, floor tom, splash, hardware and hi-hat stand." },
+      { de: "Neuigkeiten öffnest du jetzt mit dem „!“ unter dem „?“ – ein türkiser Punkt zeigt, wenn es etwas Neues gibt.",
+        en: "What’s new now opens with the “!” under the “?” – a teal dot shows when there is something new." },
+      { de: "Lexikon: 17 neue Begriffs-Bilder – Akzent, Backbeat, Four on the Floor, Offbeat, Ghost Note, Flam, Wirbel, Paradiddle, Triole, Cross Stick, Cowbell, Kessel, Fell, Spannreifen, Sticks und Besen, Mallets und Taktarten. Neue Einträge: Fell, Spannreifen, Sticks und Besen, Taktarten.",
+        en: "Glossary: 17 new term pictures – accent, backbeat, four on the floor, offbeat, ghost note, flam, roll, paradiddle, triplet, cross stick, cowbell, shell, drumhead, hoop, sticks and brushes, mallets and time signatures. New entries: drumhead, hoop, sticks and brushes, time signatures." },
+      { de: "Lexikon: 40 Einträge haben jetzt Bilder – Notenwerte, Pausen, Teile des Drumsets und Begriffsschilder. Antippen zeigt das Bild groß. Neu sind 8 Einträge: Ganze Note, Zweiunddreißigstel, Das Drumset, Hängetom, Standtom, Splash, Hardware und Hi-Hat-Maschine.",
+        en: "Glossary: 40 entries now have pictures – note values, rests, parts of the drum kit and term cards. Tap a picture to see it full size. 8 new entries: whole note, thirty-second note, the drum kit, rack tom, floor tom, splash, hardware and hi-hat stand." },
       { de: "Datenschutz: Erklärung aktualisiert (keine Google-Schriften mehr) und jetzt auch öffentlich im Web lesbar.",
         en: "Privacy: policy updated (no more Google fonts) and now also publicly readable on the web." },
       { de: "Schriften sind jetzt in der App eingebaut – schneller, offline nutzbar und ohne Verbindung zu Google.",
@@ -52,8 +56,6 @@ export const CHANGELOG = [
   {
     date: "2026-10-01",
     items: [
-      { de: "Startseite: Ein kurzer Hinweis oben zeigt einmalig, dass du unter „Neuigkeiten“ siehst, was sich in der App geändert hat.",
-        en: "Home screen: a short one-time notice at the top points out that “What’s new” shows what has changed in the app." },
       { de: "Startseite: Unten gibt es jetzt drei Knöpfe für WhatsApp, Instagram und E-Mail – so erreichst du mich direkt.",
         en: "Home screen: three buttons at the bottom for WhatsApp, Instagram and email – get in touch with me directly." },
       { de: "Hilfe auf der Startseite (?): Die Zeile zu Rudiments nutzt jetzt denselben Text wie die Kachel; bei Noten steht jetzt, dass du im Vollbild zoomen kannst.",
