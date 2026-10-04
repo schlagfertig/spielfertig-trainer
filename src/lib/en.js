@@ -213,6 +213,7 @@ export const EN = {
   "Ziel gehalten — weiter so.": "Goal reached — keep it up.",
   "Aktueller Schlag oben markiert · R blau · L rot": "Current beat marked on top · R blue · L red",
   "Nur Click": "Click only",
+  "rechts Floortom, links 14er Snare": "right hand floor tom, left hand 14-inch snare",
   // Noten (Archiv)
   "Tipp auf ein Blatt": "Tap a sheet",
   "Archiv auf diesem Gerät nicht verfügbar (privater Modus?).": "Storage isn’t available on this device (private mode?).",
