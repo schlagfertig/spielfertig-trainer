@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { LEXICON, searchLexicon } from "../src/lib/lexicon.js";
+import { LEXICON, searchLexicon, lexEntry } from "../src/lib/lexicon.js";
 import { RUDIMENT_INFO, rudimentInfo } from "../src/lib/rudimentInfo.js";
 
 const filled = (s) => typeof s === "string" && s.trim().length > 0;
@@ -47,5 +47,18 @@ test("keine Erwähnung von Stick Control oder Stone", () => {
     const s = readFileSync(new URL(`../${f}`, import.meta.url), "utf8");
     assert.ok(!/stick control/i.test(s), f);
     assert.ok(!/\bstone\b/i.test(s), f);
+  }
+});
+
+test("jeder Eintrag mit Bild hat Alt-Text auf Deutsch und Englisch", () => {
+  const withImg = LEXICON.filter((e) => e.img);
+  assert.ok(withImg.length >= 22);
+  for (const e of withImg) {
+    assert.ok(e.img.startsWith("/lexikon/") && e.img.endsWith(".webp"), e.id);
+    assert.ok(e.alt && e.alt.length > 3, e.id + " alt");
+    assert.ok(e.en?.alt && e.en.alt.length > 3, e.id + " en.alt");
+    assert.notEqual(e.en.alt, e.alt, e.id + " en.alt = de");
+    assert.equal(lexEntry(e, "en").alt, e.en.alt, e.id);
+    assert.equal(lexEntry(e, "de").alt, e.alt, e.id);
   }
 });
