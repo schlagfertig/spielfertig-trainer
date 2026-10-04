@@ -28,13 +28,17 @@ export default function Lexicon() {
         }
         .lex-empty { color: #8a969c; font: 600 14px Figtree, sans-serif; }
         .lex-item { border-bottom: 1px solid #2f383d; scroll-margin-top: 76px; }
-        .lex-item button {
-          width: 100%; text-align: left; background: none; border: 0; color: #f4f7f6;
-          padding: 14px 2px; font: 700 18px/1.2 Figtree, sans-serif;
-          display: flex; justify-content: space-between; gap: 12px;
+        .lex-details { color: #f4f7f6; }
+        .lex-details summary {
+          list-style: none; cursor: pointer; padding: 14px 28px 14px 2px; position: relative;
+          font: 700 18px/1.2 Figtree, sans-serif;
         }
-        .lex-item button span { color: #5cc8b8; font-size: 14px; }
-        .lex-item button .lex-brand { color: #5cc8b8; font: inherit; }
+        .lex-details summary::-webkit-details-marker { display: none; }
+        .lex-details summary::after {
+          content: "+"; position: absolute; right: 2px; top: 14px; color: #5cc8b8; font-size: 18px;
+        }
+        .lex-details[open] summary::after { content: "–"; }
+        .lex-details .lex-brand { color: #5cc8b8; }
         .lex-body { color: #d5dcde; font: 600 15px/1.45 Figtree, sans-serif; margin: 0 0 8px; }
         .lex-letter { color: #5cc8b8; font: 800 12px Figtree, sans-serif; letter-spacing: 0.14em; margin: 14px 0 0; }
         .lex-fig { margin: 0 0 14px; }
@@ -85,26 +89,22 @@ export default function Lexicon() {
       {list.map((e, i) => {
         const ch = e.term[0].toLocaleUpperCase(lang);
         const prev = i > 0 ? list[i - 1].term[0].toLocaleUpperCase(lang) : "";
-        const on = open === e.id;
         return (
           <div key={e.id} className="lex-item" id={ch !== prev ? `lex-${ch}` : undefined}>
             {ch !== prev ? <div className="lex-letter">{ch}</div> : null}
-            <button type="button" aria-expanded={on} onClick={() => setOpen(on ? "" : e.id)}>
-              {e.brand ? <span className="lex-brand">{e.term}</span> : e.term}
-              <span aria-hidden="true">{on ? "–" : "+"}</span>
-            </button>
-            {on ? (
-              <>
-                <p className="lex-body">{e.text}</p>
-                {e.img ? (
-                  <figure className="lex-fig">
-                    <button type="button" onClick={() => setZoom({ src: e.img, alt: e.alt || e.term })} aria-label={e.alt || e.term}>
-                      <img src={e.img} alt={e.alt || e.term} loading="lazy" decoding="async" />
-                    </button>
-                  </figure>
-                ) : null}
-              </>
-            ) : null}
+            <details className="lex-details">
+              <summary>
+                {e.brand ? <span className="lex-brand">{e.term}</span> : e.term}
+              </summary>
+              <p className="lex-body">{e.text}</p>
+              {e.img ? (
+                <figure className="lex-fig">
+                  <button type="button" onClick={() => setZoom({ src: e.img, alt: e.alt || e.term })} aria-label={e.alt || e.term}>
+                    <img src={e.img} alt={e.alt || e.term} loading="lazy" decoding="async" />
+                  </button>
+                </figure>
+              ) : null}
+            </details>
           </div>
         );
       })}
