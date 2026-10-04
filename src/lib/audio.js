@@ -94,58 +94,29 @@ export function playMetronome(c, downbeat, t) {
   playClick(c, t, downbeat);
 }
 
-/* L/R: zwei Snares. R = 14x6,5 (tiefer, länger), L = 12x5 (höher, kürzer). Akzent nur lauter. */
-function playSizedSnare(c, t, accent, grace, small) {
-  const a = grace ? 0.4 : accent ? 1.7 : 1;
-  const dur = grace ? 0.036 : small ? (accent ? 0.09 : 0.062) : (accent ? 0.14 : 0.1);
+/* L/R: rechts 16er Floortom, links 14er Snare. Akzent nur lauter. */
+function playFloorTom(c, t, accent, grace) {
+  const a = grace ? 0.45 : accent ? 1.65 : 1;
+  const dur = grace ? 0.05 : accent ? 0.2 : 0.15;
   const body = c.createOscillator();
   const bg = c.createGain();
-  body.type = "triangle";
-  body.frequency.setValueAtTime(grace ? (small ? 280 : 210) : (small ? 248 : 178), t);
-  body.frequency.exponentialRampToValueAtTime(small ? 156 : 104, t + (grace ? 0.026 : 0.05));
+  body.type = "sine";
+  body.frequency.setValueAtTime(grace ? 128 : 104, t);
+  body.frequency.exponentialRampToValueAtTime(78, t + (grace ? 0.04 : 0.09));
   bg.gain.setValueAtTime(0.0001, t);
-  bg.gain.exponentialRampToValueAtTime((small ? 0.12 : 0.17) * a, t + 0.003);
+  bg.gain.exponentialRampToValueAtTime(0.28 * a, t + 0.004);
   bg.gain.exponentialRampToValueAtTime(0.0001, t + dur);
   body.connect(bg);
   bg.connect(c.destination);
   body.start(t);
   body.stop(t + dur + 0.02);
-
-  const src = c.createBufferSource();
-  src.buffer = warmNoise(c);
-  const hp = c.createBiquadFilter();
-  hp.type = "highpass";
-  hp.frequency.value = small ? 1400 : 720;
-  const bp = c.createBiquadFilter();
-  bp.type = "bandpass";
-  bp.frequency.value = small ? 3600 : 2400;
-  bp.Q.value = small ? 1.05 : 0.7;
-  const ng = c.createGain();
-  ng.gain.setValueAtTime(0.0001, t);
-  ng.gain.exponentialRampToValueAtTime((grace ? 0.1 : small ? 0.16 : 0.22) * a, t + 0.002);
-  ng.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  src.connect(hp);
-  hp.connect(bp);
-  bp.connect(ng);
-  ng.connect(c.destination);
-  src.start(t);
-  src.stop(t + dur + 0.02);
-
-  const click = c.createOscillator();
-  const cg = c.createGain();
-  click.type = "square";
-  click.frequency.setValueAtTime(small ? 980 : 700, t);
-  cg.gain.setValueAtTime(0.0001, t);
-  cg.gain.exponentialRampToValueAtTime((grace ? 0.03 : 0.05) * a, t + 0.001);
-  cg.gain.exponentialRampToValueAtTime(0.0001, t + (grace ? 0.008 : 0.012));
-  click.connect(cg);
-  cg.connect(c.destination);
-  click.start(t);
-  click.stop(t + 0.02);
+  tone(c, t, grace ? 180 : 146, grace ? 0.04 : 0.08, "triangle", 0.06 * a);
+  noiseHit(c, t, grace ? 0.02 : 0.035, 0.04 * a, 900);
 }
 
 export function playStick(c, hand, t, accent, grace = false) {
-  playSizedSnare(c, t, accent, grace, hand !== "R");
+  if (hand === "R") playFloorTom(c, t, accent, grace);
+  else playSnare(c, t, accent, grace);
 }
 
 export function playSnare(c, t, accent = false, grace = false) {
