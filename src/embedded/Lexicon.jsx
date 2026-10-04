@@ -34,6 +34,7 @@ export default function Lexicon() {
           display: flex; justify-content: space-between; gap: 12px;
         }
         .lex-item button span { color: #5cc8b8; font-size: 14px; }
+        .lex-item button .lex-brand { color: #5cc8b8; font: 600 20px/1.2 Oswald, sans-serif; letter-spacing: 0.02em; }
         .lex-body { color: #d5dcde; font: 600 15px/1.45 Figtree, sans-serif; margin: 0 0 14px; }
         .lex-letter { color: #5cc8b8; font: 800 12px Figtree, sans-serif; letter-spacing: 0.14em; margin: 14px 0 0; }
       `}</style>
@@ -70,7 +71,7 @@ export default function Lexicon() {
           <div key={e.id} className="lex-item" id={ch !== prev ? `lex-${ch}` : undefined}>
             {ch !== prev ? <div className="lex-letter">{ch}</div> : null}
             <button type="button" aria-expanded={on} onClick={() => setOpen(on ? "" : e.id)}>
-              {e.term}
+              {e.brand ? <span className="lex-brand">{e.term}</span> : e.term}
               <span aria-hidden="true">{on ? "–" : "+"}</span>
             </button>
             {on ? <p className="lex-body">{e.text}</p> : null}
