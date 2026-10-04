@@ -98,6 +98,22 @@ test("middleware", async (t) => {
     assert.equal(await middleware(req("/favicon.svg")), undefined);
   });
 
+  await t.test("/datenschutz.html und /privacy.html ohne Cookie frei, App bleibt gesperrt", async () => {
+    assert.equal(await middleware(req("/datenschutz.html")), undefined);
+    assert.equal(await middleware(req("/privacy.html")), undefined);
+    for (const p of ["/", "/datenschutz", "/privacy", "/datenschutz.htm", "/x/datenschutz.html"]) {
+      const html = await (await middleware(req(p))).text();
+      assert.match(html, /name="zugang"/, p);
+    }
+    assert.equal((await middleware(req("/assets/index-abc.js"))).status, 401);
+  });
+
+  await t.test("Sperrseite verlinkt die öffentliche Datenschutzseite", async () => {
+    const html = await (await middleware(req("/"))).text();
+    assert.match(html, /href="\/datenschutz\.html"/);
+    assert.match(html, /href="\/privacy\.html"/);
+  });
+
   await t.test("gültiger ?zugang= setzt Cookie und leitet auf saubere URL", async () => {
     const r = await middleware(req(`/datenschutz?x=1&zugang=${good}`));
     assert.equal(r.status, 302);
