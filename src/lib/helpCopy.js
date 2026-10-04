@@ -13,7 +13,7 @@ export const HELP = {
     ["Radius", "Innen grob, außen fein, auch über den Ring hinaus. −5/+5 daneben."],
     ["Nav unten", "‹ › tippen = vor/zurück. Wischen springt mehrere. Halten öffnet das Zahlenrad."],
     ["Titel", "‚Rudiment wählen‘ + ▾ öffnet die komplette Liste."],
-    ["Hören", "Snare, L/R oder Nur Click — Umschalter über dem Kreis."],
+    ["Hören", "Snare, Tom / Snare oder Nur Click — Umschalter über dem Kreis."],
   ],
   click: [
     ["Kreis", "Tippen = Start/Stop. Am Rand drehen: rechtsrum schneller."],
