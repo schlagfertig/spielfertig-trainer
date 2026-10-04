@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { CHANGELOG, CHANGELOG_LATEST } from "./changelog.js";
 import { fmtDate, getLang, t } from "./i18n.js";
 import { loadSession, saveSession } from "./session.js";
@@ -46,6 +47,48 @@ export function NewsHint({ onView, onLater }) {
 function dayDate(iso) {
   const [y, m, d] = iso.split("-").map(Number);
   return new Date(y, m - 1, d, 12);
+}
+
+export function NewsButton() {
+  const [open, setOpen] = useState(false);
+  const [unseen, setUnseen] = useState(hasUnseenNews);
+  const en = getLang() === "en";
+  function show() {
+    setOpen(true);
+    markNewsSeen();
+    setUnseen(false);
+  }
+  const sheet = open ? createPortal(
+    <div className="modal help-modal" onClick={() => setOpen(false)} role="dialog" aria-modal="true" aria-label={t("Neuigkeiten")}>
+      <div className="modal-card help-card news-card" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-head">
+          {t("Neuigkeiten")}
+          <button type="button" className="news-x" onClick={() => setOpen(false)} aria-label={t("Schließen")}>×</button>
+        </div>
+        <div className="news-scroll" lang={en ? "en" : "de"}>
+          <p className="news-lead">{t("Was sich in der App geändert hat – das Neueste zuerst.")}</p>
+          {CHANGELOG.map((day) => (
+            <section className="news-day" key={day.date}>
+              <h2><time dateTime={day.date}>{fmtDate(dayDate(day.date))}</time></h2>
+              <ul className="news-list">
+                {day.items.map((it, i) => <li key={i}>{en ? it.en : it.de}</li>)}
+              </ul>
+            </section>
+          ))}
+        </div>
+      </div>
+    </div>,
+    document.body,
+  ) : null;
+  return (
+    <>
+      <button type="button" className="help-dot news-bang" onClick={show} aria-label={t("Neuigkeiten")}>
+        !
+        {unseen ? <span className="news-bang-dot" aria-hidden="true" /> : null}
+      </button>
+      {sheet}
+    </>
+  );
 }
 
 export default function News() {
