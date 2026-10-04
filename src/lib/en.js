@@ -98,7 +98,7 @@ export const EN = {
   "Titel": "Title",
   "‚Rudiment wählen‘ + ▾ öffnet die komplette Liste.": "‘Choose rudiment’ + ▾ opens the full list.",
   "Hören": "Sound",
-  "Snare, L/R oder Nur Click — Umschalter über dem Kreis.": "Snare, L/R or click only — switch above the dial.",
+  "Snare, Tom / Snare oder Nur Click — Umschalter über dem Kreis.": "Snare, Tom / Snare or click only — switch above the dial.",
   "Erweitert": "Advanced",
   "‚Erweitert‘ unter dem Kreis öffnet den Click-Mixer von unten. Mixer für Viertel, Offbeat, 16tel, Triolen, Beat und Master. Der Click läuft dabei weiter.": "‘Advanced’ below the dial opens the click mixer from the bottom. Mixer for quarters, offbeats, 16ths, triplets, beat and master. The click keeps running.",
   "Tippen = Start/Stop. Am Rand drehen: rechtsrum schneller.": "Tap = start/stop. Turn at the edge: clockwise = faster.",
