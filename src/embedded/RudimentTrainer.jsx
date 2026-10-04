@@ -332,7 +332,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
             <div className="rud-hear" style={{ display: "flex", justifyContent: "center", marginBottom: 4 }}>
               <div className="seg">
                 <button type="button" className={hear === "snare" ? "on" : ""} onClick={() => setHear("snare")}>Snare</button>
-                <button type="button" className={hear === "hands" ? "on" : ""} onClick={() => setHear("hands")} aria-label="14 Zoll rechts, 12 Zoll links">14 / 12</button>
+                <button type="button" className={hear === "hands" ? "on" : ""} onClick={() => setHear("hands")} aria-label="rechts Floortom, links 14er Snare">Tom / Snare</button>
                 <button type="button" className={hear === "click" ? "on" : ""} onClick={() => setHear("click")}>{t("Nur Click")}</button>
               </div>
             </div>
