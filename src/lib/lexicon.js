@@ -496,6 +496,15 @@ export const LEXICON = [
     alt: "Sticks und Besen",
     text: "Sticks sind die normalen Trommelstöcke. Besen sind fächerartige Draht- oder Nylonbüschel und klingen leiser und weicher, oft im leisen Jazz. Beide hält man in den Händen, der Anschlag ist nur anders.",
     en: { term: "Sticks and brushes", alt: "Sticks and brushes", text: "Sticks are the ordinary drumsticks. Brushes are fan-shaped bundles of wire or nylon and sound quieter and softer, often in quiet jazz. You hold both in your hands; only the attack is different." },
+  },,
+
+  {
+    id: "taktarten",
+    term: "Taktarten",
+    img: "/lexikon/begriffe/taktarten.webp",
+    alt: "Taktarten",
+    text: "Die Taktart sagt, wie viele Schläge in einen Takt passen. 4/4 hat vier Viertel, 2/4 hat zwei Viertel. 6/8 hat sechs Achtel, meist als zwei Gruppen zu drei.",
+    en: { term: "Time signatures", alt: "Time signatures", text: "The time signature says how many beats fit in a bar. 4/4 has four quarter notes, 2/4 has two quarter notes. 6/8 has six eighth notes, usually as two groups of three." },
   },
 ];
 
