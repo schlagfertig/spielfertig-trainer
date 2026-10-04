@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-10-04",
     items: [
+      { de: "Schriften sind jetzt in der App eingebaut – schneller, offline nutzbar und ohne Verbindung zu Google.",
+        en: "Fonts are now built into the app – faster, works offline and no connection to Google." },
       { de: "Rudiments: Hörmodus „Tom / Snare“ – rechts Floortom, links Snare (statt L / R).",
         en: "Rudiments: new sound mode “Tom / Snare” – right hand floor tom, left hand snare (replaces L / R)." },
       { de: "Lexikon: Der Eintrag „Schlagfertig‽“ sieht jetzt aus wie im Logo – türkis und mit ‽. Neu erklärt: das ‽ ist Frage- und Ausrufezeichen zugleich.",
