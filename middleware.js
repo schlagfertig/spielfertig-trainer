@@ -38,6 +38,10 @@ function cleanLang(raw) {
   return raw === "de" || raw === "en" ? raw : "";
 }
 
+// Persönliche Begrüßung für einzelne Kürzel (privat, kein allgemeines Feature). Nur nach gültigem,
+// signiertem Link; das lesbare Cookie sf_gruss enthält weder Token noch Kürzel, gewährt keinen Zugang.
+const GRUSS = { claudi: "schatz" };
+
 function lock(state) {
   return new Response(lockPage(state), {
     status: 200,
@@ -67,6 +71,7 @@ export default async function middleware(request) {
     headers.append("set-cookie", `${COOKIE}=${token}; ${attrs}; HttpOnly`);
     if (name) headers.append("set-cookie", `sf_name=${encodeURIComponent(name)}; ${attrs}`);
     if (lang) headers.append("set-cookie", `sf_lang=${lang}; ${attrs}`);
+    if (Object.hasOwn(GRUSS, r.id)) headers.append("set-cookie", `sf_gruss=${GRUSS[r.id]}; ${attrs}`);
     return new Response(null, { status: 302, headers });
   }
 
