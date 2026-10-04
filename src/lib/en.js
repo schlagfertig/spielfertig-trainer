@@ -80,6 +80,7 @@ export const EN = {
   // Begrüßung
   "Willkommen bei Schlagfertig Control! 🥁": "Welcome to Schlagfertig Control! 🥁",
   "Hallo {name}, willkommen bei Schlagfertig Control! 🥁": "Hi {name}, welcome to Schlagfertig Control! 🥁",
+  "Hallo mein Schatz! ❤️": "Hi my darling! ❤️",
   "Schön, dass du dabei bist und die App testest. Starte am besten mit „Erste Übung“ – das dauert nur eine Minute. Über das „?“ oben rechts findest du überall Hilfe. Ich freue mich über jede Rückmeldung!": "Great to have you here testing the app. Tap “Start your first lesson” – it only takes a minute. Tap “?” at the top right for help anywhere. I'd love to hear your feedback!",
   "Los geht's": "Let's go",
   "40 Grundlagen für Technik, Kontrolle und Timing. Mit Notation, Click und Tempo.": "40 essentials for technique, control and timing. With notation, click and tempo.",
