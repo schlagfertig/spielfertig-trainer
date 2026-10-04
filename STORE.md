@@ -29,14 +29,14 @@ Oder getrennt: `npm run cap:sync` und danach Xcode / Android Studio öffnen.
 - Apple-Developer-Konto (99 €/Jahr); gebaut wird per Cloud-Build (siehe unten), kein eigener Mac nötig
 - Bundle-ID: `de.schlagfertig.trainer` (in Apple Developer anlegen)
 - Signing: Dein Team in Xcode wählen
-- Icons: `ios/App/App/Assets.xcassets/AppIcon.appiconset`
+- Icons/Splash: aus `assets/` erzeugt (siehe „Icons und Splash im Cloud-Build“)
 - Archive → TestFlight → Review
 
 Apple lehnt oft „nur eine Website“ ab. Dagegen: Offline (gebündeltes `dist`), Home-Icon, Statusleiste, später Haptik/Push.
 
 ## Android → Play Store
 
-- Google-Play-Konto (~25 $ einmalig)
+- Google-Play-Konto (~25 $ einmalig)
 - Application ID: `de.schlagfertig.trainer`
 - In Android Studio: Build → Generate Signed Bundle (.aab)
 - Play Console, Altersfreigabe 13+
@@ -67,5 +67,22 @@ Konfiguration liegt in `capacitor.config.json` (JSON statt TS, damit die Capacit
 ## Plugins schon vorbereitet
 
 - `@capacitor/status-bar` — dunkle Leiste, startet in `src/lib/native.js`
-- `@capacitor/haptics` — `tapHaptic()` z. B. am Metronom-Tick
+- `@capacitor/haptics` — `tapHaptic()` z. B. am Metronom-Tick
 - `@capacitor/app` — App-Lifecycle
+
+## Icons und Splash im Cloud-Build
+
+Quellen liegen in `assets/`: Logo (`public/logo.svg`) mit „CONTROL“ darunter in Teal `#5cc8b8`, Schrift wie auf dem Startbildschirm (Bebas Neue aus `src/fonts/`, Sperrung .22em):
+
+- `assets/icon-only.png` – 1024×1024, ohne Alphakanal, sRGB, Hintergrund `#161a1d`, ~95 px Rand (iOS rundet die Ecken selbst ab)
+- `assets/splash.png`, `assets/splash-dark.png` – 2732×2732, Logo + CONTROL mittig (1100×1148 px, innerhalb der 1200-px-Safe-Area), Hintergrund `#161a1d`
+
+Im Workflow nach `npx cap add ios` / `npx cap sync ios`:
+
+```bash
+npx @capacitor/assets generate --ios
+```
+
+Kein Eintrag in `package.json` nötig (läuft per `npx`). Das schreibt `AppIcon.appiconset` und `Splash.imageset` in `ios/App`.
+
+Wichtig: Die Datei muss `icon-only.png` heißen. Ein `assets/icon.png` oder `assets/logo.png` behandelt das Tool als Logo („Easy Mode“) und baut daraus eigene Splashes auf weißem Grund. Für Android später zusätzlich `icon-foreground.png` + `icon-background.png` (adaptive Icons) anlegen, dann `--android`.
