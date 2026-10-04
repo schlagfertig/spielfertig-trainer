@@ -62,3 +62,9 @@ test("jeder Eintrag mit Bild hat Alt-Text auf Deutsch und Englisch", () => {
     assert.equal(lexEntry(e, "de").alt, e.alt, e.id);
   }
 });
+
+test("jede Bilddatei eines Lexikon-Eintrags liegt in public/", () => {
+  for (const e of LEXICON.filter((x) => x.img)) {
+    assert.doesNotThrow(() => readFileSync(new URL(`../public${e.img}`, import.meta.url)), e.id + " " + e.img);
+  }
+});
