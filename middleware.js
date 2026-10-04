@@ -7,7 +7,11 @@ export const config = { runtime: "nodejs" };
 
 const COOKIE = "sf_zugang";
 // Ohne Zugang abrufbar: Icons und Manifest (Browser/iOS laden sie ohne Cookies)
-const FREI = new Set(["/logo.svg", "/favicon.svg", "/app-icon.svg", "/manifest.webmanifest"]);
+// sowie die statische Datenschutzseite (App-Store-Link). Die SPA-Route /datenschutz bleibt gesperrt.
+const FREI = new Set([
+  "/logo.svg", "/favicon.svg", "/app-icon.svg", "/manifest.webmanifest",
+  "/datenschutz.html", "/privacy.html",
+]);
 
 function cookieValue(request) {
   const m = (request.headers.get("cookie") || "").match(/(?:^|;\s*)sf_zugang=([^;]*)/);
