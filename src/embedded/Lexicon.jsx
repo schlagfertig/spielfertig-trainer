@@ -4,7 +4,7 @@ import { t, getLang } from "../lib/i18n.js";
 
 export default function Lexicon() {
   const [q, setQ] = useState("");
-  const [open, setOpen] = useState("");
+  const [zoom, setZoom] = useState(null);
   const lang = getLang();
   const list = useMemo(() => searchLexicon(q, lang), [q, lang]);
   const letters = useMemo(() => [...new Set(list.map((e) => e.term[0].toLocaleUpperCase(lang)))], [list, lang]);
@@ -35,8 +35,21 @@ export default function Lexicon() {
         }
         .lex-item button span { color: #5cc8b8; font-size: 14px; }
         .lex-item button .lex-brand { color: #5cc8b8; font: inherit; }
-        .lex-body { color: #d5dcde; font: 600 15px/1.45 Figtree, sans-serif; margin: 0 0 14px; }
+        .lex-body { color: #d5dcde; font: 600 15px/1.45 Figtree, sans-serif; margin: 0 0 8px; }
         .lex-letter { color: #5cc8b8; font: 800 12px Figtree, sans-serif; letter-spacing: 0.14em; margin: 14px 0 0; }
+        .lex-fig { margin: 0 0 14px; }
+        .lex-fig button { display: block; width: 100%; padding: 0; border: 0; background: none; border-radius: 12px; overflow: hidden; }
+        .lex-fig img { display: block; width: 100%; height: auto; border-radius: 12px; background: #101416; }
+        .lex-zoom {
+          position: fixed; inset: 0; z-index: 40; display: grid; place-items: center;
+          background: rgba(8, 10, 12, 0.88); padding: 18px;
+        }
+        .lex-zoom img { max-width: 100%; max-height: 86dvh; width: auto; height: auto; border-radius: 12px; }
+        .lex-zoom button {
+          position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); right: 12px;
+          border: 1px solid #5cc8b8; background: #14191c; color: #f4f7f6;
+          border-radius: 999px; padding: 8px 14px; font: 800 14px Figtree, sans-serif;
+        }
       `}</style>
       <p className="lex-lead">{t("Kurze Erklärungen zum Nachschlagen. Kein Geschichtsbuch.")}</p>
       <input
@@ -63,6 +76,12 @@ export default function Lexicon() {
         </nav>
       ) : null}
       {list.length === 0 ? <p className="lex-empty">{t("Kein Treffer.")}</p> : null}
+      {zoom ? (
+        <div className="lex-zoom" role="dialog" aria-modal="true" aria-label={zoom.alt} onClick={() => setZoom(null)}>
+          <button type="button" onClick={() => setZoom(null)}>{t("Schließen")}</button>
+          <img src={zoom.src} alt={zoom.alt} />
+        </div>
+      ) : null}
       {list.map((e, i) => {
         const ch = e.term[0].toLocaleUpperCase(lang);
         const prev = i > 0 ? list[i - 1].term[0].toLocaleUpperCase(lang) : "";
@@ -74,7 +93,18 @@ export default function Lexicon() {
               {e.brand ? <span className="lex-brand">{e.term}</span> : e.term}
               <span aria-hidden="true">{on ? "–" : "+"}</span>
             </button>
-            {on ? <p className="lex-body">{e.text}</p> : null}
+            {on ? (
+              <>
+                <p className="lex-body">{e.text}</p>
+                {e.img ? (
+                  <figure className="lex-fig">
+                    <button type="button" onClick={() => setZoom({ src: e.img, alt: e.alt || e.term })} aria-label={e.alt || e.term}>
+                      <img src={e.img} alt={e.alt || e.term} loading="lazy" decoding="async" />
+                    </button>
+                  </figure>
+                ) : null}
+              </>
+            ) : null}
           </div>
         );
       })}
