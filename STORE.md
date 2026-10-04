@@ -36,7 +36,7 @@ Apple lehnt oft „nur eine Website“ ab. Dagegen: Offline (gebündeltes `dist`
 
 ## Android → Play Store
 
-- Google-Play-Konto (~25 $ einmalig)
+- Google-Play-Konto (~25 $ einmalig)
 - Application ID: `de.schlagfertig.trainer`
 - In Android Studio: Build → Generate Signed Bundle (.aab)
 - Play Console, Altersfreigabe 13+
@@ -67,7 +67,7 @@ Konfiguration liegt in `capacitor.config.json` (JSON statt TS, damit die Capacit
 ## Plugins schon vorbereitet
 
 - `@capacitor/status-bar` — dunkle Leiste, startet in `src/lib/native.js`
-- `@capacitor/haptics` — `tapHaptic()` z. B. am Metronom-Tick
+- `@capacitor/haptics` — `tapHaptic()` z. B. am Metronom-Tick
 - `@capacitor/app` — App-Lifecycle
 
 ## Icons und Splash im Cloud-Build
