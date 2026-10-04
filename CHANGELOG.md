@@ -4,6 +4,10 @@ Alle für Nutzer sichtbaren Änderungen, nach Datum gruppiert (neueste zuerst).
 Kleine Fix-Commits sind dem jeweiligen Feature zugeordnet; reine Technik (Build-Fixes,
 Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SHA).
 
+## 04.10.2026
+
+- Lexikon/Glossary: Eintrag „Schlagfertig“ heißt jetzt „Schlagfertig‽“ (DE/EN) und ist wie das Logo gestaltet – türkis (#5cc8b8), Titelschrift Oswald 600 (Bebas Neue des Logo-Schriftzugs hat keine Kleinbuchstaben), nicht in Versalien (Feld brand: true in src/lib/lexicon.js, Klasse .lex-brand in src/embedded/Lexicon.jsx); Text erklärt das Interrobang ‽ als Frage- und Ausrufezeichen zugleich („Bist du schon schlagfertig?“ / „Mach dich oder dein Schlagzeug schlagfertig!“, EN “Are you schlagfertig yet?” / “Get yourself or your drums schlagfertig!”); Suche „schlagfertig“ findet ihn weiter, Sortierung unter S
+
 ## 03.10.2026
 
 - Startseite: Karten (Modul-Kacheln, „Erste Übung starten“, „Heute“) deutlich durchsichtiger, das Logo scheint durch – Glasstufe „deutlich“ (Standard): Deckkraft 0.46 → 0.22, Blur 16 → 9 px, Sättigung 150 %, kräftigerer Textschatten (Titel, Text, Heute); Alternative „leicht“ (0.34, 13 px) per data-glass="leicht" an .page.home; CSS-Variablen --home-card-a/--home-card-blur/--home-card-sat in src/styles-glass.css; deckender Hintergrund ohne backdrop-filter (#1c2428) und andere Seiten unverändert
