@@ -1,0 +1,20 @@
+{
+  "appId": "de.schlagfertig.trainer",
+  "appName": "Schlagfertig Control",
+  "webDir": "dist",
+  "backgroundColor": "#161a1d",
+  "ios": {
+    "contentInset": "automatic",
+    "preferredContentMode": "mobile"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#161a1d"
+  },
+  "plugins": {
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#161a1d"
+    }
+  }
+}
