@@ -7,7 +7,7 @@ import { loadSession, saveSession } from "../lib/session.js";
 import { NavScrub } from "../lib/NavScrub.jsx";
 import { PrintDialog } from "./PrintDialog.jsx";
 import { rudimentInfo } from "../lib/rudimentInfo.js";
-import { t, getLang } from "../lib/i18n.js";
+import { t } from "../lib/i18n.js";
 
 const HEAR_OK = ["snare", "hands", "click"];
 const GOALS = [
@@ -332,7 +332,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
             <div className="rud-hear" style={{ display: "flex", justifyContent: "center", marginBottom: 4 }}>
               <div className="seg">
                 <button type="button" className={hear === "snare" ? "on" : ""} onClick={() => setHear("snare")}>Snare</button>
-                <button type="button" className={hear === "hands" ? "on" : ""} onClick={() => setHear("hands")}>L / R</button>
+                <button type="button" className={hear === "hands" ? "on" : ""} onClick={() => setHear("hands")} aria-label="14 Zoll rechts, 12 Zoll links">14 / 12</button>
                 <button type="button" className={hear === "click" ? "on" : ""} onClick={() => setHear("click")}>{t("Nur Click")}</button>
               </div>
             </div>
@@ -361,7 +361,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
 }
 
 function RudimentBack({ rud }) {
-  const info = rudimentInfo(rud.id, getLang());
+  const info = rudimentInfo(rud.id);
   if (!info) return <div className="rud-back"><p>{t("Zu diesem Rudiment liegt noch keine Info.")}</p></div>;
   return (
     <div className="rud-back">
