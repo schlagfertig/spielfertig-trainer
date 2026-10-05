@@ -40,9 +40,13 @@ export function BeatGlyph({ per, tuplet, on, rests = [], accent = false, below =
       {single && n > 1 ? Array.from({ length: beams }, (_, b) => (
         <path key={b} d={`M ${notes[0] + 1.6} ${3.5 + b * 3} C ${notes[0] + 9} ${5 + b * 3}, ${notes[0] + 9} ${12 + b * 3}, ${notes[0] + 2.6} ${14 + b * 3}`} fill="none" stroke={ink} strokeWidth="1.1" />
       )) : null}
-      {!single ? Array.from({ length: beams }, (_, b) => (
-        <line key={b} x1={notes[0] + 1.4} y1={top + b * 2.1} x2={notes[notes.length - 1] + 1.4} y2={top + b * 2.1} stroke={ink} strokeWidth={b === 0 ? 2 : 1.4} />
-      )) : null}
+      {!single ? Array.from({ length: beams }, (_, b) => {
+        const bw = b === 0 ? 2.2 : 1.6;
+        const y = top + b * 2.2;
+        const x1 = notes[0] + 0.6;
+        const x2 = notes[notes.length - 1] + 2.2;
+        return <path key={b} d={`M ${x1} ${y - bw / 2} L ${x2} ${y - bw / 2} L ${x2} ${y + bw / 2} L ${x1} ${y + bw / 2} Z`} fill={ink} stroke="none" />;
+      }) : null}
       {tuplet ? (
         <text x={w / 2} y={2.5} textAnchor="middle" fill={ink} fontFamily="Figtree, sans-serif" fontSize="7.5" fontWeight="800">{tuplet}</text>
       ) : null}
