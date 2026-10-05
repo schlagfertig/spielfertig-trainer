@@ -1,7 +1,7 @@
 const INK = "#161a1d";
 const GOLD = "#e8b84b";
-const RCOL = "#5c8ee0";
-const LCOL = "#e05c5c";
+const RCOL = "#8a969c";
+const LCOL = "#5cc8b8";
 
 const HEAD_RX = 6.2;
 const HEAD_RY = 4.05;
