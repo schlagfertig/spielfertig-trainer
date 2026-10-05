@@ -7,8 +7,10 @@ import { TERNARY_ENABLED, TRI_LEN, triHands, triNotes } from "../lib/handTernary
 
 const DIM = "#8a969c";
 const TEAL = "#5cc8b8";
-const INK = "#f4f7f6";
-const LINE = "#3a444c";
+const INK = "#161a1d";
+const LINE = "#2a3338";
+const RCOL = "#5c8ee0";
+const LCOL = "#e05c5c";
 const GOLD = "#e8b84b";
 const CELL_STEPS = 32;
 const INNER = 13;
@@ -113,7 +115,7 @@ function Phrase({ id, hands, playT, ternary }) {
       })}
       {Array.from({ length: groups }, (_, g) => (
         <g key={g}>
-          <line x1={xs[g * gSize] + stem} y1={top} x2={xs[g * gSize + gSize - 1] + stem} y2={top} stroke={INK} strokeWidth="3" strokeLinecap="butt" />
+          <path d={`M ${xs[g * gSize] + stem - 0.8} ${top - 1.6} L ${xs[g * gSize + gSize - 1] + stem + 0.8} ${top - 1.6} L ${xs[g * gSize + gSize - 1] + stem + 0.8} ${top + 1.6} L ${xs[g * gSize] + stem - 0.8} ${top + 1.6} Z`} fill={INK} />
           {ternary ? (
             <text x={(xs[g * 3] + xs[g * 3 + 2]) / 2 + stem} y={top - 3} textAnchor="middle" fill={INK} fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="11">3</text>
           ) : null}
@@ -121,7 +123,7 @@ function Phrase({ id, hands, playT, ternary }) {
       ))}
       <text x="6" y={hy} fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="16">{id}.</text>
       {letters.map((ch, i) => (
-        <text key={i} x={xs[i]} y={hy} textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="16" fill={i === active ? GOLD : INK}>{ch}</text>
+        <text key={i} x={xs[i]} y={hy} textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="16" fill={i === active ? GOLD : ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>{ch}</text>
       ))}
     </svg>
   );
@@ -452,12 +454,7 @@ export default function StickControl({ preset = null } = {}) {
           height: calc(var(--rud-dock) + var(--rud-foot) + 88px);
           background: linear-gradient(to bottom, rgba(22,26,29,0) 0%, rgba(22,26,29,.35) 28%, rgba(22,26,29,.82) 62%, #161a1d 88%);
         }
-        .stick-card.stick-run { background: linear-gradient(rgba(92,200,184,.8), rgba(92,200,184,.8)), #14191c !important; }
-        .stick-run :is([fill="${INK}"], [fill="${TEAL}"]) { fill: #161a1d; }
-        .stick-run [stroke="${INK}"] { stroke: #161a1d; }
-        .stick-run [fill="${GOLD}"] { fill: #fff; }
-        .stick-run [stroke="${GOLD}"] { stroke: #fff; }
-        .stick-run [stroke="${LINE}"] { stroke: #5d6a70; }
+        .stick-card.stick-run { box-shadow: inset 0 0 0 2px #5cc8b8; }
         .stick-pin {
           position: sticky;
           top: var(--stick-top, 0px);
@@ -660,7 +657,7 @@ export default function StickControl({ preset = null } = {}) {
             {playing ? "Stop" : "Click"}
           </button>
         </div>
-        <div className={playing ? "stick-card stick-run" : "stick-card"} style={{ background: "#14191c", border: `1.5px solid ${TEAL}`, borderRadius: 16, padding: "12px 8px 8px" }}>
+        <div className={playing ? "stick-card stick-run staff-card" : "stick-card staff-card"} style={{ background: "#fff", color: "#161a1d", border: "1px solid #d7e0e2", borderRadius: 16, padding: "12px 8px 8px" }}>
           <Phrase id={ex.id} hands={ex.hands} playT={counting ? -1 : playT} ternary={ternary} />
         </div>
       </div>
