@@ -277,7 +277,7 @@ export default function PyramidTrainer({ preset = null } = {}) {
             <BeatGlyph per={cur.perBeat} tuplet={cur.tuplet} />
             <span className="pyr-pair-name">{t(cur.label)}</span>
           </div>
-          <span className="pyr-pair-arrow" aria-hidden="true">↓</span>
+          <span className="pyr-pair-arrow" aria-hidden="true">→</span>
           <div className="pyr-pair-card" aria-hidden="true">
             <span className="pyr-pair-kick">{nextStage ? t("Als Nächstes") : t("Letzte Stufe")}</span>
             {nextStage ? <BeatGlyph per={nextStage.perBeat} tuplet={nextStage.tuplet} /> : <span className="pyr-pair-name">{t("danach fertig")}</span>}
@@ -340,15 +340,15 @@ export default function PyramidTrainer({ preset = null } = {}) {
         .pyr-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
         .pyr-steps .chip { min-height: 52px; padding: 6px 4px; display: flex; align-items: center; justify-content: center; }
         .pyr-steps svg { width: 100%; max-width: 64px; height: auto; }
-        .pyr-pair { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 12px; color: #161a1d; }
-        .pyr-pair-card { width: min(100%, 280px); background: #fff; border-radius: 12px; border: 1px solid #e1e6e8; padding: 10px 14px 12px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        .pyr-pair-card svg { width: 132px; height: 62px; }
+        .pyr-pair { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: stretch; gap: 8px; margin-top: 12px; color: #161a1d; }
+        .pyr-pair-card { min-height: 112px; background: #fff; border-radius: 12px; border: 1px solid #e1e6e8; padding: 8px 8px 10px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 6px; }
+        .pyr-pair-card svg { width: 78px; height: 44px; flex: 0 0 auto; }
         .pyr-pair-card svg [fill="#f4f7f6"] { fill: #161a1d; }
         .pyr-pair-card svg [stroke="#f4f7f6"] { stroke: #161a1d; }
-        .pyr-pair-kick { font: 800 12px Figtree, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #8a969c; }
-        .pyr-pair-name { font-family: Oswald, sans-serif; font-weight: 700; font-size: 20px; letter-spacing: 0.04em; }
-        .pyr-pair-arrow { color: #5cc8b8; font: 800 28px/1 Figtree, sans-serif; }
-        .pyr-pair-pos { font: 800 11px Figtree, sans-serif; letter-spacing: 0.1em; color: #8a969c; }
+        .pyr-pair-kick { font: 800 11px Figtree, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #8a969c; }
+        .pyr-pair-name { font-family: Oswald, sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 0.03em; line-height: 1.1; text-align: center; }
+        .pyr-pair-arrow { color: #5cc8b8; font: 800 22px/1 Figtree, sans-serif; align-self: center; }
+        .pyr-pair-pos { grid-column: 1 / -1; text-align: center; font: 800 11px Figtree, sans-serif; letter-spacing: 0.1em; color: #8a969c; }
         .pyr-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
         .pyr-pair.flash .pyr-pair-card { box-shadow: 0 0 0 2px #5cc8b8; }
       `}</style>
