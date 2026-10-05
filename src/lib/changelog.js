@@ -5,6 +5,13 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-10-05",
+    items: [
+      { de: "Hand Control: Die aktuelle Übung steht jetzt auf einer hellen Karte – besser lesbar.",
+        en: "Hand Control: the current exercise now sits on a light card for easier reading." },
+    ],
+  },
+  {
     date: "2026-10-04",
     items: [
       { de: "Neuigkeiten öffnest du jetzt mit dem „!“ unter dem „?“ – ein türkiser Punkt zeigt, wenn es etwas Neues gibt.",
