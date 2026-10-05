@@ -84,79 +84,44 @@ function phraseWidth3() {
   return noteX3(TRI_LEN - 1) + 24;
 }
 
-function Phrase({ id, hands, playT, ternary }) {
+function handFill(ch, on, onLight) {
+  if (ch === "L") return on ? "#2f9e90" : "#5cc8b8";
+  return onLight ? (on ? "#5c666c" : "#8a969c") : (on ? "#ffffff" : "#d7dee1");
+}
+
+function Hands({ id, hands, playT = -1, ternary, size = 28, light = true }) {
   const letters = (ternary ? triHands(hands) : String(hands || "")).split("");
   const active = playT < 0 ? -1 : (ternary ? Math.round(playT) : Math.round(playT / 2));
-  const y = ternary ? 50 : 42;
-  const top = ternary ? 24 : 17;
-  const hy = ternary ? 86 : 78;
-  const xs = letters.map((_, i) => (ternary ? noteX3(i) : noteX(i)));
-  const start = ternary ? 26 : LINE_L;
-  const end = xs[xs.length - 1] + (ternary ? 24 : GAP);
-  // binär: zwei Takte mit Taktstrich in der Mitte; ternär: ein Takt, kein Mittelstrich
-  const barX = ternary ? null : (xs[7] + xs[8]) / 2;
-  const stem = 3.9;
   const gSize = ternary ? 3 : 4;
-  const groups = ternary ? TRI_LEN / 3 : 4;
+  const cell = size * 0.78;
+  const gap = size * 0.55;
+  const xOf = (i) => 34 + Math.floor(i / gSize) * (gSize * cell + gap) + (i % gSize) * cell;
+  const end = xOf(letters.length - 1) + 16;
+  const y = size;
   return (
-    <svg viewBox={`0 ${ternary ? 4 : 7} ${end + 8} ${ternary ? 96 : 85}`} width="100%" role="img" aria-label={t("Nummer {n}", { n: id })}>
-      <line x1={start} y1={y} x2={end} y2={y} stroke={LINE} strokeWidth="1.45" />
-      <line x1={start} y1={y - 12} x2={start} y2={y + 12} stroke={LINE} strokeWidth="1.6" />
-      <line x1={end} y1={y - 12} x2={end} y2={y + 12} stroke={LINE} strokeWidth="1.6" />
-      {barX == null ? null : <line x1={barX} y1={y - 12} x2={barX} y2={y + 12} stroke={LINE} strokeWidth="1.25" />}
-      {xs.map((x, i) => {
-        const on = i === active;
-        const c = on ? GOLD : INK;
-        return (
-          <g key={i}>
-            <ellipse cx={x} cy={y} rx="4.8" ry="3.1" fill={c} transform={`rotate(-18 ${x} ${y})`} />
-            <line x1={x + stem} y1={y - 1.2} x2={x + stem} y2={top} stroke={c} strokeWidth="0.9" />
-          </g>
-        );
+    <svg viewBox={`0 2 ${end} ${size + 10}`} width="100%" role="img" aria-label={t("Nummer {n}", { n: id })}>
+      {Array.from({ length: Math.ceil(letters.length / gSize) - 1 }, (_, g) => {
+        const x = (xOf(g * gSize + gSize - 1) + xOf((g + 1) * gSize)) / 2;
+        return <line key={g} x1={x} y1={y - size * 0.62} x2={x} y2={y + 4} stroke="#c5ced1" strokeWidth="1.2" />;
       })}
-      {Array.from({ length: groups }, (_, g) => (
-        <g key={g}>
-          <path d={`M ${xs[g * gSize] + stem - 0.8} ${top - 1.6} L ${xs[g * gSize + gSize - 1] + stem + 0.8} ${top - 1.6} L ${xs[g * gSize + gSize - 1] + stem + 0.8} ${top + 1.6} L ${xs[g * gSize] + stem - 0.8} ${top + 1.6} Z`} fill={INK} />
-          {ternary ? (
-            <text x={(xs[g * 3] + xs[g * 3 + 2]) / 2 + stem} y={top - 3} textAnchor="middle" fill={INK} fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="11">3</text>
-          ) : null}
-        </g>
-      ))}
-      <text x="6" y={hy} fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="16">{id}.</text>
+      <text x="8" y={y} fill="#5cc8b8" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize={size * 0.72}>{id}.</text>
       {letters.map((ch, i) => (
-        <text key={i} x={xs[i]} y={hy} textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="16" fill={i === active ? GOLD : ch === "R" ? RCOL : ch === "L" ? LCOL : INK}>{ch}</text>
+        <text key={i} x={xOf(i)} y={y} textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize={size} fill={handFill(ch, i === active, light)}>{ch}</text>
       ))}
     </svg>
   );
 }
 
-/* WA-21 Vorschau: volle Breite, gleiche Spalten wie die große Übung (noteX), nur die Sticking-Zeile –
-   der Rhythmus (16 Achtel) ist bei allen Nummern gleich, so bleibt die Karte flach genug über dem Kreis. */
-function NextRow({ id, hands, ternary }) {
-  const letters = (ternary ? triHands(hands) : String(hands || "")).split("");
-  const xs = letters.map((_, i) => (ternary ? noteX3(i) : noteX(i)));
-  return (
-    <svg viewBox={`0 0 ${ternary ? phraseWidth3() : phraseWidth()} 22`} width="100%" aria-hidden="true">
-      <text x="6" y="17" fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="15">{id}.</text>
-      {letters.map((ch, i) => (
-        <text key={i} x={xs[i]} y="17" textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="15" fill={LIST}>{ch}</text>
-      ))}
-    </svg>
-  );
+function Phrase(props) {
+  return <Hands {...props} size={28} light />;
 }
 
-function StickRow({ id, hands, ternary }) {
-  const letters = (ternary ? triHands(hands) : String(hands || "")).split("");
-  const xs = letters.map((_, i) => (ternary ? noteX3(i) : noteX(i)));
-  const w = ternary ? phraseWidth3() : phraseWidth();
-  return (
-    <svg viewBox={`0 0 ${w} 22`} width="100%" aria-hidden="true">
-      <text x="6" y="16" fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="500" fontSize="13">{id}.</text>
-      {letters.map((ch, i) => (
-        <text key={i} x={xs[i]} y="16" textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="500" fontSize="13" fill={LIST}>{ch}</text>
-      ))}
-    </svg>
-  );
+function NextRow(props) {
+  return <Hands {...props} size={18} light={false} />;
+}
+
+function StickRow(props) {
+  return <Hands {...props} size={15} light={false} />;
 }
 
 /* Drehrädchen (iOS-artiger Walzen-Picker) für die Wiederholungen: senkrecht wischen/scrollen rastet ein,
@@ -658,7 +623,7 @@ export default function StickControl({ preset = null } = {}) {
             {playing ? "Stop" : "Click"}
           </button>
         </div>
-        <div className={playing ? "stick-card stick-run staff-card" : "stick-card staff-card"} style={{ background: "#fff", color: "#161a1d", border: "1px solid #d7e0e2", borderRadius: 16, padding: "12px 8px 8px" }}>
+        <div className={playing ? "stick-card stick-run staff-card" : "stick-card staff-card"} style={{ background: "#f4f7f6", color: "#161a1d", border: "1px solid #e1e6e8", borderRadius: 16, padding: "14px 10px 10px" }}>
           <Phrase id={ex.id} hands={ex.hands} playT={counting ? -1 : playT} ternary={ternary} />
         </div>
       </div>
