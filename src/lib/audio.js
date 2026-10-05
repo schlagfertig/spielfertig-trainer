@@ -176,6 +176,15 @@ export function playOrnament(c, nt, when, mode, stepSec) {
   };
   const flamLead = Math.min(0.058, Math.max(0.026, stepSec * 0.38));
   const dragGap = Math.min(0.038, Math.max(0.018, stepSec * 0.22));
+  if (nt.roll) {
+    const dur = Math.max(stepSec * 2, (nt.dur || 4) * stepSec);
+    const count = Math.max(8, Math.min(22, Math.round(dur / 0.042)));
+    const gap = dur / count;
+    for (let i = 0; i < count; i++) {
+      hit(nt.hand, when + i * gap, i === 0, i > 0);
+    }
+    return;
+  }
   if (nt.flam) hit(nt.flam, when - flamLead, false, true);
   if (nt.drag) {
     hit(nt.drag, when - dragGap * 2, false, true);
