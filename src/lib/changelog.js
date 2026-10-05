@@ -9,6 +9,8 @@ export const CHANGELOG = [
     items: [
       { de: "Hand Control: Die aktuelle Übung steht jetzt auf einer hellen Karte – besser lesbar.",
         en: "Hand Control: the current exercise now sits on a light card for easier reading." },
+      { de: "Hand Control, Fokus-Mode: In der letzten Wiederholung wechselt die aktuelle Übung Gruppe für Gruppe in die nächste – weich ausgeblendet, ohne harten Schnitt.",
+        en: "Hand Control, Focus mode: on the last repeat, the current exercise fades group by group into the next – soft swap, no hard cut." },
     ],
   },
   {
