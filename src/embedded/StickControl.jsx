@@ -102,7 +102,7 @@ function Hands({ id, hands, playT = -1, ternary, size = 28, light = true }) {
     <svg viewBox={`0 2 ${end} ${size + 10}`} width="100%" role="img" aria-label={t("Nummer {n}", { n: id })}>
       {Array.from({ length: Math.ceil(letters.length / gSize) - 1 }, (_, g) => {
         const x = (xOf(g * gSize + gSize - 1) + xOf((g + 1) * gSize)) / 2;
-        return <line key={g} x1={x} y1={y - size * 0.62} x2={x} y2={y + 4} stroke="#c5ced1" strokeWidth="1.2" />;
+        return <line key={g} x1={x} y1={y - size * 0.62} x2={x} y2={y + 4} stroke="#c8d0d4" strokeWidth="1.2" />;
       })}
       <text x="8" y={y} fill="#5cc8b8" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize={size * 0.72}>{id}.</text>
       {letters.map((ch, i) => (
@@ -623,7 +623,7 @@ export default function StickControl({ preset = null } = {}) {
             {playing ? "Stop" : "Click"}
           </button>
         </div>
-        <div className={playing ? "stick-card stick-run staff-card" : "stick-card staff-card"} style={{ background: "#f4f7f6", color: "#161a1d", border: "1px solid #e1e6e8", borderRadius: 16, padding: "14px 10px 10px" }}>
+        <div className={playing ? "stick-card stick-run staff-card" : "stick-card staff-card"} >
           <Phrase id={ex.id} hands={ex.hands} playT={counting ? -1 : playT} ternary={ternary} />
         </div>
       </div>
