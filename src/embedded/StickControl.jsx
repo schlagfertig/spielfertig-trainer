@@ -1,1 +1,1 @@
-{{file:/tmp/sc_content.txt}}
+@/tmp/sc_content.txt
