@@ -88,8 +88,9 @@ function phraseWidth3() {
 // (R fast schwarz, L #1d7a6f). Dunkle Zeilen: L wie gehabt #5cc8b8.
 const TEAL_ON_LIGHT = "#2f9e90";
 function handFill(ch, on, onLight) {
-  if (ch === "L") return onLight ? (on ? "#1d7a6f" : TEAL_ON_LIGHT) : (on ? "#2f9e90" : "#5cc8b8");
-  return onLight ? (on ? INK : "#8a969c") : (on ? "#ffffff" : "#d7dee1");
+  if (on) return "#5cc8b8";
+  if (ch === "L") return onLight ? TEAL_ON_LIGHT : "#5cc8b8";
+  return onLight ? "#8a969c" : "#d7dee1";
 }
 
 function Hands({ id, hands, nextHands = null, swapGroups = 0, playT = -1, ternary, size = 28, light = true }) {
