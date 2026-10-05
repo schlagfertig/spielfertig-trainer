@@ -8,6 +8,7 @@ import { TERNARY_ENABLED, TRI_LEN, triHands, triNotes } from "../lib/handTernary
 const DIM = "#8a969c";
 const TEAL = "#5cc8b8";
 const INK = "#161a1d";
+const LIST = "#f4f7f6";
 const LINE = "#2a3338";
 const RCOL = "#5c8ee0";
 const LCOL = "#e05c5c";
@@ -138,7 +139,7 @@ function NextRow({ id, hands, ternary }) {
     <svg viewBox={`0 0 ${ternary ? phraseWidth3() : phraseWidth()} 22`} width="100%" aria-hidden="true">
       <text x="6" y="17" fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="15">{id}.</text>
       {letters.map((ch, i) => (
-        <text key={i} x={xs[i]} y="17" textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="15" fill={INK}>{ch}</text>
+        <text key={i} x={xs[i]} y="17" textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize="15" fill={LIST}>{ch}</text>
       ))}
     </svg>
   );
@@ -152,7 +153,7 @@ function StickRow({ id, hands, ternary }) {
     <svg viewBox={`0 0 ${w} 22`} width="100%" aria-hidden="true">
       <text x="6" y="16" fill={TEAL} fontFamily="Oswald, sans-serif" fontWeight="500" fontSize="13">{id}.</text>
       {letters.map((ch, i) => (
-        <text key={i} x={xs[i]} y="16" textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="500" fontSize="13" fill={INK}>{ch}</text>
+        <text key={i} x={xs[i]} y="16" textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="500" fontSize="13" fill={LIST}>{ch}</text>
       ))}
     </svg>
   );
