@@ -4,6 +4,10 @@ Alle für Nutzer sichtbaren Änderungen, nach Datum gruppiert (neueste zuerst).
 Kleine Fix-Commits sind dem jeweiligen Feature zugeordnet; reine Technik (Build-Fixes,
 Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SHA).
 
+## 05.10.2026
+
+- Hand Control: aktuelle Übung auf heller Karte (#f4f7f6, Radius 16 px, ohne türkisen Rand, auch beim Spielen kein türkiser Ring/Schleier) – überschreibt das dunkle Glas von .stick-card (src/embedded/StickControl.jsx); Handsatz darauf R grau (#8a969c), L und Nummer dunkleres Türkis (#2f9e90, auf Hell besser lesbar), gespielter Buchstabe deutlich dunkler (R #161a1d, L #1d7a6f); „Als Nächstes“ und Listenzeilen bleiben dunkel (R hell, L türkis)
+
 ## 04.10.2026
 
 - Lexikon/Glossary: Bilder an 23 Einträgen (23 webp in public/lexikon/, Felder img/alt in src/lib/lexicon.js) – Noten (Achtel, Halbe, Viertel, Sechzehntel; Übersichtsbild mit hervorgehobenem Notenwert; Pause: Übersicht mit türkis hervorgehobenen Pausen, pausen-teal.webp) und Drumset-Teile (Bassdrum und Kick, Becken, Crash, Fußmaschine, Hi-Hat, Ride, Snare, Tom); 8 neue Einträge mit Bild und EN-Text (Ganze Note, Zweiunddreißigstel, Das Drumset, Hängetom, Standtom, Splash, Hardware, Hi-Hat-Maschine), jetzt 66 Einträge; doppelter Eintrag „Notenwerte“ mit „Notenwert“ zusammengelegt (Übersichtsbild und Zweiunddreißigstel/Pausen jetzt bei „Notenwert“); Bild antippen öffnet Vollbild mit „Schließen“ (EN „Close“); Einträge öffnen per details/summary statt Knopf-Zustand (8e11390..aa04253); doppeltes Komma nach dem Eintrag „Zählzeit“ entfernt (leerer Listenplatz, Lexikon-Tests liefen dadurch rot)
