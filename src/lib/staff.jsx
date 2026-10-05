@@ -387,7 +387,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
           if (nt.rest) return <g key={i}><Rest x={x} y={ny} dur={nt.dur} /></g>;
           const on = near(playingT, nt.t);
           const sx = stemX(x);
-          const ink = on ? GOLD : INK;
+          const ink = on ? "#5cc8b8" : INK;
           const whole = nt.whole || nt.dur >= 16;
           const accY = beamed.has(nt) || nt.roll ? stemTop - (nt.roll ? 10 : 6) : stemTop - 6;
           const next = notes.slice(i + 1).find((nn) => !nn.rest);
