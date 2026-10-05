@@ -40,27 +40,38 @@ function barLabel(n) {
   return n === 1 ? "1 Takt" : `${n} Takte`;
 }
 
-function barRud(stage) {
+function beatNotes(stage, beat) {
   const per = stage.perBeat;
   const dur = 4 / per;
   const notes = [];
   let hands = "";
-  for (let beat = 0; beat < 4; beat++) {
-    for (let i = 0; i < per; i++) {
-      const hand = (beat * per + i) % 2 === 0 ? "R" : "L";
-      hands += hand;
-      notes.push({
-        t: beat * 4 + i * dur,
-        dur,
-        hand,
-        acc: i === 0,
-        g: beat + 1,
-        ...(stage.tuplet ? { tuplet: stage.tuplet } : {}),
-      });
-    }
+  for (let i = 0; i < per; i++) {
+    const hand = (beat * per + i) % 2 === 0 ? "R" : "L";
+    hands += hand;
+    notes.push({
+      t: beat * 4 + i * dur,
+      dur,
+      hand,
+      acc: i === 0,
+      g: beat + 1,
+      ...(stage.tuplet ? { tuplet: stage.tuplet } : {}),
+    });
   }
+  return { notes, hands };
+}
+
+function barRud(stage, nextStage = null, swapBeats = 0) {
+  const notes = [];
+  let hands = "";
+  for (let beat = 0; beat < 4; beat++) {
+    const src = nextStage && beat < swapBeats ? nextStage : stage;
+    const part = beatNotes(src, beat);
+    notes.push(...part.notes);
+    hands += part.hands;
+  }
+  const incoming = nextStage && swapBeats > 0 ? ` → ${t(nextStage.label)}` : "";
   return {
-    label: `${t(stage.label)} · 4/4`,
+    label: `${t(stage.label)}${incoming} · 4/4`,
     time: "4/4",
     bars: 1,
     notes,
@@ -81,6 +92,7 @@ export default function PyramidTrainer({ preset = null } = {}) {
   const [idx, setIdx] = useState(0);
   const [leftBars, setLeftBars] = useState(0);
   const [playT, setPlayT] = useState(-1);
+  const [swapBeats, setSwapBeats] = useState(0);
   const [done, setDone] = useState("");
   // Kurzes visuelles Aufleuchten beim Stufenwechsel (nur Anzeige, kein Einfluss auf Click/Timing).
   const [flash, setFlash] = useState(0);
@@ -95,7 +107,7 @@ export default function PyramidTrainer({ preset = null } = {}) {
   const steps = plan(dir, active.length ? active : STAGES);
   const cur = steps[idx] || steps[0];
   const nextStage = idx + 1 < steps.length ? steps[idx + 1] : null;
-  const rud = barRud(cur);
+  const rud = barRud(cur, nextStage, playing && !counting ? swapBeats : 0);
   const focus = playing || counting;
 
   useEffect(() => () => { stopRef.current?.(); window.clearTimeout(flashTimer.current); }, []);
@@ -129,6 +141,7 @@ export default function PyramidTrainer({ preset = null } = {}) {
     setBeat(false);
     setLeftBars(0);
     setPlayT(-1);
+    setSwapBeats(0);
     setIdx(0);
     window.clearTimeout(flashTimer.current);
     setFlash(0);
@@ -211,6 +224,11 @@ export default function PyramidTrainer({ preset = null } = {}) {
         if (down) pulse(next);
         next += 60 / Math.max(30, bpmRef.current) / curPer;
         sub += 1;
+        if (down && sub > 0 && barsDone === holdBars - 1 && si + 1 < run.length) {
+          const doneBeats = Math.floor((sub % (curPer * 4)) / curPer);
+          const beatDelay = Math.max(0, (next - ctx.currentTime) * 1000);
+          window.setTimeout(() => { if (!cancelled) setSwapBeats(doneBeats); }, beatDelay);
+        }
         if (sub % (curPer * 4) === 0) {
           barsDone += 1;
           // Anzeige (Stufe, Resttakte, Ende) erst dann umschalten, wenn der Taktwechsel hörbar ist –
@@ -229,6 +247,7 @@ export default function PyramidTrainer({ preset = null } = {}) {
             window.setTimeout(() => {
               if (cancelled) return;
               setIdx(nsi);
+              setSwapBeats(0);
               setLeftBars(holdBars);
               window.clearTimeout(flashTimer.current);
               setFlash(nsi);
