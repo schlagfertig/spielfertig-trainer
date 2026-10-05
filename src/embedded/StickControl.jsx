@@ -84,9 +84,12 @@ function phraseWidth3() {
   return noteX3(TRI_LEN - 1) + 24;
 }
 
+// Helle Karte: R grau, L dunkleres Türkis (#2f9e90, auf Hell besser lesbar); der gerade gespielte Buchstabe deutlich dunkler
+// (R fast schwarz, L #1d7a6f). Dunkle Zeilen: L wie gehabt #5cc8b8.
+const TEAL_ON_LIGHT = "#2f9e90";
 function handFill(ch, on, onLight) {
-  if (ch === "L") return on ? "#2f9e90" : "#5cc8b8";
-  return onLight ? (on ? "#5c666c" : "#8a969c") : (on ? "#ffffff" : "#d7dee1");
+  if (ch === "L") return onLight ? (on ? "#1d7a6f" : TEAL_ON_LIGHT) : (on ? "#2f9e90" : "#5cc8b8");
+  return onLight ? (on ? INK : "#8a969c") : (on ? "#ffffff" : "#d7dee1");
 }
 
 function Hands({ id, hands, playT = -1, ternary, size = 28, light = true }) {
@@ -104,7 +107,7 @@ function Hands({ id, hands, playT = -1, ternary, size = 28, light = true }) {
         const x = (xOf(g * gSize + gSize - 1) + xOf((g + 1) * gSize)) / 2;
         return <line key={g} x1={x} y1={y - size * 0.62} x2={x} y2={y + 4} stroke="#c8d0d4" strokeWidth="1.2" />;
       })}
-      <text x="8" y={y} fill="#5cc8b8" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize={size * 0.72}>{id}.</text>
+      <text x="8" y={y} fill={light ? TEAL_ON_LIGHT : TEAL} fontFamily="Oswald, sans-serif" fontWeight="700" fontSize={size * 0.72}>{id}.</text>
       {letters.map((ch, i) => (
         <text key={i} x={xOf(i)} y={y} textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="700" fontSize={size} fill={handFill(ch, i === active, light)}>{ch}</text>
       ))}
@@ -420,7 +423,19 @@ export default function StickControl({ preset = null } = {}) {
           height: calc(var(--rud-dock) + var(--rud-foot) + 88px);
           background: linear-gradient(to bottom, rgba(22,26,29,0) 0%, rgba(22,26,29,.35) 28%, rgba(22,26,29,.82) 62%, #161a1d 88%);
         }
-        .stick-card.stick-run { box-shadow: inset 0 0 0 2px #5cc8b8; }
+        /* Aktuelle Übung: helle Karte (wie die Notenkarte), ohne türkisen Rand – überschreibt das dunkle Glas aus styles-glass.css.
+           Beim Spielen kein Rahmen/Schleier: der gerade gespielte Buchstabe wird dunkler. */
+        .stick-wrap .stick-card {
+          background: ${LIST} !important;
+          color: ${INK};
+          border: 0 !important;
+          border-radius: 16px;
+          padding: 14px 10px 10px;
+          box-shadow: 0 10px 28px rgba(0,0,0,.18) !important;
+          -webkit-backdrop-filter: none !important;
+          backdrop-filter: none !important;
+          -apple-visual-effect: none !important;
+        }
         .stick-pin {
           position: sticky;
           top: var(--stick-top, 0px);
