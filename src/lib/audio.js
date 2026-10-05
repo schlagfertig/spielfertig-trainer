@@ -178,10 +178,11 @@ export function playOrnament(c, nt, when, mode, stepSec) {
   const dragGap = Math.min(0.038, Math.max(0.018, stepSec * 0.22));
   if (nt.roll) {
     const dur = Math.max(stepSec * 2, (nt.dur || 4) * stepSec);
-    const count = Math.max(8, Math.min(22, Math.round(dur / 0.042)));
-    const gap = dur / count;
+    // Presswirbel: dichte Bounces, etwa 40 pro Sekunde, nicht der langsame Mehrfachanschlag.
+    const gap = 0.024;
+    const count = Math.max(12, Math.min(64, Math.round(dur / gap)));
     for (let i = 0; i < count; i++) {
-      hit(nt.hand, when + i * gap, i === 0, i > 0);
+      hit(nt.hand, when + i * gap, i === 0, true);
     }
     return;
   }
