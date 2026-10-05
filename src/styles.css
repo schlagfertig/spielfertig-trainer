@@ -743,3 +743,15 @@ body.metro-gesturing .rud-metro .metro-face { overflow: visible; }
 .news-scroll .news-lead { color: #8a969c; font-size: 15px; margin: 0 0 12px; }
 .news-scroll h2 { margin: 14px 0 6px; font-size: 16px; color: #5cc8b8; }
 .news-scroll .news-list { margin: 0 0 8px; padding-left: 18px; color: #e7eeef; }
+
+/* WA-31: gleiche Notengröße im Querformat, Höhe relativ zur Fläche, min/max */
+@media (orientation: landscape) and (min-width: 700px) {
+  .page.tool .staff-card svg,
+  .page.tool .stick-card > svg {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: clamp(148px, 26dvh, 228px);
+    margin: 0 auto;
+  }
+}
