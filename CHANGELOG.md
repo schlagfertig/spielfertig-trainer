@@ -7,6 +7,7 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 ## 05.10.2026
 
 - Hand Control: aktuelle Übung auf heller Karte (#f4f7f6, Radius 16 px, ohne türkisen Rand, auch beim Spielen kein türkiser Ring/Schleier) – überschreibt das dunkle Glas von .stick-card (src/embedded/StickControl.jsx); Handsatz darauf R grau (#8a969c), L und Nummer dunkleres Türkis (#2f9e90, auf Hell besser lesbar), gespielter Buchstabe deutlich dunkler (R #161a1d, L #1d7a6f); „Als Nächstes“ und Listenzeilen bleiben dunkel (R hell, L türkis)
+- Hand Control, Fokus-Mode: in der letzten Wiederholung vor dem Wechsel morphen fertige 4er-Gruppen (Index < floor(aktiveLetter/4)) per Opacity-Fade (0,28 s) in den Handsatz der nächsten Übung; aktuelle und vorausliegende Gruppen bleiben; nur Fokus-Mode (Üben unverändert); playT wird bei neuem Durchgang/Übungswechsel zurückgesetzt, damit kein Rest-Highlight falsch morpht (src/embedded/StickControl.jsx)
 
 ## 04.10.2026
 
