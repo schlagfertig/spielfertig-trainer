@@ -30,6 +30,12 @@ function pulseFromTime(time) {
   return 4;
 }
 
+
+function beamBox(x1, y1, x2, y2, w) {
+  const h = w / 2;
+  return `M ${x1} ${y1 - h} L ${x2} ${y2 - h} L ${x2} ${y2 + h} L ${x1} ${y1 + h} Z`;
+}
+
 function beamsFor(nt) {
   if (!nt || nt.rest || nt.whole || (nt.dur || 0) >= 16) return 0;
   if (nt.beams != null) return nt.beams;
@@ -454,7 +460,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
                 let j = i;
                 while (j < g.length - 1 && beamsFor(g[j + 1]) > b && !subCut(g[j], g[j + 1])) j++;
                 layers.push(
-                  <line key={`${gi}-${b}-${i}`} x1={xs[i]} y1={yy(xs[i])} x2={xs[j]} y2={yy(xs[j])} strokeWidth={BEAM_W} />
+                  <path key={`${gi}-${b}-${i}`} d={beamBox(xs[i] - 0.8, yy(xs[i]), xs[j] + 0.8, yy(xs[j]), BEAM_W)} fill={INK} stroke="none" />
                 );
               } else {
                 const neighborX = i > 0 ? xs[i - 1] : (xs[i + 1] ?? xs[i] + stepW);
@@ -462,7 +468,7 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
                 // Bruchbalken (Stummel): höchstens etwa eine Notenkopfbreite lang (Standard-Stich).
                 const hook = Math.min(Math.abs(neighborX - xs[i]) * 0.45, stepW * 0.65, HEAD_RX * 2);
                 layers.push(
-                  <line key={`${gi}-${b}-${i}`} x1={xs[i]} y1={yy(xs[i])} x2={xs[i] + inward * hook} y2={yy(xs[i])} strokeWidth={BEAM_W} />
+                  <path key={`${gi}-${b}-${i}`} d={beamBox(xs[i], yy(xs[i]), xs[i] + inward * hook, yy(xs[i]), BEAM_W)} fill={INK} stroke="none" />
                 );
               }
             });
