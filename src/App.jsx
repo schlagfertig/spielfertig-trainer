@@ -11,7 +11,7 @@ import FirstLesson from "./lib/FirstLesson.jsx";
 import Today from "./lib/Today.jsx";
 import { FIRST_SKIP_KEY, hideFirstToday, isFirstHidden } from "./lib/firstSkip.js";
 import Legal from "./lib/Legal.jsx";
-import News, { NewsButton, hasUnseenNews } from "./lib/News.jsx";
+import News, { NewsButton } from "./lib/News.jsx";
 import { loadSession, saveSession } from "./lib/session.js";
 import { LogoMetronome } from "./lib/LogoMetronome.jsx";
 import { SocialLinks } from "./lib/Social.jsx";
@@ -287,12 +287,6 @@ export default function App() {
         <footer className="foot">
           <div className="foot-copy">Copyright by Thomas Schuster</div>
           <SocialLinks />
-          <div className="foot-links foot-news">
-            <button type="button" className="foot-link" onClick={() => open("news")}>
-              {t("Neuigkeiten")}
-              {hasUnseenNews() && <span className="news-dot" role="img" aria-label={t("neu")} />}
-            </button>
-          </div>
           <div className="foot-links">
             <button type="button" className="foot-link" onClick={() => open("impressum")}>{t("Impressum")}</button>
             <button type="button" className="foot-link" onClick={() => open("datenschutz")}>{t("Datenschutz")}</button>
