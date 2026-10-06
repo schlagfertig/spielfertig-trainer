@@ -188,11 +188,8 @@ export default function RhythmArchive() {
   function toggle(voice, step) {
     setGrid((prev) => {
       const next = {};
-      VOICES.forEach((v) => { next[v.id] = prev[v.id].slice(); });
-      const on = !next[voice][step];
-      next[voice][step] = on;
-      if (on && voice === "HO") next.HH[step] = false;
-      if (on && voice === "HH") next.HO[step] = false;
+      VOICES.forEach((v) => { next[v.id] = (prev[v.id] || []).slice(); });
+      next[voice][step] = !next[voice][step];
       return next;
     });
   }
