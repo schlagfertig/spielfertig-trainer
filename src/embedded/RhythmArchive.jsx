@@ -275,8 +275,10 @@ export default function RhythmArchive() {
         window.setTimeout(() => {
           if (cancelled) return;
           setPlayStep(show);
-          setBeat(true);
-          window.setTimeout(() => setBeat(false), 70);
+          if (show % 4 === 0) {
+            setBeat(true);
+            window.setTimeout(() => setBeat(false), 70);
+          }
         }, Math.max(0, (when - ctx.currentTime) * 1000));
         next += q();
         step += 1;
