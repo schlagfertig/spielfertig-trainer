@@ -431,7 +431,8 @@ export default function RhythmArchive() {
         @media (orientation: landscape) {
           .rhythm-tip { display: none; }
           .rhythm-grid { gap: 6px; }
-          .rhythm-counts, .rhythm-row { grid-template-columns: 108px 1fr; }
+          .rhythm-counts { grid-template-columns: 108px repeat(16, minmax(0, 1fr)); }
+          .rhythm-row { grid-template-columns: 108px 1fr; }
           .rhythm-voice { flex-direction: column; align-items: flex-start; gap: 4px; }
           .rhythm-steps button { min-height: 44px; }
           .rhythm-helps button { min-height: 28px; min-width: 28px; padding: 0 4px; }
