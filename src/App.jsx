@@ -185,9 +185,6 @@ export default function App() {
     } catch { /* ignore */ }
   }, []);
   useEffect(() => {
-    if (view === "rhythm" && !master) setView("home");
-  }, [view, master]);
-  useEffect(() => {
     if (view === "home") return undefined;
     let startX = 0;
     let startY = 0;
@@ -291,21 +288,11 @@ export default function App() {
             <div className="card-lead">{t("Downbeat, Flam, Groove: kurze Erklärungen, von A bis Z durchsuchbar.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
-          <button className="card" type="button" aria-disabled={!master} style={master ? undefined : { opacity: 0.45 }} onClick={() => {
-            if (master) { open("rhythm"); return; }
-            const now = Date.now();
-            const taps = (window.__sfTaps || []).filter((n) => now - n < 2500);
-            taps.push(now);
-            window.__sfTaps = taps;
-            if (taps.length < 7) return;
-            window.__sfTaps = [];
-            try { localStorage.setItem("sf-master", "1"); } catch { /* ignore */ }
-            setMaster(true);
-          }}>
+          <button className="card" type="button" onClick={() => open("rhythm")}>
             <div className="card-kicker">{t("Groove")}</div>
             <div className="card-title">{t("Meine Grooves")}</div>
             <div className="card-lead">{t("Eigenen Groove bauen, mit der Dial üben und unter einem Namen behalten.")}</div>
-            <div className="card-go">{master ? "Test" : "Inaktiv"}</div>
+            <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card" onClick={() => open("archive")}>
             <div className="card-kicker">{t("Eigene Blätter")}</div>
@@ -367,7 +354,7 @@ export default function App() {
           : view === "stick" ? <StickControl preset={preset} />
           : view === "archive" ? <Archive />
           : view === "lexicon" ? <Lexicon />
-          : view === "rhythm" && master ? <RhythmArchive />
+          : view === "rhythm" ? <RhythmArchive />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
       </main>
     </div>
