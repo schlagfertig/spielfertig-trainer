@@ -94,7 +94,6 @@ function GrooveStaff({ grid, bars, playStep }) {
           <g key={`rest-${i}`}>
             {r.kind === "16" ? <SixteenthRest x={r.x} y={y} /> : <EighthRest x={r.x} y={y} />}
             {r.dotted ? <circle cx={r.x + 8} cy={y - 2} r="1.1" fill="#161a1d" /> : null}
-            <line x1={stemX} y1={y + 4} x2={stemX} y2={r.beam} stroke="#161a1d" strokeWidth="1" />
           </g>
         );
       })}
