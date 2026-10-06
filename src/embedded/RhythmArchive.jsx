@@ -40,7 +40,7 @@ function beamBox(x1, y, x2, thick) {
 }
 
 function eighthRest(x, y) {
-  return `M ${x - 1} ${y - 9} C ${x + 8} ${y - 6} ${x + 7} ${y + 3} ${x - 1} ${y + 8}`;
+  return `M ${x - 1} ${y - 8} L ${x + 7} ${y - 8} L ${x + 1.5} ${y + 1} L ${x - 3.5} ${y + 6}`;
 }
 
 function GrooveStaff({ grid, bars, playStep }) {
@@ -67,7 +67,7 @@ function GrooveStaff({ grid, bars, playStep }) {
       if (group.length === 1 && pos.has(3)) {
         const note = group[0];
         const restX = x0 + beat * 4 * gap;
-        rests.push({ x: restX, dotted: pos.has(3), down });
+        rests.push({ x: restX, dotted: true, down, beam: primary });
         beams.push(beamBox(restX + (down ? -3.4 : 3.4), primary, sx(note.i), 3.4));
         beams.push(beamBox(sx(note.i), secondary, sx(note.i) - head, 3.4));
         continue;
@@ -96,12 +96,17 @@ function GrooveStaff({ grid, bars, playStep }) {
         <line key={b} x1={x0 + b * STEPS * gap - 10} y1="32" x2={x0 + b * STEPS * gap - 10} y2="72" stroke="#161a1d" strokeWidth={b === 0 || b === bars ? 1.6 : 1} />
       ))}
       {beams.map((d, i) => <path key={i} d={d} fill="#161a1d" />)}
-      {rests.map((r, i) => (
-        <g key={`rest-${i}`} fill="none" stroke="#161a1d" strokeWidth="1.4">
-          <path d={eighthRest(r.x, 52)} />
-          {r.dotted ? <circle cx={r.x + 10} cy="50" r="1.4" fill="#161a1d" stroke="none" /> : null}
-        </g>
-      ))}
+      {rests.map((r, i) => {
+        const y = r.down ? r.beam - 18 : r.beam + 18;
+        const stemX = r.x + (r.down ? -3.4 : 3.4);
+        return (
+          <g key={`rest-${i}`} fill="none" stroke="#161a1d" strokeWidth="1.6" strokeLinecap="round">
+            <path d={eighthRest(r.x, y)} />
+            <circle cx={r.x + 11} cy={y - 4} r="1.4" fill="#161a1d" stroke="none" />
+            <line x1={stemX} y1={y + 6} x2={stemX} y2={r.beam} strokeWidth="1" />
+          </g>
+        );
+      })}
       {notes.map((n) => {
         const x = x0 + n.i * gap;
         const ink = n.i === playStep ? TEAL : INK;
