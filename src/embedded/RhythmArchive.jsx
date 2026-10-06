@@ -40,12 +40,7 @@ function beamBox(x1, y, x2, thick) {
 }
 
 function EighthRest({ x, y }) {
-  return (
-    <g transform={`translate(${x - 4} ${y}) scale(0.28)`} fill="#161a1d">
-      <ellipse cx="0" cy="2" rx="16" ry="15" />
-      <path d="M 6 -6 L 24 -10 L 46 -30 L 64 -52 L 74 -66 L 62 -56 L 46 -30 L 32 -4 L 22 28 L 14 58 L -2 50 L 8 22 L 18 -2 L 4 0 Z" />
-    </g>
-  );
+  return <image href="/rest-eighth.png" x={x - 7} y={y - 18} width="16" height="29" />;
 }
 
 function GrooveStaff({ grid, bars, playStep }) {
