@@ -109,7 +109,8 @@ function GrooveStaff({ grid, bars, playStep }) {
         const led = beatNotes.filter((o) => o.v === n.v).length === 1 && (pos === 3 || pos === 1);
         const stemEnd = beamY;
         const alone = beatNotes.length < 2 && !led;
-        const dotted = group.length === 2 && group.some((o) => o.i % 4 === 0) && group.some((o) => o.i % 4 === 3) && pos === 0;
+        const voiceNotes = beatNotes.filter((o) => o.v === n.v);
+        const dotted = voiceNotes.length === 2 && voiceNotes.some((o) => o.i % 4 === 0) && voiceNotes.some((o) => o.i % 4 === 3) && pos === 0;
         return (
           <g key={n.v + n.i}>
             <line x1={stemX} y1={y[n.v]} x2={stemX} y2={stemEnd} stroke={ink} strokeWidth="1" />
