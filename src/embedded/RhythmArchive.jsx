@@ -155,6 +155,8 @@ function GrooveStaff({ grid, bars, playStep }) {
 export default function RhythmArchive() {
   const [screen, setScreen] = useState("build");
   const [name, setName] = useState("");
+  const [askName, setAskName] = useState(false);
+  const [draftName, setDraftName] = useState("");
   const [bars, setBars] = useState(1);
   const [bar, setBar] = useState(0);
   const [activeVoice, setActiveVoice] = useState("");
@@ -281,14 +283,14 @@ export default function RhythmArchive() {
     stopRef.current = () => { cancelled = true; window.clearTimeout(timer); };
   }
 
-  function save() {
-    const title = name.trim() || t("Ohne Namen");
+  function save(title) {
     const item = { id: currentId || String(Date.now()), name: title, bpm, bars, grid, at: Date.now() };
     const next = [item, ...list.filter((g) => g.id !== item.id)];
     setList(next);
     saveGrooves(next);
     setCurrentId(item.id);
     setName(title);
+    setAskName(false);
     setScreen("archive");
   }
 
@@ -320,7 +322,7 @@ export default function RhythmArchive() {
       </div>
 
       {screen !== "archive" ? (
-        <div className="staff-card" style={{ marginBottom: 12 }}>
+        <div className={screen === "build" ? "staff-card rhythm-preview" : "staff-card"} style={{ marginBottom: 12 }}>
           <div className="staff-label">{name.trim() || t("Neuer Rhythmus")}</div>
           <GrooveStaff grid={grid} bars={bars} playStep={screen === "practice" ? playStep : -1} />
         </div>
@@ -330,10 +332,6 @@ export default function RhythmArchive() {
         <>
           <p className="rhythm-tip">{t("Zum Eintippen das Handy quer drehen. Hochkant siehst du nur den Rhythmus.")}</p>
           <div className="rhythm-entry">
-          <label className="rhythm-name">
-            <span>{t("Name")}</span>
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("z. B. Rock-Grund")} />
-          </label>
           <div className="seg" style={{ width: "fit-content", margin: "8px 0" }}>
             {[1, 2, 3, 4].map((n) => (
               <button key={n} type="button" className={bars === n ? "on" : ""} onClick={() => setBarsCount(n)}>{n}</button>
@@ -381,7 +379,14 @@ export default function RhythmArchive() {
               </div>
             ))}
           </div>
-          <button type="button" className="play" style={{ marginTop: 12 }} onClick={save}>{t("Speichern")}</button>
+          <button type="button" className="play" style={{ marginTop: 12 }} onClick={() => { setDraftName(name); setAskName(true); }}>Speichern als…</button>
+          {askName ? (
+            <div className="rhythm-save">
+              <input value={draftName} onChange={(e) => setDraftName(e.target.value)} placeholder={t("z. B. Rock-Grund")} autoFocus />
+              <button type="button" className="play" onClick={() => save(draftName.trim() || t("Ohne Namen"))}>Speichern</button>
+              <button type="button" className="ghost" onClick={() => setAskName(false)}>{t("Abbrechen")}</button>
+            </div>
+          ) : null}
           <p className="rhythm-note">{t("Nur auf diesem Gerät gespeichert. Bei Browser- oder Gerätewechsel kann das Archiv verloren gehen.")}</p>
           </div>
         </>
@@ -431,9 +436,14 @@ export default function RhythmArchive() {
         .rhythm-steps button.on { background: ${TEAL}; border-color: ${TEAL}; }
         .rhythm-tip { color: ${TEAL}; font-size: 14px; font-weight: 700; margin: 0 0 8px; }
         .rhythm-entry { display: none; }
+        .rhythm-save { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+        .rhythm-save input { flex: 1; min-height: 40px; border-radius: 10px; border: 1px solid #2f383d; background: #101416; color: #f4f7f6; padding: 0 10px; }
         @media (orientation: landscape) {
           .rhythm-tip { display: none; }
-          .rhythm-entry { display: block; }
+          .rhythm-entry { display: block; padding-right: 34%; }
+          .rhythm-preview { position: fixed; top: 62px; right: 10px; width: 32%; margin: 0; z-index: 4; }
+          .rhythm-steps button { min-height: 34px; }
+          .rhythm-counts { font-size: 10px; }
           .rhythm-grid { gap: 6px; }
           .rhythm-counts { grid-template-columns: 108px repeat(16, minmax(0, 1fr)); }
           .rhythm-row { grid-template-columns: 108px 1fr; }
