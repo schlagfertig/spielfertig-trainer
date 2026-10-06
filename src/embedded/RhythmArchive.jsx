@@ -67,7 +67,7 @@ function GrooveStaff({ grid, bars, playStep }) {
     const positions = new Set(group.map((n) => n.i % 4));
     if (!positions.has(0) && group.length) {
       const first = Math.min(...positions);
-      rests.push({ x: x0 + beat * 4 * gap, kind: first === 1 ? "16" : "8", dotted: first === 3, down: false, beam: beamY, headY: 52 });
+      if (first === 1 || first === 2) rests.push({ x: x0 + beat * 4 * gap, kind: first === 1 ? "16" : "8", dotted: false, down: false, beam: beamY, headY: 52 });
     }
     if (group.length >= 2 || rests.some((r) => Math.abs(r.x - (x0 + beat * 4 * gap)) < 1)) {
       const xs = group.map((n) => sx(n.i));
