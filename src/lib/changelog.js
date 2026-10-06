@@ -7,8 +7,12 @@ export const CHANGELOG = [
   {
     date: "2026-10-06",
     items: [
-      { de: "Neu: Rhythmus-Archiv. Groove bauen mit Ride, Hi-Hat, offener Hi-Hat, Snare und Bassdrum, mit der Dial üben und unter einem Namen auf diesem Gerät behalten.",
-        en: "New: Rhythm archive. Build a groove with ride, hi-hat, open hi-hat, snare and bass drum, practise it with the dial and keep it under a name on this device." },
+      { de: "Meine Grooves ist da: Hi-Hat, Snare und Bass bauen, quer eintippen, hochkant den Rhythmus sehen, mit der Dial üben und unter einem Namen auf diesem Gerät behalten.",
+        en: "My grooves is here: build hi-hat, snare and bass, enter it in landscape, see the rhythm in portrait, practise with the dial and keep it under a name on this device." },
+      { de: "Eingabe: Zählzeiten über jedem Feld, Hilfen 1, + und e a für die aktive Zeile, Taktzahl 1–4 im Querformat, Speichern als… fragt den Namen ab. Die Vorschau sitzt oben rechts.",
+        en: "Input: counts above each pad, 1, + and e a helpers for the active row, 1–4 bars in landscape, Save as… asks for the name. The preview sits at the top right." },
+      { de: "Üben: Nur Click, Playback oder Beides. Der Click blinkt nur auf den vollen Zählzeiten. Alle Stimmen hängen an einem Balken, die Bassdrum bleibt unten.",
+        en: "Practice: click only, playback or both. The click flashes only on the beat. All voices share one beam, the bass drum stays low." },
       { de: "Rhythmus-Archiv: Bassdrum-Hälse nach unten, alle anderen nach oben. Erste und letzte 16tel einer Vierergruppe stehen als punktierte Achtel plus 16tel, wie bei Rudiment 33.",
         en: "Rhythm archive: bass-drum stems point down, every other voice points up. The first and last 16th of a beat are written as a dotted eighth plus a 16th, like rudiment 33." },
       { de: "Zum Eintippen im Rhythmus-Archiv das Handy quer drehen – die Felder werden größer.",
