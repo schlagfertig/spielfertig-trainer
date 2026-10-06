@@ -456,7 +456,7 @@ export default function RhythmArchive() {
         .rhythm-save { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
         .rhythm-save input { flex: 1; min-height: 40px; border-radius: 10px; border: 1px solid #2f383d; background: #101416; color: #f4f7f6; padding: 0 10px; }
         @media (orientation: landscape) {
-          .rhythm-bars { display: flex; }
+          .rhythm-bars { display: flex; position: fixed; top: 118px; right: calc(32% + 18px); z-index: 6; }
           .rhythm-tip { display: none; }
           .rhythm-entry { display: block; padding-right: 34%; }
           .rhythm-preview { position: fixed; top: 108px; right: 10px; width: 32%; margin: 0; z-index: 4; }
