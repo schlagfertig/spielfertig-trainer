@@ -201,11 +201,13 @@ export default function RhythmArchive() {
       const next = {};
       VOICES.forEach((v) => { next[v.id] = (prev[v.id] || Array(bars * STEPS).fill(false)).slice(); });
       const start = bar * STEPS;
+      const hits = [];
       for (let i = 0; i < STEPS; i++) {
-        const step = start + i;
-        const on = kind === "beat" ? i % 4 === 0 : kind === "off" ? i % 4 === 2 : i % 2 === 1;
-        if (on) next[voice][step] = true;
+        const hit = kind === "beat" ? i % 4 === 0 : kind === "off" ? i % 4 === 2 : i % 2 === 1;
+        if (hit) hits.push(start + i);
       }
+      const turnOff = hits.every((step) => next[voice][step]);
+      hits.forEach((step) => { next[voice][step] = !turnOff; });
       return next;
     });
   }
@@ -346,9 +348,9 @@ export default function RhythmArchive() {
           </div>
           <div className="rhythm-grid">
             <div className="rhythm-counts">
+              <span />
               {Array.from({ length: STEPS }, (_, i) => {
-                const mark = ["1", "e", "&", "a"][i % 4];
-                const label = i % 4 === 0 ? String(i / 4 + 1) : mark;
+                const label = i % 4 === 0 ? String(i / 4 + 1) : ["e", "&", "a"][i % 4 - 1];
                 return <span key={i} className={i % 4 === 0 ? "on" : ""}>{label}</span>;
               })}
             </div>
@@ -416,9 +418,9 @@ export default function RhythmArchive() {
         .rhythm-name input { background: #101416; color: #f4f7f6; border: 1px solid #2f383d; border-radius: 10px; padding: 10px 12px; font: 700 16px Figtree, sans-serif; }
         .rhythm-grid { display: flex; flex-direction: column; gap: 8px; }
         .rhythm-steps { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 3px; }
-        .rhythm-counts { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 3px; color: ${DIM}; font: 700 11px Figtree, sans-serif; text-align: center; }
+        .rhythm-counts { display: grid; grid-template-columns: 92px repeat(16, minmax(0, 1fr)); gap: 3px; color: ${DIM}; font: 700 11px Figtree, sans-serif; text-align: center; align-items: end; }
         .rhythm-counts .on { color: ${TEAL}; }
-        .rhythm-row { display: flex; flex-direction: column; gap: 4px; }
+        .rhythm-row { display: grid; grid-template-columns: 92px 1fr; align-items: center; gap: 6px; }
         .rhythm-voice { display: flex; justify-content: space-between; align-items: center; gap: 8px; color: #f4f7f6; font-weight: 800; }
         .rhythm-helps { display: flex; gap: 4px; }
         .rhythm-helps button { min-width: 36px; min-height: 32px; border-radius: 8px; border: 1px solid #2f383d; background: transparent; color: ${TEAL}; font: 800 12px Figtree, sans-serif; }
@@ -428,11 +430,11 @@ export default function RhythmArchive() {
         .rhythm-tip { color: ${TEAL}; font-size: 14px; font-weight: 700; margin: 0 0 8px; }
         @media (orientation: landscape) {
           .rhythm-tip { display: none; }
-          .rhythm-grid { gap: 4px; }
-          .rhythm-row { display: grid; grid-template-columns: 76px 1fr; align-items: center; gap: 6px; }
-          .rhythm-voice { flex-direction: column; align-items: flex-start; }
-          .rhythm-steps button { min-height: 42px; }
-          .rhythm-helps button { min-height: 32px; min-width: 28px; }
+          .rhythm-grid { gap: 6px; }
+          .rhythm-counts, .rhythm-row { grid-template-columns: 108px 1fr; }
+          .rhythm-voice { flex-direction: column; align-items: flex-start; gap: 4px; }
+          .rhythm-steps button { min-height: 44px; }
+          .rhythm-helps button { min-height: 28px; min-width: 28px; padding: 0 4px; }
         }
         .rhythm-note { color: ${DIM}; font-size: 13px; line-height: 1.4; }
         .rhythm-item { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
