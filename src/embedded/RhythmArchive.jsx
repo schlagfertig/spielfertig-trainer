@@ -199,17 +199,12 @@ export default function RhythmArchive() {
   function fill(voice, kind) {
     setGrid((prev) => {
       const next = {};
-      VOICES.forEach((v) => { next[v.id] = prev[v.id].slice(); });
+      VOICES.forEach((v) => { next[v.id] = (prev[v.id] || Array(bars * STEPS).fill(false)).slice(); });
       const start = bar * STEPS;
       for (let i = 0; i < STEPS; i++) {
         const step = start + i;
-        let on = false;
-        if (kind === "beat") on = i % 4 === 0;
-        if (kind === "off") on = i % 4 === 2;
-        if (kind === "ea") on = i % 2 === 1;
-        next[voice][step] = on;
-        if (on && voice === "HO") next.HH[step] = false;
-        if (on && voice === "HH") next.HO[step] = false;
+        const on = kind === "beat" ? i % 4 === 0 : kind === "off" ? i % 4 === 2 : i % 2 === 1;
+        if (on) next[voice][step] = true;
       }
       return next;
     });
