@@ -288,6 +288,7 @@ export default function RhythmArchive() {
 
       {screen === "build" ? (
         <>
+          <p className="rhythm-tip">{t("Zum Eintippen das Handy quer drehen. Die Felder werden größer.")}</p>
           <label className="rhythm-name">
             <span>{t("Name")}</span>
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("z. B. Rock-Grund")} />
@@ -380,6 +381,12 @@ export default function RhythmArchive() {
         .rhythm-steps button { min-height: 36px; border-radius: 8px; border: 1px solid #2f383d; background: #101416; }
         .rhythm-steps button[data-down="1"] { border-color: #3d4b50; }
         .rhythm-steps button.on { background: ${TEAL}; border-color: ${TEAL}; }
+        .rhythm-tip { color: ${TEAL}; font-size: 14px; font-weight: 700; margin: 0 0 8px; }
+        @media (orientation: landscape) {
+          .rhythm-tip { display: none; }
+          .rhythm-steps button { min-height: 48px; }
+          .rhythm-helps button { min-height: 40px; }
+        }
         .rhythm-note { color: ${DIM}; font-size: 13px; line-height: 1.4; }
         .rhythm-item { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
         .rhythm-item > button:first-child { flex: 1; text-align: left; background: #1c2428; color: #f4f7f6; border: 1px solid #2f383d; border-radius: 12px; padding: 12px; }
