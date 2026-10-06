@@ -39,6 +39,10 @@ function beamBox(x1, y, x2, thick) {
   return `M ${a} ${y - h} L ${b} ${y - h} L ${b} ${y + h} L ${a} ${y + h} Z`;
 }
 
+function eighthRest(x, y) {
+  return `M ${x - 1} ${y - 9} C ${x + 8} ${y - 6} ${x + 7} ${y + 3} ${x - 1} ${y + 8}`;
+}
+
 function GrooveStaff({ grid, bars, playStep }) {
   const steps = bars * STEPS;
   const x0 = 42;
@@ -50,23 +54,28 @@ function GrooveStaff({ grid, bars, playStep }) {
   const notes = [];
   VOICES.forEach((v) => grid[v.id].forEach((on, i) => { if (on) notes.push({ v: v.id, i }); }));
   const beams = [];
-  const dots = [];
+  const rests = [];
   ["RD", "HH", "HO", "SN", "BD"].forEach((voice) => {
     const down = voice === "BD";
     const stemEnd = down ? y.BD + 22 : up[voice];
     const sx = (i) => x0 + i * gap + (down ? -3.4 : 3.4);
     for (let beat = 0; beat < bars * 4; beat++) {
       const group = notes.filter((n) => n.v === voice && Math.floor(n.i / 4) === beat);
-      if (group.length < 2) continue;
       const pos = new Set(group.map((n) => n.i % 4));
       const primary = stemEnd;
       const secondary = stemEnd + (down ? -3.8 : 3.8);
+      if (group.length === 1 && (pos.has(2) || pos.has(3))) {
+        const note = group[0];
+        const restX = x0 + beat * 4 * gap;
+        rests.push({ x: restX, dotted: pos.has(3), down });
+        beams.push(beamBox(restX + (down ? -3.4 : 3.4), primary, sx(note.i), 3.4));
+        beams.push(beamBox(sx(note.i), secondary, sx(note.i) - head, 3.4));
+        continue;
+      }
+      if (group.length < 2) continue;
       beams.push(beamBox(sx(group[0].i), primary, sx(group[group.length - 1].i), 3.4));
       if (pos.size === 2 && pos.has(0) && pos.has(3)) {
-        const x = sx(beat * 4 + 3);
-        const toward = x - head;
-        beams.push(beamBox(x, secondary, toward, 3.4));
-        dots.push({ x: x0 + beat * 4 * gap + 7, y: y[voice] - 3, v: voice, i: beat * 4 });
+        beams.push(beamBox(sx(beat * 4 + 3), secondary, sx(beat * 4 + 3) - head, 3.4));
         continue;
       }
       group.forEach((n) => {
@@ -75,8 +84,8 @@ function GrooveStaff({ grid, bars, playStep }) {
         const x = sx(n.i);
         const left = group.some((o) => o.i === n.i - 1);
         const right = group.some((o) => o.i === n.i + 1);
-        if (left) beams.push(beamBox(sx(n.i - 1), secondary, x, 2.2));
-        else if (right) beams.push(beamBox(x, secondary, sx(n.i + 1), 2.2));
+        if (left) beams.push(beamBox(sx(n.i - 1), secondary, x, 3.4));
+        else if (right) beams.push(beamBox(x, secondary, x + head, 3.4));
       });
     }
   });
@@ -87,6 +96,12 @@ function GrooveStaff({ grid, bars, playStep }) {
         <line key={b} x1={x0 + b * STEPS * gap - 10} y1="32" x2={x0 + b * STEPS * gap - 10} y2="72" stroke="#161a1d" strokeWidth={b === 0 || b === bars ? 1.6 : 1} />
       ))}
       {beams.map((d, i) => <path key={i} d={d} fill="#161a1d" />)}
+      {rests.map((r, i) => (
+        <g key={`rest-${i}`} fill="none" stroke="#161a1d" strokeWidth="1.4">
+          <path d={eighthRest(r.x, 52)} />
+          {r.dotted ? <circle cx={r.x + 10} cy="50" r="1.4" fill="#161a1d" stroke="none" /> : null}
+        </g>
+      ))}
       {notes.map((n) => {
         const x = x0 + n.i * gap;
         const ink = n.i === playStep ? TEAL : INK;
@@ -94,16 +109,22 @@ function GrooveStaff({ grid, bars, playStep }) {
         const stemX = x + (down ? -3.4 : 3.4);
         const stemEnd = down ? y.BD + 22 : up[n.v];
         const group = notes.filter((o) => o.v === n.v && Math.floor(o.i / 4) === Math.floor(n.i / 4));
-        const alone = group.length < 2;
         const pos = n.i % 4;
+        const led = group.length === 1 && (pos === 2 || pos === 3);
+        const alone = group.length < 2 && !led;
         const dotted = group.length === 2 && group.some((o) => o.i % 4 === 0) && group.some((o) => o.i % 4 === 3) && pos === 0;
         return (
           <g key={n.v + n.i}>
             <line x1={stemX} y1={y[n.v]} x2={stemX} y2={stemEnd} stroke={ink} strokeWidth="1" />
-            {alone && pos !== 0 ? (
-              <path d={down
-                ? `M ${stemX} ${stemEnd} C ${stemX - 8} ${stemEnd - 4} ${stemX - 7} ${stemEnd - 12} ${stemX} ${stemEnd - 14}`
-                : `M ${stemX} ${stemEnd} C ${stemX + 8} ${stemEnd + 4} ${stemX + 7} ${stemEnd + 12} ${stemX} ${stemEnd + 14}`} fill="none" stroke={ink} strokeWidth="1.2" />
+            {alone && pos === 1 ? (
+              <g fill={ink} stroke="none">
+                <path d={down
+                  ? `M ${stemX} ${stemEnd} C ${stemX - 8} ${stemEnd - 2} ${stemX - 8} ${stemEnd - 8} ${stemX} ${stemEnd - 8}`
+                  : `M ${stemX} ${stemEnd} C ${stemX + 8} ${stemEnd + 2} ${stemX + 8} ${stemEnd + 8} ${stemX} ${stemEnd + 8}`} />
+                <path d={down
+                  ? `M ${stemX} ${stemEnd - 5} C ${stemX - 7} ${stemEnd - 7} ${stemX - 7} ${stemEnd - 12} ${stemX} ${stemEnd - 12}`
+                  : `M ${stemX} ${stemEnd + 5} C ${stemX + 7} ${stemEnd + 7} ${stemX + 7} ${stemEnd + 12} ${stemX} ${stemEnd + 12}`} />
+              </g>
             ) : null}
             {n.v === "BD" || n.v === "SN" ? (
               <ellipse cx={x} cy={y[n.v]} rx="4.4" ry="3.1" fill={ink} transform={`rotate(-18 ${x} ${y[n.v]})`} />
