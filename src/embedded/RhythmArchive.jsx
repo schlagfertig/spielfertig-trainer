@@ -130,9 +130,9 @@ function GrooveStaff({ grid, bars, playStep }) {
           <g key={n.v + n.i}>
             <line x1={stemX} y1={y[n.v]} x2={stemX} y2={stemEnd} stroke={ink} strokeWidth="1" />
             {alone && pos === 2 ? (
-              <path d={down
-                ? `M ${stemX} ${stemEnd} C ${stemX - 8} ${stemEnd - 4} ${stemX - 7} ${stemEnd - 12} ${stemX} ${stemEnd - 14}`
-                : `M ${stemX} ${stemEnd} C ${stemX + 8} ${stemEnd + 4} ${stemX + 7} ${stemEnd + 12} ${stemX} ${stemEnd + 14}`} fill="none" stroke={ink} strokeWidth="1.2" />
+              <path fill={ink} stroke="none" d={down
+                ? `M ${stemX} ${stemEnd} L ${stemX - 1.1} ${stemEnd} C ${stemX - 11} ${stemEnd - 1.5}, ${stemX - 14} ${stemEnd - 10}, ${stemX - 11.5} ${stemEnd - 16} C ${stemX - 9} ${stemEnd - 11}, ${stemX - 6} ${stemEnd - 7}, ${stemX - 1.1} ${stemEnd - 6} Z`
+                : `M ${stemX} ${stemEnd} L ${stemX + 1.1} ${stemEnd} C ${stemX + 11} ${stemEnd + 1.5}, ${stemX + 14} ${stemEnd + 10}, ${stemX + 11.5} ${stemEnd + 16} C ${stemX + 9} ${stemEnd + 11}, ${stemX + 6} ${stemEnd + 7}, ${stemX + 1.1} ${stemEnd + 6} Z`} />
             ) : null}
             {alone && pos === 1 ? (
               <g fill={ink} stroke="none">
