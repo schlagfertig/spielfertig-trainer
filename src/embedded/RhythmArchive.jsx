@@ -167,6 +167,9 @@ export default function RhythmArchive() {
   const [playing, setPlaying] = useState(false);
   const [beat, setBeat] = useState(false);
   const [playStep, setPlayStep] = useState(-1);
+  const [hear, setHear] = useState("kit");
+  const hearRef = useRef(hear);
+  hearRef.current = hear;
   const stopRef = useRef(null);
   const bpmRef = useRef(bpm);
   bpmRef.current = bpm;
@@ -264,8 +267,9 @@ export default function RhythmArchive() {
       const horizon = now + 0.16;
       while (next < horizon && !cancelled) {
         const s = step % steps;
-        VOICES.forEach((v) => { if (snapshot[v.id] && snapshot[v.id][s]) playKit(ctx, v.id, next, s % 4 === 0); });
-        if (s % 4 === 0) playClick(ctx, next, s % 16 === 0);
+        const mode = hearRef.current;
+        if (mode !== "click") VOICES.forEach((v) => { if (snapshot[v.id] && snapshot[v.id][s]) playKit(ctx, v.id, next, s % 4 === 0); });
+        if (mode !== "kit" && s % 4 === 0) playClick(ctx, next, s % 16 === 0);
         const when = next;
         const show = s;
         window.setTimeout(() => {
@@ -397,11 +401,18 @@ export default function RhythmArchive() {
       ) : null}
 
       {screen === "practice" ? (
+        <>
+        <div className="seg" style={{ width: "fit-content", margin: "8px auto" }}>
+          <button type="button" className={hear === "click" ? "on" : ""} onClick={() => setHear("click")}>{t("Nur Click")}</button>
+          <button type="button" className={hear === "kit" ? "on" : ""} onClick={() => setHear("kit")}>Playback</button>
+          <button type="button" className={hear === "both" ? "on" : ""} onClick={() => setHear("both")}>Beides</button>
+        </div>
         <div className="dial-row" style={{ marginTop: 8 }}>
           <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 40, 200))} aria-label={t("5 BPM langsamer")}>−5</button>
           <MetronomeDial bpm={bpm} setBpm={(n) => setBpm(clamp(n, 40, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={124} now subLabel={playing ? "Stop" : "Start"} wheel wheelK={1.36} />
           <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 40, 200))} aria-label={t("5 BPM schneller")}>+5</button>
         </div>
+        </>
       ) : null}
 
       {screen === "archive" ? (
