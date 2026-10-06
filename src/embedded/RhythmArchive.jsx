@@ -58,40 +58,29 @@ function GrooveStaff({ grid, bars, playStep }) {
   VOICES.forEach((v) => grid[v.id].forEach((on, i) => { if (on) notes.push({ v: v.id, i }); }));
   const beams = [];
   const rests = [];
-  ["RD", "HH", "HO", "SN", "BD"].forEach((voice) => {
-    const down = voice === "BD";
-    const stemEnd = down ? y.BD + 22 : up[voice];
-    const sx = (i) => x0 + i * gap + (down ? -3.4 : 3.4);
-    for (let beat = 0; beat < bars * 4; beat++) {
-      const group = notes.filter((n) => n.v === voice && Math.floor(n.i / 4) === beat);
-      const pos = new Set(group.map((n) => n.i % 4));
-      const primary = stemEnd;
-      const secondary = stemEnd + (down ? -3.8 : 3.8);
-      if (group.length === 1 && (pos.has(3) || pos.has(1))) {
-        const note = group[0];
-        const restX = x0 + beat * 4 * gap;
-        rests.push({ x: restX, kind: pos.has(1) ? "16" : "8", down, beam: primary, headY: y[voice] });
-        beams.push(beamBox(restX + (down ? -3.4 : 3.4), primary, sx(note.i), 3.4));
-        beams.push(beamBox(sx(note.i), secondary, sx(note.i) - (pos.has(1) ? gap : head), 3.4));
-        continue;
+  const beamY = 6;
+  const sx = (i) => x0 + i * gap + 3.4;
+  for (let beat = 0; beat < bars * 4; beat++) {
+    const group = notes.filter((n) => Math.floor(n.i / 4) === beat);
+    const byVoice = {};
+    group.forEach((n) => { (byVoice[n.v] ||= []).push(n); });
+    Object.entries(byVoice).forEach(([voice, items]) => {
+      const pos = new Set(items.map((n) => n.i % 4));
+      if (items.length === 1 && (pos.has(1) || pos.has(3))) {
+        rests.push({ x: x0 + beat * 4 * gap, kind: pos.has(1) ? "16" : "8", down: false, beam: beamY, headY: y[voice] });
       }
-      if (group.length < 2) continue;
-      beams.push(beamBox(sx(group[0].i), primary, sx(group[group.length - 1].i), 3.4));
-      if (pos.size === 2 && pos.has(0) && pos.has(3)) {
-        beams.push(beamBox(sx(beat * 4 + 3), secondary, sx(beat * 4 + 3) - head, 3.4));
-        continue;
-      }
+    });
+    if (group.length >= 2 || rests.some((r) => Math.abs(r.x - (x0 + beat * 4 * gap)) < 1)) {
+      const xs = group.map((n) => sx(n.i));
+      const restX = x0 + beat * 4 * gap + 3.4;
+      const left = rests.some((r) => Math.abs(r.x - (x0 + beat * 4 * gap)) < 1) ? Math.min(restX, ...xs) : Math.min(...xs);
+      beams.push(beamBox(left, beamY, Math.max(...xs), 3.4));
       group.forEach((n) => {
-        const p = n.i % 4;
-        if (p !== 1 && p !== 3) return;
-        const x = sx(n.i);
-        const left = group.some((o) => o.i === n.i - 1);
-        const right = group.some((o) => o.i === n.i + 1);
-        if (left) beams.push(beamBox(sx(n.i - 1), secondary, x, 3.4));
-        else if (right) beams.push(beamBox(x, secondary, x + head, 3.4));
+        if (n.i % 4 !== 1 && n.i % 4 !== 3) return;
+        beams.push(beamBox(sx(n.i) - 8, beamY + 3.8, sx(n.i), 3.2));
       });
     }
-  });
+  }
   return (
     <svg viewBox={`0 4 ${w} 108`} width="100%" role="img" aria-label={t("Rhythmus")}>
       {[36, 44, 52, 60, 68].map((yy) => <line key={yy} x1="24" y1={yy} x2={w - 12} y2={yy} stroke="#c8d0d4" strokeWidth="1" />)}
@@ -113,13 +102,13 @@ function GrooveStaff({ grid, bars, playStep }) {
       {notes.map((n) => {
         const x = x0 + n.i * gap;
         const ink = n.i === playStep ? TEAL : INK;
-        const down = n.v === "BD";
-        const stemX = x + (down ? -3.4 : 3.4);
-        const group = notes.filter((o) => o.v === n.v && Math.floor(o.i / 4) === Math.floor(n.i / 4));
+        const down = false;
+        const stemX = x + 3.4;
+        const beatNotes = notes.filter((o) => Math.floor(o.i / 4) === Math.floor(n.i / 4));
         const pos = n.i % 4;
-        const led = group.length === 1 && (pos === 3 || pos === 1);
-        const stemEnd = down ? y.BD + 22 : up[n.v];
-        const alone = group.length < 2 && !led;
+        const led = beatNotes.filter((o) => o.v === n.v).length === 1 && (pos === 3 || pos === 1);
+        const stemEnd = beamY;
+        const alone = beatNotes.length < 2 && !led;
         const dotted = group.length === 2 && group.some((o) => o.i % 4 === 0) && group.some((o) => o.i % 4 === 3) && pos === 0;
         return (
           <g key={n.v + n.i}>
