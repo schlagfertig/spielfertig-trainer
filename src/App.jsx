@@ -367,6 +367,7 @@ export default function App() {
           : view === "stick" ? <StickControl preset={preset} />
           : view === "archive" ? <Archive />
           : view === "lexicon" ? <Lexicon />
+          : view === "rhythm" && master ? <RhythmArchive />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
       </main>
     </div>
