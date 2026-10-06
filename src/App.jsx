@@ -294,6 +294,7 @@ export default function App() {
         </div>
         <footer className="foot">
           <div className="foot-copy">Copyright by Thomas Schuster</div>
+          <div className="foot-copy">Version 1.0.2</div>
           <SocialLinks />
           <div className="foot-links">
             <button type="button" className="foot-link" onClick={() => open("impressum")}>{t("Impressum")}</button>
