@@ -40,7 +40,15 @@ function beamBox(x1, y, x2, thick) {
 }
 
 function eighthRest(x, y) {
-  return `M ${x - 1} ${y - 8} L ${x + 7} ${y - 8} L ${x + 1.5} ${y + 1} L ${x - 3.5} ${y + 6}`;
+  return `M ${x - 4.2} ${y - 1.2}
+    C ${x - 4.4} ${y - 5.4}, ${x - 0.4} ${y - 6.2}, ${x + 0.6} ${y - 3.2}
+    C ${x + 1.4} ${y - 0.8}, ${x - 0.6} ${y + 0.4}, ${x - 1.2} ${y + 1.2}
+    C ${x + 2.4} ${y - 1.4}, ${x + 6.4} ${y - 7.6}, ${x + 8.6} ${y - 10.4}
+    L ${x + 6.6} ${y - 5.2}
+    C ${x + 4.2} ${y - 1.6}, ${x + 2.2} ${y + 2.4}, ${x + 1.4} ${y + 7.2}
+    L ${x - 0.8} ${y + 6.2}
+    C ${x + 0.2} ${y + 2.2}, ${x + 1.6} ${y - 0.6}, ${x - 1.2} ${y + 1.2}
+    Z`;
 }
 
 function GrooveStaff({ grid, bars, playStep }) {
@@ -100,10 +108,10 @@ function GrooveStaff({ grid, bars, playStep }) {
         const y = r.down ? r.beam - 18 : r.beam + 18;
         const stemX = r.x + (r.down ? -3.4 : 3.4);
         return (
-          <g key={`rest-${i}`} fill="none" stroke="#161a1d" strokeWidth="1.6" strokeLinecap="round">
+          <g key={`rest-${i}`} fill="#161a1d" stroke="none">
             <path d={eighthRest(r.x, y)} />
-            <circle cx={r.x + 11} cy={y - 4} r="1.4" fill="#161a1d" stroke="none" />
-            <line x1={stemX} y1={y + 6} x2={stemX} y2={r.beam} strokeWidth="1" />
+            <circle cx={r.x + 12} cy={y - 1} r="1.4" />
+            <line x1={stemX} y1={y + 7} x2={stemX} y2={r.beam} stroke="#161a1d" strokeWidth="1" />
           </g>
         );
       })}
