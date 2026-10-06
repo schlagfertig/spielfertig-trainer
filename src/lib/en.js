@@ -20,7 +20,7 @@ export const EN = {
   "Click-Trainer": "Click Trainer",
   "Rhythmuspyramide": "Rhythm Pyramid",
   "Noten": "Sheet Music",
-  "Rhythmus-Archiv": "Rhythm archive",
+  "Meine Grooves": "My grooves",
   "Groove": "Groove",
   "Eigenen Groove bauen, mit der Dial üben und unter einem Namen behalten.": "Build your own groove, practise it with the dial and keep it under a name.",
   "Erstellen": "Build",
