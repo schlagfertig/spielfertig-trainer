@@ -43,7 +43,7 @@ function EighthRest({ x, y }) {
   return <image href="/rest-eighth.png" x={x - 4} y={y - 10} width="8" height="15" />;
 }
 function SixteenthRest({ x, y }) {
-  return <image href="/rest-16.png" x={x - 4} y={y - 14} width="8" height="18" />;
+  return <image href="/rest-16.png" x={x - 3} y={y - 8} width="5.4" height="12" />;
 }
 
 function GrooveStaff({ grid, bars, playStep }) {
@@ -70,7 +70,7 @@ function GrooveStaff({ grid, bars, playStep }) {
       if (group.length === 1 && (pos.has(3) || pos.has(1))) {
         const note = group[0];
         const restX = x0 + beat * 4 * gap;
-        rests.push({ x: restX, kind: pos.has(1) ? "16" : "8", down, beam: primary });
+        rests.push({ x: restX, kind: pos.has(1) ? "16" : "8", down, beam: primary, headY: y[voice] });
         beams.push(beamBox(restX + (down ? -3.4 : 3.4), primary, sx(note.i), 3.4));
         beams.push(beamBox(sx(note.i), secondary, sx(note.i) - (pos.has(1) ? gap : head), 3.4));
         continue;
@@ -100,7 +100,7 @@ function GrooveStaff({ grid, bars, playStep }) {
       ))}
       {beams.map((d, i) => <path key={i} d={d} fill="#161a1d" />)}
       {rests.map((r, i) => {
-        const y = r.down ? r.beam - 16 : r.beam + 12;
+        const y = r.kind === "16" ? r.headY : (r.down ? r.beam - 16 : r.beam + 12);
         const stemX = r.x + (r.down ? -3.4 : 3.4);
         return (
           <g key={`rest-${i}`}>
@@ -126,12 +126,12 @@ function GrooveStaff({ grid, bars, playStep }) {
             <line x1={stemX} y1={y[n.v]} x2={stemX} y2={stemEnd} stroke={ink} strokeWidth="1" />
             {alone && pos === 2 ? (
               <g transform={down ? `translate(${stemX} ${stemEnd}) scale(-1 -1)` : `translate(${stemX} ${stemEnd})`}>
-                <image href="/flag-8.png" x="0" y="0" width="11" height="15" />
+                <image href="/flag-8.png" x="-0.6" y="0" width="8" height="12" />
               </g>
             ) : null}
             {alone && (pos === 1 || pos === 3) ? (
               <g transform={down ? `translate(${stemX} ${stemEnd}) scale(-1 -1)` : `translate(${stemX} ${stemEnd})`}>
-                <image href="/flag-16.png" x="0" y="0" width="11" height="16" />
+                <image href="/flag-16.png" x="-0.6" y="0" width="8" height="14" />
               </g>
             ) : null}
             {n.v === "BD" || n.v === "SN" ? (
