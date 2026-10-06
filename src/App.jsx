@@ -232,6 +232,7 @@ export default function App() {
           <h1 className="app-logo" aria-label="Schlagfertig Control">
             <span className="app-logo-sub" aria-hidden="true">Control</span>
           </h1>
+          <p className="app-price" style={{ margin: "6px 0 0", color: "#5cc8b8", font: "800 15px Figtree, sans-serif", letterSpacing: "0.02em" }}>12,99 € einmalig</p>
         </header>
         {firstHidden ? null : (
           <div className={firstLeaving ? "first-wrap leaving" : "first-wrap"}>
