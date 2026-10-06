@@ -241,19 +241,7 @@ export default function App() {
         <header className="hero">
           <LogoMetronome />
           {/* Das runde Logo zeigt schon „schlagfertig‽ · Zeit für guten Sound“ – darunter nur „Control“. */}
-          <h1 className="app-logo" aria-label="Schlagfertig Control" onClick={() => {
-            const now = Date.now();
-            const taps = (window.__sfTaps || []).filter((n) => now - n < 2500);
-            taps.push(now);
-            window.__sfTaps = taps;
-            if (taps.length < 7) return;
-            window.__sfTaps = [];
-            setMaster((on) => {
-              const next = !on;
-              try { if (next) localStorage.setItem("sf-master", "1"); else localStorage.removeItem("sf-master"); } catch { /* ignore */ }
-              return next;
-            });
-          }}>
+          <h1 className="app-logo" aria-label="Schlagfertig Control">
             <span className="app-logo-sub" aria-hidden="true">Control{master ? " · Test" : ""}</span>
           </h1>
         </header>
@@ -303,7 +291,17 @@ export default function App() {
             <div className="card-lead">{t("Downbeat, Flam, Groove: kurze Erklärungen, von A bis Z durchsuchbar.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
-          <button className="card" type="button" disabled={!master} aria-disabled={!master} style={master ? undefined : { opacity: 0.45 }} onClick={() => master && open("rhythm")}>
+          <button className="card" type="button" aria-disabled={!master} style={master ? undefined : { opacity: 0.45 }} onClick={() => {
+            if (master) { open("rhythm"); return; }
+            const now = Date.now();
+            const taps = (window.__sfTaps || []).filter((n) => now - n < 2500);
+            taps.push(now);
+            window.__sfTaps = taps;
+            if (taps.length < 7) return;
+            window.__sfTaps = [];
+            try { localStorage.setItem("sf-master", "1"); } catch { /* ignore */ }
+            setMaster(true);
+          }}>
             <div className="card-kicker">{t("Groove")}</div>
             <div className="card-title">{t("Rhythmus-Archiv")}</div>
             <div className="card-lead">{t("Eigenen Groove bauen, mit der Dial üben und unter einem Namen behalten.")}</div>
