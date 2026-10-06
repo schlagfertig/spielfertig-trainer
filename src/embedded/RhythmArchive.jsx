@@ -64,12 +64,11 @@ function GrooveStaff({ grid, bars, playStep }) {
     const group = notes.filter((n) => Math.floor(n.i / 4) === beat);
     const byVoice = {};
     group.forEach((n) => { (byVoice[n.v] ||= []).push(n); });
-    Object.entries(byVoice).forEach(([voice, items]) => {
-      const pos = new Set(items.map((n) => n.i % 4));
-      if (items.length === 1 && (pos.has(1) || pos.has(3))) {
-        rests.push({ x: x0 + beat * 4 * gap, kind: pos.has(1) ? "16" : "8", down: false, beam: beamY, headY: y[voice] });
-      }
-    });
+    const positions = new Set(group.map((n) => n.i % 4));
+    if (!positions.has(0) && group.length) {
+      const first = Math.min(...positions);
+      rests.push({ x: x0 + beat * 4 * gap, kind: first === 1 ? "16" : "8", dotted: first === 3, down: false, beam: beamY, headY: 52 });
+    }
     if (group.length >= 2 || rests.some((r) => Math.abs(r.x - (x0 + beat * 4 * gap)) < 1)) {
       const xs = group.map((n) => sx(n.i));
       const restX = x0 + beat * 4 * gap + 3.4;
@@ -89,12 +88,12 @@ function GrooveStaff({ grid, bars, playStep }) {
       ))}
       {beams.map((d, i) => <path key={i} d={d} fill="#161a1d" />)}
       {rests.map((r, i) => {
-        const y = r.kind === "16" ? r.headY : (r.down ? r.beam - 16 : r.beam + 12);
+        const y = 52;
         const stemX = r.x + (r.down ? -3.4 : 3.4);
         return (
           <g key={`rest-${i}`}>
             {r.kind === "16" ? <SixteenthRest x={r.x} y={y} /> : <EighthRest x={r.x} y={y} />}
-            {r.kind === "16" ? null : <circle cx={r.x + 7} cy={y - 1} r="1.1" fill="#161a1d" />}
+            {r.dotted ? <circle cx={r.x + 8} cy={y - 2} r="1.1" fill="#161a1d" /> : null}
             <line x1={stemX} y1={y + 4} x2={stemX} y2={r.beam} stroke="#161a1d" strokeWidth="1" />
           </g>
         );
