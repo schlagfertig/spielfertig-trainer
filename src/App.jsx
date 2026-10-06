@@ -5,6 +5,7 @@ import PyramidTrainer from "./embedded/PyramidTrainer.jsx";
 import StickControl from "./embedded/StickControl.jsx";
 import Lexicon from "./embedded/Lexicon.jsx";
 import Archive from "./embedded/Archive.jsx";
+import RhythmArchive from "./embedded/RhythmArchive.jsx";
 import { Help } from "./lib/Help.jsx";
 import { Welcome } from "./lib/Welcome.jsx";
 import FirstLesson from "./lib/FirstLesson.jsx";
@@ -42,6 +43,7 @@ const META = {
   pyramid: { title: "Rhythmuspyramide", help: "pyramid" },
   stick: { title: "Hand Control", help: "stick" },
   archive: { title: "Noten", help: "archive" },
+  rhythm: { title: "Rhythmus-Archiv", help: "home" },
   lexicon: { title: "Lexikon", help: "home" },
   impressum: { title: "Impressum", help: "home" },
   datenschutz: { title: "Datenschutz", help: "home" },
@@ -277,6 +279,12 @@ export default function App() {
             <div className="card-lead">{t("Downbeat, Flam, Groove: kurze Erklärungen, von A bis Z durchsuchbar.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
+          <button className="card" onClick={() => open("rhythm")}>
+            <div className="card-kicker">{t("Groove")}</div>
+            <div className="card-title">{t("Rhythmus-Archiv")}</div>
+            <div className="card-lead">{t("Eigenen Groove bauen, mit der Dial üben und unter einem Namen behalten.")}</div>
+            <div className="card-go">{t("Öffnen")}</div>
+          </button>
           <button className="card" onClick={() => open("archive")}>
             <div className="card-kicker">{t("Eigene Blätter")}</div>
             <div className="card-title">{t("Noten")}</div>
@@ -335,6 +343,7 @@ export default function App() {
           : view === "pyramid" ? <PyramidTrainer preset={preset} />
           : view === "stick" ? <StickControl preset={preset} />
           : view === "archive" ? <Archive />
+          : view === "rhythm" ? <RhythmArchive />
           : view === "lexicon" ? <Lexicon />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
       </main>
