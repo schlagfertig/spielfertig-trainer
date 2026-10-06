@@ -8,9 +8,7 @@ const TEAL = "#5cc8b8";
 const DIM = "#8a969c";
 const INK = "#161a1d";
 const VOICES = [
-  { id: "RD", label: "Ride" },
   { id: "HH", label: "Hi-Hat" },
-  { id: "HO", label: "Offen" },
   { id: "SN", label: "Snare" },
   { id: "BD", label: "Bass" },
 ];
@@ -55,7 +53,7 @@ function GrooveStaff({ grid, bars, playStep }) {
   const up = { RD: 4, HH: 8, HO: 8, SN: 28 };
   const head = 12.4;
   const notes = [];
-  VOICES.forEach((v) => grid[v.id].forEach((on, i) => { if (on) notes.push({ v: v.id, i }); }));
+  VOICES.forEach((v) => (grid[v.id] || []).forEach((on, i) => { if (on) notes.push({ v: v.id, i }); }));
   const beams = [];
   const rests = [];
   const beamY = 6;
@@ -269,7 +267,7 @@ export default function RhythmArchive() {
       const horizon = now + 0.16;
       while (next < horizon && !cancelled) {
         const s = step % steps;
-        VOICES.forEach((v) => { if (snapshot[v.id][s]) playKit(ctx, v.id, next, s % 4 === 0); });
+        VOICES.forEach((v) => { if (snapshot[v.id] && snapshot[v.id][s]) playKit(ctx, v.id, next, s % 4 === 0); });
         if (s % 4 === 0) playClick(ctx, next, s % 16 === 0);
         const when = next;
         const show = s;
@@ -352,9 +350,8 @@ export default function RhythmArchive() {
             <button type="button" className="ghost" onClick={copyBar} disabled={bar === 0}>{t("Takt kopieren")}</button>
           </div>
           <div className="rhythm-grid">
-            <div className="rhythm-heads">
-              <span />
-              {heads.map((h, i) => <span key={h + i}>{h}</span>)}
+            <div className="rhythm-counts">
+              {[1, 2, 3, 4].map((n) => <span key={n}><b>{n}</b> e + a</span>)}
             </div>
             {VOICES.map((v) => (
               <div key={v.id} className="rhythm-row">
@@ -419,8 +416,9 @@ export default function RhythmArchive() {
         .rhythm-name { display: flex; flex-direction: column; gap: 4px; color: ${DIM}; font-weight: 700; }
         .rhythm-name input { background: #101416; color: #f4f7f6; border: 1px solid #2f383d; border-radius: 10px; padding: 10px 12px; font: 700 16px Figtree, sans-serif; }
         .rhythm-grid { display: flex; flex-direction: column; gap: 8px; }
-        .rhythm-heads, .rhythm-steps { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 3px; }
-        .rhythm-heads { margin-left: 0; color: ${DIM}; font: 700 11px Figtree, sans-serif; text-align: center; }
+        .rhythm-steps { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 3px; }
+        .rhythm-counts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; color: ${DIM}; font: 700 12px Figtree, sans-serif; text-align: center; }
+        .rhythm-counts b { color: ${TEAL}; }
         .rhythm-row { display: flex; flex-direction: column; gap: 4px; }
         .rhythm-voice { display: flex; justify-content: space-between; align-items: center; gap: 8px; color: #f4f7f6; font-weight: 800; }
         .rhythm-helps { display: flex; gap: 4px; }
@@ -431,8 +429,11 @@ export default function RhythmArchive() {
         .rhythm-tip { color: ${TEAL}; font-size: 14px; font-weight: 700; margin: 0 0 8px; }
         @media (orientation: landscape) {
           .rhythm-tip { display: none; }
-          .rhythm-steps button { min-height: 48px; }
-          .rhythm-helps button { min-height: 40px; }
+          .rhythm-grid { gap: 4px; }
+          .rhythm-row { display: grid; grid-template-columns: 76px 1fr; align-items: center; gap: 6px; }
+          .rhythm-voice { flex-direction: column; align-items: flex-start; }
+          .rhythm-steps button { min-height: 42px; }
+          .rhythm-helps button { min-height: 32px; min-width: 28px; }
         }
         .rhythm-note { color: ${DIM}; font-size: 13px; line-height: 1.4; }
         .rhythm-item { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
