@@ -43,7 +43,7 @@ const META = {
   pyramid: { title: "Rhythmuspyramide", help: "pyramid" },
   stick: { title: "Hand Control", help: "stick" },
   archive: { title: "Noten", help: "archive" },
-  rhythm: { title: "Meine Grooves", help: "home" },
+  rhythm: { title: "Meine Grooves", help: "grooves" },
   lexicon: { title: "Lexikon", help: "home" },
   impressum: { title: "Impressum", help: "home" },
   datenschutz: { title: "Datenschutz", help: "home" },
@@ -61,7 +61,6 @@ function viewFromPath() {
 
 export default function App() {
   const [view, setView] = useState(viewFromPath);
-  const [master, setMaster] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
   const [stage, setStage] = useState(false);
   // Startwerte für ein Modul, wenn es aus der „Heute“-Karte geöffnet wird (sonst null = eigene Werte).
@@ -177,14 +176,6 @@ export default function App() {
   }, [printOpen]);
 
   useEffect(() => {
-    try {
-      const q = new URLSearchParams(window.location.search);
-      if (q.get("meister") === "1") localStorage.setItem("sf-master", "1");
-      if (q.get("meister") === "0") localStorage.removeItem("sf-master");
-      setMaster(localStorage.getItem("sf-master") === "1");
-    } catch { /* ignore */ }
-  }, []);
-  useEffect(() => {
     if (view === "home") return undefined;
     let startX = 0;
     let startY = 0;
@@ -239,7 +230,7 @@ export default function App() {
           <LogoMetronome />
           {/* Das runde Logo zeigt schon „schlagfertig‽ · Zeit für guten Sound“ – darunter nur „Control“. */}
           <h1 className="app-logo" aria-label="Schlagfertig Control">
-            <span className="app-logo-sub" aria-hidden="true">Control{master ? " · Test" : ""}</span>
+            <span className="app-logo-sub" aria-hidden="true">Control</span>
           </h1>
         </header>
         {firstHidden ? null : (
