@@ -330,7 +330,8 @@ export default function RhythmArchive() {
 
       {screen === "build" ? (
         <>
-          <p className="rhythm-tip">{t("Zum Eintippen das Handy quer drehen. Die Felder werden größer.")}</p>
+          <p className="rhythm-tip">{t("Zum Eintippen das Handy quer drehen. Hochkant siehst du nur den Rhythmus.")}</p>
+          <div className="rhythm-entry">
           <label className="rhythm-name">
             <span>{t("Name")}</span>
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("z. B. Rock-Grund")} />
@@ -386,6 +387,7 @@ export default function RhythmArchive() {
           </div>
           <button type="button" className="play" style={{ marginTop: 12 }} onClick={save}>{t("Speichern")}</button>
           <p className="rhythm-note">{t("Nur auf diesem Gerät gespeichert. Bei Browser- oder Gerätewechsel kann das Archiv verloren gehen.")}</p>
+          </div>
         </>
       ) : null}
 
@@ -428,8 +430,10 @@ export default function RhythmArchive() {
         .rhythm-steps button[data-down="1"] { border-color: #3d4b50; }
         .rhythm-steps button.on { background: ${TEAL}; border-color: ${TEAL}; }
         .rhythm-tip { color: ${TEAL}; font-size: 14px; font-weight: 700; margin: 0 0 8px; }
+        .rhythm-entry { display: none; }
         @media (orientation: landscape) {
           .rhythm-tip { display: none; }
+          .rhythm-entry { display: block; }
           .rhythm-grid { gap: 6px; }
           .rhythm-counts { grid-template-columns: 108px repeat(16, minmax(0, 1fr)); }
           .rhythm-row { grid-template-columns: 108px 1fr; }
