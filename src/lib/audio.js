@@ -207,6 +207,12 @@ export function playKit(c, voice, t, accent) {
   } else if (voice === "CY") {
     noiseHit(c, t, 0.45, 0.1 * a, 2400);
     tone(c, t, 420, 0.3, "triangle", 0.035 * a);
+  } else if (voice === "RD") {
+    noiseHit(c, t, 0.09, 0.05 * a, 2800);
+    tone(c, t, 1400, 0.08, "triangle", 0.05 * a);
+  } else if (voice === "HO") {
+    noiseHit(c, t, 0.22, 0.09 * a, 3600);
+    tone(c, t, 4200, 0.1, "square", 0.028 * a);
   } else if (voice === "HF") {
     noiseHit(c, t, 0.03, 0.07 * a, 3000);
     tone(c, t, 240, 0.04, "square", 0.035 * a);
