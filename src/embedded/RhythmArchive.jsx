@@ -42,6 +42,9 @@ function beamBox(x1, y, x2, thick) {
 function EighthRest({ x, y }) {
   return <image href="/rest-eighth.png" x={x - 4} y={y - 10} width="8" height="15" />;
 }
+function SixteenthRest({ x, y }) {
+  return <image href="/rest-16.png" x={x - 4} y={y - 14} width="8" height="18" />;
+}
 
 function GrooveStaff({ grid, bars, playStep }) {
   const steps = bars * STEPS;
@@ -64,12 +67,12 @@ function GrooveStaff({ grid, bars, playStep }) {
       const pos = new Set(group.map((n) => n.i % 4));
       const primary = stemEnd;
       const secondary = stemEnd + (down ? -3.8 : 3.8);
-      if (group.length === 1 && pos.has(3)) {
+      if (group.length === 1 && (pos.has(3) || pos.has(1))) {
         const note = group[0];
         const restX = x0 + beat * 4 * gap;
-        rests.push({ x: restX, dotted: true, down, beam: primary });
+        rests.push({ x: restX, kind: pos.has(1) ? "16" : "8", down, beam: primary });
         beams.push(beamBox(restX + (down ? -3.4 : 3.4), primary, sx(note.i), 3.4));
-        beams.push(beamBox(sx(note.i), secondary, sx(note.i) - head, 3.4));
+        beams.push(beamBox(sx(note.i), secondary, sx(note.i) - (pos.has(1) ? gap : head), 3.4));
         continue;
       }
       if (group.length < 2) continue;
@@ -101,8 +104,8 @@ function GrooveStaff({ grid, bars, playStep }) {
         const stemX = r.x + (r.down ? -3.4 : 3.4);
         return (
           <g key={`rest-${i}`}>
-            <EighthRest x={r.x} y={y} />
-            <circle cx={r.x + 7} cy={y - 1} r="1.1" fill="#161a1d" />
+            {r.kind === "16" ? <SixteenthRest x={r.x} y={y} /> : <EighthRest x={r.x} y={y} />}
+            {r.kind === "16" ? null : <circle cx={r.x + 7} cy={y - 1} r="1.1" fill="#161a1d" />}
             <line x1={stemX} y1={y + 4} x2={stemX} y2={r.beam} stroke="#161a1d" strokeWidth="1" />
           </g>
         );
@@ -114,7 +117,7 @@ function GrooveStaff({ grid, bars, playStep }) {
         const stemX = x + (down ? -3.4 : 3.4);
         const group = notes.filter((o) => o.v === n.v && Math.floor(o.i / 4) === Math.floor(n.i / 4));
         const pos = n.i % 4;
-        const led = group.length === 1 && pos === 3;
+        const led = group.length === 1 && (pos === 3 || pos === 1);
         const stemEnd = down ? y.BD + 22 : up[n.v];
         const alone = group.length < 2 && !led;
         const dotted = group.length === 2 && group.some((o) => o.i % 4 === 0) && group.some((o) => o.i % 4 === 3) && pos === 0;
