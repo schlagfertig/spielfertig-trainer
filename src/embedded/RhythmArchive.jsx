@@ -74,6 +74,14 @@ function GrooveStaff({ grid, bars, playStep }) {
       const restX = x0 + beat * 4 * gap + 3.4;
       const left = rests.some((r) => Math.abs(r.x - (x0 + beat * 4 * gap)) < 1) ? Math.min(restX, ...xs) : Math.min(...xs);
       beams.push(beamBox(left, beamY, Math.max(...xs), 3.4));
+      const posInBeat = new Set(group.map((n) => n.i % 4));
+      if (posInBeat.size === 3 && posInBeat.has(0) && posInBeat.has(1) && posInBeat.has(3)) {
+        const first = sx(beat * 4);
+        const last = sx(beat * 4 + 3);
+        beams.push(beamBox(first, beamY + 3.8, first + 8, 3.2));
+        beams.push(beamBox(last - 8, beamY + 3.8, last, 3.2));
+        continue;
+      }
       const steps = [...new Set(group.map((n) => n.i))].sort((a, b) => a - b);
       let run = [];
       const flush = () => {
