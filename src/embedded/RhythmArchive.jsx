@@ -64,7 +64,7 @@ function GrooveStaff({ grid, bars, playStep }) {
       const pos = new Set(group.map((n) => n.i % 4));
       const primary = stemEnd;
       const secondary = stemEnd + (down ? -3.8 : 3.8);
-      if (group.length === 1 && (pos.has(2) || pos.has(3))) {
+      if (group.length === 1 && pos.has(3)) {
         const note = group[0];
         const restX = x0 + beat * 4 * gap;
         rests.push({ x: restX, dotted: pos.has(3), down });
@@ -110,12 +110,17 @@ function GrooveStaff({ grid, bars, playStep }) {
         const stemEnd = down ? y.BD + 22 : up[n.v];
         const group = notes.filter((o) => o.v === n.v && Math.floor(o.i / 4) === Math.floor(n.i / 4));
         const pos = n.i % 4;
-        const led = group.length === 1 && (pos === 2 || pos === 3);
+        const led = group.length === 1 && pos === 3;
         const alone = group.length < 2 && !led;
         const dotted = group.length === 2 && group.some((o) => o.i % 4 === 0) && group.some((o) => o.i % 4 === 3) && pos === 0;
         return (
           <g key={n.v + n.i}>
             <line x1={stemX} y1={y[n.v]} x2={stemX} y2={stemEnd} stroke={ink} strokeWidth="1" />
+            {alone && pos === 2 ? (
+              <path d={down
+                ? `M ${stemX} ${stemEnd} C ${stemX - 8} ${stemEnd - 4} ${stemX - 7} ${stemEnd - 12} ${stemX} ${stemEnd - 14}`
+                : `M ${stemX} ${stemEnd} C ${stemX + 8} ${stemEnd + 4} ${stemX + 7} ${stemEnd + 12} ${stemX} ${stemEnd + 14}`} fill="none" stroke={ink} strokeWidth="1.2" />
+            ) : null}
             {alone && pos === 1 ? (
               <g fill={ink} stroke="none">
                 <path d={down
