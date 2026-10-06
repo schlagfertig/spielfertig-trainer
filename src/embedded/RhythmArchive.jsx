@@ -32,9 +32,11 @@ function clamp(n, min, max) {
   return Math.max(min, Math.min(max, Math.round(n)));
 }
 
-function beamBox(x1, y1, x2, y2, w) {
-  const h = w / 2;
-  return `M ${x1} ${y1 - h} L ${x2} ${y2 - h} L ${x2} ${y2 + h} L ${x1} ${y1 + h} Z`;
+function beamBox(x1, y, x2, thick) {
+  const h = thick / 2;
+  const a = Math.min(x1, x2);
+  const b = Math.max(x1, x2);
+  return `M ${a} ${y - h} L ${b} ${y - h} L ${b} ${y + h} L ${a} ${y + h} Z`;
 }
 
 function GrooveStaff({ grid, bars, playStep }) {
@@ -44,27 +46,37 @@ function GrooveStaff({ grid, bars, playStep }) {
   const w = x0 + steps * gap + 18;
   const y = { RD: 18, HH: 30, HO: 30, SN: 52, BD: 82 };
   const up = { RD: 4, HH: 8, HO: 8, SN: 28 };
+  const head = 8;
   const notes = [];
-  VOICES.forEach((v) => {
-    grid[v.id].forEach((on, i) => { if (on) notes.push({ v: v.id, i }); });
-  });
+  VOICES.forEach((v) => grid[v.id].forEach((on, i) => { if (on) notes.push({ v: v.id, i }); }));
   const beams = [];
+  const dots = [];
   ["RD", "HH", "HO", "SN", "BD"].forEach((voice) => {
     const down = voice === "BD";
+    const stemEnd = down ? y.BD + 22 : up[voice];
+    const sx = (i) => x0 + i * gap + (down ? -3.4 : 3.4);
     for (let beat = 0; beat < bars * 4; beat++) {
       const group = notes.filter((n) => n.v === voice && Math.floor(n.i / 4) === beat);
       if (group.length < 2) continue;
-      const stemY = down ? y.BD + 22 : up[voice];
-      const xs = group.map((n) => x0 + n.i * gap + (down ? -3.4 : 3.4));
-      beams.push(beamBox(xs[0], stemY, xs[xs.length - 1], stemY, 2.6));
-      group.forEach((n, gi) => {
-        const pos = n.i % 4;
-        if (pos !== 1 && pos !== 3) return;
-        const x = x0 + n.i * gap + (down ? -3.4 : 3.4);
-        const prev = gi > 0 ? x0 + group[gi - 1].i * gap + (down ? -3.4 : 3.4) : x - gap;
-        const next = gi < group.length - 1 ? x0 + group[gi + 1].i * gap + (down ? -3.4 : 3.4) : x + gap;
-        const x2 = Math.abs(next - x) < Math.abs(x - prev) ? next : prev;
-        beams.push(beamBox(x, stemY + (down ? -4.2 : 4.2), x2, stemY + (down ? -4.2 : 4.2), 2.2));
+      const pos = new Set(group.map((n) => n.i % 4));
+      const primary = stemEnd;
+      const secondary = stemEnd + (down ? -4.4 : 4.4);
+      beams.push(beamBox(sx(group[0].i), primary, sx(group[group.length - 1].i), 2.4));
+      if (pos.size === 2 && pos.has(0) && pos.has(3)) {
+        const x = sx(beat * 4 + 3);
+        const toward = x - head;
+        beams.push(beamBox(x, secondary, toward, 2.2));
+        dots.push({ x: x0 + beat * 4 * gap + 7, y: y[voice] - 3, v: voice, i: beat * 4 });
+        continue;
+      }
+      group.forEach((n) => {
+        const p = n.i % 4;
+        if (p !== 1 && p !== 3) return;
+        const x = sx(n.i);
+        const left = group.some((o) => o.i === n.i - 1);
+        const right = group.some((o) => o.i === n.i + 1);
+        if (left) beams.push(beamBox(sx(n.i - 1), secondary, x, 2.2));
+        else if (right) beams.push(beamBox(x, secondary, sx(n.i + 1), 2.2));
       });
     }
   });
@@ -81,8 +93,10 @@ function GrooveStaff({ grid, bars, playStep }) {
         const down = n.v === "BD";
         const stemX = x + (down ? -3.4 : 3.4);
         const stemEnd = down ? y.BD + 22 : up[n.v];
-        const alone = !notes.some((o) => o.v === n.v && o.i !== n.i && Math.floor(o.i / 4) === Math.floor(n.i / 4));
+        const group = notes.filter((o) => o.v === n.v && Math.floor(o.i / 4) === Math.floor(n.i / 4));
+        const alone = group.length < 2;
         const pos = n.i % 4;
+        const dotted = group.length === 2 && group.some((o) => o.i % 4 === 0) && group.some((o) => o.i % 4 === 3) && pos === 0;
         return (
           <g key={n.v + n.i}>
             <line x1={stemX} y1={y[n.v]} x2={stemX} y2={stemEnd} stroke={ink} strokeWidth="1" />
@@ -100,6 +114,7 @@ function GrooveStaff({ grid, bars, playStep }) {
                 <line x1={x + 3.2} y1={y[n.v] - 3.2} x2={x - 3.2} y2={y[n.v] + 3.2} />
               </g>
             )}
+            {dotted ? <circle cx={x + 7} cy={y[n.v] - 3} r="1.3" fill={ink} /> : null}
           </g>
         );
       })}
