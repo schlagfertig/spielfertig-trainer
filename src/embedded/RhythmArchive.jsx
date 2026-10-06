@@ -46,7 +46,7 @@ function GrooveStaff({ grid, bars, playStep }) {
   const w = x0 + steps * gap + 18;
   const y = { RD: 18, HH: 30, HO: 30, SN: 52, BD: 82 };
   const up = { RD: 4, HH: 8, HO: 8, SN: 28 };
-  const head = 8;
+  const head = 12.4;
   const notes = [];
   VOICES.forEach((v) => grid[v.id].forEach((on, i) => { if (on) notes.push({ v: v.id, i }); }));
   const beams = [];
@@ -60,12 +60,12 @@ function GrooveStaff({ grid, bars, playStep }) {
       if (group.length < 2) continue;
       const pos = new Set(group.map((n) => n.i % 4));
       const primary = stemEnd;
-      const secondary = stemEnd + (down ? -4.4 : 4.4);
-      beams.push(beamBox(sx(group[0].i), primary, sx(group[group.length - 1].i), 2.4));
+      const secondary = stemEnd + (down ? -3.8 : 3.8);
+      beams.push(beamBox(sx(group[0].i), primary, sx(group[group.length - 1].i), 3.4));
       if (pos.size === 2 && pos.has(0) && pos.has(3)) {
         const x = sx(beat * 4 + 3);
         const toward = x - head;
-        beams.push(beamBox(x, secondary, toward, 2.2));
+        beams.push(beamBox(x, secondary, toward, 3.4));
         dots.push({ x: x0 + beat * 4 * gap + 7, y: y[voice] - 3, v: voice, i: beat * 4 });
         continue;
       }
@@ -114,7 +114,7 @@ function GrooveStaff({ grid, bars, playStep }) {
                 <line x1={x + 3.2} y1={y[n.v] - 3.2} x2={x - 3.2} y2={y[n.v] + 3.2} />
               </g>
             )}
-            {dotted ? <circle cx={x + 7} cy={y[n.v] - 3} r="1.3" fill={ink} /> : null}
+            {dotted ? <circle cx={x + 8.8} cy={y[n.v] + 0.5} r="1.4" fill={ink} /> : null}
           </g>
         );
       })}
