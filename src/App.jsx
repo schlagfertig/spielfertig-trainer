@@ -43,7 +43,7 @@ const META = {
   pyramid: { title: "Rhythmuspyramide", help: "pyramid" },
   stick: { title: "Hand Control", help: "stick" },
   archive: { title: "Noten", help: "archive" },
-  rhythm: { title: "Rhythmus-Archiv", help: "home" },
+  rhythm: { title: "Meine Grooves", help: "home" },
   lexicon: { title: "Lexikon", help: "home" },
   impressum: { title: "Impressum", help: "home" },
   datenschutz: { title: "Datenschutz", help: "home" },
@@ -303,7 +303,7 @@ export default function App() {
             setMaster(true);
           }}>
             <div className="card-kicker">{t("Groove")}</div>
-            <div className="card-title">{t("Rhythmus-Archiv")}</div>
+            <div className="card-title">{t("Meine Grooves")}</div>
             <div className="card-lead">{t("Eigenen Groove bauen, mit der Dial üben und unter einem Namen behalten.")}</div>
             <div className="card-go">{master ? "Test" : "Inaktiv"}</div>
           </button>
