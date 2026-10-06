@@ -157,6 +157,7 @@ export default function RhythmArchive() {
   const [name, setName] = useState("");
   const [bars, setBars] = useState(1);
   const [bar, setBar] = useState(0);
+  const [activeVoice, setActiveVoice] = useState("");
   const [bpm, setBpm] = useState(90);
   const [grid, setGrid] = useState(() => emptyGrid(1));
   const [list, setList] = useState(loadGrooves);
@@ -346,6 +347,12 @@ export default function RhythmArchive() {
             <span style={{ color: TEAL, fontWeight: 800 }}>{t("Takt")} {bar + 1}/{bars}</span>
             <button type="button" className="ghost" onClick={() => setBar((b) => Math.min(bars - 1, b + 1))} disabled={bar >= bars - 1}>{bar + 2}</button>
             <button type="button" className="ghost" onClick={copyBar} disabled={bar === 0}>{t("Takt kopieren")}</button>
+            <span className="rhythm-tools">
+              <button type="button" disabled={!activeVoice} onClick={() => fill(activeVoice, "beat")}>1</button>
+              <button type="button" disabled={!activeVoice} onClick={() => fill(activeVoice, "off")}>+</button>
+              <button type="button" disabled={!activeVoice} onClick={() => fill(activeVoice, "ea")}>e a</button>
+              <button type="button" disabled={!activeVoice} onClick={() => clearVoice(activeVoice)}>{t("leer")}</button>
+            </span>
           </div>
           <div className="rhythm-grid">
             <div className="rhythm-counts">
@@ -357,15 +364,7 @@ export default function RhythmArchive() {
             </div>
             {VOICES.map((v) => (
               <div key={v.id} className="rhythm-row">
-                <div className="rhythm-voice">
-                  <span>{t(v.label)}</span>
-                  <span className="rhythm-helps">
-                    <button type="button" onClick={() => fill(v.id, "beat")}>1</button>
-                    <button type="button" onClick={() => fill(v.id, "off")}>+</button>
-                    <button type="button" onClick={() => fill(v.id, "ea")}>e a</button>
-                    <button type="button" onClick={() => clearVoice(v.id)}>{t("leer")}</button>
-                  </span>
-                </div>
+                <button type="button" className={activeVoice === v.id ? "rhythm-voice on" : "rhythm-voice"} onClick={() => setActiveVoice(v.id)}>{t(v.label)}</button>
                 <div className="rhythm-steps">
                   {Array.from({ length: STEPS }, (_, i) => {
                     const step = bar * STEPS + i;
@@ -377,7 +376,7 @@ export default function RhythmArchive() {
                         className={on ? "on" : ""}
                         data-down={i % 4 === 0 ? "1" : "0"}
                         aria-label={`${t(v.label)} ${heads[i % 4]}`}
-                        onClick={() => toggle(v.id, step)}
+                        onClick={() => { setActiveVoice(v.id); toggle(v.id, step); }}
                       />
                     );
                   })}
@@ -423,7 +422,11 @@ export default function RhythmArchive() {
         .rhythm-counts { display: grid; grid-template-columns: 92px repeat(16, minmax(0, 1fr)); gap: 3px; color: ${DIM}; font: 700 11px Figtree, sans-serif; text-align: center; align-items: end; }
         .rhythm-counts .on { color: ${TEAL}; }
         .rhythm-row { display: grid; grid-template-columns: 92px 1fr; align-items: center; gap: 6px; }
-        .rhythm-voice { display: flex; justify-content: space-between; align-items: center; gap: 8px; color: #f4f7f6; font-weight: 800; }
+        .rhythm-voice { border: 0; background: transparent; color: #f4f7f6; font: 800 16px Figtree, sans-serif; text-align: left; padding: 0; }
+        .rhythm-voice.on { color: ${TEAL}; }
+        .rhythm-tools { margin-left: auto; display: flex; gap: 4px; }
+        .rhythm-tools button { min-width: 36px; min-height: 32px; border-radius: 8px; border: 1px solid #2f383d; background: transparent; color: ${TEAL}; font: 800 12px Figtree, sans-serif; }
+        .rhythm-tools button:disabled { opacity: 0.35; }
         .rhythm-helps { display: flex; gap: 4px; }
         .rhythm-helps button { min-width: 36px; min-height: 32px; border-radius: 8px; border: 1px solid #2f383d; background: transparent; color: ${TEAL}; font: 800 12px Figtree, sans-serif; }
         .rhythm-steps button { min-height: 36px; border-radius: 8px; border: 1px solid #2f383d; background: #101416; }
