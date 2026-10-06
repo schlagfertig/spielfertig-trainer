@@ -176,6 +176,7 @@ export default function App() {
   }, [printOpen]);
 
   useEffect(() => {
+    if (view === "rhythm") setView("home");
     if (view === "home") return undefined;
     let startX = 0;
     let startY = 0;
@@ -344,7 +345,6 @@ export default function App() {
           : view === "pyramid" ? <PyramidTrainer preset={preset} />
           : view === "stick" ? <StickControl preset={preset} />
           : view === "archive" ? <Archive />
-          : false
           : view === "lexicon" ? <Lexicon />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
       </main>
