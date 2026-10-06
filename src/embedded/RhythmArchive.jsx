@@ -346,7 +346,11 @@ export default function RhythmArchive() {
           </div>
           <div className="rhythm-grid">
             <div className="rhythm-counts">
-              {[1, 2, 3, 4].map((n) => <span key={n}><b>{n}</b> e + a</span>)}
+              {Array.from({ length: STEPS }, (_, i) => {
+                const mark = ["1", "e", "&", "a"][i % 4];
+                const label = i % 4 === 0 ? String(i / 4 + 1) : mark;
+                return <span key={i} className={i % 4 === 0 ? "on" : ""}>{label}</span>;
+              })}
             </div>
             {VOICES.map((v) => (
               <div key={v.id} className="rhythm-row">
@@ -412,8 +416,8 @@ export default function RhythmArchive() {
         .rhythm-name input { background: #101416; color: #f4f7f6; border: 1px solid #2f383d; border-radius: 10px; padding: 10px 12px; font: 700 16px Figtree, sans-serif; }
         .rhythm-grid { display: flex; flex-direction: column; gap: 8px; }
         .rhythm-steps { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 3px; }
-        .rhythm-counts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; color: ${DIM}; font: 700 12px Figtree, sans-serif; text-align: center; }
-        .rhythm-counts b { color: ${TEAL}; }
+        .rhythm-counts { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 3px; color: ${DIM}; font: 700 11px Figtree, sans-serif; text-align: center; }
+        .rhythm-counts .on { color: ${TEAL}; }
         .rhythm-row { display: flex; flex-direction: column; gap: 4px; }
         .rhythm-voice { display: flex; justify-content: space-between; align-items: center; gap: 8px; color: #f4f7f6; font-weight: 800; }
         .rhythm-helps { display: flex; gap: 4px; }
