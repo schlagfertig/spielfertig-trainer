@@ -32,34 +32,77 @@ function clamp(n, min, max) {
   return Math.max(min, Math.min(max, Math.round(n)));
 }
 
+function beamBox(x1, y1, x2, y2, w) {
+  const h = w / 2;
+  return `M ${x1} ${y1 - h} L ${x2} ${y2 - h} L ${x2} ${y2 + h} L ${x1} ${y1 + h} Z`;
+}
+
 function GrooveStaff({ grid, bars, playStep }) {
   const steps = bars * STEPS;
-  const x0 = 36;
+  const x0 = 42;
   const gap = 16;
-  const w = x0 + steps * gap + 16;
-  const y = { RD: 22, HH: 34, HO: 34, SN: 52, BD: 68 };
+  const w = x0 + steps * gap + 18;
+  const y = { RD: 18, HH: 30, HO: 30, SN: 52, BD: 82 };
+  const up = { RD: 4, HH: 8, HO: 8, SN: 28 };
+  const notes = [];
+  VOICES.forEach((v) => {
+    grid[v.id].forEach((on, i) => { if (on) notes.push({ v: v.id, i }); });
+  });
+  const beams = [];
+  ["RD", "HH", "HO", "SN", "BD"].forEach((voice) => {
+    const down = voice === "BD";
+    for (let beat = 0; beat < bars * 4; beat++) {
+      const group = notes.filter((n) => n.v === voice && Math.floor(n.i / 4) === beat);
+      if (group.length < 2) continue;
+      const stemY = down ? y.BD + 22 : up[voice];
+      const xs = group.map((n) => x0 + n.i * gap + (down ? -3.4 : 3.4));
+      beams.push(beamBox(xs[0], stemY, xs[xs.length - 1], stemY, 2.6));
+      group.forEach((n, gi) => {
+        const pos = n.i % 4;
+        if (pos !== 1 && pos !== 3) return;
+        const x = x0 + n.i * gap + (down ? -3.4 : 3.4);
+        const prev = gi > 0 ? x0 + group[gi - 1].i * gap + (down ? -3.4 : 3.4) : x - gap;
+        const next = gi < group.length - 1 ? x0 + group[gi + 1].i * gap + (down ? -3.4 : 3.4) : x + gap;
+        const x2 = Math.abs(next - x) < Math.abs(x - prev) ? next : prev;
+        beams.push(beamBox(x, stemY + (down ? -4.2 : 4.2), x2, stemY + (down ? -4.2 : 4.2), 2.2));
+      });
+    }
+  });
   return (
-    <svg viewBox={`0 0 ${w} 92`} width="100%" role="img" aria-label={t("Rhythmus")}>
-      <line x1="28" y1="46" x2={w - 10} y2="46" stroke="#c8d0d4" strokeWidth="1" />
+    <svg viewBox={`0 4 ${w} 108`} width="100%" role="img" aria-label={t("Rhythmus")}>
+      {[36, 44, 52, 60, 68].map((yy) => <line key={yy} x1="24" y1={yy} x2={w - 12} y2={yy} stroke="#c8d0d4" strokeWidth="1" />)}
       {Array.from({ length: bars + 1 }, (_, b) => (
-        <line key={b} x1={x0 + b * STEPS * gap - 8} y1="16" x2={x0 + b * STEPS * gap - 8} y2="78" stroke="#161a1d" strokeWidth={b === 0 || b === bars ? 1.6 : 1} />
+        <line key={b} x1={x0 + b * STEPS * gap - 10} y1="32" x2={x0 + b * STEPS * gap - 10} y2="72" stroke="#161a1d" strokeWidth={b === 0 || b === bars ? 1.6 : 1} />
       ))}
-      {VOICES.map((v) => grid[v.id].map((on, i) => {
-        if (!on) return null;
-        const x = x0 + i * gap;
-        const onStep = i === playStep;
-        const ink = onStep ? TEAL : INK;
-        if (v.id === "BD" || v.id === "SN") {
-          return <ellipse key={v.id + i} cx={x} cy={y[v.id]} rx="4.2" ry="3" fill={ink} transform={`rotate(-18 ${x} ${y[v.id]})`} />;
-        }
+      {beams.map((d, i) => <path key={i} d={d} fill="#161a1d" />)}
+      {notes.map((n) => {
+        const x = x0 + n.i * gap;
+        const ink = n.i === playStep ? TEAL : INK;
+        const down = n.v === "BD";
+        const stemX = x + (down ? -3.4 : 3.4);
+        const stemEnd = down ? y.BD + 22 : up[n.v];
+        const alone = !notes.some((o) => o.v === n.v && o.i !== n.i && Math.floor(o.i / 4) === Math.floor(n.i / 4));
+        const pos = n.i % 4;
         return (
-          <g key={v.id + i} stroke={ink} fill="none" strokeWidth="1.4">
-            {v.id === "HO" ? <circle cx={x} cy={y[v.id]} r="4.2" /> : null}
-            <line x1={x - 3.2} y1={y[v.id] - 3.2} x2={x + 3.2} y2={y[v.id] + 3.2} />
-            <line x1={x + 3.2} y1={y[v.id] - 3.2} x2={x - 3.2} y2={y[v.id] + 3.2} />
+          <g key={n.v + n.i}>
+            <line x1={stemX} y1={y[n.v]} x2={stemX} y2={stemEnd} stroke={ink} strokeWidth="1" />
+            {alone && pos !== 0 ? (
+              <path d={down
+                ? `M ${stemX} ${stemEnd} C ${stemX - 8} ${stemEnd - 4} ${stemX - 7} ${stemEnd - 12} ${stemX} ${stemEnd - 14}`
+                : `M ${stemX} ${stemEnd} C ${stemX + 8} ${stemEnd + 4} ${stemX + 7} ${stemEnd + 12} ${stemX} ${stemEnd + 14}`} fill="none" stroke={ink} strokeWidth="1.2" />
+            ) : null}
+            {n.v === "BD" || n.v === "SN" ? (
+              <ellipse cx={x} cy={y[n.v]} rx="4.4" ry="3.1" fill={ink} transform={`rotate(-18 ${x} ${y[n.v]})`} />
+            ) : (
+              <g stroke={ink} fill="none" strokeWidth="1.5">
+                {n.v === "HO" ? <circle cx={x} cy={y[n.v]} r="4.4" /> : null}
+                <line x1={x - 3.2} y1={y[n.v] - 3.2} x2={x + 3.2} y2={y[n.v] + 3.2} />
+                <line x1={x + 3.2} y1={y[n.v] - 3.2} x2={x - 3.2} y2={y[n.v] + 3.2} />
+              </g>
+            )}
           </g>
         );
-      }))}
+      })}
     </svg>
   );
 }
