@@ -279,11 +279,11 @@ export default function App() {
             <div className="card-lead">{t("Downbeat, Flam, Groove: kurze Erklärungen, von A bis Z durchsuchbar.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
-          <button className="card" onClick={() => open("rhythm")}>
+          <button className="card" type="button" disabled aria-disabled="true" style={{ opacity: 0.45 }}>
             <div className="card-kicker">{t("Groove")}</div>
             <div className="card-title">{t("Rhythmus-Archiv")}</div>
             <div className="card-lead">{t("Eigenen Groove bauen, mit der Dial üben und unter einem Namen behalten.")}</div>
-            <div className="card-go">{t("Öffnen")}</div>
+            <div className="card-go">Inaktiv</div>
           </button>
           <button className="card" onClick={() => open("archive")}>
             <div className="card-kicker">{t("Eigene Blätter")}</div>
@@ -344,7 +344,7 @@ export default function App() {
           : view === "pyramid" ? <PyramidTrainer preset={preset} />
           : view === "stick" ? <StickControl preset={preset} />
           : view === "archive" ? <Archive />
-          : view === "rhythm" ? <RhythmArchive />
+          : false
           : view === "lexicon" ? <Lexicon />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
       </main>
