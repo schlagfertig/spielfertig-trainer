@@ -315,10 +315,19 @@ export default function RhythmArchive() {
   const heads = ["1", "e", "+", "a"];
   return (
     <div className="rhythm-arch">
-      <div className="seg" style={{ width: "fit-content", marginBottom: 12 }}>
-        <button type="button" className={screen === "build" ? "on" : ""} onClick={() => { stop(); setScreen("build"); }}>{t("Erstellen")}</button>
-        <button type="button" className={screen === "practice" ? "on" : ""} onClick={() => setScreen("practice")}>{t("Üben")}</button>
-        <button type="button" className={screen === "archive" ? "on" : ""} onClick={() => { stop(); setScreen("archive"); }}>{t("Archiv")}</button>
+      <div className="rhythm-top">
+        <div className="seg" style={{ width: "fit-content" }}>
+          <button type="button" className={screen === "build" ? "on" : ""} onClick={() => { stop(); setScreen("build"); }}>{t("Erstellen")}</button>
+          <button type="button" className={screen === "practice" ? "on" : ""} onClick={() => setScreen("practice")}>{t("Üben")}</button>
+          <button type="button" className={screen === "archive" ? "on" : ""} onClick={() => { stop(); setScreen("archive"); }}>{t("Archiv")}</button>
+        </div>
+        {screen === "build" ? (
+          <div className="seg rhythm-bars">
+            {[1, 2, 3, 4].map((n) => (
+              <button key={n} type="button" className={bars === n ? "on" : ""} onClick={() => setBarsCount(n)}>{n}</button>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       {screen !== "archive" ? (
@@ -332,11 +341,6 @@ export default function RhythmArchive() {
         <>
           <p className="rhythm-tip">{t("Zum Eintippen das Handy quer drehen. Hochkant siehst du nur den Rhythmus.")}</p>
           <div className="rhythm-entry">
-          <div className="seg" style={{ width: "fit-content", margin: "8px 0" }}>
-            {[1, 2, 3, 4].map((n) => (
-              <button key={n} type="button" className={bars === n ? "on" : ""} onClick={() => setBarsCount(n)}>{n}</button>
-            ))}
-          </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
             <button type="button" className="ghost" onClick={() => setBar((b) => Math.max(0, b - 1))} disabled={bar === 0}>{t("Takt")} {bar}</button>
             <span style={{ color: TEAL, fontWeight: 800 }}>{t("Takt")} {bar + 1}/{bars}</span>
@@ -435,13 +439,14 @@ export default function RhythmArchive() {
         .rhythm-steps button[data-down="1"] { border-color: #3d4b50; }
         .rhythm-steps button.on { background: ${TEAL}; border-color: ${TEAL}; }
         .rhythm-tip { color: ${TEAL}; font-size: 14px; font-weight: 700; margin: 0 0 8px; }
+        .rhythm-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
         .rhythm-entry { display: none; }
         .rhythm-save { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
         .rhythm-save input { flex: 1; min-height: 40px; border-radius: 10px; border: 1px solid #2f383d; background: #101416; color: #f4f7f6; padding: 0 10px; }
         @media (orientation: landscape) {
           .rhythm-tip { display: none; }
           .rhythm-entry { display: block; padding-right: 34%; }
-          .rhythm-preview { position: fixed; top: 62px; right: 10px; width: 32%; margin: 0; z-index: 4; }
+          .rhythm-preview { position: fixed; top: 108px; right: 10px; width: 32%; margin: 0; z-index: 4; }
           .rhythm-steps button { min-height: 34px; }
           .rhythm-counts { font-size: 10px; }
           .rhythm-grid { gap: 6px; }
