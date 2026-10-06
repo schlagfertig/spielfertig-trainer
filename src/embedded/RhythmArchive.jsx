@@ -125,18 +125,13 @@ function GrooveStaff({ grid, bars, playStep }) {
           <g key={n.v + n.i}>
             <line x1={stemX} y1={y[n.v]} x2={stemX} y2={stemEnd} stroke={ink} strokeWidth="1" />
             {alone && pos === 2 ? (
-              <path fill={ink} stroke="none" d={down
-                ? `M ${stemX} ${stemEnd} L ${stemX - 1.1} ${stemEnd} C ${stemX - 11} ${stemEnd - 1.5}, ${stemX - 14} ${stemEnd - 10}, ${stemX - 11.5} ${stemEnd - 16} C ${stemX - 9} ${stemEnd - 11}, ${stemX - 6} ${stemEnd - 7}, ${stemX - 1.1} ${stemEnd - 6} Z`
-                : `M ${stemX} ${stemEnd} L ${stemX + 1.1} ${stemEnd} C ${stemX + 11} ${stemEnd + 1.5}, ${stemX + 14} ${stemEnd + 10}, ${stemX + 11.5} ${stemEnd + 16} C ${stemX + 9} ${stemEnd + 11}, ${stemX + 6} ${stemEnd + 7}, ${stemX + 1.1} ${stemEnd + 6} Z`} />
+              <g transform={down ? `translate(${stemX} ${stemEnd}) scale(-1 -1)` : `translate(${stemX} ${stemEnd})`}>
+                <image href="/flag-8.png" x="0" y="0" width="11" height="15" />
+              </g>
             ) : null}
-            {alone && pos === 1 ? (
-              <g fill={ink} stroke="none">
-                <path d={down
-                  ? `M ${stemX} ${stemEnd} C ${stemX - 8} ${stemEnd - 2} ${stemX - 8} ${stemEnd - 8} ${stemX} ${stemEnd - 8}`
-                  : `M ${stemX} ${stemEnd} C ${stemX + 8} ${stemEnd + 2} ${stemX + 8} ${stemEnd + 8} ${stemX} ${stemEnd + 8}`} />
-                <path d={down
-                  ? `M ${stemX} ${stemEnd - 5} C ${stemX - 7} ${stemEnd - 7} ${stemX - 7} ${stemEnd - 12} ${stemX} ${stemEnd - 12}`
-                  : `M ${stemX} ${stemEnd + 5} C ${stemX + 7} ${stemEnd + 7} ${stemX + 7} ${stemEnd + 12} ${stemX} ${stemEnd + 12}`} />
+            {alone && (pos === 1 || pos === 3) ? (
+              <g transform={down ? `translate(${stemX} ${stemEnd}) scale(-1 -1)` : `translate(${stemX} ${stemEnd})`}>
+                <image href="/flag-16.png" x="0" y="0" width="11" height="16" />
               </g>
             ) : null}
             {n.v === "BD" || n.v === "SN" ? (
