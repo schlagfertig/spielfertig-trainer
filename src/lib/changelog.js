@@ -5,6 +5,21 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-10-06",
+    items: [
+      { de: "Neu: Rhythmus-Archiv. Groove bauen mit Ride, Hi-Hat, offener Hi-Hat, Snare und Bassdrum, mit der Dial üben und unter einem Namen auf diesem Gerät behalten.",
+        en: "New: Rhythm archive. Build a groove with ride, hi-hat, open hi-hat, snare and bass drum, practise it with the dial and keep it under a name on this device." },
+      { de: "Rhythmus-Archiv: Bassdrum-Hälse nach unten, alle anderen nach oben. Erste und letzte 16tel einer Vierergruppe stehen als punktierte Achtel plus 16tel, wie bei Rudiment 33.",
+        en: "Rhythm archive: bass-drum stems point down, every other voice points up. The first and last 16th of a beat are written as a dotted eighth plus a 16th, like rudiment 33." },
+      { de: "Zum Eintippen im Rhythmus-Archiv das Handy quer drehen – die Felder werden größer.",
+        en: "Turn the phone sideways to enter a rhythm – the pads get bigger." },
+      { de: "Multiple Bounce Roll klingt im Vorspiel jetzt als Presswirbel, nicht mehr als einzelner Schlag.",
+        en: "The multiple bounce roll now plays back as a press roll, not a single stroke." },
+      { de: "Rudiments: R ist grau, L ist türkis. Der laufende Schlag leuchtet türkis.",
+        en: "Rudiments: R is grey, L is teal. The current stroke lights up teal." },
+    ],
+  },
+  {
     date: "2026-10-05",
     items: [
       { de: "Hand Control: Die aktuelle Übung steht jetzt auf einer hellen Karte – besser lesbar.",
