@@ -40,7 +40,7 @@ function beamBox(x1, y, x2, thick) {
 }
 
 function EighthRest({ x, y }) {
-  return <image href="/rest-eighth.png" x={x - 7} y={y - 18} width="16" height="29" />;
+  return <image href="/rest-eighth.png" x={x - 4} y={y - 10} width="8" height="15" />;
 }
 
 function GrooveStaff({ grid, bars, playStep }) {
@@ -67,9 +67,11 @@ function GrooveStaff({ grid, bars, playStep }) {
       if (group.length === 1 && pos.has(3)) {
         const note = group[0];
         const restX = x0 + beat * 4 * gap;
-        rests.push({ x: restX, dotted: true, down, beam: primary });
-        beams.push(beamBox(restX + (down ? -3.4 : 3.4), primary, sx(note.i), 3.4));
-        beams.push(beamBox(sx(note.i), secondary, sx(note.i) - head, 3.4));
+        const short = down ? y.BD + 11 : up[voice] + (y[voice] - up[voice]) / 2;
+        const beamY = down ? y.BD + 11 : y[voice] - 11;
+        rests.push({ x: restX, dotted: true, down, beam: beamY });
+        beams.push(beamBox(restX + (down ? -3.4 : 3.4), beamY, sx(note.i), 3.4));
+        beams.push(beamBox(sx(note.i), beamY + (down ? -3.8 : 3.8), sx(note.i) - head, 3.4));
         continue;
       }
       if (group.length < 2) continue;
@@ -97,13 +99,13 @@ function GrooveStaff({ grid, bars, playStep }) {
       ))}
       {beams.map((d, i) => <path key={i} d={d} fill="#161a1d" />)}
       {rests.map((r, i) => {
-        const y = r.down ? r.beam - 30 : r.beam + 22;
+        const y = r.down ? r.beam - 16 : r.beam + 12;
         const stemX = r.x + (r.down ? -3.4 : 3.4);
         return (
           <g key={`rest-${i}`}>
             <EighthRest x={r.x} y={y} />
-            <circle cx={r.x + 13} cy={y - 2} r="1.35" fill="#161a1d" />
-            <line x1={stemX} y1={y + 8} x2={stemX} y2={r.beam} stroke="#161a1d" strokeWidth="1" />
+            <circle cx={r.x + 7} cy={y - 1} r="1.1" fill="#161a1d" />
+            <line x1={stemX} y1={y + 4} x2={stemX} y2={r.beam} stroke="#161a1d" strokeWidth="1" />
           </g>
         );
       })}
@@ -112,7 +114,7 @@ function GrooveStaff({ grid, bars, playStep }) {
         const ink = n.i === playStep ? TEAL : INK;
         const down = n.v === "BD";
         const stemX = x + (down ? -3.4 : 3.4);
-        const stemEnd = down ? y.BD + 22 : up[n.v];
+        const stemEnd = led ? (down ? y[n.v] + 11 : y[n.v] - 11) : (down ? y.BD + 22 : up[n.v]);
         const group = notes.filter((o) => o.v === n.v && Math.floor(o.i / 4) === Math.floor(n.i / 4));
         const pos = n.i % 4;
         const led = group.length === 1 && pos === 3;
