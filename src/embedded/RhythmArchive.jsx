@@ -67,11 +67,9 @@ function GrooveStaff({ grid, bars, playStep }) {
       if (group.length === 1 && pos.has(3)) {
         const note = group[0];
         const restX = x0 + beat * 4 * gap;
-        const short = down ? y.BD + 11 : up[voice] + (y[voice] - up[voice]) / 2;
-        const beamY = down ? y.BD + 11 : y[voice] - 11;
-        rests.push({ x: restX, dotted: true, down, beam: beamY });
-        beams.push(beamBox(restX + (down ? -3.4 : 3.4), beamY, sx(note.i), 3.4));
-        beams.push(beamBox(sx(note.i), beamY + (down ? -3.8 : 3.8), sx(note.i) - head, 3.4));
+        rests.push({ x: restX, dotted: true, down, beam: primary });
+        beams.push(beamBox(restX + (down ? -3.4 : 3.4), primary, sx(note.i), 3.4));
+        beams.push(beamBox(sx(note.i), secondary, sx(note.i) - head, 3.4));
         continue;
       }
       if (group.length < 2) continue;
@@ -117,7 +115,7 @@ function GrooveStaff({ grid, bars, playStep }) {
         const group = notes.filter((o) => o.v === n.v && Math.floor(o.i / 4) === Math.floor(n.i / 4));
         const pos = n.i % 4;
         const led = group.length === 1 && pos === 3;
-        const stemEnd = led ? (down ? y[n.v] + 11 : y[n.v] - 11) : (down ? y.BD + 22 : up[n.v]);
+        const stemEnd = down ? y.BD + 22 : up[n.v];
         const alone = group.length < 2 && !led;
         const dotted = group.length === 2 && group.some((o) => o.i % 4 === 0) && group.some((o) => o.i % 4 === 3) && pos === 0;
         return (
