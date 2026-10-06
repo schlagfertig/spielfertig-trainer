@@ -114,10 +114,10 @@ function GrooveStaff({ grid, bars, playStep }) {
         const ink = n.i === playStep ? TEAL : INK;
         const down = n.v === "BD";
         const stemX = x + (down ? -3.4 : 3.4);
-        const stemEnd = led ? (down ? y[n.v] + 11 : y[n.v] - 11) : (down ? y.BD + 22 : up[n.v]);
         const group = notes.filter((o) => o.v === n.v && Math.floor(o.i / 4) === Math.floor(n.i / 4));
         const pos = n.i % 4;
         const led = group.length === 1 && pos === 3;
+        const stemEnd = led ? (down ? y[n.v] + 11 : y[n.v] - 11) : (down ? y.BD + 22 : up[n.v]);
         const alone = group.length < 2 && !led;
         const dotted = group.length === 2 && group.some((o) => o.i % 4 === 0) && group.some((o) => o.i % 4 === 3) && pos === 0;
         return (
