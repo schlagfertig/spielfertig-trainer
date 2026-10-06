@@ -61,6 +61,7 @@ function viewFromPath() {
 
 export default function App() {
   const [view, setView] = useState(viewFromPath);
+  const [master, setMaster] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
   const [stage, setStage] = useState(false);
   // Startwerte für ein Modul, wenn es aus der „Heute“-Karte geöffnet wird (sonst null = eigene Werte).
@@ -176,7 +177,17 @@ export default function App() {
   }, [printOpen]);
 
   useEffect(() => {
-    if (view === "rhythm") setView("home");
+    try {
+      const q = new URLSearchParams(window.location.search);
+      if (q.get("meister") === "1") localStorage.setItem("sf-master", "1");
+      if (q.get("meister") === "0") localStorage.removeItem("sf-master");
+      setMaster(localStorage.getItem("sf-master") === "1");
+    } catch { /* ignore */ }
+  }, []);
+  useEffect(() => {
+    if (view === "rhythm" && !master) setView("home");
+  }, [view, master]);
+  useEffect(() => {
     if (view === "home") return undefined;
     let startX = 0;
     let startY = 0;
@@ -230,8 +241,20 @@ export default function App() {
         <header className="hero">
           <LogoMetronome />
           {/* Das runde Logo zeigt schon „schlagfertig‽ · Zeit für guten Sound“ – darunter nur „Control“. */}
-          <h1 className="app-logo" aria-label="Schlagfertig Control">
-            <span className="app-logo-sub" aria-hidden="true">Control</span>
+          <h1 className="app-logo" aria-label="Schlagfertig Control" onClick={() => {
+            const now = Date.now();
+            const taps = (window.__sfTaps || []).filter((n) => now - n < 2500);
+            taps.push(now);
+            window.__sfTaps = taps;
+            if (taps.length < 7) return;
+            window.__sfTaps = [];
+            setMaster((on) => {
+              const next = !on;
+              try { if (next) localStorage.setItem("sf-master", "1"); else localStorage.removeItem("sf-master"); } catch { /* ignore */ }
+              return next;
+            });
+          }}>
+            <span className="app-logo-sub" aria-hidden="true">Control{master ? " · Test" : ""}</span>
           </h1>
         </header>
         {firstHidden ? null : (
@@ -280,11 +303,11 @@ export default function App() {
             <div className="card-lead">{t("Downbeat, Flam, Groove: kurze Erklärungen, von A bis Z durchsuchbar.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
-          <button className="card" type="button" disabled aria-disabled="true" style={{ opacity: 0.45 }}>
+          <button className="card" type="button" disabled={!master} aria-disabled={!master} style={master ? undefined : { opacity: 0.45 }} onClick={() => master && open("rhythm")}>
             <div className="card-kicker">{t("Groove")}</div>
             <div className="card-title">{t("Rhythmus-Archiv")}</div>
             <div className="card-lead">{t("Eigenen Groove bauen, mit der Dial üben und unter einem Namen behalten.")}</div>
-            <div className="card-go">Inaktiv</div>
+            <div className="card-go">{master ? "Test" : "Inaktiv"}</div>
           </button>
           <button className="card" onClick={() => open("archive")}>
             <div className="card-kicker">{t("Eigene Blätter")}</div>
