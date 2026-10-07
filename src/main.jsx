@@ -5,6 +5,7 @@ import "./fonts/fonts.css";
 import "./styles.css";
 import "./styles-glass.css";
 import "./styles-top.css";
+import "./styles-home.css";
 import "./lib/enableAltStick.js";
 import { initNative } from "./lib/native.js";
 import { installNoBounce } from "./lib/noBounce.js";
