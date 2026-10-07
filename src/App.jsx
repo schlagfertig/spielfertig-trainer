@@ -228,9 +228,9 @@ export default function App() {
         </div>
         <header className="hero">
           <LogoMetronome />
-          {/* Das runde Logo zeigt schon „schlagfertig‽ · Zeit für guten Sound“ – darunter nur „Control“. */}
-          <h1 className="app-logo" aria-label="Schlagfertig Control">
-            <span className="app-logo-sub" aria-hidden="true">Control</span>
+          {/* Das runde Logo zeigt schon „schlagfertig‽ · Zeit für guten Sound“ – darunter der Untertitel. */}
+          <h1 className="app-logo" aria-label={`Schlagfertig‽ – ${t("Drums lernen – Schlag für Schlag")}`}>
+            <span className="app-logo-sub" aria-hidden="true">{t("Drums lernen – Schlag für Schlag")}</span>
           </h1>
           {false && <p className="app-price" style={{ margin: "6px 0 0", color: "#5cc8b8", font: "800 15px Figtree, sans-serif", letterSpacing: "0.02em" }}>12,99 € einmalig</p>}
         </header>
@@ -240,7 +240,7 @@ export default function App() {
               <button className="card" style={{ width: "100%", borderColor: "#5cc8b8" }} onClick={() => open("first")}>
                 <div className="card-kicker">{t(firstDone ? "Nochmal" : "Loslegen")}</div>
                 <div className="card-title">{t("Erste Übung starten")}</div>
-                <div className="card-lead">{t("Einfach loslegen: eine Minute im Click spielen. Ganz ohne Vorwissen.")}</div>
+                <div className="card-lead">{t("Leg einfach los: Spiel eine Minute zum Click – ganz ohne Vorwissen.")}</div>
                 <div className="card-go">Start</div>
               </button>
               {/* eigener Knopf neben (nicht in) der Karte – Knöpfe dürfen nicht verschachtelt sein */}
@@ -253,43 +253,43 @@ export default function App() {
           <button className="card" onClick={() => open("rudiments")}>
             <div className="card-kicker">{t("Üben")}</div>
             <div className="card-title">Rudiments</div>
-            <div className="card-lead">{t("40 Grundlagen für Technik, Kontrolle und Timing.")}<br />{t("Mit Notation, Click und Tempo.")}</div>
+            <div className="card-lead">{t("Meistere 40 Grundlagen für Technik, Kontrolle und Timing.")}<br />{t("Mit Notation, Click und Tempo.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card" onClick={() => open("click")}>
             <div className="card-kicker">Tempo</div>
             <div className="card-title">{t("Click-Trainer")}</div>
-            <div className="card-lead">{t("Dein Tempo, dein Groove. Tempo sicher halten oder Schritt für Schritt steigern.")}</div>
+            <div className="card-lead">{t("Dein Tempo, dein Groove: Halte es sicher oder steigere es Schritt für Schritt.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card" onClick={() => open("pyramid")}>
             <div className="card-kicker">Subdivision</div>
             <div className="card-title">{t("Rhythmuspyramide")}</div>
-            <div className="card-lead">{t("4tel bis 32tel: Puls festigen und sauber zwischen den Unterteilungen wechseln.")}</div>
+            <div className="card-lead">{t("Von 4teln bis 32teln: Festige deinen Puls und wechsle sauber zwischen den Unterteilungen.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card" onClick={() => open("stick")}>
             <div className="card-kicker">{t("Technik")}</div>
             <div className="card-title">{t("Hand Control")}</div>
-            <div className="card-lead">{t("Schwache Hand verbessern, saubere Wechsel üben, Tempo ohne Verspannungen halten.")}</div>
+            <div className="card-lead">{t("Stärke deine schwache Hand, übe saubere Wechsel und halte das Tempo ganz locker.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card" onClick={() => open("lexicon")}>
             <div className="card-kicker">{t("Nachschlagen")}</div>
             <div className="card-title">{t("Lexikon")}</div>
-            <div className="card-lead">{t("Downbeat, Flam, Groove: kurze Erklärungen, von A bis Z durchsuchbar.")}</div>
+            <div className="card-lead">{t("Downbeat, Flam, Groove: Schlag nach, was dahintersteckt – von A bis Z.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card" type="button" onClick={() => open("rhythm")}>
             <div className="card-kicker">{t("Groove")}</div>
             <div className="card-title">{t("Meine Grooves")}</div>
-            <div className="card-lead">{t("Eigenen Groove bauen, mit der Dial üben und unter einem Namen behalten.")}</div>
+            <div className="card-lead">{t("Bau deinen eigenen Groove, gib ihm einen Namen und üb ihn mit der Dial, bis er sitzt.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card" onClick={() => open("archive")}>
             <div className="card-kicker">{t("Eigene Blätter")}</div>
             <div className="card-title">{t("Noten")}</div>
-            <div className="card-lead">{t("Deine Noten immer dabei. Fotos und PDFs speichern, beim Üben aufschlagen und zoomen.")}</div>
+            <div className="card-lead">{t("Hab deine Noten immer dabei: Speichere Fotos und PDFs, schlag sie beim Üben auf und zoom hinein.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
         </div>
@@ -309,7 +309,7 @@ export default function App() {
 
   const meta = META[view] || META.rudiments;
   return (
-    <div className={stage ? "page tool stage" : "page tool"}>
+    <div className={`page tool view-${view}${stage ? " stage" : ""}`}>
       <header className="top">
         <div className="top-row">
           {stage && !printOpen ? (
