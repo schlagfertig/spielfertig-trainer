@@ -19,6 +19,8 @@ export const CHANGELOG = [
         en: "Glossary: image descriptions added for 13 term pictures – helpful with a screen reader." },
       { de: "Meine Grooves: 1. und 4. 16tel stehen jetzt richtig als punktierte Achtel plus 16tel, leere Schläge und Takte zeigen Pausen. Die Zählzeile zeigt wie die Hilfen „1 e + a“, in Takt 1 steht kein „Takt 0“ mehr, „Löschen“ fragt vorher nach, und quer liegt das Start-Rad beim Üben neben den Noten. Die Bassdrum steht jetzt im untersten Zwischenraum. Die Snare steht im Zwischenraum zwischen zweiter und dritter Linie.",
         en: "My grooves: the 1st and 4th 16th are now written correctly as a dotted eighth plus a 16th, and empty beats and bars show rests. The count row reads “1 e + a” like the helpers, bar 1 no longer shows “Bar 0”, Delete asks first, and in landscape the Start dial sits next to the notes when you practise. The bass drum now sits in the bottom space of the staff. The snare sits in the space between the second and third line." },
+      { de: "Rhythmuspyramide: Beim Üben zeigt eine große Karte die nächste Stufe als ganzen Takt. Im letzten Durchgang wird sie leicht türkis und zählt die Schläge bis zum Wechsel (4-3-2-1), die Noten gehen Schlag für Schlag weich in die nächste Stufe über. Quer stehen die Noten links und das Rad rechts.",
+        en: "Rhythm Pyramid: while you practise, a large card shows the next level as a full bar. In the last pass it turns light teal and counts the beats to the change (4-3-2-1), and the notes move into the next level beat by beat with a soft fade. In landscape the notes sit on the left and the dial on the right." },
     ],
   },
   {

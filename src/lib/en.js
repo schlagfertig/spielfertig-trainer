@@ -230,6 +230,9 @@ export const EN = {
   "Pyramide fertig.": "Pyramid done.",
   "Jetzt": "Now",
   "Letzte Stufe": "Last level",
+  "Wechsel in": "Change in",
+  "Schlag": "beat",
+  "Schlägen": "beats",
   "danach fertig": "then done",
   "Stufe {i}/{n}": "Level {i}/{n}",
   // Hand Control
