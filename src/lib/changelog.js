@@ -17,8 +17,8 @@ export const CHANGELOG = [
         en: "My grooves: every button and the hint to turn your phone sideways now appear in English too." },
       { de: "Lexikon: Bildbeschreibungen für 13 Begriffs-Bilder ergänzt – hilfreich mit Screenreader.",
         en: "Glossary: image descriptions added for 13 term pictures – helpful with a screen reader." },
-      { de: "Meine Grooves: 1. und 4. 16tel stehen jetzt richtig als punktierte Achtel plus 16tel, leere Schläge und Takte zeigen Pausen. Die Zählzeile zeigt wie die Hilfen „1 e + a“, in Takt 1 steht kein „Takt 0“ mehr, „Löschen“ fragt vorher nach, und quer liegt das Start-Rad beim Üben neben den Noten. Die Bassdrum steht jetzt im untersten Zwischenraum.",
-        en: "My grooves: the 1st and 4th 16th are now written correctly as a dotted eighth plus a 16th, and empty beats and bars show rests. The count row reads “1 e + a” like the helpers, bar 1 no longer shows “Bar 0”, Delete asks first, and in landscape the Start dial sits next to the notes when you practise. The bass drum now sits in the bottom space of the staff." },
+      { de: "Meine Grooves: 1. und 4. 16tel stehen jetzt richtig als punktierte Achtel plus 16tel, leere Schläge und Takte zeigen Pausen. Die Zählzeile zeigt wie die Hilfen „1 e + a“, in Takt 1 steht kein „Takt 0“ mehr, „Löschen“ fragt vorher nach, und quer liegt das Start-Rad beim Üben neben den Noten. Die Bassdrum steht jetzt im untersten Zwischenraum. Die Snare steht im Zwischenraum zwischen zweiter und dritter Linie.",
+        en: "My grooves: the 1st and 4th 16th are now written correctly as a dotted eighth plus a 16th, and empty beats and bars show rests. The count row reads “1 e + a” like the helpers, bar 1 no longer shows “Bar 0”, Delete asks first, and in landscape the Start dial sits next to the notes when you practise. The bass drum now sits in the bottom space of the staff. The snare sits in the space between the second and third line." },
     ],
   },
   {
