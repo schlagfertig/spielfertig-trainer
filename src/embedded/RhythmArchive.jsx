@@ -61,8 +61,9 @@ function GrooveStaff({ grid, bars, playStep }) {
   const x0 = 42;
   const gap = 16;
   const w = x0 + steps * gap + 18;
-  // Bassdrum im untersten Zwischenraum (zwischen den beiden unteren Linien 60 und 68), keine Hilfslinie nötig.
-  const y = { RD: 18, HH: 30, HO: 30, SN: 52, BD: 64 };
+  // Linien 36, 44, 52, 60, 68 (von oben). Snare im Zwischenraum zwischen 2. und 3. Linie (48),
+  // Bassdrum im untersten Zwischenraum (zwischen 60 und 68), Hi-Hat über der obersten Linie. Keine Hilfslinien nötig.
+  const y = { RD: 18, HH: 30, HO: 30, SN: 48, BD: 64 };
   const notes = [];
   VOICES.forEach((v) => (grid[v.id] || []).forEach((on, i) => { if (on) notes.push({ v: v.id, i }); }));
   const beams = [];
@@ -136,7 +137,7 @@ function GrooveStaff({ grid, bars, playStep }) {
                 <line x1={x + 3.2} y1={y[n.v] - 3.2} x2={x - 3.2} y2={y[n.v] + 3.2} />
               </g>
             )}
-            {nf.dot ? <circle cx={x + 8.8} cy={y[n.v] + 0.5} r="1.4" fill={ink} /> : null}
+            {nf.dot ? <circle cx={x + 8.8} cy={y[n.v]} r="1.4" fill={ink} /> : null}
           </g>
         );
       })}
