@@ -13,10 +13,10 @@ export const LEXICON = [
   {
     id: "akzent",
     img: "/lexikon/begriffe/akzent.webp",
-    alt: "",
+    alt: "Vier Viertelnoten, die zweite mit Akzentzeichen, hervorgehoben",
     term: "Akzent",
     text: "Ein Akzent ist ein Schlag, der lauter oder klarer ist als die anderen. In der Notation steht oft ein Keil darüber. Akzente geben einer Übung oder einem Groove eine Richtung, ohne dass sich die Notenwerte ändern.",
-    en: { term: "Accent", text: "An accent is a stroke that is louder or clearer than the others. In notation it is often marked with a wedge above the note. Accents give an exercise or a groove direction without changing the note values." },
+    en: { term: "Accent", alt: "Four quarter notes, the second with an accent mark, highlighted", text: "An accent is a stroke that is louder or clearer than the others. In notation it is often marked with a wedge above the note. Accents give an exercise or a groove direction without changing the note values." },
   },
   {
     id: "auftakt",
@@ -27,10 +27,10 @@ export const LEXICON = [
   {
     id: "backbeat",
     img: "/lexikon/begriffe/backbeat.webp",
-    alt: "",
+    alt: "4/4-Takt: Hi-Hat in Achteln, Bassdrum auf 1 und 3, Snare auf 2 und 4 hervorgehoben",
     term: "Backbeat",
     text: "Der Backbeat ist die Betonung auf Zählzeit 2 und 4 in einem geraden Takt. So klingt viel Rock, Pop und Funk. Die Snare spielt diese Schläge oft, der Bass liegt eher auf 1 und 3.",
-    en: { term: "Backbeat", text: "The backbeat is the emphasis on beats 2 and 4 in an even meter. A lot of rock, pop and funk sounds like this. The snare often plays these beats, while the bass drum tends to sit on 1 and 3." },
+    en: { term: "Backbeat", alt: "4/4 bar: hi-hat in eighth notes, bass drum on 1 and 3, snare on 2 and 4 highlighted", text: "The backbeat is the emphasis on beats 2 and 4 in an even meter. A lot of rock, pop and funk sounds like this. The snare often plays these beats, while the bass drum tends to sit on 1 and 3." },
   },
   {
     id: "bassdrum",
@@ -57,10 +57,10 @@ export const LEXICON = [
   {
     id: "cowbell",
     img: "/lexikon/begriffe/cowbell.webp",
-    alt: "",
+    alt: "Cowbell mit Halteklammer",
     term: "Cowbell",
     text: "Die Cowbell ist eine kleine Metallglocke mit kurzem, hellem Anschlag. Sie spielt oft ein wiederkehrendes Muster über dem Groove. Geschlossen klingt sie trockener, offen länger.",
-    en: { term: "Cowbell", text: "The cowbell is a small metal bell with a short, bright attack. It often plays a repeating pattern over the groove. Muted it sounds drier, open it rings longer." },
+    en: { term: "Cowbell", alt: "Cowbell with mounting clamp", text: "The cowbell is a small metal bell with a short, bright attack. It often plays a repeating pattern over the groove. Muted it sounds drier, open it rings longer." },
   },
   {
     id: "crash",
@@ -73,10 +73,10 @@ export const LEXICON = [
   {
     id: "cross",
     img: "/lexikon/begriffe/cross-stick.webp",
-    alt: "",
+    alt: "Snare mit quer aufliegendem Stock, Spannreifen hervorgehoben",
     term: "Cross-Stick",
     text: "Beim Cross-Stick liegt der Stock auf dem Fell, der Schaft schlägt auf den Rand. In der Notation steht dafür oft ein Kreuz. Der Ton ist trockener als ein normaler Snare-Schlag und leiser als ein Rimshot.",
-    en: { term: "Cross-stick", text: "For a cross-stick, the stick lies on the head and the shaft strikes the rim. In notation it is often written with an x. The sound is drier than a normal snare stroke and quieter than a rimshot." },
+    en: { term: "Cross-stick", alt: "Snare with a stick lying across the head, hoop highlighted", text: "For a cross-stick, the stick lies on the head and the shaft strikes the rim. In notation it is often written with an x. The sound is drier than a normal snare stroke and quieter than a rimshot." },
   },
   {
     id: "doppelschlag",
@@ -117,18 +117,18 @@ export const LEXICON = [
   {
     id: "flam",
     img: "/lexikon/begriffe/flam.webp",
-    alt: "",
+    alt: "Flam: Vorschlag mit links vor dem Hauptschlag mit rechts",
     term: "Flam",
     text: "Ein Flam sind zwei Schläge fast gleichzeitig: ein leiser Vorschlag und ein Hauptschlag. Die Hände bleiben ungleich, eine ist knapp vorher. Der Flam ist auch ein Rudiment und macht einzelne Schläge dicker.",
-    en: { term: "Flam", text: "A flam is two strokes played almost at once: a soft grace note and a main stroke. The hands stay uneven, one lands just before the other. The flam is also a rudiment and makes single strokes sound fuller." },
+    en: { term: "Flam", alt: "Flam: left-hand grace note before the right-hand main stroke", text: "A flam is two strokes played almost at once: a soft grace note and a main stroke. The hands stay uneven, one lands just before the other. The flam is also a rudiment and makes single strokes sound fuller." },
   },
   {
     id: "four",
     img: "/lexikon/begriffe/four-on-the-floor.webp",
-    alt: "",
+    alt: "4/4-Takt: Hi-Hat in Achteln, Bassdrum auf jeder Viertel hervorgehoben",
     term: "Four on the Floor",
     text: "Four on the Floor heißt: die Bassdrum auf jeder Viertel, also auf 1, 2, 3 und 4. Das gibt einen gleichmäßigen Puls, wie man ihn oft in Disco und House hört. Die Snare kann trotzdem auf 2 und 4 bleiben.",
-    en: { term: "Four on the floor", text: "Four on the floor means the bass drum plays every quarter note, on 1, 2, 3 and 4. This gives an even pulse, as often heard in disco and house. The snare can still stay on 2 and 4." },
+    en: { term: "Four on the floor", alt: "4/4 bar: hi-hat in eighth notes, bass drum on every quarter note highlighted", text: "Four on the floor means the bass drum plays every quarter note, on 1, 2, 3 and 4. This gives an even pulse, as often heard in disco and house. The snare can still stay on 2 and 4." },
   },
   {
     id: "fuss",
@@ -141,10 +141,10 @@ export const LEXICON = [
   {
     id: "ghost",
     img: "/lexikon/begriffe/ghost-note.webp",
-    alt: "",
+    alt: "4/4-Takt in Achteln: Akzente rechts, leise Ghost Notes links in Klammern hervorgehoben",
     term: "Ghost Note",
     text: "Eine Ghost Note ist ein sehr leiser Schlag zwischen den lauten. Sie ist noch da, soll aber fast verschwinden. In Grooves liegen Ghost Notes oft auf der Snare zwischen Backbeat und Akzenten. Die Herkunft des Wortes ist nicht eindeutig belegt.",
-    en: { term: "Ghost note", text: "A ghost note is a very soft stroke between the loud ones. It is still there but should almost disappear. In grooves, ghost notes often sit on the snare between the backbeat and the accents. The origin of the term is not clearly documented." },
+    en: { term: "Ghost note", alt: "4/4 bar of eighth notes: right-hand accents, soft left-hand ghost notes in brackets highlighted", text: "A ghost note is a very soft stroke between the loud ones. It is still there but should almost disappear. In grooves, ghost notes often sit on the snare between the backbeat and the accents. The origin of the term is not clearly documented." },
   },
   {
     id: "groove",
@@ -183,10 +183,10 @@ export const LEXICON = [
   {
     id: "kessel",
     img: "/lexikon/begriffe/kessel.webp",
-    alt: "",
+    alt: "Snare in Einzelteilen: Spannreifen, Fell und Kessel, Kessel hervorgehoben",
     term: "Kessel",
     text: "Der Kessel ist der Korpus der Trommel, also der Topf unter dem Fell. Holz, Metall und Tiefe ändern den Ton. Die Snare hat zusätzlich Schnarrseiten, Tom und Bassdrum nicht.",
-    en: { term: "Shell", text: "The shell is the body of the drum, the cylinder under the head. Wood, metal and depth change the sound. The snare also has snare wires; toms and bass drum do not." },
+    en: { term: "Shell", alt: "Snare taken apart: hoop, head and shell, shell highlighted", text: "The shell is the body of the drum, the cylinder under the head. Wood, metal and depth change the sound. The snare also has snare wires; toms and bass drum do not." },
   },
   {
     id: "kick",
@@ -205,10 +205,10 @@ export const LEXICON = [
   {
     id: "mallets",
     img: "/lexikon/begriffe/mallets.webp",
-    alt: "",
+    alt: "Zwei Mallets mit Filzkopf",
     term: "Mallets",
     text: "Mallets sind Schlegel mit Kopf aus Garn, Filz oder Gummi statt einer Stockspitze. Sie liegen auf Pauke, Marimba oder Becken weicher auf. Der Puls bleibt derselbe, der Ton wird runder.",
-    en: { term: "Mallets", text: "Mallets have a head of yarn, felt or rubber instead of a stick tip. On timpani, marimba or cymbals they sound softer. The pulse stays the same, the tone gets rounder." },
+    en: { term: "Mallets", alt: "Two mallets with felt heads", text: "Mallets have a head of yarn, felt or rubber instead of a stick tip. On timpani, marimba or cymbals they sound softer. The pulse stays the same, the tone gets rounder." },
   },
   {
     id: "metronom",
@@ -233,18 +233,18 @@ export const LEXICON = [
   {
     id: "offbeat",
     img: "/lexikon/begriffe/offbeat.webp",
-    alt: "",
+    alt: "4/4-Takt: Bassdrum auf den Zählzeiten, Hi-Hat auf den Offbeats hervorgehoben",
     term: "Offbeat",
     text: "Der Offbeat liegt zwischen den Zählzeiten. Im geraden Takt ist das oft das „und“ zwischen 1 und 2. Wer den Offbeat hört, hält den Puls, auch wenn der Downbeat gerade nicht gespielt wird.",
-    en: { term: "Offbeat", text: "The offbeat falls between the beats. In an even meter it is often the “and” between 1 and 2. If you can hear the offbeat, you keep the pulse even when the downbeat is not being played." },
+    en: { term: "Offbeat", alt: "4/4 bar: bass drum on the beats, hi-hat on the offbeats highlighted", text: "The offbeat falls between the beats. In an even meter it is often the “and” between 1 and 2. If you can hear the offbeat, you keep the pulse even when the downbeat is not being played." },
   },
   {
     id: "paradiddle",
     img: "/lexikon/begriffe/paradiddle.webp",
-    alt: "",
+    alt: "Zwei Paradiddles in Sechzehnteln, R L R R und L R L L, Doppelschläge hervorgehoben",
     term: "Paradiddle",
     text: "Ein Paradiddle ist ein Rudiment mit Einzel- und Doppelschlägen, beim Single Paradiddle R L R R und umgekehrt. Man übt damit saubere Wechsel und Akzente. Das Wort diddle meint im Unterricht oft den Doppelschlag. Die genaue Wortherkunft ist nicht eindeutig belegt.",
-    en: { term: "Paradiddle", text: "A paradiddle is a rudiment of single and double strokes; the single paradiddle is R L R R and the reverse. It trains clean hand changes and accents. Teachers often use the word diddle for the double stroke. The exact origin of the word is not clearly documented." },
+    en: { term: "Paradiddle", alt: "Two paradiddles in sixteenth notes, R L R R and L R L L, double strokes highlighted", text: "A paradiddle is a rudiment of single and double strokes; the single paradiddle is R L R R and the reverse. It trains clean hand changes and accents. Teachers often use the word diddle for the double stroke. The exact origin of the word is not clearly documented." },
   },
   {
     id: "pause",
@@ -356,10 +356,10 @@ export const LEXICON = [
   {
     id: "triole",
     img: "/lexikon/begriffe/triole.webp",
-    alt: "",
+    alt: "2/4-Takt: zwei Achtel, dann eine Achteltriole hervorgehoben",
     term: "Triole",
     text: "Eine Triole sind drei gleichmäßige Schläge in der Zeit von zwei. Eine Achteltriole füllt also eine Viertel. Man zählt sie oft als „1-trip-let“ oder „ein-und-a“. Der Puls bleibt die Viertel.",
-    en: { term: "Triplet", text: "A triplet is three even strokes in the time of two. An eighth-note triplet therefore fills one quarter note. It is often counted as “1-trip-let” or “1-and-a”. The pulse stays on the quarter note." },
+    en: { term: "Triplet", alt: "2/4 bar: two eighth notes, then an eighth-note triplet highlighted", text: "A triplet is three even strokes in the time of two. An eighth-note triplet therefore fills one quarter note. It is often counted as “1-trip-let” or “1-and-a”. The pulse stays on the quarter note." },
   },
   {
     id: "upbeat",
@@ -390,10 +390,10 @@ export const LEXICON = [
   {
     id: "wirbel",
     img: "/lexikon/begriffe/wirbel.webp",
-    alt: "",
+    alt: "Ganze Note mit drei Wirbelstrichen",
     term: "Wirbel",
     text: "Ein Wirbel ist ein langer, gleichmäßiger Ton aus vielen schnellen Schlägen. Beim Single Stroke Roll wechselt jede Hand einzeln, beim Double Stroke Roll kommen Doppelschläge. Ein geschlossener Wirbel klingt wie ein Liegen, kein einzelnes Klopfen.",
-    en: { term: "Roll", text: "A roll is a long, even sound made of many fast strokes. In the single stroke roll each hand alternates single strokes; in the double stroke roll the hands play doubles. A closed roll sounds like one sustained note, not individual taps." },
+    en: { term: "Roll", alt: "Whole note with three roll slashes", text: "A roll is a long, even sound made of many fast strokes. In the single stroke roll each hand alternates single strokes; in the double stroke roll the hands play doubles. A closed roll sounds like one sustained note, not individual taps." },
   },
   {
     id: "xstick",
@@ -471,8 +471,7 @@ export const LEXICON = [
     alt: "Hi-Hat-Maschine, hervorgehoben",
     text: "Die Hi-Hat-Maschine ist der Ständer mit Pedal, der die beiden Hi-Hat-Becken zusammendrückt oder öffnet. Der Fuß steuert damit den Klang: zu ist kurz, offen klingt länger. Der Stock spielt oben, der Fuß unten.",
     en: { term: "Hi-hat stand", alt: "Hi-hat stand, highlighted", text: "The hi-hat stand is the stand with a pedal that presses the two hi-hat cymbals together or lets them open. The foot controls the sound: closed is short, open rings longer. The stick plays on top, the foot plays below." },
-  },,
-
+  },
   {
     id: "fell",
     term: "Fell",
@@ -496,8 +495,7 @@ export const LEXICON = [
     alt: "Sticks und Besen",
     text: "Sticks sind die normalen Trommelstöcke. Besen sind fächerartige Draht- oder Nylonbüschel und klingen leiser und weicher, oft im leisen Jazz. Beide hält man in den Händen, der Anschlag ist nur anders.",
     en: { term: "Sticks and brushes", alt: "Sticks and brushes", text: "Sticks are the ordinary drumsticks. Brushes are fan-shaped bundles of wire or nylon and sound quieter and softer, often in quiet jazz. You hold both in your hands; only the attack is different." },
-  },,
-
+  },
   {
     id: "taktarten",
     term: "Taktarten",
