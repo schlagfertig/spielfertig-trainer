@@ -1,9 +1,10 @@
-Bebas Neue, Figtree, Oswald, Space Mono (src/fonts/*.woff2)
+Bebas Neue, Figtree, Oswald, Space Mono, Noto Sans (nur das Zeichen ‽ eingebettet in fonts.css) (src/fonts/*.woff2)
 
 Copyright © 2010 by Dharma Type.
 Copyright 2022 The Figtree Project Authors (https://github.com/erikdkennedy/figtree)
 Copyright 2016 The Oswald Project Authors (https://github.com/googlefonts/OswaldFont)
 Copyright 2016 The Space Mono Project Authors (https://github.com/googlefonts/spacemono)
+Copyright 2022 The Noto Project Authors (https://github.com/notofonts/latin-greek-cyrillic)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:
