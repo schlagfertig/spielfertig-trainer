@@ -181,6 +181,7 @@ export const EN = {
   "Einzählen": "Count-in",
   // Click-Trainer
   "Click starten. Alle paar Sekunden wird das Tempo angehoben — Du bleibst am Pad.": "Start the click. Every few seconds the tempo goes up — you stay on the pad.",
+  "Alle paar Sekunden wird das Tempo angehoben — Du bleibst am Pad.": "Every few seconds the tempo goes up — you stay on the pad.",
   "Gleichmäßiges Tempo halten. BPM am Kreis drehen oder ±5.": "Hold a steady tempo. Turn the dial or tap ±5 to set the BPM.",
   "Gleichmäßiges Tempo. Kreis drehen oder ±5.": "Steady tempo. Turn the dial or tap ±5.",
   "Tempo halten": "Hold tempo",
@@ -254,7 +255,7 @@ export const EN = {
   "16 Loops": "16 loops",
   "2 Min": "2 min",
   "Ziel gehalten — weiter so.": "Goal reached — keep it up.",
-  "Aktueller Schlag oben markiert · R blau · L rot": "Current beat marked on top · R blue · L red",
+  "Aktueller Schlag oben markiert · R grau · L türkis": "Current beat marked on top · R grey · L teal",
   "Nur Click": "Click only",
   "rechts Floortom, links 14er Snare": "right hand floor tom, left hand 14-inch snare",
   // Noten (Archiv)
