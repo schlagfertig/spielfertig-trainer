@@ -39,7 +39,10 @@ Apple lehnt oft „nur eine Website“ ab. Dagegen: Offline (gebündeltes `dist`
 
 - Google-Play-Konto (~25 $ einmalig)
 - Application ID: `de.schlagfertig.control`
-- In Android Studio: Build → Generate Signed Bundle (.aab)
+- Cloud-Build: GitHub → Actions → „Android App Bundle (.aab)“ → Run workflow (`.github/workflows/android-aab.yml`). Ergebnis: Artefakt `schlagfertig-control-aab` (`app-release.aab`), versionCode = Run-Nummer, versionName `1.0.<Run>`.
+- Target SDK 36 (Play-Pflicht seit 31.08.2026): der Workflow setzt compile/targetSdk 36 und AGP 8.9.1 (Capacitor 7 bringt nur 35 mit).
+- Signatur: Upload-Key (Play App Signing), Secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`. Keystore sicher aufbewahren (Verlust → Upload-Key-Reset bei Google nötig).
+- Adaptive Icons: `assets/icon-foreground.png` (icon-only auf 90 %) + `assets/icon-background.png` (`#161a1d`).
 - Play Console, Altersfreigabe 13+
 
 Schnellere Alternative ohne Android Studio: [pwabuilder.com](https://www.pwabuilder.com) mit der Live-URL — erzeugt ein TWA-.aab. Dann gilt wieder die Web-Zugangssperre (Einladungslink).
@@ -86,4 +89,4 @@ npx @capacitor/assets generate --ios
 
 Kein Eintrag in `package.json` nötig (läuft per `npx`). Das schreibt `AppIcon.appiconset` und `Splash.imageset` in `ios/App`.
 
-Wichtig: Die Datei muss `icon-only.png` heißen. Ein `assets/icon.png` oder `assets/logo.png` behandelt das Tool als Logo („Easy Mode“) und baut daraus eigene Splashes auf weißem Grund. Für Android später zusätzlich `icon-foreground.png` + `icon-background.png` (adaptive Icons) anlegen, dann `--android`.
+Wichtig: Die Datei muss `icon-only.png` heißen. Ein `assets/icon.png` oder `assets/logo.png` behandelt das Tool als Logo („Easy Mode“) und baut daraus eigene Splashes auf weißem Grund. Für Android liegen `icon-foreground.png` + `icon-background.png` (adaptive Icons) bereit; der Android-Workflow ruft `--android` auf.
