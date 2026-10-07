@@ -60,21 +60,39 @@ function beatNotes(stage, beat) {
   return { notes, hands };
 }
 
-function barRud(stage) {
+// Ein 4/4-Takt der Stufe. Im letzten Durchgang vor dem Wechsel (swapBeats > 0) sind die schon
+// gespielten Schläge bereits durch die nächste Stufe ersetzt – so läuft der Takt Schlag für Schlag hinüber.
+function barRud(stage, nextStage = null, swapBeats = 0) {
   const notes = [];
   let hands = "";
   for (let beat = 0; beat < 4; beat++) {
-    const part = beatNotes(stage, beat);
+    const src = nextStage && beat < swapBeats ? nextStage : stage;
+    const part = beatNotes(src, beat);
     notes.push(...part.notes);
     hands += part.hands;
   }
+  const incoming = nextStage && swapBeats > 0 ? ` → ${t(nextStage.label)}` : "";
   return {
-    label: `${t(stage.label)} · 4/4`,
+    label: `${t(stage.label)}${incoming} · 4/4`,
     time: "4/4",
     bars: 1,
     notes,
     sticking: [hands, flipStick(hands)],
   };
+}
+
+// Weicher Übergang: Ändert sich der Takt (neuer Schlag übernommen oder Stufenwechsel), bleibt der
+// vorige Stand kurz als zweite Ebene liegen und blendet aus, der neue blendet ein (0,28 s wie im Fokus-Mode).
+function useMorph(rud, sig, on) {
+  const [st, setSt] = useState({ sig, rud, old: null, k: 0 });
+  if (st.sig !== sig) setSt({ sig, rud, old: on ? st.rud : null, k: st.k + 1 });
+  useEffect(() => {
+    if (!st.old) return undefined;
+    const k = st.k;
+    const id = window.setTimeout(() => setSt((s) => (s.k === k ? { ...s, old: null } : s)), 320);
+    return () => window.clearTimeout(id);
+  }, [st.k, st.old]);
+  return { old: st.old, k: st.k };
 }
 
 export default function PyramidTrainer({ preset = null } = {}) {
@@ -90,6 +108,9 @@ export default function PyramidTrainer({ preset = null } = {}) {
   const [idx, setIdx] = useState(0);
   const [leftBars, setLeftBars] = useState(0);
   const [playT, setPlayT] = useState(-1);
+  // Letzter Durchgang vor dem Wechsel: schon übernommene Schläge (0–3) und verbleibende Schläge (4–1, sonst 0).
+  const [swapBeats, setSwapBeats] = useState(0);
+  const [countdown, setCountdown] = useState(0);
   const [done, setDone] = useState("");
   const [flash, setFlash] = useState(0);
   const flashTimer = useRef(0);
@@ -103,8 +124,13 @@ export default function PyramidTrainer({ preset = null } = {}) {
   const steps = plan(dir, active.length ? active : STAGES);
   const cur = steps[idx] || steps[0];
   const nextStage = idx + 1 < steps.length ? steps[idx + 1] : null;
-  const rud = barRud(cur);
+  const live = playing && !counting;
+  const swap = live && nextStage ? swapBeats : 0;
+  const rud = barRud(cur, nextStage, swap);
+  const nextRud = nextStage ? barRud(nextStage) : null;
   const focus = playing || counting;
+  const soon = live && countdown > 0 && !!nextStage;
+  const morph = useMorph(rud, `${cur.id}|${nextStage ? nextStage.id : "-"}|${swap}`, live);
 
   useEffect(() => () => { stopRef.current?.(); window.clearTimeout(flashTimer.current); }, []);
   useEffect(() => {
@@ -137,6 +163,8 @@ export default function PyramidTrainer({ preset = null } = {}) {
     setBeat(false);
     setLeftBars(0);
     setPlayT(-1);
+    setSwapBeats(0);
+    setCountdown(0);
     setIdx(0);
     window.clearTimeout(flashTimer.current);
     setFlash(0);
@@ -195,6 +223,8 @@ export default function PyramidTrainer({ preset = null } = {}) {
       setBeat(false);
       setLeftBars(0);
       setPlayT(-1);
+      setSwapBeats(0);
+      setCountdown(0);
       setIdx(0);
       window.clearTimeout(flashTimer.current);
       setFlash(0);
@@ -217,6 +247,12 @@ export default function PyramidTrainer({ preset = null } = {}) {
         const delay = Math.max(0, (next - ctx.currentTime) * 1000);
         window.setTimeout(() => { if (!cancelled) setPlayT(t16); }, delay);
         if (down) pulse(next);
+        // Letzter Takt dieser Stufe (und es folgt noch eine): zu Beginn jedes Schlags die schon
+        // gespielten Schläge in die nächste Stufe überblenden und die restlichen Schläge zählen (4-3-2-1).
+        if (down && barsDone === holdBars - 1 && si + 1 < run.length) {
+          const beatIn = Math.floor((sub % (curPer * 4)) / curPer);
+          window.setTimeout(() => { if (!cancelled) { setSwapBeats(beatIn); setCountdown(4 - beatIn); } }, delay);
+        }
         next += 60 / Math.max(30, bpmRef.current) / curPer;
         sub += 1;
         if (sub % (curPer * 4) === 0) {
@@ -235,6 +271,8 @@ export default function PyramidTrainer({ preset = null } = {}) {
             window.setTimeout(() => {
               if (cancelled) return;
               setIdx(nsi);
+              setSwapBeats(0);
+              setCountdown(0);
               setLeftBars(holdBars);
               window.clearTimeout(flashTimer.current);
               setFlash(nsi);
@@ -256,36 +294,63 @@ export default function PyramidTrainer({ preset = null } = {}) {
   }
 
   return (
-    <div className="pyramid-wrap" ref={wrapRef} style={{ paddingBottom: focus ? "calc(168px + env(safe-area-inset-bottom, 0px))" : "calc(220px + env(safe-area-inset-bottom, 0px))" }}>
+    <div className={focus ? "pyramid-wrap focus" : "pyramid-wrap"} ref={wrapRef}>
       {!focus ? (
         <p style={{ color: DIM, fontSize: 13, margin: "8px 0 10px" }}>
           {t("Stufen wählen · immer 4/4.")}
         </p>
       ) : null}
-      <div className="staff-card" style={{ marginBottom: focus ? 0 : 10 }}>
-        <div className="staff-label">{rud.label}</div>
-        <RudimentStaff rud={rud} playingT={counting ? -1 : playT} svgId="pyramid-live" />
+      <div className={focus ? "pyr-focus" : undefined}>
+      <div className="staff-card pyr-cur" style={{ marginBottom: focus ? 0 : 10 }}>
+        <div className="staff-label">
+          {focus ? <span className="pyr-kick">{t("Jetzt")}</span> : null}
+          {rud.label}
+        </div>
+        <div className="pyr-morph">
+          <div className="pyr-layer" key={`n${morph.k}`} data-in={morph.old ? "1" : "0"}>
+            <RudimentStaff rud={rud} playingT={counting ? -1 : playT} svgId="pyramid-live" />
+          </div>
+          {morph.old ? (
+            <div className="pyr-layer pyr-layer-old" key={`o${morph.k}`} aria-hidden="true">
+              <RudimentStaff rud={morph.old} playingT={-1} svgId="pyramid-live-old" />
+            </div>
+          ) : null}
+        </div>
       </div>
       {focus ? (
-        <div className={flash ? "pyr-pair flash" : "pyr-pair"} data-stage={cur.id} data-next={nextStage ? nextStage.id : "end"} role="status" aria-live="polite" aria-atomic="true">
-          <span className="pyr-sr">
+        <div
+          className={`pyr-next${soon ? " soon" : ""}${flash ? " flash" : ""}`}
+          data-stage={cur.id}
+          data-next={nextStage ? nextStage.id : "end"}
+          data-countdown={soon ? countdown : 0}
+        >
+          <span className="pyr-sr" role="status" aria-live="polite" aria-atomic="true">
             {`${t("Jetzt")}: ${t(cur.label)}. `}
             {nextStage ? `${t("Als Nächstes")}: ${t(nextStage.label)}.` : `${t("Letzte Stufe")}, ${t("danach fertig")}.`}
           </span>
-          <div className="pyr-pair-card" aria-hidden="true">
-            <span className="pyr-pair-kick">{t("Jetzt")}</span>
-            <BeatGlyph per={cur.perBeat} tuplet={cur.tuplet} />
-            <span className="pyr-pair-name">{t(cur.label)}</span>
+          <div className="pyr-next-head" aria-hidden="true">
+            <div className="pyr-next-title">
+              <span className="pyr-kick">{nextStage ? t("Als Nächstes") : t("Letzte Stufe")}</span>
+              <span className="pyr-next-name">{nextStage ? t(nextStage.label) : t("danach fertig")}</span>
+            </div>
+            {soon ? (
+              <div className="pyr-count" key={countdown}>
+                <span className="pyr-count-kick">{t("Wechsel in")}</span>
+                <span className="pyr-count-num">{countdown}</span>
+                <span className="pyr-count-unit">{t(countdown === 1 ? "Schlag" : "Schlägen")}</span>
+              </div>
+            ) : (
+              <span className="pyr-next-pos">{t("Stufe {i}/{n}", { i: idx + 1, n: steps.length })}</span>
+            )}
           </div>
-          <span className="pyr-pair-arrow" aria-hidden="true">→</span>
-          <div className="pyr-pair-card" aria-hidden="true">
-            <span className="pyr-pair-kick">{nextStage ? t("Als Nächstes") : t("Letzte Stufe")}</span>
-            {nextStage ? <BeatGlyph per={nextStage.perBeat} tuplet={nextStage.tuplet} /> : <span className="pyr-pair-name">{t("danach fertig")}</span>}
-            {nextStage ? <span className="pyr-pair-name">{t(nextStage.label)}</span> : null}
-          </div>
-          <span className="pyr-pair-pos" aria-hidden="true">{t("Stufe {i}/{n}", { i: idx + 1, n: steps.length })}</span>
+          {nextRud ? (
+            <div className="pyr-next-staff" aria-hidden="true">
+              <RudimentStaff rud={nextRud} playingT={-1} svgId="pyramid-next" />
+            </div>
+          ) : null}
         </div>
       ) : null}
+      </div>
       {!focus ? (
         <div className="panel" style={{ padding: "10px 12px 12px", marginBottom: 8 }}>
           <div className="pyr-steps">
@@ -320,7 +385,7 @@ export default function PyramidTrainer({ preset = null } = {}) {
           </div>
         </div>
       ) : null}
-      <div className="pyramid-dock" style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 15, background: "transparent", border: "none", boxShadow: "none", borderRadius: 0, margin: 0, padding: "6px 14px calc(10px + env(safe-area-inset-bottom, 0px))", pointerEvents: "none" }}>
+      <div className={focus ? "pyramid-dock pyr-dock focus" : "pyramid-dock pyr-dock"}>
         <div style={{ pointerEvents: "auto", maxWidth: 880, margin: "0 auto" }}>
           <div className="dial-row">
             <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))} aria-label={t("5 BPM langsamer")}>−5</button>
@@ -340,17 +405,53 @@ export default function PyramidTrainer({ preset = null } = {}) {
         .pyr-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
         .pyr-steps .chip { min-height: 52px; padding: 6px 4px; display: flex; align-items: center; justify-content: center; }
         .pyr-steps svg { width: 100%; max-width: 64px; height: auto; }
-        .pyr-pair { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: stretch; gap: 8px; margin-top: 12px; color: #161a1d; }
-        .pyr-pair-card { min-height: 112px; background: #fff; border-radius: 12px; border: 1px solid #e1e6e8; padding: 8px 8px 10px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 6px; }
-        .pyr-pair-card svg { width: 78px; height: 44px; flex: 0 0 auto; }
-        .pyr-pair-card svg [fill="#f4f7f6"] { fill: #161a1d; }
-        .pyr-pair-card svg [stroke="#f4f7f6"] { stroke: #161a1d; }
-        .pyr-pair-kick { font: 800 11px Figtree, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #8a969c; }
-        .pyr-pair-name { font-family: Oswald, sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 0.03em; line-height: 1.1; text-align: center; }
-        .pyr-pair-arrow { color: #5cc8b8; font: 800 22px/1 Figtree, sans-serif; align-self: center; }
-        .pyr-pair-pos { grid-column: 1 / -1; text-align: center; font: 800 11px Figtree, sans-serif; letter-spacing: 0.1em; color: #8a969c; }
+        .pyramid-wrap { scroll-margin-top: 8px; padding-bottom: calc(220px + env(safe-area-inset-bottom, 0px)); }
+        .pyramid-wrap.focus { padding-bottom: calc(168px + env(safe-area-inset-bottom, 0px)); }
+        .pyr-dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; background: transparent; border: none; box-shadow: none; border-radius: 0; margin: 0; padding: 6px 14px calc(10px + env(safe-area-inset-bottom, 0px)); pointer-events: none; }
+        .pyr-kick { display: block; font: 800 11px Figtree, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #8a969c; margin-bottom: 2px; }
+        .pyr-morph { position: relative; }
+        .pyr-layer-old { position: absolute; inset: 0; pointer-events: none; }
         .pyr-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
-        .pyr-pair.flash .pyr-pair-card { box-shadow: 0 0 0 2px #5cc8b8; }
+        /* Nächste Stufe: ganzer Takt zum Vorauslesen, helle Karte wie die aktuelle Übung in Hand Control */
+        .pyr-next { position: relative; margin-top: 10px; background: #f4f7f6; color: #161a1d; border-radius: 16px; border: 1px solid #e1e6e8; padding: 10px 12px 8px; }
+        .pyr-next-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; min-height: 44px; }
+        .pyr-next-title { display: flex; flex-direction: column; min-width: 0; }
+        .pyr-next-name { font-family: Oswald, sans-serif; font-weight: 700; font-size: 20px; letter-spacing: 0.03em; line-height: 1.1; }
+        .pyr-next-pos { font: 800 11px Figtree, sans-serif; letter-spacing: 0.1em; color: #8a969c; white-space: nowrap; padding-top: 2px; }
+        .pyr-next-staff svg { display: block; width: 100%; height: auto; max-height: 104px; margin: 0 auto; }
+        /* Letzter Durchgang: Karte leicht türkis, Countdown der Schläge bis zum Wechsel */
+        .pyr-next.soon { background: #e2f3f0; border-color: #5cc8b8; }
+        .pyr-next.soon .pyr-kick { color: #2f9e90; }
+        .pyr-count { display: grid; grid-template-columns: auto auto; grid-template-areas: "kick kick" "num unit"; align-items: baseline; column-gap: 6px; text-align: right; color: #2f9e90; }
+        .pyr-count-kick { grid-area: kick; font: 800 10px Figtree, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; justify-self: end; }
+        .pyr-count-num { grid-area: num; font-family: Oswald, sans-serif; font-weight: 700; font-size: 30px; line-height: 1; justify-self: end; }
+        .pyr-count-unit { grid-area: unit; font: 800 11px Figtree, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; }
+        .pyr-next.flash { box-shadow: 0 0 0 2px #5cc8b8; }
+        @media (prefers-reduced-motion: no-preference) {
+          .pyr-layer[data-in="1"] { animation: pyrIn 0.2s ease-out both; }
+          .pyr-layer-old { animation: pyrOut 0.28s ease-in both; }
+          .pyr-next { transition: background-color 0.28s ease, border-color 0.28s ease; }
+          .pyr-count-num { animation: pyrTick 0.28s ease-out; }
+          @keyframes pyrIn { from { opacity: 0; } to { opacity: 1; } }
+          @keyframes pyrOut { 0%, 40% { opacity: 1; } 100% { opacity: 0; } }
+          @keyframes pyrTick { from { transform: scale(1.25); } to { transform: scale(1); } }
+        }
+        /* Reduzierte Bewegung: kein Überblenden, nur Umschalten */
+        @media (prefers-reduced-motion: reduce) {
+          .pyr-layer-old { display: none; }
+        }
+        /* Quer beim Üben: Noten links, Rad und Takt-Zähler rechts – nichts liegt übereinander */
+        @media (orientation: landscape) and (max-height: 820px) {
+          .pyramid-wrap.focus { padding-bottom: 12px; padding-right: 268px; }
+          .pyr-dock.focus { left: auto; top: 0; width: 268px; padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; justify-content: center; }
+          .pyr-dock.focus .count { margin-top: 22px; }
+          .pyr-dock.focus .count-num { font-size: 40px; }
+          .pyr-dock.focus .count-unit { font-size: 13px; }
+          .pyramid-wrap.focus .pyr-cur .staff-label { display: flex; gap: 8px; align-items: baseline; }
+          .pyramid-wrap.focus .pyr-cur .pyr-kick { display: inline; margin: 0; }
+          .pyramid-wrap.focus .pyr-next { margin-top: 8px; padding: 8px 12px 6px; }
+          .pyramid-wrap.focus .pyr-next-staff svg { max-height: 84px; }
+        }
       `}</style>
     </div>
   );
