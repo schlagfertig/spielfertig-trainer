@@ -78,11 +78,12 @@ body.metro-gesturing .rud-metro .metro-face { overflow: visible; }
   margin: 12px 0 6px;
   font-size: clamp(32px, 11vw, 44px);
 }
-/* App-Name „Schlagfertig Control“: das runde Logo trägt „schlagfertig‽“, darunter nur „Control“ – türkis, Bebas Neue, gesperrt, mittig.
+/* App-Name „Schlagfertig‽“ steht im runden Logo, darunter der Untertitel „Drums lernen – Schlag für Schlag“ – türkis, Bebas Neue, gesperrt, mittig.
    Negativer Abstand = transparenter Rand unten im Logo-Bild (≈14,3 % der Bildbreite), sichtbarer Abstand ≈ 15 px. */
-.hero .app-logo { display: block; margin: calc(13px - min(380px, 88vw) * .1432) 0 0; pointer-events: none; font-family: "Bebas Neue", Oswald, sans-serif; font-weight: 400; font-size: clamp(30px, 9.5vw, 38px); line-height: 1; letter-spacing: .22em; text-transform: uppercase; color: var(--teal); }
-.app-logo-sub { display: inline-block; padding-left: .22em; }
-/* Offenes Logo-Metronom: „Control“ blendet wie das Logo aus, sonst überdeckt der Rad-Hinweis das Wort */
+.hero .app-logo { display: block; margin: calc(13px - min(380px, 88vw) * .1432) 0 0; pointer-events: none; font-family: "Bebas Neue", Oswald, sans-serif; font-weight: 400; font-size: clamp(16px, 4.8vw, 22px); line-height: 1.1; letter-spacing: .14em; text-transform: uppercase; color: var(--teal); }
+.app-logo-sub { display: inline-block; padding-left: .14em; }
+.welcome-sub { margin: -4px 0 12px; color: var(--teal); font: 400 19px/1.1 "Bebas Neue", Oswald, sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+/* Offenes Logo-Metronom: der Untertitel blendet wie das Logo aus, sonst überdeckt der Rad-Hinweis das Wort */
 .hero .app-logo { transition: opacity .25s ease; }
 .logo-metro.open + .app-logo { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .hero .app-logo { transition: none; } }
@@ -755,3 +756,10 @@ body.metro-gesturing .rud-metro .metro-face { overflow: visible; }
     margin: 0 auto;
   }
 }
+
+/* Lexikon: Die Zeile mit „Zurück“ bleibt beim Scrollen oben stehen.
+   overflow-x: clip statt hidden – sonst sind body, #root und .page eigene Scroll-Container und sticky greift nicht.
+   display: contents löst die Kopfzeile auf, damit nur die Knopfzeile klebt und der große Titel normal wegscrollt. */
+body:has(.page.view-lexicon), body:has(.page.view-lexicon) #root, .page.tool.view-lexicon { overflow-x: clip; }
+.page.tool.view-lexicon .top { display: contents; }
+.page.tool.view-lexicon .top-row { position: sticky; top: 0; z-index: 20; background: var(--ink); padding: max(6px, env(safe-area-inset-top, 0px)) 0 8px; box-shadow: 0 1px 0 var(--line); }

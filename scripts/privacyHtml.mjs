@@ -20,7 +20,7 @@ function langSection(lang) {
 
 export function privacyHtml(first = "de") {
   const order = first === "en" ? ["en", "de"] : ["de", "en"];
-  const title = first === "en" ? "Privacy Policy · Datenschutz – Schlagfertig Control" : "Datenschutz · Privacy Policy – Schlagfertig Control";
+  const title = first === "en" ? "Privacy Policy · Datenschutz – Schlagfertig‽" : "Datenschutz · Privacy Policy – Schlagfertig‽";
   return `<!doctype html>
 <html lang="${first}">
 <head>

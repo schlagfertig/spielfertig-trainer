@@ -4,7 +4,6 @@ import { t, getLang } from "../lib/i18n.js";
 
 export default function Lexicon() {
   const [q, setQ] = useState("");
-  const [zoom, setZoom] = useState(null);
   const lang = getLang();
   const list = useMemo(() => searchLexicon(q, lang), [q, lang]);
   const letters = useMemo(() => [...new Set(list.map((e) => e.term[0].toLocaleUpperCase(lang)))], [list, lang]);
@@ -30,7 +29,7 @@ export default function Lexicon() {
         .lex-item { border-bottom: 1px solid #2f383d; scroll-margin-top: 76px; }
         .lex-details { color: #f4f7f6; }
         .lex-details summary {
-          list-style: none; cursor: pointer; padding: 14px 28px 14px 2px; position: relative;
+          list-style: none; cursor: pointer; padding: 14px 28px 14px 2px; position: relative; scroll-margin-top: 76px;
           font: 700 18px/1.2 Figtree, sans-serif;
         }
         .lex-details summary::-webkit-details-marker { display: none; }
@@ -42,20 +41,9 @@ export default function Lexicon() {
         .lex-body { color: #d5dcde; font: 600 15px/1.45 Figtree, sans-serif; margin: 0 0 8px; }
         .lex-letter { color: #5cc8b8; font: 800 12px Figtree, sans-serif; letter-spacing: 0.14em; margin: 14px 0 0; }
         .lex-fig { margin: 0 0 14px; }
-        .lex-fig button { display: block; width: 100%; padding: 0; border: 0; background: none; border-radius: 12px; overflow: hidden; }
         .lex-fig img { display: block; width: 100%; height: auto; border-radius: 12px; background: #101416; }
-        .lex-zoom {
-          position: fixed; inset: 0; z-index: 40; display: grid; place-items: center;
-          background: rgba(8, 10, 12, 0.88); padding: 18px;
-        }
-        .lex-zoom img { max-width: 100%; max-height: 86dvh; width: auto; height: auto; border-radius: 12px; }
-        .lex-zoom button {
-          position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); right: 12px;
-          border: 1px solid #5cc8b8; background: #14191c; color: #f4f7f6;
-          border-radius: 999px; padding: 8px 14px; font: 800 14px Figtree, sans-serif;
-        }
       `}</style>
-      <p className="lex-lead">{t("Kurze Erklärungen zum Nachschlagen. Kein Geschichtsbuch.")}</p>
+      <p className="lex-lead">{t("Kurze Erklärungen zum Nachschlagen – tipp einen Begriff an.")}</p>
       <input
         className="lex-search"
         value={q}
@@ -80,28 +68,27 @@ export default function Lexicon() {
         </nav>
       ) : null}
       {list.length === 0 ? <p className="lex-empty">{t("Kein Treffer.")}</p> : null}
-      {zoom ? (
-        <div className="lex-zoom" role="dialog" aria-modal="true" aria-label={zoom.alt} onClick={() => setZoom(null)}>
-          <button type="button" onClick={() => setZoom(null)}>{t("Schließen")}</button>
-          <img src={zoom.src} alt={zoom.alt} />
-        </div>
-      ) : null}
       {list.map((e, i) => {
         const ch = e.term[0].toLocaleUpperCase(lang);
         const prev = i > 0 ? list[i - 1].term[0].toLocaleUpperCase(lang) : "";
         return (
           <div key={e.id} className="lex-item" id={ch !== prev ? `lex-${ch}` : undefined}>
             {ch !== prev ? <div className="lex-letter">{ch}</div> : null}
-            <details className="lex-details">
+            {/* Aufgeklappter Begriff rutscht nach oben (unter die feste Kopfzeile mit „Zurück“) */}
+            <details className="lex-details" onToggle={(ev) => {
+              if (!ev.currentTarget.open) return;
+              const item = ev.currentTarget.querySelector("summary");
+              const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+              requestAnimationFrame(() => item?.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" }));
+            }}>
               <summary>
                 {e.brand ? <span className="lex-brand">{e.term}</span> : e.term}
               </summary>
               <p className="lex-body">{e.text}</p>
               {e.img ? (
                 <figure className="lex-fig">
-                  <button type="button" onClick={() => setZoom({ src: e.img, alt: e.alt || e.term })} aria-label={e.alt || e.term}>
-                    <img src={e.img} alt={e.alt || e.term} loading="lazy" decoding="async" />
-                  </button>
+                  {/* Bild bleibt in der Liste – kein Vollbild mehr beim Antippen */}
+                  <img src={e.img} alt={e.alt || e.term} loading="lazy" decoding="async" />
                 </figure>
               ) : null}
             </details>

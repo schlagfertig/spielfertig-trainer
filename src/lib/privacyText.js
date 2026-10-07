@@ -17,7 +17,7 @@ export const PRIVACY = {
     sections: [
       { h: "1. Verantwortlicher", body: [address, "\nE-Mail: ", mail, "\nTelefon: ", tel] },
       { h: "2. Allgemeines", body: [
-        "Schlagfertig Control ist eine App zum Üben. Es gibt sie als Web-Version im Browser und als App für iOS und Android. Es gibt keine Registrierung und kein Nutzerkonto, kein Tracking und keine Werbung. Übungsdaten bleiben auf Ihrem Gerät.",
+        "Schlagfertig‽ ist eine App zum Üben. Es gibt sie als Web-Version im Browser und als App für iOS und Android. Es gibt keine Registrierung und kein Nutzerkonto, kein Tracking und keine Werbung. Übungsdaten bleiben auf Ihrem Gerät.",
       ] },
       { h: "3. Hosting (Web-Version)", body: [
         `Die Web-Version wird bei Vercel Inc. bereitgestellt (${BRAND.web}). Beim Aufruf verarbeitet der Hosting-Anbieter technisch notwendige Daten (z. B. IP-Adresse, Zeitpunkt, Browserkennung) in Server-Logs. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (Bereitstellung und Sicherheit der Website).`,
@@ -49,7 +49,7 @@ export const PRIVACY = {
     sections: [
       { h: "1. Controller", body: [address, "\nEmail: ", mail, "\nPhone: ", tel] },
       { h: "2. General", body: [
-        "Schlagfertig Control is an app for practicing. It is available as a web version in the browser and as an app for iOS and Android. There is no registration and no user account, no tracking and no advertising. Practice data stays on your device.",
+        "Schlagfertig‽ is an app for practicing. It is available as a web version in the browser and as an app for iOS and Android. There is no registration and no user account, no tracking and no advertising. Practice data stays on your device.",
       ] },
       { h: "3. Hosting (web version)", body: [
         `The web version is provided by Vercel Inc. (${BRAND.web}). When it is accessed, the hosting provider processes technically necessary data (e.g. IP address, time of access, browser identifier) in server logs. Legal basis: Art. 6(1)(f) GDPR (provision and security of the website).`,
