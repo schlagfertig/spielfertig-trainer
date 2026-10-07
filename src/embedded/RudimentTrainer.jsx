@@ -309,7 +309,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           </div>
         )}
         {done ? <div className="goal-done">{t(done)}</div> : null}
-        {stage || info ? null : <div className="staff-hint">{t("Aktueller Schlag oben markiert · R blau · L rot")}</div>}
+        {stage || info ? null : <div className="staff-hint">{t("Aktueller Schlag oben markiert · R grau · L türkis")}</div>}
       </div>
       {stage ? null : (
         <div className="seg" style={{ margin: "0 0 12px", width: "fit-content", maxWidth: "100%", flexWrap: "wrap" }}>

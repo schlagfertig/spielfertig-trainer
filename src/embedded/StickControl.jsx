@@ -274,6 +274,23 @@ export default function StickControl({ preset = null } = {}) {
     if (before) window.scrollTo({ top: before.getBoundingClientRect().bottom + window.scrollY - head, behavior: "instant" });
   }, [exId]);
   useEffect(() => {
+    // Frühere Übungen unter der Kopfzeile (Zurück, Titel) ausblenden; beim Hochscrollen erscheinen sie darunter wieder
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const list = prevRef.current;
+      if (!list) return;
+      const topEl = document.querySelector(".top");
+      const limit = topEl ? topEl.getBoundingClientRect().bottom : 0;
+      for (const el of list.children) el.classList.toggle("stick-under", el.getBoundingClientRect().top < limit - 1);
+    };
+    const onMove = () => { if (!raf) raf = window.requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", onMove, { passive: true });
+    window.addEventListener("resize", onMove);
+    return () => { window.removeEventListener("scroll", onMove); window.removeEventListener("resize", onMove); window.cancelAnimationFrame(raf); };
+  }, [exId]);
+  useEffect(() => {
     let t = 0;
     const onScroll = () => {
       wrapRef.current?.classList.add("stick-scrolling");
@@ -432,6 +449,9 @@ export default function StickControl({ preset = null } = {}) {
         /* Frühere (schon gespielte) Übungen: wie die fernen kommenden unscharf und gedämpft – die direkt davor etwas weniger, damit sie lesbar bleibt */
         .stick-prev { filter: blur(1.1px); opacity: 0.55 !important; transition: filter 0.3s, opacity 0.3s; }
         .stick-scrolling :is(.stick-far, .stick-prev) { filter: none; opacity: 0.7 !important; }
+        /* Frühere Übungen, die unter die (durchsichtige) Kopfzeile geraten, ausblenden – sonst scheinen sie hinter „HAND CONTROL“ durch */
+        .stick-wrap .stick-list > .stick-under { opacity: 0 !important; pointer-events: none; }
+        .stick-wrap .stick-list > button { transition: filter 0.3s, opacity 0.2s; }
         /* Kommende Übungen nach der Vorschau: unter der angehefteten Bühne durchscrollen; Reserve (nur auf hohen Screens), damit #24 ganz unten zwischen Bühne und Dock sichtbar landet */
         .stick-later { position: relative; z-index: 1; margin-top: 4px; padding-bottom: clamp(0px, calc(100dvh - 700px), 88px); }
         .stick-later-kick { color: ${DIM}; font: 700 12px Figtree, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; padding: 10px 4px 0; }
@@ -464,10 +484,13 @@ export default function StickControl({ preset = null } = {}) {
           backdrop-filter: none !important;
           -apple-visual-effect: none !important;
         }
+        /* Kein Scroll-Anchoring: sonst springt die Seite, wenn sich die Bühne in der Höhe ändert, und die angeheftete Karte rutscht über die Vorschau */
+        html:has(.stick-wrap) { overflow-anchor: none; }
+        /* Angeheftet: Werkzeuge, „Jetzt“-Zeile, aktuelle Übung und „Als Nächstes“ – alles in einem Block, damit sich nichts überlappt */
         .stick-pin {
           position: sticky;
           top: var(--stick-top, 0px);
-          z-index: 14;
+          z-index: 16;
           background: #161a1d;
           padding: 8px 0 10px;
         }
@@ -507,13 +530,17 @@ export default function StickControl({ preset = null } = {}) {
         .stick-wrap .rud-half-name { font-size: clamp(15px, 4.2vw, 20px); }
         .stick-flash, .stick-click-mini { display: none; }
         /* Fokus-Ansicht (Standard): nächste Übung kompakt unter der großen aktuellen */
+        /* „Jetzt 3/24“ und Count-in gehören zur aktuellen Übung: eigene Zeile über der hellen Karte, feste Höhe (nichts springt) */
+        .stick-now { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 18px; margin: 0 2px 4px; }
+        .stick-now-kick { color: ${TEAL}; font: 800 12px Figtree, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap; }
+        .stick-now-pos { color: ${DIM}; font: 700 12px Figtree, sans-serif; letter-spacing: 0.06em; margin-left: 6px; }
+        .stick-now-count { color: ${TEAL}; font: 800 12px Figtree, sans-serif; letter-spacing: 0.12em; white-space: nowrap; }
         .stick-next {
-          position: relative; z-index: 16; margin-top: 4px; padding: 5px 12px 3px;
+          position: relative; margin-top: 8px; padding: 5px 12px 3px;
           background: #14191c; border: 1px solid #2f383d; border-radius: 12px;
         }
         .stick-next-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
         .stick-next-kick { color: ${TEAL}; font: 800 12px Figtree, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; }
-        .stick-next-pos { color: ${DIM}; font: 700 12px Figtree, sans-serif; letter-spacing: 0.06em; white-space: nowrap; }
         .stick-next-body {
           display: block; width: 100%; margin: 0; padding: 0; border: 0; background: none; color: inherit; opacity: 0.9;
         }
@@ -523,22 +550,22 @@ export default function StickControl({ preset = null } = {}) {
         .stick-next { transition: background-color .3s ease-out, border-color .3s ease-out, box-shadow .3s ease-out, padding .3s ease-out; }
         .stick-next.soon { background: rgba(92,200,184,.2); border-color: ${TEAL}; box-shadow: 0 0 0 1px ${TEAL}, 0 0 18px rgba(92,200,184,.28); padding: 7px 12px 6px; }
         .stick-next.soon .stick-next-kick { font-size: 14px; }
-        .stick-next.soon .stick-next-pos { color: ${INK}; }
         .stick-next.soon .stick-next-body { opacity: 1; }
-        .stick-next.soon .stick-next-end { color: ${INK}; }
+        .stick-next.soon .stick-next-end { color: ${LIST}; }
         /* Wiederholungs-Zähler: groß und mittig direkt über dem Kreis (sitzt über dem festen Dock, der Kreis bewegt sich nicht) */
         .stick-reps { position: absolute; left: 0; right: 0; bottom: 100%; display: flex; flex-direction: column; align-items: center; pointer-events: none; padding-bottom: 2px; }
         .stick-reps-kick { color: ${DIM}; font: 800 11px Figtree, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; }
         .stick-reps-num { color: ${TEAL}; font: 700 34px/1 Oswald, sans-serif; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
         .stick-reps-num .of { color: ${DIM}; font-size: 24px; }
-        .stick-reps.last .stick-reps-num { color: ${INK}; }
+        /* Letzte Wiederholung: Ziffer hell mit türkisem Schein (passend zur türkisen Vorschau) – vorher dunkel auf dunkel, unsichtbar */
+        .stick-reps.last .stick-reps-num { color: ${LIST}; text-shadow: 0 0 14px rgba(92,200,184,.75); }
         /* Clickwheel offen: Zähler rückt etwas nach oben, damit der Ring ihn nicht überdeckt */
         .stick-reps { transition: transform .24s cubic-bezier(.2,.8,.2,1); }
         body.metro-gesturing .stick-reps { transform: translateY(-16px); }
         @media (prefers-reduced-motion: reduce) { .stick-reps { transition: none; } }
         .stick-next-reps { display: none; color: ${TEAL}; font: 700 20px/1 Oswald, sans-serif; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
         .stick-next-reps .of { color: ${DIM}; font-size: 15px; }
-        .stick-next.soon .stick-next-reps { color: ${INK}; }
+        .stick-next.soon .stick-next-reps { color: ${LIST}; }
         @media (max-height: 720px) {
           /* wenig Höhe: Zähler wandert in den Kopf der Vorschau (sonst läge er über der Karte) */
           .stick-reps { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -592,6 +619,7 @@ export default function StickControl({ preset = null } = {}) {
             flex: 0 0 auto;
             margin: 0 0 6px !important;
           }
+          .stick-now { flex: 0 0 auto; margin: 0 2px 2px; }
           .stick-card {
             flex: 1;
             min-height: 0;
@@ -602,7 +630,7 @@ export default function StickControl({ preset = null } = {}) {
           .stick-card svg {
             width: 100%;
             height: auto;
-            max-height: calc(100dvh - 128px);
+            max-height: calc(100dvh - 150px);
           }
           .stick-wrap .rud-half {
             min-height: 44px;
@@ -661,10 +689,13 @@ export default function StickControl({ preset = null } = {}) {
               <RepsDrum value={reps} onChange={(v) => setReps(clamp(v, 1, 20))} disabled={playing} label={t("Wiederholungen")} />
             </span>
           ) : null}
-          {counting ? <span style={{ color: TEAL, fontWeight: 800, letterSpacing: "0.08em" }}>COUNT-IN</span> : null}
           <button type="button" className="stick-click-mini" onClick={() => (playing ? stop() : start())}>
             {playing ? "Stop" : "Click"}
           </button>
+        </div>
+        <div className="stick-now">
+          <span className="stick-now-kick">{t("Jetzt")}<span className="stick-now-pos">{`${ex.id}/${EXERCISES.length}`}</span></span>
+          {counting ? <span className="stick-now-count">COUNT-IN</span> : null}
         </div>
         <div className={playing ? "stick-card stick-run staff-card" : "stick-card staff-card"} >
           <Phrase
@@ -682,12 +713,10 @@ export default function StickControl({ preset = null } = {}) {
             ternary={ternary}
           />
         </div>
-      </div>
       <div className={lastRep ? "stick-next soon" : "stick-next"} data-next={nextEx ? nextEx.id : "end"} role="status" aria-live="polite" aria-atomic="true">
         <div className="stick-next-head">
           <span className="stick-next-kick">{nextEx ? t("Als Nächstes") : t("Letzte Übung")}</span>
           {challenge && playing && repNow > 0 ? <span className="stick-next-reps" aria-hidden="true">{repNow}<span className="of"> / {reps}</span></span> : null}
-          <span className="stick-next-pos">{`${t("Jetzt")} ${ex.id}/${EXERCISES.length}`}</span>
         </div>
         {nextEx ? (
           <button type="button" key={nextEx.id} className="stick-next-body" onClick={() => pick(nextEx.id)} disabled={playing} aria-label={t("Nummer {n}", { n: nextEx.id })}>
@@ -696,6 +725,7 @@ export default function StickControl({ preset = null } = {}) {
         ) : (
           <div className="stick-next-end">{challenge ? t("danach fertig") : t("Nr. {n}", { n: ex.id })}</div>
         )}
+      </div>
       </div>
       {later.length ? (
         <div className="stick-list stick-later" role="group" aria-label={t("Danach")}>

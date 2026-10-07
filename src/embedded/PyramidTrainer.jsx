@@ -442,8 +442,10 @@ export default function PyramidTrainer({ preset = null } = {}) {
         }
         /* Quer beim Üben: Noten links, Rad und Takt-Zähler rechts – nichts liegt übereinander */
         @media (orientation: landscape) and (max-height: 820px) {
-          .pyramid-wrap.focus { padding-bottom: 12px; padding-right: 268px; }
-          .pyr-dock.focus { left: auto; top: 0; width: 268px; padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; justify-content: center; }
+          /* Rechte Spalte breit genug für −5 · Rad (144 px mit Ring) · +5 samt Rand – vorher ragte +5 um 4 px über den Bildschirm */
+          .pyramid-wrap.focus { padding-bottom: 12px; padding-right: calc(284px + env(safe-area-inset-right, 0px)); }
+          .pyr-dock.focus { left: auto; top: 0; width: calc(284px + env(safe-area-inset-right, 0px)); padding: 8px calc(12px + env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) 12px; display: flex; flex-direction: column; justify-content: center; }
+          .pyr-dock.focus .dial-row { gap: 8px; }
           .pyr-dock.focus .count { margin-top: 22px; }
           .pyr-dock.focus .count-num { font-size: 40px; }
           .pyr-dock.focus .count-unit { font-size: 13px; }
