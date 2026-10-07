@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { MetronomeDial } from "../lib/metronome.jsx";
+import { MetronomeDial, Nudge } from "../lib/metronome.jsx";
 import { playClick, playClickLayer, unlockAudio } from "../lib/audio.js";
 import { NavScrub } from "../lib/NavScrub.jsx";
 import { t } from "../lib/i18n.js";
@@ -222,7 +222,23 @@ function ListRow({ row, onPick, playing, label, near, className, ternary }) {
   );
 }
 
+function useMq(q) {
+  const [m, setM] = useState(() => !!window.matchMedia?.(q).matches);
+  useEffect(() => {
+    const mq = window.matchMedia?.(q);
+    if (!mq) return undefined;
+    const on = () => setM(mq.matches);
+    on();
+    mq.addEventListener?.("change", on);
+    return () => mq.removeEventListener?.("change", on);
+  }, [q]);
+  return m;
+}
+
 export default function StickControl({ preset = null } = {}) {
+  // Querformat: Übung links, Tempo-Bereich rechts; auf flachen Screens (Phone quer) kleineres Rad
+  const lowWide = useMq("(orientation: landscape) and (max-height: 560px)");
+  const dialSize = lowWide ? 92 : 124;
   // „Heute“-Karte: Startübung und Tempo vorgeben
   const [exId, setExId] = useState(() => (EXERCISES.some((e) => e.id === preset?.ex) ? preset.ex : 1));
   const [bpm, setBpm] = useState(preset?.bpm || 80);
@@ -528,7 +544,6 @@ export default function StickControl({ preset = null } = {}) {
         }
         .stick-wrap .rud-half-arrow { font-size: 36px; }
         .stick-wrap .rud-half-name { font-size: clamp(15px, 4.2vw, 20px); }
-        .stick-flash, .stick-click-mini { display: none; }
         /* Fokus-Ansicht (Standard): nächste Übung kompakt unter der großen aktuellen */
         /* „Jetzt 3/24“ und Count-in gehören zur aktuellen Übung: eigene Zeile über der hellen Karte, feste Höhe (nichts springt) */
         .stick-now { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 18px; margin: 0 2px 4px; }
@@ -596,74 +611,91 @@ export default function StickControl({ preset = null } = {}) {
           .stick-next-body, .stick-next-end { animation: stickNextIn .28s ease-out; }
           @keyframes stickNextIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 0.9; transform: none; } }
         }
+        /* Querformat (Paket C): aufgeräumt in zwei Spalten – links Modus, aktuelle Übung und Vorschau,
+           rechts Tempo (Rad mit ±5/±10) und Einzählen. Kopf in einer Zeile, nichts liegt übereinander. */
         @media (orientation: landscape) {
-          .stick-wrap {
+          .page.tool.view-stick .top { flex-direction: row; align-items: center; gap: 12px; padding: 2px 0 8px; }
+          .page.tool.view-stick .top-row { display: contents; }
+          .page.tool.view-stick .top-title { order: 1; flex: 1 1 auto; width: auto; min-width: 0; font-size: 22px; }
+          .page.tool.view-stick .top-right { order: 2; }
+          .page.tool .stick-wrap.rud-wrap {
             --rud-foot: calc(46px + env(safe-area-inset-bottom, 0px));
-            padding-bottom: var(--rud-foot) !important;
-            display: flex;
-            flex-direction: column;
+            padding-bottom: calc(var(--rud-foot) + 10px) !important;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) var(--hc-side, 330px);
+            grid-template-rows: minmax(0, 1fr);
+            column-gap: 14px;
             min-height: 0;
             overflow: hidden;
           }
           .stick-stage { display: contents; }
-          .stick-list, .stick-next, .stick-done, .stick-fade { display: none !important; }
-          .stick-wrap .rud-metro { display: none !important; }
-          .stick-pin {
-            flex: 1;
+          .stick-list, .stick-done, .stick-fade { display: none !important; }
+          .page.tool .stick-wrap .stick-pin {
+            grid-column: 1;
+            grid-row: 1;
+            position: static;
             min-height: 0;
             display: flex;
             flex-direction: column;
-            padding: 0 0 4px;
+            justify-content: center;
+            padding: 0;
+            background: transparent;
           }
-          .stick-tools {
-            flex: 0 0 auto;
-            margin: 0 0 6px !important;
-          }
-          .stick-now { flex: 0 0 auto; margin: 0 2px 2px; }
-          .stick-card {
-            flex: 1;
+          .stick-tools { flex: 0 0 auto; margin: 0 0 8px !important; }
+          .stick-now { flex: 0 0 auto; margin: 0 2px 4px; }
+          .page.tool .stick-wrap .stick-card {
+            flex: 0 1 auto;
             min-height: 0;
+            margin: 0;
             display: flex;
             align-items: center;
-            padding: 6px 10px 4px !important;
+            padding: 8px 12px 6px !important;
           }
-          .stick-card svg {
-            width: 100%;
-            height: auto;
-            max-height: calc(100dvh - 150px);
+          .page.tool .stick-wrap .stick-card svg { width: 100%; height: auto; max-height: 100%; }
+          .stick-next { flex: 0 0 auto; margin-top: 8px; }
+          .page.tool .stick-wrap .rud-metro {
+            position: relative;
+            grid-column: 2;
+            grid-row: 1;
+            left: auto;
+            right: auto;
+            bottom: auto;
+            z-index: 2;
+            align-self: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: stretch;
+            min-height: 0;
+            max-height: none;
+            border: 1px solid #2f383d;
+            border-radius: 18px;
+            background: #14191c;
           }
+          .page.tool .stick-wrap .rud-metro .metro-face {
+            padding: 10px 6px 12px;
+            max-height: none;
+            overflow: visible;
+          }
+          .page.tool .stick-wrap .rud-metro .dial-row { gap: 5px; }
+          .page.tool .stick-wrap .rud-metro .dial-row .nudge-lg { width: 42px; height: 42px; font-size: 16px; }
+          .page.tool .stick-wrap .rud-metro .dial-row .nudge-lg.nudge-10 { width: 38px; height: 38px; font-size: 14px; }
+          .page.tool .stick-wrap .metro-face .seg { display: inline-flex; }
+          .page.tool .stick-wrap .stick-count { margin-top: 20px !important; }
           .stick-wrap .rud-half {
             min-height: 44px;
             padding: 4px 12px calc(4px + env(safe-area-inset-bottom, 0px));
           }
           .stick-wrap .rud-half-name { font-size: 15px; }
-          .stick-click-mini {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: auto;
-            min-width: 68px;
-            height: 34px;
-            padding: 0 12px;
-            border-radius: 999px;
-            border: 2px solid ${playing ? "#e05c5c" : TEAL};
-            background: ${playing ? "#3a1a1a" : "#13211f"};
-            color: ${playing ? "#e05c5c" : TEAL};
-            font: 800 12px/1 Figtree, sans-serif;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-          }
-          .stick-flash {
-            display: block;
-            pointer-events: none;
-            position: fixed;
-            inset: 0;
-            z-index: 28;
-            box-shadow: inset 0 0 0 6px ${TEAL}, inset 0 0 22px 3px rgba(92,200,184,.3);
-          }
+        }
+        @media (orientation: landscape) and (min-height: 561px) {
+          .page.tool .stick-wrap.rud-wrap { --hc-side: 390px; }
+        }
+        @media (orientation: landscape) and (min-height: 721px) {
+          /* Tablet quer: Wiederholungs-Zähler oben im Tempo-Bereich statt über dem Dock */
+          .page.tool .stick-wrap .stick-reps { position: static; margin-bottom: 10px; }
         }
       `}</style>
-      {beat ? <div className="stick-flash" aria-hidden="true" /> : null}
       <div className="stick-list" ref={prevRef}>
         {previous.map((row, i) => {
           const last = i === previous.length - 1;
@@ -689,9 +721,6 @@ export default function StickControl({ preset = null } = {}) {
               <RepsDrum value={reps} onChange={(v) => setReps(clamp(v, 1, 20))} disabled={playing} label={t("Wiederholungen")} />
             </span>
           ) : null}
-          <button type="button" className="stick-click-mini" onClick={() => (playing ? stop() : start())}>
-            {playing ? "Stop" : "Click"}
-          </button>
         </div>
         <div className="stick-now">
           <span className="stick-now-kick">{t("Jetzt")}<span className="stick-now-pos">{`${ex.id}/${EXERCISES.length}`}</span></span>
@@ -745,9 +774,11 @@ export default function StickControl({ preset = null } = {}) {
           ) : null}
           <div className="dock metro-face">
             <div className="dial-row">
-              <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))}>−5</button>
-              <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={124} now subLabel={playing ? "Stop" : "Start"} wheel wheelK={1.4} />
-              <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))}>+5</button>
+              <Nudge by={-10} bpm={bpm} set={setBpm} min={30} max={200} />
+              <Nudge by={-5} bpm={bpm} set={setBpm} min={30} max={200} />
+              <MetronomeDial bpm={bpm} setBpm={(v) => setBpm(clamp(v, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={dialSize} now subLabel={playing ? "Stop" : "Start"} wheel />
+              <Nudge by={5} bpm={bpm} set={setBpm} min={30} max={200} />
+              <Nudge by={10} bpm={bpm} set={setBpm} min={30} max={200} />
             </div>
             <div className="stick-count" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
               <span style={{ color: DIM, fontWeight: 700, fontSize: 14 }}>{t("Einzählen")}</span>

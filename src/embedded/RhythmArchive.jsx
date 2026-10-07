@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { MetronomeDial } from "../lib/metronome.jsx";
+import { MetronomeDial, Nudge } from "../lib/metronome.jsx";
 import { playClick, playKit, unlockAudio } from "../lib/audio.js";
 import { loadSession, saveSession } from "../lib/session.js";
 import { t } from "../lib/i18n.js";
@@ -499,9 +499,11 @@ export default function RhythmArchive() {
           </div>
         ) : null}
         <div className="dial-row rp-dial" ref={dialRef}>
-          <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 40, 200))} aria-label={t("5 BPM langsamer")}>−5</button>
-          <MetronomeDial bpm={bpm} setBpm={(n) => setBpm(clamp(n, 40, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={124} now subLabel={playing ? "Stop" : "Start"} wheel wheelK={1.36} />
-          <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 40, 200))} aria-label={t("5 BPM schneller")}>+5</button>
+          <Nudge by={-10} bpm={bpm} set={setBpm} min={40} max={200} />
+          <Nudge by={-5} bpm={bpm} set={setBpm} min={40} max={200} />
+          <MetronomeDial bpm={bpm} setBpm={(n) => setBpm(clamp(n, 40, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={124} now subLabel={playing ? "Stop" : "Start"} wheel />
+          <Nudge by={5} bpm={bpm} set={setBpm} min={40} max={200} />
+          <Nudge by={10} bpm={bpm} set={setBpm} min={40} max={200} />
         </div>
         </div>
       ) : null}
