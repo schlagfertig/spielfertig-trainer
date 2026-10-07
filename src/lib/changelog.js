@@ -5,6 +5,17 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-10-08",
+    items: [
+      { de: "Startseite: Jede Kachel zeigt jetzt rechts ein Symbol im Glas-Look – so findest du dein Werkzeug auf einen Blick.",
+        en: "Home: every tile now shows a glass-style icon on the right – spot your tool at a glance." },
+      { de: "Tagesquest: Die Karte „Heute“ ist jetzt deine Tagesquest. Keine Zeit? Tipp auf „Überspringen“ – morgen wartet eine neue.",
+        en: "Daily quest: the “Today” card is now your daily quest. No time? Tap “Skip” – a new one is waiting tomorrow." },
+      { de: "Startseite: Sprache, „!“ und „?“ machen beim Runterscrollen Platz und sind beim Hochscrollen sofort wieder da. Das Logo-Metronom geht beim Scrollen nicht mehr aus Versehen auf – tipp oben aufs Logo, um es zu starten.",
+        en: "Home: language, “!” and “?” step aside while you scroll down and are back as soon as you scroll up. The logo metronome no longer opens by accident while you scroll – tap the logo at the top to start it." },
+    ],
+  },
+  {
     date: "2026-10-07",
     items: [
       { de: "Neuer Name: Die App heißt jetzt „Schlagfertig‽“ – wie das Logo. Darunter steht „Drums lernen – Schlag für Schlag“, und das ‽ sieht überall wie ein echtes Interrobang aus.",

@@ -9,7 +9,8 @@ const clamp = (n) => Math.max(30, Math.min(260, Math.round(n)));
 const WHEEL_K = 1.55;
 
 // Easter Egg: Logo antippen = Metronom (gleiches Dial und gleicher Click wie im Click-Trainer)
-export function LogoMetronome() {
+// locked: Startseite ist gescrollt – dann kein Antippen, und ein offenes Metronom schließt sich (kein Easter Egg beim Scrollen).
+export function LogoMetronome({ locked = false }) {
   const [open, setOpen] = useState(false);
   // Einmal entdeckt = Logo blinkt nicht mehr (CSS-Animation nur ohne .found)
   const [found, setFound] = useState(() => { try { return !!localStorage.getItem("sf.v1.logoFound"); } catch { return false; } });
@@ -69,8 +70,11 @@ export function LogoMetronome() {
     return () => document.removeEventListener("pointerdown", onDown, true);
   }, [open]);
 
+  useEffect(() => { if (locked && open) close(); }, [locked, open]);
+
   const set = (v) => setBpm(clamp(v));
   const openDial = () => {
+    if (locked) return;
     setOpen(true);
     if (!found) { setFound(true); try { localStorage.setItem("sf.v1.logoFound", "1"); } catch { /* privater Modus */ } }
   };

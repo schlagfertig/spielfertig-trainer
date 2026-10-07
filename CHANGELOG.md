@@ -4,6 +4,12 @@ Alle für Nutzer sichtbaren Änderungen, nach Datum gruppiert (neueste zuerst).
 Kleine Fix-Commits sind dem jeweiligen Feature zugeordnet; reine Technik (Build-Fixes,
 Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SHA).
 
+## 08.10.2026
+
+- Startseite: Liquid-Glass-Symbole rechts auf allen Kacheln (Erste Übung, Rudiments, Click-Trainer, Rhythmuspyramide, Hand Control, Lexikon, Meine Grooves, Noten) – Inline-SVG-Glyphen (`src/lib/HomeIcons.jsx`) in einem Glas-Badge aus CSS (Blur, Glanzlicht, türkiser Innenschein, `src/styles-home.css`); Kacheln reservieren rechts Platz, damit kein Text unter das Symbol läuft (EN „Home: every tile now shows a glass-style icon on the right – spot your tool at a glance.“)
+- Karte „Heute“ als Tagesquest: Kicker „Tagesquest · Heute“ mit Fähnchen, goldener Rand/Schein; neuer Knopf „Überspringen“ unten rechts blendet sie bis Tagesende aus (gespeichert nur der Tag unter `todaySkip`, gleiche Logik wie „Nicht heute“, Karte klappt weich zu) (EN „Daily quest: the “Today” card is now your daily quest. No time? Tap “Skip” – a new one is waiting tomorrow.“)
+- Startseite: Sprache, „!“ und „?“ blenden beim Runterscrollen aus (Fade + kurzer Slide nach oben) und beim Hochscrollen bzw. ganz oben wieder ein. Logo-Metronom (Easter Egg) nur noch oben antippbar: ab 24 px Scrollweg ist das fest stehende Logo zwischen den Kacheln nicht mehr antippbar, und ein offenes Metronom schließt sich (EN „Home: language, “!” and “?” step aside while you scroll down and are back as soon as you scroll up. The logo metronome no longer opens by accident while you scroll – tap the logo at the top to start it.“)
+
 ## 07.10.2026
 
 - Neuer App-Name „Schlagfertig‽“ (brand.js `product`, `capacitor.config.json` appName, Manifest name „Schlagfertig‽ – Drums lernen“ / short_name „Schlagfertig‽“, `<title>`, Begrüßung, Lead der Neuigkeiten, Impressum, Datenschutz). Untertitel „Drums lernen – Schlag für Schlag“ (EN „Learn drums – beat by beat“) unter dem runden Logo statt „Control“ und in der Begrüßung. Das ‽ kommt aus zwei Mini-Fonts nur mit U+203D (`src/fonts/interrobang*.woff2`, aus Noto Sans, OFL), per `unicode-range` an Figtree, Space Mono, Oswald und Bebas Neue gehängt – kein „?“-Ersatzzeichen mehr (EN „New name: the app is now called “Schlagfertig‽” – just like the logo. Below it reads “Learn drums – beat by beat”, and the ‽ now looks like a real interrobang everywhere.“)

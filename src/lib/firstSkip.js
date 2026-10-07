@@ -4,6 +4,8 @@
 import { dayKey } from "./today.js";
 
 export const FIRST_SKIP_KEY = "firstSkip";
+// „Überspringen“ auf der Tagesquest („Heute“-Karte): gleiche Logik, eigener Speicherplatz.
+export const TODAY_SKIP_KEY = "todaySkip";
 
 export function hideFirstToday(d = new Date()) {
   return { day: dayKey(d) };

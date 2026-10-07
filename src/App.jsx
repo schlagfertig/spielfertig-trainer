@@ -16,6 +16,7 @@ import News, { NewsButton } from "./lib/News.jsx";
 import { loadSession, saveSession } from "./lib/session.js";
 import { LogoMetronome } from "./lib/LogoMetronome.jsx";
 import { SocialLinks } from "./lib/Social.jsx";
+import { TileIcon } from "./lib/HomeIcons.jsx";
 import { getLang, setLang, t } from "./lib/i18n.js";
 
 const FLAG_EN = (
@@ -175,6 +176,30 @@ export default function App() {
     return () => window.removeEventListener("popstate", onPop);
   }, [printOpen]);
 
+  // Startseite: Scroll-Richtung verfolgen. Runter = Sprache/„!“/„?“ ausblenden, hoch oder ganz oben = wieder zeigen.
+  // „scrolled“ sperrt außerdem das Logo-Metronom (Easter Egg), damit es beim Scrollen nicht aus Versehen aufgeht.
+  const [helpHidden, setHelpHidden] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    if (view !== "home") { setHelpHidden(false); setScrolled(false); return undefined; }
+    let last = window.scrollY || 0;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const y = Math.max(0, window.scrollY || 0);
+      setScrolled(y > 24);
+      if (y < 40) setHelpHidden(false);
+      else if (y > last + 6) setHelpHidden(true);
+      else if (y < last - 6) setHelpHidden(false);
+      else return; // kleine Zitterbewegungen ignorieren, Bezugspunkt behalten
+      last = y;
+    };
+    const onScroll = () => { if (!raf) raf = window.requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => { window.removeEventListener("scroll", onScroll); if (raf) window.cancelAnimationFrame(raf); };
+  }, [view]);
+
   useEffect(() => {
     if (view === "home") return undefined;
     let startX = 0;
@@ -218,8 +243,8 @@ export default function App() {
 
   if (view === "home") {
     return (
-      <div className="page home">
-        <div className="home-help">
+      <div className={scrolled ? "page home is-scrolled" : "page home"}>
+        <div className={helpHidden ? "home-help is-hidden" : "home-help"}>
           <button type="button" className="help-dot lang-flag" onClick={switchLang} aria-label={lang === "de" ? "Switch to English" : "Auf Deutsch umschalten"}>{lang === "de" ? FLAG_EN : FLAG_DE}</button>
           <div className="home-help-col">
             <Help topic="home" />
@@ -227,7 +252,7 @@ export default function App() {
           </div>
         </div>
         <header className="hero">
-          <LogoMetronome />
+          <LogoMetronome locked={scrolled} />
           {/* Das runde Logo zeigt schon „schlagfertig‽ · Zeit für guten Sound“ – darunter der Untertitel. */}
           <h1 className="app-logo" aria-label={`Schlagfertig‽ – ${t("Drums lernen – Schlag für Schlag")}`}>
             <span className="app-logo-sub" aria-hidden="true">{t("Drums lernen – Schlag für Schlag")}</span>
@@ -237,7 +262,8 @@ export default function App() {
         {firstHidden ? null : (
           <div className={firstLeaving ? "first-wrap leaving" : "first-wrap"}>
             <div className="first-inner">
-              <button className="card" style={{ width: "100%", borderColor: "#5cc8b8" }} onClick={() => open("first")}>
+              <button className="card has-icon" style={{ width: "100%", borderColor: "#5cc8b8" }} onClick={() => open("first")}>
+                <TileIcon name="first" />
                 <div className="card-kicker">{t(firstDone ? "Nochmal" : "Loslegen")}</div>
                 <div className="card-title">{t("Erste Übung starten")}</div>
                 <div className="card-lead">{t("Leg einfach los: Spiel eine Minute zum Click – ganz ohne Vorwissen.")}</div>
@@ -250,43 +276,50 @@ export default function App() {
         )}
         <Today onOpen={open} />
         <div className="cards">
-          <button className="card" onClick={() => open("rudiments")}>
+          <button className="card has-icon" onClick={() => open("rudiments")}>
+            <TileIcon name="rudiments" />
             <div className="card-kicker">{t("Üben")}</div>
             <div className="card-title">Rudiments</div>
             <div className="card-lead">{t("Meistere 40 Grundlagen für Technik, Kontrolle und Timing.")}<br />{t("Mit Notation, Click und Tempo.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
-          <button className="card" onClick={() => open("click")}>
+          <button className="card has-icon" onClick={() => open("click")}>
+            <TileIcon name="click" />
             <div className="card-kicker">Tempo</div>
             <div className="card-title">{t("Click-Trainer")}</div>
             <div className="card-lead">{t("Dein Tempo, dein Groove: Halte es sicher oder steigere es Schritt für Schritt.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
-          <button className="card" onClick={() => open("pyramid")}>
+          <button className="card has-icon" onClick={() => open("pyramid")}>
+            <TileIcon name="pyramid" />
             <div className="card-kicker">Subdivision</div>
             <div className="card-title">{t("Rhythmuspyramide")}</div>
             <div className="card-lead">{t("Von 4teln bis 32teln: Festige deinen Puls und wechsle sauber zwischen den Unterteilungen.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
-          <button className="card" onClick={() => open("stick")}>
+          <button className="card has-icon" onClick={() => open("stick")}>
+            <TileIcon name="stick" />
             <div className="card-kicker">{t("Technik")}</div>
             <div className="card-title">{t("Hand Control")}</div>
             <div className="card-lead">{t("Stärke deine schwache Hand, übe saubere Wechsel und halte das Tempo ganz locker.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
-          <button className="card" onClick={() => open("lexicon")}>
+          <button className="card has-icon" onClick={() => open("lexicon")}>
+            <TileIcon name="lexicon" />
             <div className="card-kicker">{t("Nachschlagen")}</div>
             <div className="card-title">{t("Lexikon")}</div>
             <div className="card-lead">{t("Downbeat, Flam, Groove: Schlag nach, was dahintersteckt – von A bis Z.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
-          <button className="card" type="button" onClick={() => open("rhythm")}>
+          <button className="card has-icon" type="button" onClick={() => open("rhythm")}>
+            <TileIcon name="rhythm" />
             <div className="card-kicker">{t("Groove")}</div>
             <div className="card-title">{t("Meine Grooves")}</div>
             <div className="card-lead">{t("Bau deinen eigenen Groove, gib ihm einen Namen und üb ihn mit der Dial, bis er sitzt.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
-          <button className="card" onClick={() => open("archive")}>
+          <button className="card has-icon" onClick={() => open("archive")}>
+            <TileIcon name="archive" />
             <div className="card-kicker">{t("Eigene Blätter")}</div>
             <div className="card-title">{t("Noten")}</div>
             <div className="card-lead">{t("Hab deine Noten immer dabei: Speichere Fotos und PDFs, schlag sie beim Üben auf und zoom hinein.")}</div>

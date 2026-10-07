@@ -26,3 +26,15 @@ test("„Nicht heute“: Texte auf Englisch", () => {
   assert.equal(EN["Nicht heute"], "Not today");
   assert.ok(EN["Erste Übung für heute ausblenden"]);
 });
+
+test("Tagesquest „Überspringen“: eigener Speicherplatz, gleiche Tageslogik, Texte auf Englisch", async () => {
+  const { TODAY_SKIP_KEY, FIRST_SKIP_KEY } = await import("../src/lib/firstSkip.js");
+  assert.equal(TODAY_SKIP_KEY, "todaySkip");
+  assert.notEqual(TODAY_SKIP_KEY, FIRST_SKIP_KEY);
+  const saved = hideFirstToday(new Date(2026, 9, 8, 9));
+  assert.equal(isFirstHidden(saved, new Date(2026, 9, 8, 22)), true);
+  assert.equal(isFirstHidden(saved, new Date(2026, 9, 9, 6)), false);
+  assert.equal(EN["Tagesquest"], "Daily quest");
+  assert.equal(EN["Überspringen"], "Skip");
+  assert.ok(EN["Tagesquest für heute überspringen"]);
+});
