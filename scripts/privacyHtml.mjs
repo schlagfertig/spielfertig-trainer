@@ -3,34 +3,34 @@
 // middleware.js lässt genau diese beiden Pfade ohne Einladungs-Cookie durch.
 import { PRIVACY } from "../src/lib/privacyText.js";
 
-const esc = (s) => String(s).replace(/[\u0026\u003c>"]/g, (c) => ({ "\u0026": "\u0026amp;", "\u003c": "\u0026lt;", ">": "\u0026gt;", '"': "\u0026quot;" })[c]);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': """ })[c]);
 
 function part(p) {
-  return typeof p === "string" ? esc(p) : `\u003ca href="${esc(p.href)}">${esc(p.text)}\u003c/a>`;
+  return typeof p === "string" ? esc(p) : `<a href="${esc(p.href)}">${esc(p.text)}</a>`;
 }
 
 function langSection(lang) {
   const d = PRIVACY[lang];
-  const note = d.note ? `\u003cp class="note">${esc(d.note)}\u003c/p>\n` : "";
+  const note = d.note ? `<p class="note">${esc(d.note)}</p>\n` : "";
   const secs = d.sections
-    .map((s) => `\u003csection>\n\u003ch2>${esc(s.h)}\u003c/h2>\n\u003cp>${s.body.map(part).join("")}\u003c/p>\n\u003c/section>`)
+    .map((s) => `<section>\n<h2>${esc(s.h)}</h2>\n<p>${s.body.map(part).join("")}</p>\n</section>`)
     .join("\n");
-  return `\u003carticle id="${lang}" lang="${lang}">\n\u003ch1>${esc(d.title)}\u003c/h1>\n${note}${secs}\n\u003c/article>`;
+  return `<article id="${lang}" lang="${lang}">\n<h1>${esc(d.title)}</h1>\n${note}${secs}\n</article>`;
 }
 
 export function privacyHtml(first = "de") {
   const order = first === "en" ? ["en", "de"] : ["de", "en"];
   const title = first === "en" ? "Privacy Policy · Datenschutz – Schlagfertig‽" : "Datenschutz · Privacy Policy – Schlagfertig‽";
-  return `\u003c!doctype html>
-\u003chtml lang="${first}">
-\u003chead>
-\u003cmeta charset="utf-8">
-\u003cmeta name="viewport" content="width=device-width,initial-scale=1">
-\u003cmeta name="color-scheme" content="dark">
-\u003cmeta name="theme-color" content="#161a1d">
-\u003ctitle>${esc(title)}\u003c/title>
-\u003clink rel="icon" href="/favicon.svg" type="image/svg+xml">
-\u003cstyle>
+  return `<!doctype html>
+<html lang="${first}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#161a1d">
+<title>${esc(title)}</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
 body{margin:0;background:#161a1d;color:#f4f7f6;font:17px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 main{max-width:640px;margin:0 auto;padding:20px 18px 48px}
 header{text-align:center;margin-bottom:8px}
@@ -45,18 +45,18 @@ p{margin:0;color:#c3ccd0;font-size:16px;white-space:pre-line}
 p.note{margin:0 0 18px;padding:12px 14px;border:1px solid #2f383d;border-radius:10px;color:#8a969c}
 article+article{margin-top:36px;padding-top:8px;border-top:1px solid #2f383d}
 a{color:#5cc8b8;text-underline-offset:3px;word-break:break-word}
-\u003c/style>
-\u003c/head>
-\u003cbody>
-\u003cmain>
-\u003cheader>
-\u003cimg src="/logo.svg" alt="schlagfertig‽">
-\u003cnav aria-label="Sprache / Language">\u003ca href="#de" lang="de">Deutsch\u003c/a>\u003ca href="#en" lang="en">English\u003c/a>\u003c/nav>
-\u003c/header>
+</style>
+</head>
+<body>
+<main>
+<header>
+<img src="/logo.svg" alt="schlagfertig‽">
+<nav aria-label="Sprache / Language"><a href="#de" lang="de">Deutsch</a><a href="#en" lang="en">English</a></nav>
+</header>
 ${order.map(langSection).join("\n")}
-\u003c/main>
-\u003c/body>
-\u003c/html>
+</main>
+</body>
+</html>
 `;
 }
 
