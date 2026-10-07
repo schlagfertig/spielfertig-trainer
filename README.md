@@ -1,4 +1,6 @@
-# Schlagfertig Control
+# Schlagfertig‽
+
+_Drums lernen – Schlag für Schlag_
 
 Rudiment-Trainer und Groove-Editor unter der Marke schlagfertig‽ (Repo- und Vercel-Name weiterhin `spielfertig-trainer`).
 
