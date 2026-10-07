@@ -426,11 +426,11 @@ export const LEXICON = [
   },
   {
     id: "drumset",
-    term: "Das Drumset",
+    term: "Drumset",
     img: "/lexikon/drumset-alle-trommeln.webp",
     alt: "Übersicht eines Drumsets mit Trommeln, Becken und Hardware",
     text: "Das Drumset ist die übliche Zusammenstellung aus Bassdrum, Snare, Toms und Becken, dazu die Hardware zum Halten und die Fußmaschinen. Es gibt keine feste Stückzahl. Die Abbildung zeigt eine gebräuchliche Aufstellung.",
-    en: { term: "The drum kit", alt: "Overview of a drum kit with drums, cymbals and hardware", text: "The drum kit is the usual combination of bass drum, snare, toms and cymbals, plus the hardware that holds them and the pedals. There is no fixed number of pieces. The picture shows a common setup." },
+    en: { term: "Drum kit", alt: "Overview of a drum kit with drums, cymbals and hardware", text: "The drum kit is the usual combination of bass drum, snare, toms and cymbals, plus the hardware that holds them and the pedals. There is no fixed number of pieces. The picture shows a common setup." },
   },
   {
     id: "haengetom",
