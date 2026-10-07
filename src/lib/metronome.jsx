@@ -208,8 +208,9 @@ function HoldLever({ cx, cy, x, y, size, visible }) {
    und sich beim Antippen vergrößert. Gezeichnet wird immer die offene Größe; in Ruhe ist das
    SVG auf WHEEL_REST verkleinert, so dass nur der äußere Streifen (Striche, − und +) um den
    Kreis herum sichtbar bleibt – der Rest liegt unter dem Kreis. Die Logik bleibt die des Dials:
-   Mitte = Start/Stop, am Rand drehen = Tempo, weiter außen feiner. */
-const WHEEL_K = 1.55; // Außenradius offen = Kreisradius × 1.55 (Standard, Click-Trainer); pro Trainer über `wheelK` kleiner, wenn Platz fehlt
+   Mitte = Start/Stop, am Ring drehen = Tempo. */
+// Schmaler Ring (Paket C): Außenradius offen = Kreisradius × 1.3 – überall gleich, der Ring drängt sich nicht mehr vor.
+export const WHEEL_K = 1.3;
 const WHEEL_REST_PX = 14; // in Ruhe ragt der Ring so weit über den Kreis hinaus
 const WHEEL_TICKS = 60;
 const HINT_FS = 10.5; // Schriftgröße des Hinweises im Ring; wird verkleinert, bis er auf den Bogen passt
@@ -226,13 +227,15 @@ function Clickwheel({ size, bpm, open, thumb, k = WHEEL_K }) {
   const mid = (ri + ro) / 2;
   const uid = useId().replace(/:/g, "");
   const rot = ((Number(bpm) || 0) * 6) % 360; // grob = 6° pro BPM: die Striche wandern mit dem Tempo
-  const [lx, ly] = polar(c, c, ro - 14, 180);
-  const [rx, ry] = polar(c, c, ro - 14, 0);
+  // − und + mittig im (schmalen) Ring, Schrift passend zur Ringbreite
+  const markFs = Math.max(12, Math.min(20, (ro - ri) * 0.95));
+  const [lx, ly] = polar(c, c, mid, 180);
+  const [rx, ry] = polar(c, c, mid, 0);
   const ra = ro + 9;
   const cue = { opacity: open ? 1 : 0 };
   // Hinweis oben im Ring passend machen: Länge ist proportional zur Schriftgröße (Sperrung in em),
   // also einmal messen und die Größe so setzen, dass der Text auf den Bogen passt (kleine Räder = kleinere Schrift).
-  const hint = t("Am Rand drehen · außen feiner").toUpperCase();
+  const hint = t("Zum Einstellen drehen").toUpperCase();
   const hintRef = useRef(null);
   const hintPathRef = useRef(null);
   const [hintFs, setHintFs] = useState(HINT_FS);
@@ -290,8 +293,8 @@ function Clickwheel({ size, bpm, open, thumb, k = WHEEL_K }) {
         })}
       </g>
       <g style={{ opacity: open ? 1 : 0.55 }}>
-        <text x={lx} y={ly} textAnchor="middle" dominantBaseline="central" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="20" fontWeight="800">{MINUS}</text>
-        <text x={rx} y={ry} textAnchor="middle" dominantBaseline="central" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="20" fontWeight="800">+</text>
+        <text x={lx} y={ly} textAnchor="middle" dominantBaseline="central" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize={markFs} fontWeight="800">{MINUS}</text>
+        <text x={rx} y={ry} textAnchor="middle" dominantBaseline="central" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize={markFs} fontWeight="800">+</text>
       </g>
       {/* Nur offen: Drehrichtung, Hinweis oben im Ring, Daumen am Finger */}
       <g className="cw-cue" style={cue}>
@@ -315,6 +318,18 @@ function Clickwheel({ size, bpm, open, thumb, k = WHEEL_K }) {
         );
       })() : null}
     </svg>
+  );
+}
+
+/* Tempo-Tasten neben dem Rad: ±5 innen, ±10 außen (Paket C). Gleiche Klasse wie bisher (.nudge-lg),
+   damit sie beim Drehen mit ausgeblendet werden; ±10 etwas kleiner (.nudge-10). */
+export function Nudge({ by, bpm, set, min = 30, max = 260 }) {
+  const n = Math.abs(by);
+  const label = by < 0 ? t("{n} BPM langsamer", { n }) : t("{n} BPM schneller", { n });
+  return (
+    <button type="button" className={n >= 10 ? "nudge-lg nudge-10" : "nudge-lg"} onClick={() => set(clamp((Number(bpm) || min) + by, min, max))} aria-label={label}>
+      {by < 0 ? "−" : "+"}{n}
+    </button>
   );
 }
 
@@ -548,7 +563,7 @@ export function MetronomeDial({
             shrinkWheelSoon(1200);
           } : undefined}
           {...(cw ? {} : { onPointerDown, onPointerMove, onPointerUp, onPointerCancel: onPointerUp })}
-          title={t("Tipp = Start/Stop. Am Rand drehen ändert das Tempo. Außen feiner.")}
+          title={t("Tipp = Start/Stop. Zum Einstellen am Ring drehen.")}
           aria-label={t(active ? "Metronom stoppen. Halten und drehen ändert das Tempo." : "Metronom starten. Halten und drehen ändert das Tempo.")}
           style={{
             position: "absolute",
@@ -607,7 +622,7 @@ export function MetronomeDial({
       ) : null}
       {setBpm ? (
         <div className="cw-hint" style={{ position: "absolute", left: "50%", top: "100%", transform: "translateX(-50%)", width: 168, marginTop: 2, textAlign: "center", font: "600 11px/1.25 Figtree, sans-serif", color: "#8a969c", pointerEvents: "none", opacity: cw && wheelOpen ? 0 : 1 }}>
-          {t("Am Rand drehen · außen feiner")}
+          {t("Zum Einstellen drehen")}
         </div>
       ) : null}
     </div>

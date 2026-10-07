@@ -5,8 +5,6 @@ import { loadSession } from "./session.js";
 import { t } from "./i18n.js";
 
 const clamp = (n) => Math.max(30, Math.min(260, Math.round(n)));
-// Clickwheel wie im Click-Trainer; Ringgröße so, dass der offene Ring samt Pfeilen in die Logo-Fläche passt
-const WHEEL_K = 1.55;
 
 // Easter Egg: Logo antippen = Metronom (gleiches Dial und gleicher Click wie im Click-Trainer)
 // locked: Startseite ist gescrollt – dann kein Antippen, und ein offenes Metronom schließt sich (kein Easter Egg beim Scrollen).
@@ -86,7 +84,7 @@ export function LogoMetronome({ locked = false }) {
           <button type="button" className="logo-dial-x" onClick={close} aria-label={t("Metronom schließen")}>×</button>
           <div className="dial-row">
             <button type="button" className="nudge-lg" onClick={() => set(bpm - 5)} aria-label={t("5 BPM langsamer")}>−5</button>
-            <MetronomeDial bpm={bpm} setBpm={set} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={150} now subLabel={playing ? "Stop" : "Start"} wheel wheelK={WHEEL_K} />
+            <MetronomeDial bpm={bpm} setBpm={set} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={150} now subLabel={playing ? "Stop" : "Start"} wheel />
             <button type="button" className="nudge-lg" onClick={() => set(bpm + 5)} aria-label={t("5 BPM schneller")}>+5</button>
           </div>
         </div>
