@@ -1,8 +1,9 @@
-// App-Name im Text: „Schlagfertig Control“ (ohne ‽, besser lesbar), mit geschütztem Leerzeichen.
-// Das runde Logo „schlagfertig‽“ (mit ‽) ist Toms Markenzeichen. Kurzname auf dem Home-Bildschirm: „Control“.
+// App-Name: „Schlagfertig‽“ – wie das runde Logo, Toms Markenzeichen. Das ‽ kommt aus src/fonts/fonts.css (eingebettet),
+// damit es überall als Interrobang erscheint und nicht wie ein „?“. Untertitel: BRAND.subtitle (EN in en.js).
 export const BRAND = {
   mark: "schlagfertig‽",
-  product: "Schlagfertig\u00a0Control", // geschütztes Leerzeichen: Name bricht nicht um
+  product: "Schlagfertig‽",
+  subtitle: "Drums lernen – Schlag für Schlag",
   person: "Thomas Schuster",
   phone: "01522 574 2199",
   email: "Schlagfertig@iCloud.com",
@@ -18,4 +19,4 @@ export function brandLine() {
 }
 
 export const HAND_NAME = "Hand Control";
-export const HAND_LEAD = "Schwache Hand verbessern, saubere Wechsel üben, Tempo ohne Verspannungen halten.";
+export const HAND_LEAD = "Stärke deine schwache Hand, übe saubere Wechsel und halte das Tempo ganz locker.";
