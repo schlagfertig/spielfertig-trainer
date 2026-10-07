@@ -4,6 +4,13 @@ Alle für Nutzer sichtbaren Änderungen, nach Datum gruppiert (neueste zuerst).
 Kleine Fix-Commits sind dem jeweiligen Feature zugeordnet; reine Technik (Build-Fixes,
 Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SHA).
 
+## 07.10.2026
+
+- Meine Grooves: „Speichern als…“ legt immer einen neuen Groove mit neuer ID an und überschreibt keinen anderen mehr. „Erstellen“ beginnt nach dem Speichern oder nach dem Öffnen eines gespeicherten Grooves mit leerem Raster (1 Takt, ohne ID); ein noch ungespeicherter Entwurf bleibt beim Wechsel zwischen den Ansichten erhalten.
+- Meine Grooves: unter Üben neuer Knopf „Bearbeiten“ für einen geöffneten Groove; im Erstellen-Bildschirm dann zusätzlich „Speichern“ (aktualisiert genau diesen Groove), „Speichern als…“ legt eine Kopie an.
+- Meine Grooves quer: Taktwahl 1–4 nicht mehr `position: fixed`, sondern im normalen Fluss der Kopfzeile (rechts neben Erstellen/Üben/Archiv, Kopfzeile mit 34 % Abstand rechts für die Vorschau) – liegt beim Scrollen nicht mehr über den Feldern.
+- Meine Grooves EN: „Speichern als…“, „Speichern“, „Beides“ und der Dreh-Hinweis laufen über t() (Save as…, Save, Both, „Turn your phone sideways to enter notes. In portrait you only see the rhythm.“); neu „Bearbeiten“ → Edit.
+
 ## 05.10.2026
 
 - Hand Control: aktuelle Übung auf heller Karte (#f4f7f6, Radius 16 px, ohne türkisen Rand, auch beim Spielen kein türkiser Ring/Schleier) – überschreibt das dunkle Glas von .stick-card (src/embedded/StickControl.jsx); Handsatz darauf R grau (#8a969c), L und Nummer dunkleres Türkis (#2f9e90, auf Hell besser lesbar), gespielter Buchstabe deutlich dunkler (R #161a1d, L #1d7a6f); „Als Nächstes“ und Listenzeilen bleiben dunkel (R hell, L türkis)
