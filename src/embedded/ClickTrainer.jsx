@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { TempoControl } from "../lib/tempo.jsx";
-import { MetronomeDial } from "../lib/metronome.jsx";
+import { MetronomeDial, Nudge } from "../lib/metronome.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
 import { loadSession, saveSession } from "../lib/session.js";
 import { ClickAdvanced } from "../lib/ClickAdvanced.jsx";
@@ -34,8 +34,8 @@ function useMixNow(mix, flipped) {
 // Kreisgröße nach verfügbarer Höhe: groß auf normalen Phones, kleiner auf kurzen Screens / Querformat.
 function dialSizeFor(h) {
   if (h <= 480) return 112;
-  if (h <= 720) return 136;
-  return 156;
+  if (h <= 720) return 128;
+  return 140; // Platz für ±5 und ±10 neben dem Rad
 }
 
 function useDialSize() {
@@ -263,7 +263,7 @@ export default function ClickTrainer({ preset = null } = {}) {
               </label>
             </div>
             <p style={{ color: DIM, fontSize: 12, margin: "14px 0 0" }}>
-              {t("Beispiel: Start {start}, alle {every}s +{step}, Ziel {cap}.", { start: startBpm, every: everySec, step, cap })}
+              {t("Aktuell: Start {start}, alle {every}s +{step}, Ziel {cap}.", { start: startBpm, every: everySec, step, cap })}
             </p>
           </>
         ) : (
@@ -274,9 +274,11 @@ export default function ClickTrainer({ preset = null } = {}) {
       </div>
       <div className="ct-stage click-dock">
         <div className="dial-row">
-          <button type="button" className="nudge-lg" onClick={() => setDial(bpm - 5)} aria-label={t("5 BPM langsamer")}>−5</button>
+          <Nudge by={-10} bpm={bpm} set={setDial} min={30} max={260} />
+          <Nudge by={-5} bpm={bpm} set={setDial} min={30} max={260} />
           <MetronomeDial bpm={bpm} setBpm={setDial} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={dialSize} now subLabel={playing ? "Stop" : "Start"} wheel />
-          <button type="button" className="nudge-lg" onClick={() => setDial(bpm + 5)} aria-label={t("5 BPM schneller")}>+5</button>
+          <Nudge by={5} bpm={bpm} set={setDial} min={30} max={260} />
+          <Nudge by={10} bpm={bpm} set={setDial} min={30} max={260} />
         </div>
         {playing && ramp ? (
           <div className="count">

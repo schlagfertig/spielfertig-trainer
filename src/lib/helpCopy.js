@@ -11,19 +11,19 @@ export const HELP = {
   ],
   rudiments: [
     ["Metronom unten", "Tippen = Start/Stop. Halten + drehen: rechtsrum schneller."],
-    ["Radius", "Innen grob, außen fein, auch über den Ring hinaus. −5/+5 daneben."],
+    ["Tasten", "−5/+5 und −10/+10 neben dem Kreis springen in Schritten."],
     ["Nav unten", "‹ › tippen = vor/zurück. Wischen springt mehrere. Halten öffnet das Zahlenrad."],
     ["Titel", "‚Rudiment wählen‘ + ▾ öffnet die komplette Liste."],
-    ["Hören", "Snare, Tom / Snare oder Nur Click — Umschalter über dem Kreis."],
+    ["Ziel & Klang", "Über dem Kreis: Ziel (frei, 8 oder 16 Loops, 2 Min) und Klang (Snare, Tom / Snare, Nur Click)."],
   ],
   click: [
-    ["Kreis", "Tippen = Start/Stop. Am Rand drehen: rechtsrum schneller."],
-    ["Radius", "Innen grob, außen fein, auch über den Ring hinaus. −5/+5 daneben."],
+    ["Kreis", "Tippen = Start/Stop. Am Ring drehen: rechtsrum schneller."],
+    ["Tasten", "−5/+5 und −10/+10 neben dem Kreis springen in Schritten."],
     ["Erweitert", "‚Erweitert‘ unter dem Kreis öffnet den Click-Mixer von unten. Mixer für Viertel, Offbeat, 16tel, Triolen, Beat und Master. Der Click läuft dabei weiter."],
     ["Modi", "Tempo halten oder steigern (alle X Sekunden +Y BPM)."],
   ],
   pyramid: [
-    ["Metronom unten", "Tippen = Start/Stop. Halten + drehen = Tempo, innen grob, außen fein, auch über den Ring hinaus. −5/+5 daneben."],
+    ["Metronom unten", "Tippen = Start/Stop. Halten + drehen = Tempo. −5/+5 und −10/+10 daneben."],
     ["Stufen", "4tel → 8tel → 8tel-Triole → 16tel → Quintole → 16tel-Sextole → Septole → 32tel. Tippen schaltet einzeln an/aus, eine bleibt immer an."],
     ["Takte", "1, 2 oder 4 Takte pro Stufe, immer im 4/4."],
   ],
@@ -34,7 +34,7 @@ export const HELP = {
     ["Üben", "Nur Click, Playback oder Beides. Der Click blinkt auf den vollen Zählzeiten. Dial wie überall: tippen startet, drehen ändert das Tempo."],
   ],
   stick: [
-    ["Metronom unten", "Tippen = Start/Stop. Drehen = Tempo, innen grob, außen fein. −5/+5 daneben."],
+    ["Metronom unten", "Tippen = Start/Stop. Drehen = Tempo. −5/+5 und −10/+10 daneben."],
     ["Nav unten", "‹ › oder wischen. Halten öffnet das Rad, Vorschau = erste 8 Achtel."],
     ["Liste", "Die aktuelle Nummer groß, darunter die nächste als Vorschau – antippen = weiter. Nach oben scrollen zeigt frühere Nummern, leicht unscharf."],
     ["Fokus-Mode", "1–24 durchspielen. Wiederholungen = komplette Übung (beide Takte). Einzählen nur am Start, nicht zwischen den Nummern."],

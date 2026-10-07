@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { MetronomeDial } from "../lib/metronome.jsx";
+import { MetronomeDial, Nudge } from "../lib/metronome.jsx";
 import { RudimentStaff } from "../lib/staff.jsx";
 import { BeatGlyph } from "../lib/BeatGlyph.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
@@ -363,15 +363,20 @@ export default function PyramidTrainer({ preset = null } = {}) {
               );
             })}
           </div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-            <div className="seg" style={{ width: "fit-content" }}>
-              <button type="button" className={dir === "up" ? "on" : ""} onClick={() => setDir("up")}>{t("auf")}</button>
-              <button type="button" className={dir === "down" ? "on" : ""} onClick={() => setDir("down")}>{t("ab")}</button>
-              <button type="button" className={dir === "updown" ? "on" : ""} onClick={() => setDir("updown")}>{t("auf+ab")}</button>
+          {/* Paket C: beide Auswahlen über die ganze Breite, jeweils mit klarer Frage darüber */}
+          <div className="pyr-opt" role="group" aria-labelledby="pyr-dir-l">
+            <div className="pyr-opt-l" id="pyr-dir-l">{t("Richtung: Wie läuft die Pyramide?")}</div>
+            <div className="seg pyr-seg">
+              <button type="button" className={dir === "up" ? "on" : ""} onClick={() => setDir("up")}>{t("Aufwärts")}</button>
+              <button type="button" className={dir === "down" ? "on" : ""} onClick={() => setDir("down")}>{t("Abwärts")}</button>
+              <button type="button" className={dir === "updown" ? "on" : ""} onClick={() => setDir("updown")}>{t("Auf & ab")}</button>
             </div>
-            <div className="seg" style={{ width: "fit-content" }}>
+          </div>
+          <div className="pyr-opt" role="group" aria-labelledby="pyr-bars-l">
+            <div className="pyr-opt-l" id="pyr-bars-l">{t("Länge: Wie viele Takte pro Stufe?")}</div>
+            <div className="seg pyr-seg">
               {BARS.map((n) => (
-                <button key={n} type="button" className={bars === n ? "on" : ""} onClick={() => setBars(n)}>{n === 1 ? t("1 Takt") : t("{n} T.", { n })}</button>
+                <button key={n} type="button" className={bars === n ? "on" : ""} onClick={() => setBars(n)}>{n === 1 ? t("1 Takt") : t("{n} Takte", { n })}</button>
               ))}
             </div>
           </div>
@@ -388,9 +393,11 @@ export default function PyramidTrainer({ preset = null } = {}) {
       <div className={focus ? "pyramid-dock pyr-dock focus" : "pyramid-dock pyr-dock"}>
         <div style={{ pointerEvents: "auto", maxWidth: 880, margin: "0 auto" }}>
           <div className="dial-row">
-            <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 30, 200))} aria-label={t("5 BPM langsamer")}>−5</button>
-            <MetronomeDial bpm={bpm} setBpm={(n) => setBpm(clamp(n, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={focus ? 112 : 124} now subLabel={playing ? "Stop" : "Start"} wheel wheelK={1.36} />
-            <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 30, 200))} aria-label={t("5 BPM schneller")}>+5</button>
+            <Nudge by={-10} bpm={bpm} set={setBpm} min={30} max={200} />
+            <Nudge by={-5} bpm={bpm} set={setBpm} min={30} max={200} />
+            <MetronomeDial bpm={bpm} setBpm={(n) => setBpm(clamp(n, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={focus ? 112 : 124} now subLabel={playing ? "Stop" : "Start"} wheel />
+            <Nudge by={5} bpm={bpm} set={setBpm} min={30} max={200} />
+            <Nudge by={10} bpm={bpm} set={setBpm} min={30} max={200} />
           </div>
           {playing && !counting ? (
             <div className="count">
@@ -405,6 +412,21 @@ export default function PyramidTrainer({ preset = null } = {}) {
         .pyr-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
         .pyr-steps .chip { min-height: 52px; padding: 6px 4px; display: flex; align-items: center; justify-content: center; }
         .pyr-steps svg { width: 100%; max-width: 64px; height: auto; }
+        .pyr-opt { margin-top: 10px; }
+        .pyr-opt-l { font: 800 12px/1.3 Figtree, sans-serif; letter-spacing: 0.06em; color: #5cc8b8; margin: 0 2px 6px; }
+        .pyr-seg { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); width: 100%; box-sizing: border-box; }
+        .pyr-seg button { min-width: 0; padding-left: 4px; padding-right: 4px; white-space: nowrap; }
+        /* Kurze Hochformat-Screens: alles etwas kompakter, damit die Auswahl nicht unter das Rad rutscht */
+        @media (max-height: 720px) and (orientation: portrait) {
+          .pyramid-wrap:not(.focus) .pyr-cur { padding-top: 8px; padding-bottom: 4px; }
+          .pyramid-wrap:not(.focus) .pyr-cur svg { max-height: 64px; }
+          .pyr-steps { gap: 5px; margin-bottom: 4px; }
+          .pyr-steps .chip { min-height: 40px; padding: 3px 4px; }
+          .pyr-steps svg { max-width: 52px; }
+          .pyr-opt { margin-top: 6px; }
+          .pyr-opt-l { font-size: 11px; margin-bottom: 4px; }
+          .pyr-seg button { padding-top: 6px; padding-bottom: 6px; font-size: 15px; }
+        }
         .pyramid-wrap { scroll-margin-top: 8px; padding-bottom: calc(220px + env(safe-area-inset-bottom, 0px)); }
         .pyramid-wrap.focus { padding-bottom: calc(168px + env(safe-area-inset-bottom, 0px)); }
         .pyr-dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; background: transparent; border: none; box-shadow: none; border-radius: 0; margin: 0; padding: 6px 14px calc(10px + env(safe-area-inset-bottom, 0px)); pointer-events: none; }
