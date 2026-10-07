@@ -3,6 +3,7 @@ import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, playKit, unlockAudio } from "../lib/audio.js";
 import { loadSession, saveSession } from "../lib/session.js";
 import { t } from "../lib/i18n.js";
+import { beatLayout } from "../lib/grooveNotation.js";
 
 const TEAL = "#5cc8b8";
 const DIM = "#8a969c";
@@ -44,94 +45,85 @@ function SixteenthRest({ x, y }) {
   return <image href="/rest-16.png" x={x - 3} y={y - 8} width="5.4" height="12" />;
 }
 
+function QuarterRest({ x, y }) {
+  // Viertelpause, mittig auf der Mittellinie (y), etwa drei Zwischenräume hoch.
+  return (
+    <path
+      transform={`translate(${x} ${y - 12})`}
+      d="M 1.6 0 L 6.4 6.2 C 4.3 8.3 4 10.6 6.6 14 L 6.1 14.5 C 3.9 13.2 1.6 14 3.6 18.8 L 3 19.2 C -0.4 16 0.2 12.2 4 13 L 0 7.4 C 2.3 5.6 2.8 3.3 1.1 0.4 Z"
+      fill="#161a1d"
+    />
+  );
+}
+
 function GrooveStaff({ grid, bars, playStep }) {
   const steps = bars * STEPS;
   const x0 = 42;
   const gap = 16;
   const w = x0 + steps * gap + 18;
-  const y = { RD: 18, HH: 30, HO: 30, SN: 52, BD: 82 };
-  const up = { RD: 4, HH: 8, HO: 8, SN: 28 };
-  const head = 12.4;
+  // Bassdrum im untersten Zwischenraum (zwischen den beiden unteren Linien 60 und 68), keine Hilfslinie nötig.
+  const y = { RD: 18, HH: 30, HO: 30, SN: 52, BD: 64 };
   const notes = [];
   VOICES.forEach((v) => (grid[v.id] || []).forEach((on, i) => { if (on) notes.push({ v: v.id, i }); }));
   const beams = [];
   const rests = [];
+  const wholeRests = [];
   const beamY = 6;
   const sx = (i) => x0 + i * gap + 3.4;
-  for (let beat = 0; beat < bars * 4; beat++) {
-    const group = notes.filter((n) => Math.floor(n.i / 4) === beat);
-    const byVoice = {};
-    group.forEach((n) => { (byVoice[n.v] ||= []).push(n); });
-    const positions = new Set(group.map((n) => n.i % 4));
-    if (!positions.has(0) && group.length) {
-      const first = Math.min(...positions);
-      if (first === 1 || first === 2) rests.push({ x: x0 + beat * 4 * gap, kind: first === 1 ? "16" : "8", dotted: false, down: false, beam: beamY, headY: 52 });
-    }
-    if (group.length >= 2 || rests.some((r) => Math.abs(r.x - (x0 + beat * 4 * gap)) < 1)) {
-      const xs = group.map((n) => sx(n.i));
-      const restX = x0 + beat * 4 * gap + 3.4;
-      const left = rests.some((r) => Math.abs(r.x - (x0 + beat * 4 * gap)) < 1) ? Math.min(restX, ...xs) : Math.min(...xs);
-      beams.push(beamBox(left, beamY, Math.max(...xs), 3.4));
-      const posInBeat = new Set(group.map((n) => n.i % 4));
-      if (posInBeat.size === 3 && posInBeat.has(0) && posInBeat.has(1) && posInBeat.has(3)) {
-        const first = sx(beat * 4);
-        const last = sx(beat * 4 + 3);
-        beams.push(beamBox(first, beamY + 3.8, first + 8, 3.2));
-        beams.push(beamBox(last - 8, beamY + 3.8, last, 3.2));
-        continue;
+  const info = {}; // Schritt -> { flag, dot }
+  for (let b = 0; b < bars; b++) {
+    const inBar = notes.some((n) => Math.floor(n.i / STEPS) === b);
+    // Leerer Takt: Ganztaktpause mittig, hängt an der zweiten Linie von oben.
+    if (!inBar) { wholeRests.push(x0 + b * STEPS * gap + (STEPS * gap) / 2 - 10); continue; }
+    for (let k = 0; k < 4; k++) {
+      const beat = b * 4 + k;
+      const base = beat * 4;
+      const L = beatLayout(notes.filter((n) => Math.floor(n.i / 4) === beat).map((n) => n.i % 4));
+      L.rests.forEach((r) => rests.push({ x: x0 + (base + r.pos) * gap, kind: r.kind }));
+      L.notes.forEach((n) => { info[base + n.pos] = n; });
+      if (L.beam) {
+        const left = L.rests.length ? x0 + base * gap + 3.4 : sx(base + L.beam[0]);
+        beams.push(beamBox(left, beamY, sx(base + L.beam[1]), 3.4));
+        L.sub.forEach(([a, c]) => beams.push(beamBox(sx(base + a), beamY + 3.8, sx(base + c), 3.2)));
+        L.stubs.forEach((st) => {
+          const xs = sx(base + st.pos);
+          beams.push(beamBox(xs, beamY + 3.8, xs + st.dir * 8, 3.2));
+        });
       }
-      const steps = [...new Set(group.map((n) => n.i))].sort((a, b) => a - b);
-      let run = [];
-      const flush = () => {
-        if (run.length >= 2) beams.push(beamBox(sx(run[0]), beamY + 3.8, sx(run[run.length - 1]), 3.2));
-        run = [];
-      };
-      steps.forEach((step, idx) => {
-        if (run.length && step !== run[run.length - 1] + 1) flush();
-        run.push(step);
-      });
-      flush();
     }
   }
   return (
-    <svg viewBox={`0 4 ${w} 108`} width="100%" role="img" aria-label={t("Rhythmus")}>
+    <svg viewBox={`0 4 ${w} 76`} width="100%" role="img" aria-label={t("Rhythmus")}>
       {[36, 44, 52, 60, 68].map((yy) => <line key={yy} x1="24" y1={yy} x2={w - 12} y2={yy} stroke="#c8d0d4" strokeWidth="1" />)}
       {Array.from({ length: bars + 1 }, (_, b) => (
         <line key={b} x1={x0 + b * STEPS * gap - 10} y1="32" x2={x0 + b * STEPS * gap - 10} y2="72" stroke="#161a1d" strokeWidth={b === 0 || b === bars ? 1.6 : 1} />
       ))}
       {beams.map((d, i) => <path key={i} d={d} fill="#161a1d" />)}
+      {wholeRests.map((cx, i) => <rect key={`whole-${i}`} className="whole-rest" x={cx - 6} y="44" width="12" height="4.6" fill="#161a1d" />)}
       {rests.map((r, i) => {
-        const y = 52;
-        const stemX = r.x + (r.down ? -3.4 : 3.4);
+        const yy = 52;
         return (
           <g key={`rest-${i}`}>
-            {r.kind === "16" ? <SixteenthRest x={r.x} y={y} /> : <EighthRest x={r.x} y={y} />}
-            {r.dotted ? <circle cx={r.x + 8} cy={y - 2} r="1.1" fill="#161a1d" /> : null}
+            {r.kind === "4" ? <QuarterRest x={r.x} y={yy} /> : r.kind === "16" ? <SixteenthRest x={r.x} y={yy} /> : <EighthRest x={r.x} y={yy} />}
           </g>
         );
       })}
       {notes.map((n) => {
         const x = x0 + n.i * gap;
         const ink = n.i === playStep ? TEAL : INK;
-        const down = false;
         const stemX = x + 3.4;
-        const beatNotes = notes.filter((o) => Math.floor(o.i / 4) === Math.floor(n.i / 4));
-        const pos = n.i % 4;
-        const led = beatNotes.filter((o) => o.v === n.v).length === 1 && (pos === 3 || pos === 1);
         const stemEnd = beamY;
-        const alone = beatNotes.length < 2 && !led;
-        const voiceNotes = beatNotes.filter((o) => o.v === n.v);
-        const dotted = voiceNotes.length === 2 && voiceNotes.some((o) => o.i % 4 === 0) && voiceNotes.some((o) => o.i % 4 === 3) && pos === 0;
+        const nf = info[n.i] || {};
         return (
           <g key={n.v + n.i}>
             <line x1={stemX} y1={y[n.v]} x2={stemX} y2={stemEnd} stroke={ink} strokeWidth="1" />
-            {alone && pos === 2 ? (
-              <g transform={down ? `translate(${stemX} ${stemEnd}) scale(-1 -1)` : `translate(${stemX} ${stemEnd})`}>
+            {nf.flag === "8" ? (
+              <g transform={`translate(${stemX} ${stemEnd})`}>
                 <image href="/flag-8.png" x="-0.6" y="0" width="8" height="12" />
               </g>
             ) : null}
-            {alone && (pos === 1 || pos === 3) ? (
-              <g transform={down ? `translate(${stemX} ${stemEnd}) scale(-1 -1)` : `translate(${stemX} ${stemEnd})`}>
+            {nf.flag === "16" ? (
+              <g transform={`translate(${stemX} ${stemEnd})`}>
                 <image href="/flag-16.png" x="-0.6" y="0" width="8" height="14" />
               </g>
             ) : null}
@@ -144,7 +136,7 @@ function GrooveStaff({ grid, bars, playStep }) {
                 <line x1={x + 3.2} y1={y[n.v] - 3.2} x2={x - 3.2} y2={y[n.v] + 3.2} />
               </g>
             )}
-            {dotted ? <circle cx={x + 8.8} cy={y[n.v] + 0.5} r="1.4" fill={ink} /> : null}
+            {nf.dot ? <circle cx={x + 8.8} cy={y[n.v] + 0.5} r="1.4" fill={ink} /> : null}
           </g>
         );
       })}
@@ -170,6 +162,9 @@ export default function RhythmArchive() {
   const [beat, setBeat] = useState(false);
   const [playStep, setPlayStep] = useState(-1);
   const [hear, setHear] = useState("kit");
+  // Groove, dessen Löschen gerade bestätigt werden soll (sonst null).
+  const [confirmDel, setConfirmDel] = useState(null);
+  const dialRef = useRef(null);
   const hearRef = useRef(hear);
   hearRef.current = hear;
   const stopRef = useRef(null);
@@ -177,6 +172,26 @@ export default function RhythmArchive() {
   bpmRef.current = bpm;
 
   useEffect(() => () => stopRef.current?.(), []);
+
+  // Üben: Start-Rad sichtbar machen, falls es auf kleinen Bildschirmen (quer) unter dem Rand liegt.
+  useEffect(() => {
+    if (screen !== "practice") return undefined;
+    const id = window.requestAnimationFrame(() => {
+      const el = dialRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      if (r.bottom > window.innerHeight) el.scrollIntoView({ block: "end", behavior: "smooth" });
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [screen]);
+
+  // Bestätigung schließt mit Escape.
+  useEffect(() => {
+    if (!confirmDel) return undefined;
+    const onKey = (e) => { if (e.key === "Escape") setConfirmDel(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [confirmDel]);
 
   function setBarsCount(n) {
     const next = clamp(n, 1, 4);
@@ -389,10 +404,10 @@ export default function RhythmArchive() {
         ) : null}
       </div>
 
-      {screen !== "archive" ? (
-        <div className={screen === "build" ? "staff-card rhythm-preview" : "staff-card"} style={{ marginBottom: 12 }}>
+      {screen === "build" ? (
+        <div className="staff-card rhythm-preview" style={{ marginBottom: 12 }}>
           <div className="staff-label">{name.trim() || t("Neuer Rhythmus")}</div>
-          <GrooveStaff grid={grid} bars={bars} playStep={screen === "practice" ? playStep : -1} />
+          <GrooveStaff grid={grid} bars={bars} playStep={-1} />
         </div>
       ) : null}
 
@@ -404,9 +419,10 @@ export default function RhythmArchive() {
           </div>
           <div className="rhythm-entry">
           <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
-            <button type="button" className="ghost" onClick={() => setBar((b) => Math.max(0, b - 1))} disabled={bar === 0}>{t("Takt")} {bar}</button>
+            {/* Vor/zurück: Nummer nur, wenn es den Takt gibt – in Takt 1 kein „Takt 0“. */}
+            <button type="button" className="ghost" onClick={() => setBar((b) => Math.max(0, b - 1))} disabled={bar === 0} aria-label={t("Vorheriger Takt")}>{bar > 0 ? `‹ ${t("Takt")} ${bar}` : "‹"}</button>
             <span style={{ color: TEAL, fontWeight: 800 }}>{t("Takt")} {bar + 1}/{bars}</span>
-            <button type="button" className="ghost" onClick={() => setBar((b) => Math.min(bars - 1, b + 1))} disabled={bar >= bars - 1}>{bar + 2}</button>
+            <button type="button" className="ghost" onClick={() => setBar((b) => Math.min(bars - 1, b + 1))} disabled={bar >= bars - 1} aria-label={t("Nächster Takt")}>{bar < bars - 1 ? `${bar + 2} ›` : "›"}</button>
             <button type="button" className="ghost" onClick={copyBar} disabled={bar === 0}>{t("Takt kopieren")}</button>
             <span className="rhythm-tools">
               <button type="button" disabled={!activeVoice} onClick={() => fill(activeVoice, "beat")}>1</button>
@@ -419,7 +435,7 @@ export default function RhythmArchive() {
             <div className="rhythm-counts">
               <span />
               {Array.from({ length: STEPS }, (_, i) => {
-                const label = i % 4 === 0 ? String(i / 4 + 1) : ["e", "&", "a"][i % 4 - 1];
+                const label = i % 4 === 0 ? String(i / 4 + 1) : ["e", "+", "a"][i % 4 - 1];
                 return <span key={i} className={i % 4 === 0 ? "on" : ""}>{label}</span>;
               })}
             </div>
@@ -464,23 +480,29 @@ export default function RhythmArchive() {
       ) : null}
 
       {screen === "practice" ? (
-        <>
-        <div className="seg" style={{ width: "fit-content", margin: "8px auto" }}>
-          <button type="button" className={hear === "click" ? "on" : ""} onClick={() => setHear("click")}>{t("Nur Click")}</button>
-          <button type="button" className={hear === "kit" ? "on" : ""} onClick={() => setHear("kit")}>Playback</button>
-          <button type="button" className={hear === "both" ? "on" : ""} onClick={() => setHear("both")}>{t("Beides")}</button>
+        <div className="rhythm-practice">
+        <div className="staff-card rp-staff">
+          <div className="staff-label">{name.trim() || t("Neuer Rhythmus")}</div>
+          <GrooveStaff grid={grid} bars={bars} playStep={playStep} />
+        </div>
+        <div className="rp-hear">
+          <div className="seg" style={{ width: "fit-content" }}>
+            <button type="button" className={hear === "click" ? "on" : ""} onClick={() => setHear("click")}>{t("Nur Click")}</button>
+            <button type="button" className={hear === "kit" ? "on" : ""} onClick={() => setHear("kit")}>Playback</button>
+            <button type="button" className={hear === "both" ? "on" : ""} onClick={() => setHear("both")}>{t("Beides")}</button>
+          </div>
         </div>
         {currentId ? (
-          <div style={{ display: "flex", justifyContent: "center", marginTop: 4 }}>
+          <div className="rp-edit">
             <button type="button" className="ghost" onClick={editCurrent}>{t("Bearbeiten")}</button>
           </div>
         ) : null}
-        <div className="dial-row" style={{ marginTop: 8 }}>
+        <div className="dial-row rp-dial" ref={dialRef}>
           <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 40, 200))} aria-label={t("5 BPM langsamer")}>−5</button>
           <MetronomeDial bpm={bpm} setBpm={(n) => setBpm(clamp(n, 40, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={124} now subLabel={playing ? "Stop" : "Start"} wheel wheelK={1.36} />
           <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm + 5, 40, 200))} aria-label={t("5 BPM schneller")}>+5</button>
         </div>
-        </>
+        </div>
       ) : null}
 
       {screen === "archive" ? (
@@ -493,13 +515,32 @@ export default function RhythmArchive() {
                 <strong>{g.name}</strong>
                 <span>{g.bpm} BPM · {g.bars} {g.bars === 1 ? t("Takt") : t("Takte")}</span>
               </button>
-              <button type="button" className="ghost" onClick={() => remove(g.id)} aria-label={t("Löschen")}>{t("Löschen")}</button>
+              <button type="button" className="ghost" onClick={() => setConfirmDel(g)} aria-label={t("Groove „{name}“ löschen", { name: g.name })}>{t("Löschen")}</button>
             </div>
           ))}
         </div>
       ) : null}
 
+      {confirmDel ? (
+        <div className="modal rhythm-confirm" style={{ zIndex: 45 }} onClick={() => setConfirmDel(null)}>
+          <div className="modal-card" role="alertdialog" aria-modal="true" aria-labelledby="rhythm-del-h" aria-describedby="rhythm-del-p" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-head" id="rhythm-del-h">{t("Groove löschen?")}</div>
+            <p id="rhythm-del-p" className="rhythm-confirm-text">{t("„{name}“ wird von diesem Gerät gelöscht.", { name: confirmDel.name })}</p>
+            <div className="rhythm-confirm-actions">
+              <button type="button" className="ghost" autoFocus onClick={() => setConfirmDel(null)}>{t("Abbrechen")}</button>
+              <button type="button" className="play" onClick={() => { remove(confirmDel.id); setConfirmDel(null); }}>{t("Löschen")}</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <style>{`
+        .rhythm-confirm .modal-card { width: min(380px, 100%); }
+        .rhythm-confirm-text { color: #f4f7f6; font-size: 16px; line-height: 1.4; margin: 4px 0 0; overflow-wrap: anywhere; }
+        .rhythm-confirm-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+        .rhythm-practice .rp-staff { margin-bottom: 12px; }
+        .rp-hear, .rp-edit { display: flex; justify-content: center; margin: 8px 0; }
+        .rp-dial { margin-top: 8px; }
         .rhythm-name { display: flex; flex-direction: column; gap: 4px; color: ${DIM}; font-weight: 700; }
         .rhythm-name input { background: #101416; color: #f4f7f6; border: 1px solid #2f383d; border-radius: 10px; padding: 10px 12px; font: 700 16px Figtree, sans-serif; }
         .rhythm-grid { display: flex; flex-direction: column; gap: 8px; }
@@ -541,6 +582,12 @@ export default function RhythmArchive() {
           .rhythm-voice { flex-direction: column; align-items: flex-start; gap: 4px; }
           .rhythm-steps button { min-height: 44px; }
           .rhythm-helps button { min-height: 28px; min-width: 28px; padding: 0 4px; }
+          /* Üben quer: Noten links, Start-Rad rechts daneben – ohne Scrollen erreichbar. */
+          .rhythm-practice { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "staff hear" "staff dial" "edit dial"; column-gap: 16px; row-gap: 8px; align-items: start; }
+          .rhythm-practice .rp-staff { grid-area: staff; margin-bottom: 0; }
+          .rp-hear { grid-area: hear; margin: 0; }
+          .rp-edit { grid-area: edit; margin: 0; justify-content: flex-start; }
+          .rp-dial { grid-area: dial; margin-top: 0; }
         }
         .rhythm-note { color: ${DIM}; font-size: 13px; line-height: 1.4; }
         .rhythm-item { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
