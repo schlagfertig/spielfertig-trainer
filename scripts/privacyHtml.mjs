@@ -3,7 +3,7 @@
 // middleware.js lässt genau diese beiden Pfade ohne Einladungs-Cookie durch.
 import { PRIVACY } from "../src/lib/privacyText.js";
 
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&", "<": "<", ">": ">", '"': """ })[c]);
 
 function part(p) {
   return typeof p === "string" ? esc(p) : `<a href="${esc(p.href)}">${esc(p.text)}</a>`;
@@ -20,7 +20,7 @@ function langSection(lang) {
 
 export function privacyHtml(first = "de") {
   const order = first === "en" ? ["en", "de"] : ["de", "en"];
-  const title = first === "en" ? "Privacy Policy · Datenschutz – Schlagfertig Control" : "Datenschutz · Privacy Policy – Schlagfertig Control";
+  const title = first === "en" ? "Privacy Policy · Datenschutz – Schlagfertig‽" : "Datenschutz · Privacy Policy – Schlagfertig‽";
   return `<!doctype html>
 <html lang="${first}">
 <head>
