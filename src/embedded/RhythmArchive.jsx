@@ -346,7 +346,7 @@ export default function RhythmArchive() {
       {screen === "build" ? (
         <>
           <div className="rhythm-tip">
-            <img src="/rotate-device.png" alt="" width="168" height="112" />
+            <img src="/rotate-device.png" alt="" width="280" height="300" />
             <p>{t("Zum Eintippen das Handy quer drehen. Hochkant siehst du nur den Rhythmus.")}</p>
           </div>
           <div className="rhythm-entry">
@@ -454,9 +454,9 @@ export default function RhythmArchive() {
         .rhythm-steps button { min-height: 36px; border-radius: 8px; border: 1px solid #2f383d; background: #101416; }
         .rhythm-steps button[data-down="1"] { border-color: #3d4b50; }
         .rhythm-steps button.on { background: ${TEAL}; border-color: ${TEAL}; }
-        .rhythm-tip { color: ${TEAL}; font-size: 14px; font-weight: 700; margin: 8px 0; text-align: center; }
-        .rhythm-tip img { display: block; margin: 0 auto 8px; width: min(168px, 46vw); height: auto; }
-        .rhythm-tip p { margin: 0; }
+        .rhythm-tip { color: ${TEAL}; font-size: 16px; font-weight: 700; margin: 12px auto; text-align: center; min-height: 46vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .rhythm-tip img { display: block; margin: 0 auto 12px; width: min(280px, 72vw); height: auto; }
+        .rhythm-tip p { margin: 0; max-width: 18rem; }
         .rhythm-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
         .rhythm-bars { display: none; }
         .rhythm-entry { display: none; }
