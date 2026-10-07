@@ -15,6 +15,9 @@ function greeting() {
   return /(?:^|;\s*)sf_gruss=schatz(?:;|$)/.test(document.cookie || "") ? "schatz" : "";
 }
 
+// App-Name nicht umbrechen (geschütztes Leerzeichen zwischen „Schlagfertig“ und „Control“)
+const keepName = (s) => s.replace("Schlagfertig Control", "Schlagfertig\u00a0Control");
+
 // Einmalige Begrüßung beim ersten Öffnen der Startseite (localStorage sf.v1.welcomeSeen)
 export function Welcome({ onClose } = {}) {
   const [open, setOpen] = useState(() => !loadSession("welcomeSeen", {}).seen);
@@ -40,7 +43,7 @@ export function Welcome({ onClose } = {}) {
   return (
     <div className="modal welcome" onClick={close}>
       <div className="modal-card" role="dialog" aria-modal="true" aria-labelledby="welcome-title" aria-describedby="welcome-text" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-head" id="welcome-title">{gruss === "schatz" ? t("Hallo mein Schatz! ❤️") : name ? t("Hallo {name}, willkommen bei Schlagfertig Control! 🥁", { name }) : t("Willkommen bei Schlagfertig Control! 🥁")}</div>
+        <div className="modal-head" id="welcome-title">{gruss === "schatz" ? t("Hallo mein Schatz! ❤️") : keepName(name ? t("Hallo {name}, willkommen bei Schlagfertig Control! 🥁", { name }) : t("Willkommen bei Schlagfertig Control! 🥁"))}</div>
         <p id="welcome-text">{t("Schön, dass du dabei bist und die App testest. Starte am besten mit „Erste Übung“ – das dauert nur eine Minute. Über das „?“ oben rechts findest du überall Hilfe. Ich freue mich über jede Rückmeldung!")}</p>
         <p className="welcome-sig">Tom</p>
         <button ref={btn} type="button" className="play" onClick={close} style={{ width: "100%" }}>{t("Los geht's")}</button>

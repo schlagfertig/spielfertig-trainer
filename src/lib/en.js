@@ -65,7 +65,7 @@ export const EN = {
   "Neu: Unter ‚Neuigkeiten‘ siehst du, was sich in der App geändert hat.": "New: ‘What’s new’ shows what has changed in the app.",
   "Später": "Later",
   "neu": "new",
-  "Was sich in der App geändert hat – das Neueste zuerst.": "What has changed in the app – newest first.",
+  "Was sich in Schlagfertig Control geändert hat – das Neueste zuerst.": "What has changed in Schlagfertig Control – newest first.",
   // Kopfleiste
   "Zurück": "Back",
   "Drucken": "Print",

@@ -23,6 +23,8 @@ export const CHANGELOG = [
         en: "Rhythm Pyramid: while you practise, a large card shows the next level as a full bar. In the last pass it turns light teal and counts the beats to the change (4-3-2-1), and the notes move into the next level beat by beat with a soft fade. In landscape the notes sit on the left and the dial on the right. In landscape the +5 button now fits fully on the screen." },
       { de: "Hand Control: „Jetzt 1/24“ steht jetzt über der aktuellen Übung, und nach dem Start rutscht die Karte nicht mehr über „Als Nächstes“. Im Fokus-Mode ist die Zahl der letzten Wiederholung wieder gut lesbar, und frühere Übungen scheinen nicht mehr hinter dem Titel durch. Click-Trainer: Die Beschreibung zu „Tempo steigern“ gibt es jetzt auch auf Englisch. Rudiments: Der Hinweis unter den Noten nennt die richtigen Farben – R grau, L türkis.",
         en: "Hand Control: “Now 1/24” now sits above the current exercise, and after Start the card no longer slides over “Next up”. In Focus mode the count on the last repeat is easy to read again, and earlier exercises no longer show through behind the title. Click Trainer: the “Speed up” description is now in English too. Rudiments: the hint below the notes names the right colours – R grey, L teal." },
+      { de: "App-Name: Impressum und Neuigkeiten nennen jetzt „Schlagfertig Control“, und in der Begrüßung bricht der Name nicht mehr mitten durch.",
+        en: "App name: the legal notice and What’s new now mention “Schlagfertig Control”, and the welcome message no longer splits the name across two lines." },
     ],
   },
   {

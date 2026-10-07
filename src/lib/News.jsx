@@ -66,7 +66,7 @@ export function NewsButton() {
           <button type="button" className="news-x" onClick={() => setOpen(false)} aria-label={t("Schließen")}>×</button>
         </div>
         <div className="news-scroll" lang={en ? "en" : "de"}>
-          <p className="news-lead">{t("Was sich in der App geändert hat – das Neueste zuerst.")}</p>
+          <p className="news-lead">{t("Was sich in Schlagfertig Control geändert hat – das Neueste zuerst.").replace("Schlagfertig Control", "Schlagfertig\u00a0Control")}</p>
           {CHANGELOG.map((day) => (
             <section className="news-day" key={day.date}>
               <h2><time dateTime={day.date}>{fmtDate(dayDate(day.date))}</time></h2>
@@ -100,7 +100,7 @@ export default function News() {
   }, []);
   return (
     <div className="legal news" lang={en ? "en" : "de"}>
-      <p className="news-lead">{t("Was sich in der App geändert hat – das Neueste zuerst.")}</p>
+      <p className="news-lead">{t("Was sich in Schlagfertig Control geändert hat – das Neueste zuerst.").replace("Schlagfertig Control", "Schlagfertig\u00a0Control")}</p>
       {CHANGELOG.map((day) => (
         <section className="legal-block news-day" key={day.date}>
           <h2><time dateTime={day.date}>{fmtDate(dayDate(day.date))}</time></h2>

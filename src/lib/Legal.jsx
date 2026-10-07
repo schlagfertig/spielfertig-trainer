@@ -57,7 +57,7 @@ function LegalEn({ isPrivacy }) {
       <section className="legal-block">
         <h2>Note</h2>
         <p>
-          This service is a personal practice tool (drum trainer) without user accounts and without a shop.
+          {BRAND.product} is a personal practice tool for drummers, without user accounts and without a shop.
           It is intended for practicing rudiments and groove.
         </p>
       </section>
@@ -109,7 +109,7 @@ export default function Legal({ topic = "impressum", onOpen }) {
           <section className="legal-block">
             <h2>Hinweis</h2>
             <p>
-              Dieses Angebot ist ein persönliches Übungs-Tool (Drum-Trainer) ohne Nutzerkonten und ohne Shop.
+              {BRAND.product} ist ein persönliches Übungs-Tool fürs Schlagzeug, ohne Nutzerkonten und ohne Shop.
               Es dient dem Üben von Rudiments und Groove.
             </p>
           </section>
