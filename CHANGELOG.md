@@ -10,11 +10,23 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 - Meine Grooves: unter Üben neuer Knopf „Bearbeiten“ für einen geöffneten Groove; im Erstellen-Bildschirm dann zusätzlich „Speichern“ (aktualisiert genau diesen Groove), „Speichern als…“ legt eine Kopie an.
 - Meine Grooves quer: Taktwahl 1–4 nicht mehr `position: fixed`, sondern im normalen Fluss der Kopfzeile (rechts neben Erstellen/Üben/Archiv, Kopfzeile mit 34 % Abstand rechts für die Vorschau) – liegt beim Scrollen nicht mehr über den Feldern.
 - Meine Grooves EN: „Speichern als…“, „Speichern“, „Beides“ und der Dreh-Hinweis laufen über t() (Save as…, Save, Both, „Turn your phone sideways to enter notes. In portrait you only see the rhythm.“); neu „Bearbeiten“ → Edit.
+- Lexikon: Bildbeschreibungen (Alt-Texte DE/EN) für die 13 Begriffs-Bilder Akzent, Backbeat, Cowbell, Cross-Stick, Flam, Four on the Floor, Ghost Note, Kessel, Mallets, Offbeat, Paradiddle, Triole und Wirbel ergänzt (EN „Glossary: image descriptions added for 13 term pictures – helpful with a screen reader.“)
+
+## 06.10.2026
+
+- Meine Grooves ist da: Hi-Hat, Snare und Bass bauen, quer eintippen, hochkant den Rhythmus sehen, mit der Dial üben und unter einem Namen auf diesem Gerät behalten (EN „My grooves is here: create a groove with hi-hat, snare and bass, enter it in landscape, see the rhythm in portrait, practise with the dial and keep it under a name on this device.“) (0fb294f, c765d83, 8190bdb, d20c2cb, c16bf4e, 709bc63)
+- Eingabe: Zählzeiten über jedem Feld, Hilfen 1, + und e a für die aktive Zeile, Taktzahl 1–4 im Querformat, Speichern als… fragt den Namen ab. Die Vorschau sitzt oben rechts (EN „Input: counts above each pad, 1, + and e a helpers for the active row, 1–4 bars in landscape, Save as… asks for the name. The preview sits at the top right.“) (82d674b, 03de912, f85b1fe, aa7fb13, a579090, 36d3ec5, da892cc)
+- Üben: Nur Click, Playback oder Beides. Der Click blinkt nur auf den vollen Zählzeiten. Alle Stimmen hängen an einem Balken, die Bassdrum bleibt unten (EN „Practice: click only, playback or both. The click flashes only on the beat. All voices share one beam, the bass drum stays low.“) (e092f5e, 394bfa1, 486c726)
+- Meine Grooves: Alle Notenhälse zeigen nach oben, auch bei der Bassdrum. Erste und letzte 16tel einer Vierergruppe stehen als punktierte Achtel plus 16tel, wie bei Rudiment 33 (EN „My grooves: all stems point up, the bass drum included. The first and last 16th of a beat are written as a dotted eighth plus a 16th, like rudiment 33.“) (486c726, f86bb31, b6ac4c2)
+- Zum Eintippen in Meine Grooves das Handy quer drehen – die Felder werden größer (EN „Turn the phone sideways to enter a rhythm in My grooves – the pads get bigger.“) (430510a, aad71e3)
+- Multiple Bounce Roll klingt im Vorspiel jetzt als Presswirbel, nicht mehr als einzelner Schlag (EN „The multiple bounce roll now plays back as a press roll, not a single stroke.“) (f894a8f, a96738f, d41f1ea)
+- Rudiments: R ist grau, L ist türkis. Der laufende Schlag leuchtet türkis (EN „Rudiments: R is grey, L is teal. The current stroke lights up teal.“) (f236806, 165a946)
 
 ## 05.10.2026
 
 - Hand Control: aktuelle Übung auf heller Karte (#f4f7f6, Radius 16 px, ohne türkisen Rand, auch beim Spielen kein türkiser Ring/Schleier) – überschreibt das dunkle Glas von .stick-card (src/embedded/StickControl.jsx); Handsatz darauf R grau (#8a969c), L und Nummer dunkleres Türkis (#2f9e90, auf Hell besser lesbar), gespielter Buchstabe deutlich dunkler (R #161a1d, L #1d7a6f); „Als Nächstes“ und Listenzeilen bleiben dunkel (R hell, L türkis)
 - Hand Control, Fokus-Mode: in der letzten Wiederholung vor dem Wechsel morphen fertige 4er-Gruppen (Index < floor(aktiveLetter/4)) per Opacity-Fade (0,28 s) in den Handsatz der nächsten Übung; aktuelle und vorausliegende Gruppen bleiben; nur Fokus-Mode (Üben unverändert); playT wird bei neuem Durchgang/Übungswechsel zurückgesetzt, damit kein Rest-Highlight falsch morpht (src/embedded/StickControl.jsx)
+- Rhythmuspyramide: beim Üben „Jetzt“ und „Als Nächstes“ als zwei helle Karten nebeneinander, jeweils mit Notenfigur und Name der Stufe (vorher eine dunkle Zeile nur mit Notenfigur); Stufen-Symbole mit durchgehendem Balken. Ein kurz eingebauter Wechsel Schlag für Schlag in die nächste Stufe wurde am selben Tag wieder entfernt (EN „Rhythm Pyramid: while you play, “Now” and “Next up” sit side by side on two light cards, each with the note figure and the name of the stage.“) (f234ce6, d9b13dc, b13a143, 0baf586)
 
 ## 04.10.2026
 
