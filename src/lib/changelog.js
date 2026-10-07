@@ -5,6 +5,19 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-10-07",
+    items: [
+      { de: "Meine Grooves: „Speichern als…“ legt jetzt immer einen neuen Groove an und überschreibt keinen anderen mehr. Nach dem Speichern beginnt „Erstellen“ mit einem leeren Groove.",
+        en: "My grooves: Save as… now always creates a new groove and never overwrites another one. After saving, a new groove starts empty." },
+      { de: "Meine Grooves: Einen gespeicherten Groove unter Üben mit „Bearbeiten“ ändern und mit „Speichern“ aktualisieren – oder mit „Speichern als…“ als Kopie behalten.",
+        en: "My grooves: open a saved groove under Practice, tap Edit to change it and Save to update it – or Save as… to keep a copy." },
+      { de: "Meine Grooves quer: Die Taktwahl 1–4 sitzt oben neben den Ansichten und liegt beim Scrollen nicht mehr über den Feldern.",
+        en: "My grooves in landscape: the 1–4 bar selector sits in the top row next to the tabs and no longer covers the pads when you scroll." },
+      { de: "Meine Grooves: Alle Knöpfe und der Hinweis zum Querdrehen gibt es jetzt auch auf Englisch.",
+        en: "My grooves: every button and the hint to turn your phone sideways now appear in English too." },
+    ],
+  },
+  {
     date: "2026-10-06",
     items: [
       { de: "Meine Grooves ist da: Hi-Hat, Snare und Bass bauen, quer eintippen, hochkant den Rhythmus sehen, mit der Dial üben und unter einem Namen auf diesem Gerät behalten.",
