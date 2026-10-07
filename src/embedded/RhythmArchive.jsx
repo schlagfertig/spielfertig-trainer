@@ -164,6 +164,8 @@ export default function RhythmArchive() {
   const [grid, setGrid] = useState(() => emptyGrid(1));
   const [list, setList] = useState(loadGrooves);
   const [currentId, setCurrentId] = useState("");
+  // true, wenn ein gespeicherter Groove bewusst über „Bearbeiten“ geöffnet ist.
+  const [editing, setEditing] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [beat, setBeat] = useState(false);
   const [playStep, setPlayStep] = useState(-1);
@@ -289,20 +291,71 @@ export default function RhythmArchive() {
     stopRef.current = () => { cancelled = true; window.clearTimeout(timer); };
   }
 
-  function save(title) {
-    const item = { id: currentId || String(Date.now()), name: title, bpm, bars, grid, at: Date.now() };
-    const next = [item, ...list.filter((g) => g.id !== item.id)];
+  function newId() {
+    let id = String(Date.now());
+    while (list.some((g) => g.id === id)) id = String(Number(id) + 1);
+    return id;
+  }
+
+  // „Speichern als…“ legt immer einen neuen Groove an (neue id) – nie überschreiben.
+  function saveAs(title) {
+    const item = { id: newId(), name: title, bpm, bars, grid, at: Date.now() };
+    const next = [item, ...list];
     setList(next);
     saveGrooves(next);
     setCurrentId(item.id);
+    setEditing(false);
     setName(title);
     setAskName(false);
     setScreen("archive");
   }
 
+  // „Speichern“ aktualisiert nur den gerade bearbeiteten Groove.
+  function saveCurrent() {
+    const old = list.find((g) => g.id === currentId);
+    if (!old) return;
+    const item = { ...old, bpm, bars, grid, at: Date.now() };
+    const next = [item, ...list.filter((g) => g.id !== currentId)];
+    setList(next);
+    saveGrooves(next);
+    setEditing(false);
+    setAskName(false);
+    setScreen("archive");
+  }
+
+  // Leerer neuer Groove: frisches Raster, keine id.
+  function newGroove() {
+    stop();
+    setCurrentId("");
+    setEditing(false);
+    setName("");
+    setDraftName("");
+    setAskName(false);
+    setBars(1);
+    setBar(0);
+    setActiveVoice("");
+    setGrid(emptyGrid(1));
+  }
+
+  // Tab „Erstellen“: ein entworfener (ungespeicherter) Groove bleibt erhalten,
+  // nach Speichern oder Öffnen eines gespeicherten Grooves beginnt ein neuer.
+  function openBuild() {
+    if (currentId && !editing) newGroove();
+    else stop();
+    setScreen("build");
+  }
+
+  function editCurrent() {
+    stop();
+    setEditing(true);
+    setBar(0);
+    setScreen("build");
+  }
+
   function openGroove(g) {
     stop();
     setCurrentId(g.id);
+    setEditing(false);
     setName(g.name);
     setBpm(g.bpm || 90);
     setBars(g.bars || 1);
@@ -315,15 +368,15 @@ export default function RhythmArchive() {
     const next = list.filter((g) => g.id !== id);
     setList(next);
     saveGrooves(next);
-    if (currentId === id) setCurrentId("");
+    if (currentId === id) { setCurrentId(""); setEditing(false); }
   }
 
   const heads = ["1", "e", "+", "a"];
   return (
     <div className="rhythm-arch">
-      <div className="rhythm-top">
+      <div className={screen === "build" ? "rhythm-top build" : "rhythm-top"}>
         <div className="seg" style={{ width: "fit-content" }}>
-          <button type="button" className={screen === "build" ? "on" : ""} onClick={() => { stop(); setScreen("build"); }}>{t("Erstellen")}</button>
+          <button type="button" className={screen === "build" ? "on" : ""} onClick={openBuild}>{t("Erstellen")}</button>
           <button type="button" className={screen === "practice" ? "on" : ""} onClick={() => setScreen("practice")}>{t("Üben")}</button>
           <button type="button" className={screen === "archive" ? "on" : ""} onClick={() => { stop(); setScreen("archive"); }}>{t("Archiv")}</button>
         </div>
@@ -392,11 +445,16 @@ export default function RhythmArchive() {
               </div>
             ))}
           </div>
-          <button type="button" className="play" style={{ marginTop: 12 }} onClick={() => { setDraftName(name); setAskName(true); }}>Speichern als…</button>
+          <div className="rhythm-save-row">
+            {currentId && editing ? (
+              <button type="button" className="play" onClick={saveCurrent}>{t("Speichern")}</button>
+            ) : null}
+            <button type="button" className="play" onClick={() => { setDraftName(name); setAskName(true); }}>{t("Speichern als…")}</button>
+          </div>
           {askName ? (
             <div className="rhythm-save">
               <input value={draftName} onChange={(e) => setDraftName(e.target.value)} placeholder={t("z. B. Rock-Grund")} autoFocus />
-              <button type="button" className="play" onClick={() => save(draftName.trim() || t("Ohne Namen"))}>Speichern</button>
+              <button type="button" className="play" onClick={() => saveAs(draftName.trim() || t("Ohne Namen"))}>{t("Speichern")}</button>
               <button type="button" className="ghost" onClick={() => setAskName(false)}>{t("Abbrechen")}</button>
             </div>
           ) : null}
@@ -410,8 +468,13 @@ export default function RhythmArchive() {
         <div className="seg" style={{ width: "fit-content", margin: "8px auto" }}>
           <button type="button" className={hear === "click" ? "on" : ""} onClick={() => setHear("click")}>{t("Nur Click")}</button>
           <button type="button" className={hear === "kit" ? "on" : ""} onClick={() => setHear("kit")}>Playback</button>
-          <button type="button" className={hear === "both" ? "on" : ""} onClick={() => setHear("both")}>Beides</button>
+          <button type="button" className={hear === "both" ? "on" : ""} onClick={() => setHear("both")}>{t("Beides")}</button>
         </div>
+        {currentId ? (
+          <div style={{ display: "flex", justifyContent: "center", marginTop: 4 }}>
+            <button type="button" className="ghost" onClick={editCurrent}>{t("Bearbeiten")}</button>
+          </div>
+        ) : null}
         <div className="dial-row" style={{ marginTop: 8 }}>
           <button type="button" className="nudge-lg" onClick={() => setBpm(clamp(bpm - 5, 40, 200))} aria-label={t("5 BPM langsamer")}>−5</button>
           <MetronomeDial bpm={bpm} setBpm={(n) => setBpm(clamp(n, 40, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={124} now subLabel={playing ? "Stop" : "Start"} wheel wheelK={1.36} />
@@ -460,10 +523,13 @@ export default function RhythmArchive() {
         .rhythm-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
         .rhythm-bars { display: none; }
         .rhythm-entry { display: none; }
+        .rhythm-save-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
         .rhythm-save { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
         .rhythm-save input { flex: 1; min-height: 40px; border-radius: 10px; border: 1px solid #2f383d; background: #101416; color: #f4f7f6; padding: 0 10px; }
         @media (orientation: landscape) {
-          .rhythm-bars { display: flex; position: fixed; top: 118px; right: calc(32% + 18px); z-index: 6; }
+          /* Taktwahl im normalen Fluss der Kopfzeile, links neben der Vorschau – nie über den Feldern. */
+          .rhythm-top.build { padding-right: 34%; }
+          .rhythm-bars { display: flex; margin-left: auto; }
           .rhythm-tip { display: none; }
           .rhythm-entry { display: block; padding-right: 34%; }
           .rhythm-preview { position: fixed; top: 108px; right: 10px; width: 32%; margin: 0; z-index: 4; }
