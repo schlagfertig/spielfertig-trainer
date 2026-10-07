@@ -370,6 +370,8 @@ export const EN = {
   "Konnte das Blatt nicht erzeugen. Bitte erneut versuchen.": "Couldn’t create the sheet. Please try again.",
   // Startseite: „Heute“-Karte (Mini-Pläne)
   "Heute": "Today",
+  "Tagesquest": "Daily quest",
+  "Tagesquest für heute überspringen": "Skip today’s daily quest",
   "Min": "min",
   "Plan": "Plan",
   "Plan wählen": "Choose a plan",
