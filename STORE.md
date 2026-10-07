@@ -2,6 +2,7 @@
 
 Die Web-App bleibt die Quelle. iOS/Android sind eine native Schale um `dist/`.
 
+App-Name: **Schlagfertig Control** (`appName` in `capacitor.config.json`, Manifest `name`); Kurzname unter dem Icon: „Control“. Das Logo „schlagfertig‽“ (mit ‽) ist die Marke, im Text steht der Name ohne ‽.  
 Live im Browser: https://spielfertig-trainer.vercel.app  
 Die Vercel-Zugangssperre gilt **nicht** im Store-Build (kein Middleware, gebündeltes `dist`).
 

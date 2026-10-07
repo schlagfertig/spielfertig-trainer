@@ -1,6 +1,6 @@
-# Spielfertig — Trainer
+# Schlagfertig Control
 
-Rudiment-Trainer und Groove-Editor unter der Marke schlagfertig‽
+Rudiment-Trainer und Groove-Editor unter der Marke schlagfertig‽ (Repo- und Vercel-Name weiterhin `spielfertig-trainer`).
 
 Getrennt von der Setlist-/Gig-App (`Spielfertig1.0`).
 
