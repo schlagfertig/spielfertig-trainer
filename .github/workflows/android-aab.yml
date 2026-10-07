@@ -1,0 +1,107 @@
+name: Android App Bundle (.aab)
+
+# Manuell starten: GitHub → Actions → "Android App Bundle (.aab)" → Run workflow.
+# Ergebnis: Artefakt "schlagfertig-control-aab" (app-release.aab) für die Play Console.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  aab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      VERSION_CODE: ${{ github.run_number }}
+      VERSION_NAME: 1.0.${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Web-Build für die App
+        run: |
+          npm install --no-audit --no-fund --no-package-lock
+          npm run build:cap
+
+      - name: Android-Projekt erzeugen
+        run: npx cap add android
+
+      - name: Icons und Splash (assets/)
+        run: >
+          npx -y @capacitor/assets@3 generate --android
+          --iconBackgroundColor '#161a1d' --iconBackgroundColorDark '#161a1d'
+          --splashBackgroundColor '#161a1d' --splashBackgroundColorDark '#161a1d'
+
+      - name: Target SDK 36 (Play-Pflicht seit 31.08.2026) + Version
+        working-directory: android
+        run: |
+          sed -i 's/compileSdkVersion = 35/compileSdkVersion = 36/; s/targetSdkVersion = 35/targetSdkVersion = 36/' variables.gradle
+          sed -i "s/com.android.tools.build:gradle:8.7.2/com.android.tools.build:gradle:8.9.1/" build.gradle
+          sed -i "s/versionCode 1$/versionCode ${VERSION_CODE}/; s/versionName \"1.0\"/versionName \"${VERSION_NAME}\"/" app/build.gradle
+          grep -n 'SdkVersion' variables.gradle
+          grep -n 'tools.build:gradle' build.gradle
+          grep -n 'versionCode\|versionName' app/build.gradle
+          grep -q "targetSdkVersion = 36" variables.gradle
+          grep -q "versionCode ${VERSION_CODE}$" app/build.gradle
+
+      - name: Signatur (Upload-Key)
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          test -n "$ANDROID_KEYSTORE_BASE64" || { echo "Secret ANDROID_KEYSTORE_BASE64 fehlt"; exit 1; }
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload-keystore.p12"
+          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/upload-keystore.p12" >> "$GITHUB_ENV"
+          cat >> android/app/build.gradle <<'GRADLE'
+
+          android {
+              signingConfigs {
+                  upload {
+                      storeFile file(System.getenv("ANDROID_KEYSTORE_PATH"))
+                      storeType "pkcs12"
+                      storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                      keyAlias System.getenv("ANDROID_KEY_ALIAS")
+                      keyPassword System.getenv("ANDROID_KEY_PASSWORD")
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.upload
+                  }
+              }
+          }
+          GRADLE
+
+      - name: Bundle bauen
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon bundleRelease
+          ls -la app/build/outputs/bundle/release/
+
+      - name: Signatur prüfen
+        run: |
+          jarsigner -verify android/app/build/outputs/bundle/release/app-release.aab | tail -1
+          keytool -printcert -jarfile android/app/build/outputs/bundle/release/app-release.aab | grep -i 'SHA256:'
+          rm -f "$ANDROID_KEYSTORE_PATH"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: schlagfertig-control-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
