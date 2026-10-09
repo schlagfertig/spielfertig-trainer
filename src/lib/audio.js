@@ -17,7 +17,7 @@ let bus;
 function out(c) {
   if (!bus || bus.context !== c) {
     bus = c.createGain();
-    bus.connect(out(c));
+    bus.connect(c.destination);
     bus._tap = c.createMediaStreamDestination();
     bus.connect(bus._tap);
   }
