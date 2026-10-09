@@ -542,7 +542,7 @@ export function MetronomeDial({
   }
 
   return (
-    <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, minWidth: 0 }}>
+    <div className="clip-dial" data-bpm={bpm} data-beat={beat ? "1" : "0"} data-on={on ? "1" : "0"} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, minWidth: 0 }}>
       <div
         className={cw ? "cw-frame" : undefined}
         style={{ position: "relative", width: size + layoutPad * 2, height: size + layoutPad * 2, flexShrink: 0, overflow: "visible", touchAction: cw ? "none" : undefined }}
