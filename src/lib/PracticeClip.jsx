@@ -43,7 +43,14 @@ function exerciseShot() {
   });
 }
 
-export function PracticeClip({ title, view }) {
+// Clip-Button vorübergehend ausgeblendet (Tom, 09.10.2026). Zum Einschalten auf true setzen.
+export const CLIP_ENABLED = false;
+
+export function PracticeClip(props) {
+  return CLIP_ENABLED ? <PracticeClipInner {...props} /> : null;
+}
+
+function PracticeClipInner({ title, view }) {
   const [open, setOpen] = useState(false);
   const [rec, setRec] = useState(false);
   const [seconds, setSeconds] = useState(0);
