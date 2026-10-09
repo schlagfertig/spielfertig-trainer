@@ -399,7 +399,7 @@ export default function App() {
           : view === "lexicon" ? <Lexicon />
           : view === "rhythm" ? <RhythmArchive />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
-      {["rudiments", "click", "pyramid", "stick", "rhythm"].includes(view) && !printOpen ? <PracticeClip title={t(meta.title)} /> : null}
+      {["rudiments", "click", "pyramid", "stick", "rhythm"].includes(view) && !printOpen ? <PracticeClip title={t(meta.title)} view={view} /> : null}
       </main>
     </div>
   );
