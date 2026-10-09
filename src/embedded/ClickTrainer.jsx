@@ -240,7 +240,7 @@ export default function ClickTrainer({ preset = null } = {}) {
         <p style={{ color: DIM, fontSize: 13, margin: "0 0 12px", lineHeight: 1.35 }}>
           {ramp
             ? t("Alle paar Sekunden wird das Tempo angehoben — Du bleibst am Pad.")
-            : t("Gleichmäßiges Tempo. Kreis drehen oder ±5.")}
+            : t("Gleichmäßiges Tempo. SpinDial drehen oder ±5.")}
         </p>
         <TempoControl bpm={startBpm} setBpm={setStart} min={30} max={260} hideNudge slider={false} />
         {ramp ? (
