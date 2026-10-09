@@ -11,6 +11,8 @@ export const CHANGELOG = [
         en: "Clip: record your practice as a video – logo and notation on a glass card at the top, your pad camera below, click and drums together in the sound. Perfect for sharing!" },
       { de: "Hilfe: Unter „?“ erklärt dir „Clip“ jetzt Schritt für Schritt, wie du dein Übungsvideo aufnimmst und teilst.",
         en: "Help: under “?”, “Clip” now walks you through recording and sharing your practice video step by step." },
+      { de: "Meine Grooves: Der Clip-Knopf sitzt jetzt rechts direkt unter dem Notenbild, und die Spurnamen stehen dicht an ihren Feldern – so verdeckt die Dynamic Island sie nicht mehr.",
+        en: "My Grooves: the Clip button now sits on the right, just below the notation, and the track names sit right next to their rows – so the Dynamic Island no longer covers them." },
       { de: "Neuer Name: Das Tempo-Drehrad heißt jetzt „SpinDial“. Tippen startet, drehen stellt dein Tempo ein – probier es gleich aus.",
         en: "New name: the tempo dial is now called the “SpinDial”. Tap to start, turn to set your tempo – give it a spin." },
       { de: "Noten: Schreib dir Notizen direkt zu deinen Blättern! Mit „Notiz“ hältst du Gedanken wie „Takt 12 langsamer üben“ fest, mit „Stift“ kreist du Stellen rot, türkis oder gelb ein, und mit „Marker“ heftest du eine kurze Notiz genau an die richtige Stelle. Das Auge blendet alles aus, wenn du das saubere Blatt sehen willst.",
