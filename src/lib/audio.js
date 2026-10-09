@@ -3,7 +3,8 @@ let noiseBuf;
 
 export function unlockAudio() {
   const c = getCtx();
-  if (c.state === "suspended") c.resume();
+  // iOS meldet nach dem Mikrofon-Start auch "interrupted".
+  if (c.state === "suspended" || c.state === "interrupted") c.resume()?.catch?.(() => {});
   warmNoise(c);
   return c;
 }
@@ -13,21 +14,51 @@ export function getCtx() {
   return ctx;
 }
 
+// Gemeinsamer Ausgang fuer Click und Trommel-Sounds. Geht immer auf die
+// Lautsprecher; fuer den Clip haengt sich zusaetzlich eine Aufnahme-Spur dran.
+// (Vorher: bus.connect(out(c)) verband den Bus mit sich selbst -> kein Ton auf
+// den Lautsprechern, in Safari ein Rueckkopplungs-Piepen in der Aufnahme.)
 let bus;
 function out(c) {
   if (!bus || bus.context !== c) {
     bus = c.createGain();
     bus.connect(c.destination);
-    bus._tap = c.createMediaStreamDestination();
-    bus.connect(bus._tap);
   }
   return bus;
 }
 
-export function recordStream() {
+/**
+ * Mischt fuer den Clip den App-Ton (Click, Sounds) und das Mikrofon in eine
+ * Audiospur. Das Mikrofon geht NUR in die Aufnahme, nie auf die Lautsprecher
+ * (sonst Rueckkopplung). Gibt { track, setMic, dispose } zurueck.
+ */
+export function clipAudioMix({ clickGain = 0.9, micGain = 1 } = {}) {
   const c = getCtx();
-  out(c);
-  return bus._tap.stream;
+  if (c.state !== "running") c.resume?.();
+  const dest = c.createMediaStreamDestination();
+  const click = c.createGain();
+  click.gain.value = clickGain;
+  out(c).connect(click);
+  click.connect(dest);
+  const micAmp = c.createGain();
+  micAmp.gain.value = micGain;
+  micAmp.connect(dest);
+  let micSrc = null;
+  function setMic(stream) {
+    try { micSrc?.disconnect(); } catch { /* schon weg */ }
+    micSrc = null;
+    if (stream?.getAudioTracks().length) {
+      micSrc = c.createMediaStreamSource(stream);
+      micSrc.connect(micAmp);
+    }
+  }
+  function dispose() {
+    try { micSrc?.disconnect(); } catch { /* egal */ }
+    try { out(c).disconnect(click); } catch { /* egal */ }
+    try { click.disconnect(); micAmp.disconnect(); } catch { /* egal */ }
+    dest.stream.getTracks().forEach((track) => track.stop());
+  }
+  return { track: dest.stream.getAudioTracks()[0] || null, setMic, dispose };
 }
 
 function warmNoise(c) {
