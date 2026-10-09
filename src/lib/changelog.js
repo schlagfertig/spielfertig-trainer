@@ -13,6 +13,8 @@ export const CHANGELOG = [
         en: "Sheet music: write notes right on your sheets! Use “Note” for thoughts like “practise bar 12 more slowly”, “Pen” to circle spots in red, teal or yellow, and “Marker” to pin a short note exactly where it belongs. The eye hides everything whenever you want to see the clean sheet." },
       { de: "Lexikon: Ein angetippter Begriff rutscht nach oben, lässt dir aber Platz für den Titel und einen Begriff darüber – so behältst du den Überblick.",
         en: "Glossary: a tapped term moves up but leaves room for the title and one term above it – so you keep your bearings." },
+      { de: "Neu für Einsteiger: Nach der Ersten Übung geht es jetzt Schritt für Schritt weiter – Doppelschläge, eine Tempo-Welle von 60 auf 90 BPM und zurück, ein Akzent auf der Eins und Einzel- und Doppelschläge im Wechsel. Die Startseite zeigt dir, bei welchem Schritt du bist, und jede Übung kannst du jederzeit wiederholen.",
+        en: "New for beginners: after the first lesson you now keep going step by step – double strokes, a tempo wave from 60 to 90 BPM and back, an accent on the one, and switching between singles and doubles. Home shows you which step you’re on, and you can repeat any exercise whenever you like." },
     ],
   },
   {
