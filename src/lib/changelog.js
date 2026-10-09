@@ -5,6 +5,13 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-10-09",
+    items: [
+      { de: "Neuer Name: Das Tempo-Drehrad heißt jetzt „SpinDial“. Tippen startet, drehen stellt dein Tempo ein – probier es gleich aus.",
+        en: "New name: the tempo dial is now called the “SpinDial”. Tap to start, turn to set your tempo – give it a spin." },
+    ],
+  },
+  {
     date: "2026-10-08",
     items: [
       { de: "Startseite: Jede Kachel zeigt jetzt rechts ein Symbol im Glas-Look – so findest du dein Werkzeug auf einen Blick.",

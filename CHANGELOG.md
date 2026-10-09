@@ -4,6 +4,10 @@ Alle für Nutzer sichtbaren Änderungen, nach Datum gruppiert (neueste zuerst).
 Kleine Fix-Commits sind dem jeweiligen Feature zugeordnet; reine Technik (Build-Fixes,
 Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SHA).
 
+## 09.10.2026
+
+- Neuer Name „SpinDial“ für das Tempo-Drehrad (`MetronomeDial`): „das SpinDial“ statt „die Dial“ in Meine-Grooves-Kachel („… und üb ihn mit dem SpinDial, bis er sitzt.“) und Kurzhilfe Meine Grooves („SpinDial wie überall: …“), „Kreis“ → „SpinDial“ in den Kurzhilfen Rudiments/Click-Trainer (Überschrift, „neben/über/unter dem SpinDial“) und im Click-Trainer-Lead („Gleichmäßiges Tempo. SpinDial drehen oder ±5.“); EN „dial“ → „SpinDial“ in den Übersetzungen (Kurzhilfe „Kreis“, Tasten, Ziel & Klang, Erweitert, Click-Trainer-Lead, Meine-Grooves-Kachel). Code-Namen und CSS-Klassen unverändert (EN „New name: the tempo dial is now called the “SpinDial”. Tap to start, turn to set your tempo – give it a spin.“)
+
 ## 08.10.2026
 
 - Startseite: Liquid-Glass-Symbole rechts auf allen Kacheln (Erste Übung, Rudiments, Click-Trainer, Rhythmuspyramide, Hand Control, Lexikon, Meine Grooves, Noten) – Inline-SVG-Glyphen (`src/lib/HomeIcons.jsx`) in einem Glas-Badge aus CSS (Blur, Glanzlicht, türkiser Innenschein, `src/styles-home.css`); Kacheln reservieren rechts Platz, damit kein Text unter das Symbol läuft (EN „Home: every tile now shows a glass-style icon on the right – spot your tool at a glance.“)
