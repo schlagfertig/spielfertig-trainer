@@ -448,7 +448,7 @@ export default function RhythmArchive() {
             <p>{t("Zum Eintippen das Handy quer drehen. Hochkant siehst du nur den Rhythmus.")}</p>
           </div>
           <div className="rhythm-entry">
-          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
+          <div className="rhythm-tools-row">
             {/* Vor/zurück: Nummer nur, wenn es den Takt gibt – in Takt 1 kein „Takt 0“. */}
             <button type="button" className="ghost" onClick={() => setBar((b) => Math.max(0, b - 1))} disabled={bar === 0} aria-label={t("Vorheriger Takt")}>{bar > 0 ? `‹ ${t("Takt")} ${bar}` : "‹"}</button>
             <span style={{ color: TEAL, fontWeight: 800 }}>{t("Takt")} {bar + 1}/{bars}</span>
@@ -608,14 +608,14 @@ export default function RhythmArchive() {
         .rhythm-save { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
         .rhythm-save input { flex: 1; min-height: 40px; border-radius: 10px; border: 1px solid #2f383d; background: #101416; color: #f4f7f6; padding: 0 10px; }
         @media (orientation: landscape) {
-          /* Taktwahl im normalen Fluss der Kopfzeile, links neben der Vorschau – nie über den Feldern. */
-          .rhythm-top.build { padding-right: 34%; }
-          .rhythm-bars { display: flex; margin-left: auto; }
+          .rhythm-arch { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 280px); gap: 14px 16px; align-items: start; padding-left: 4px; padding-right: 4px; }
+          .rhythm-top, .rhythm-top.build { padding-right: 0; grid-column: 1; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+          .rhythm-bars { display: flex; margin-left: 0; }
           .rhythm-tip { display: none; }
-          .rhythm-entry { display: block; padding-right: 34%; }
-          /* Quer sitzt die Dynamic Island links oder rechts: Spurnamen und Vorschau aus dem sicheren Bereich heraushalten. */
-          .rhythm-arch { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
-          .rhythm-side { position: fixed; top: 108px; right: calc(10px + env(safe-area-inset-right, 0px)); width: 32%; margin: 0; z-index: 4; }
+          .rhythm-entry { display: block; padding-right: 0; grid-column: 1; }
+          .rhythm-tools-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+          .rhythm-tools { margin-left: auto; }
+          .rhythm-side { position: static; width: auto; grid-column: 2; grid-row: 1 / span 3; margin: 0; }
           .rhythm-steps button { min-height: 34px; }
           .rhythm-counts { font-size: 10px; }
           .rhythm-grid { gap: 6px; }
