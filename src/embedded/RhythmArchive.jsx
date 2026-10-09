@@ -145,8 +145,32 @@ function GrooveStaff({ grid, bars, playStep }) {
   );
 }
 
+export async function lockGrooveLandscape() {
+  try {
+    if (screen.orientation?.lock) await screen.orientation.lock("landscape");
+    return true;
+  } catch {
+    try {
+      await document.documentElement.requestFullscreen?.();
+      await screen.orientation.lock("landscape");
+      return true;
+    } catch {
+      return false;
+    }
+  }
+}
+
+export function unlockGrooveLandscape() {
+  try { screen.orientation?.unlock?.(); } catch { /* Browser erlaubt es nicht */ }
+  try { if (document.fullscreenElement) document.exitFullscreen?.(); } catch { /* ignore */ }
+}
+
 export default function RhythmArchive() {
   const [screen, setScreen] = useState("build");
+  useEffect(() => {
+    lockGrooveLandscape();
+    return () => unlockGrooveLandscape();
+  }, []);
   const [name, setName] = useState("");
   const [askName, setAskName] = useState(false);
   const [draftName, setDraftName] = useState("");
