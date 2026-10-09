@@ -6,7 +6,7 @@ import StickControl from "./embedded/StickControl.jsx";
 import Lexicon from "./embedded/Lexicon.jsx";
 import Archive from "./embedded/Archive.jsx";
 import { PracticeClip } from "./lib/PracticeClip.jsx";
-import RhythmArchive from "./embedded/RhythmArchive.jsx";
+import RhythmArchive, { lockGrooveLandscape, unlockGrooveLandscape } from "./embedded/RhythmArchive.jsx";
 import { Help } from "./lib/Help.jsx";
 import { Welcome } from "./lib/Welcome.jsx";
 import FirstLesson, { loadBeginnerDone } from "./lib/FirstLesson.jsx";
@@ -149,6 +149,8 @@ export default function App() {
     setPreset(nextPreset && typeof nextPreset === "object" && !("nativeEvent" in nextPreset) ? nextPreset : null);
     setPrintOpen(false);
     setStage(false);
+    if (next === "rhythm") lockGrooveLandscape();
+    else unlockGrooveLandscape();
     setView(next);
     try {
       const path = next === "impressum" ? "/impressum"
