@@ -7,6 +7,10 @@ export const CHANGELOG = [
   {
     date: "2026-10-09",
     items: [
+      { de: "Meine Grooves: Dreh dein Handy quer! Beim Öffnen startet Meine Grooves jetzt im Querformat – so hast du alle Felder und die Noten bequem nebeneinander im Blick.",
+       en: "My Grooves: turn your phone sideways! My Grooves now opens in landscape – so you see all cells and the notation side by side." },
+      { de: "Querformat: Die Felder stehen jetzt sauber in einer Linie, und nichts rutscht mehr unter die Dynamic Island deines iPhones.",
+       en: "Landscape: the cells now line up neatly, and nothing slips under your iPhone’s Dynamic Island anymore." },
       { de: "Clip: Nimm deine Übung als Video auf – oben Logo und Noten auf einer Glas-Kachel, darunter deine Pad-Kamera, Click und Drums zusammen im Ton. Perfekt zum Teilen!",
         en: "Clip: record your practice as a video – logo and notation on a glass card at the top, your pad camera below, click and drums together in the sound. Perfect for sharing!" },
       { de: "Hilfe: Unter „?“ erklärt dir „Clip“ jetzt Schritt für Schritt, wie du dein Übungsvideo aufnimmst und teilst.",
