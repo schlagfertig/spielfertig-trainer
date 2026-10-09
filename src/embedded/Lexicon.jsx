@@ -74,12 +74,19 @@ export default function Lexicon() {
         return (
           <div key={e.id} className="lex-item" id={ch !== prev ? `lex-${ch}` : undefined}>
             {ch !== prev ? <div className="lex-letter">{ch}</div> : null}
-            {/* Aufgeklappter Begriff rutscht nach oben (unter die feste Kopfzeile mit „Zurück“) */}
+            {/* Aufgeklappter Begriff rutscht nach oben, mit Platz für Titel und einen Begriff darüber */}
             <details className="lex-details" onToggle={(ev) => {
               if (!ev.currentTarget.open) return;
               const item = ev.currentTarget.querySelector("summary");
               const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-              requestAnimationFrame(() => item?.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" }));
+              // Abstand nach oben: feste Kopfzeile + Platz für etwa zwei Begriffe (Titel und ein weiterer Begriff bleiben sichtbar)
+              requestAnimationFrame(() => {
+                if (!item) return;
+                const bar = document.querySelector(".page.view-lexicon .top-row");
+                const gap = (bar ? bar.getBoundingClientRect().height : 0) + 2 * item.getBoundingClientRect().height;
+                const y = item.getBoundingClientRect().top + window.scrollY - gap;
+                window.scrollTo({ top: Math.max(0, y), behavior: reduce ? "auto" : "smooth" });
+              });
             }}>
               <summary>
                 {e.brand ? <span className="lex-brand">{e.term}</span> : e.term}
