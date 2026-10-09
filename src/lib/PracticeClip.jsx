@@ -190,7 +190,7 @@ export function PracticeClip({ title }) {
         </div>
       )}
       <style>{`
-        .clip-fab { position: fixed; right: 16px; bottom: 18px; z-index: 30; min-width: 64px; min-height: 44px; border-radius: 999px; border: 1px solid #2f383d; background: rgba(22,26,29,.82); color: ${TEAL}; font: 800 15px Figtree, sans-serif; backdrop-filter: blur(10px); }
+        .clip-fab { position: fixed; left: 16px; bottom: 92px; z-index: 30; min-width: 64px; min-height: 44px; border-radius: 999px; border: 1px solid #2f383d; background: rgba(22,26,29,.82); color: ${TEAL}; font: 800 15px Figtree, sans-serif; backdrop-filter: blur(10px); }
         .clip-dock { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 40; display: grid; grid-template-columns: 132px 1fr; gap: 8px; padding: 8px; border-radius: 16px; background: rgba(22,26,29,.9); border: 1px solid #2f383d; }
         .clip-dock video { width: 132px; height: 96px; object-fit: cover; border-radius: 12px; background: #000; }
         .clip-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
