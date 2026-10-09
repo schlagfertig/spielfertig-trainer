@@ -13,6 +13,23 @@ export function getCtx() {
   return ctx;
 }
 
+let bus;
+function out(c) {
+  if (!bus || bus.context !== c) {
+    bus = c.createGain();
+    bus.connect(out(c));
+    bus._tap = c.createMediaStreamDestination();
+    bus.connect(bus._tap);
+  }
+  return bus;
+}
+
+export function recordStream() {
+  const c = getCtx();
+  out(c);
+  return bus._tap.stream;
+}
+
 function warmNoise(c) {
   if (noiseBuf && noiseBuf.sampleRate === c.sampleRate) return noiseBuf;
   const len = Math.floor(c.sampleRate * 0.22);
@@ -31,7 +48,7 @@ function tone(c, t, freq, dur, type, gain) {
   g.gain.exponentialRampToValueAtTime(gain, t + 0.008);
   g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
   o.connect(g);
-  g.connect(c.destination);
+  g.connect(out(c));
   o.start(t);
   o.stop(t + dur + 0.02);
 }
@@ -47,7 +64,7 @@ function noiseHit(c, t, dur, gain, hp) {
   g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
   n.connect(f);
   f.connect(g);
-  g.connect(c.destination);
+  g.connect(out(c));
   n.start(t);
   n.stop(t + dur + 0.02);
 }
@@ -56,7 +73,7 @@ function tick(c, t, f1, f2, g1, g2, d1 = 0.022, d2 = 0.04) {
   const o1 = c.createOscillator();
   const a1 = c.createGain();
   o1.connect(a1);
-  a1.connect(c.destination);
+  a1.connect(out(c));
   o1.frequency.setValueAtTime(f1, t);
   a1.gain.setValueAtTime(0.0001, t);
   a1.gain.exponentialRampToValueAtTime(Math.max(0.0001, g1), t + 0.001);
@@ -67,7 +84,7 @@ function tick(c, t, f1, f2, g1, g2, d1 = 0.022, d2 = 0.04) {
     const o2 = c.createOscillator();
     const a2 = c.createGain();
     o2.connect(a2);
-    a2.connect(c.destination);
+    a2.connect(out(c));
     o2.frequency.setValueAtTime(f2, t);
     a2.gain.setValueAtTime(0.0001, t);
     a2.gain.exponentialRampToValueAtTime(Math.max(0.0001, g2), t + 0.001);
@@ -107,7 +124,7 @@ function playFloorTom(c, t, accent, grace) {
   bg.gain.exponentialRampToValueAtTime(0.28 * a, t + 0.004);
   bg.gain.exponentialRampToValueAtTime(0.0001, t + dur);
   body.connect(bg);
-  bg.connect(c.destination);
+  bg.connect(out(c));
   body.start(t);
   body.stop(t + dur + 0.02);
   tone(c, t, grace ? 180 : 146, grace ? 0.04 : 0.08, "triangle", 0.06 * a);
@@ -131,7 +148,7 @@ export function playSnare(c, t, accent = false, grace = false) {
   bg.gain.exponentialRampToValueAtTime(0.16 * a, t + 0.003);
   bg.gain.exponentialRampToValueAtTime(0.0001, t + dur);
   body.connect(bg);
-  bg.connect(c.destination);
+  bg.connect(out(c));
   body.start(t);
   body.stop(t + dur + 0.02);
 
@@ -151,7 +168,7 @@ export function playSnare(c, t, accent = false, grace = false) {
   src.connect(hp);
   hp.connect(bp);
   bp.connect(ng);
-  ng.connect(c.destination);
+  ng.connect(out(c));
   src.start(t);
   src.stop(t + dur + 0.02);
 
@@ -163,7 +180,7 @@ export function playSnare(c, t, accent = false, grace = false) {
   cg.gain.exponentialRampToValueAtTime((grace ? 0.035 : 0.06) * a, t + 0.001);
   cg.gain.exponentialRampToValueAtTime(0.0001, t + (grace ? 0.01 : 0.014));
   click.connect(cg);
-  cg.connect(c.destination);
+  cg.connect(out(c));
   click.start(t);
   click.stop(t + 0.02);
 }
