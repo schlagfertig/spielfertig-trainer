@@ -23,6 +23,47 @@ function saveStepDone(id) {
   saveSession(BEGINNER_KEY, markDone({ done: [...loadBeginnerDone()] }, id));
 }
 
+// Click nach Plan (BPM pro Schlag) abspielen. Gibt eine Stop-Funktion zurück.
+// onPulse(i) zum hörbaren Schlag i, onLeft(Sekunden) laufend, onEnd() am Ende. Auch für die No-Stick-Challenge.
+export function runPlan(plan, { onPulse, onLeft, onEnd }) {
+  const ctx = unlockAudio();
+  let cancelled = false;
+  let timer = 0;
+  let i = 0;
+  let next = ctx.currentTime + 0.05;
+  const endAt = next + planSeconds(plan);
+  onLeft?.(Math.ceil(endAt - ctx.currentTime));
+
+  const pulse = (when, n) => {
+    const delay = Math.max(0, (when - ctx.currentTime) * 1000);
+    window.setTimeout(() => { if (!cancelled) onPulse?.(n); }, delay);
+  };
+
+  const schedule = () => {
+    if (cancelled) return;
+    const now = ctx.currentTime;
+    if (now >= endAt) {
+      cancelled = true;
+      onEnd?.();
+      return;
+    }
+    const horizon = now + 0.16;
+    while (i < plan.length && next < horizon) {
+      playClick(ctx, next, i % 4 === 0);
+      pulse(next, i);
+      next += 60 / plan[i];
+      i += 1;
+    }
+    onLeft?.(Math.max(0, Math.ceil(endAt - ctx.currentTime)));
+    timer = window.setTimeout(schedule, 25);
+  };
+  schedule();
+  return () => {
+    cancelled = true;
+    window.clearTimeout(timer);
+  };
+}
+
 function Progress({ idx, done }) {
   return (
     <div className="bg-progress" aria-hidden="true">
@@ -31,7 +72,7 @@ function Progress({ idx, done }) {
   );
 }
 
-function Sticking({ step, pos }) {
+export function Sticking({ step, pos }) {
   const n = step.sticking.length;
   const cur = pos >= 0 ? pos % n : -1;
   return (
@@ -70,7 +111,19 @@ function Wave({ step, plan, pos }) {
   );
 }
 
-function StepList({ idx, done, onPick }) {
+// Bonus-Karte „No-Stick-Challenge“ (zählt nicht zum Fortschritt). Unter der Liste „Dein Einstieg“ und nach Schritt 5.
+export function NoStickCard({ onOpen, style }) {
+  return (
+    <button type="button" className="card ns-card" style={{ width: "100%", ...style }} onClick={() => onOpen?.("nostick")}>
+      <span className="ns-card-emoji" aria-hidden="true">🥄👟🥢</span>
+      <div className="card-kicker">{t("Bonus · ohne Sticks")}</div>
+      <div className="card-title" style={{ fontSize: 24 }}>{t("No-Stick-Challenge")}</div>
+      <div className="card-lead">{t("Trommel mit allem außer Sticks: Hände, Kochlöffel, Schuhe, Essstäbchen … Drei kurze Runden, jede mit einem neuen Teil.")}</div>
+    </button>
+  );
+}
+
+function StepList({ idx, done, onPick, onOpen }) {
   return (
     <section className="bg-list" aria-labelledby="bg-list-title">
       <h3 id="bg-list-title">{t("Dein Einstieg")}</h3>
@@ -91,6 +144,7 @@ function StepList({ idx, done, onPick }) {
           );
         })}
       </ol>
+      {onOpen ? <NoStickCard onOpen={onOpen} style={{ marginTop: 12 }} /> : null}
     </section>
   );
 }
@@ -158,47 +212,12 @@ export default function FirstLesson({ onHome, onOpen, preset }) {
 
   function start() {
     halt();
-    const ctx = unlockAudio();
-    let cancelled = false;
-    let timer = 0;
-    let i = 0;
-    let next = ctx.currentTime + 0.05;
-    const endAt = next + planSeconds(plan);
-    setLeft(Math.ceil(endAt - ctx.currentTime));
     setPhase("play");
-
-    const pulse = (when, n) => {
-      const delay = Math.max(0, (when - ctx.currentTime) * 1000);
-      window.setTimeout(() => {
-        if (cancelled) return;
-        setPos(n);
-        setBeat(true);
-        window.setTimeout(() => setBeat(false), 80);
-      }, delay);
-    };
-
-    const schedule = () => {
-      if (cancelled) return;
-      const now = ctx.currentTime;
-      if (now >= endAt) {
-        finish();
-        return;
-      }
-      const horizon = now + 0.16;
-      while (i < plan.length && next < horizon) {
-        playClick(ctx, next, i % 4 === 0);
-        pulse(next, i);
-        next += 60 / plan[i];
-        i += 1;
-      }
-      setLeft(Math.max(0, Math.ceil(endAt - ctx.currentTime)));
-      timer = window.setTimeout(schedule, 25);
-    };
-    schedule();
-    stopRef.current = () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
+    stopRef.current = runPlan(plan, {
+      onPulse: (n) => { setPos(n); setBeat(true); window.setTimeout(() => setBeat(false), 80); },
+      onLeft: setLeft,
+      onEnd: finish,
+    });
   }
 
   if (phase === "list") {
@@ -207,7 +226,7 @@ export default function FirstLesson({ onHome, onOpen, preset }) {
         <p style={KICK}>{t("Alle Schritte geschafft")}</p>
         <h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: 30, margin: "0 0 10px" }}>{t("Einstieg wiederholen")}</h2>
         <p style={{ color: DIM, fontSize: 17, margin: "0 0 6px" }}>{t("Such dir eine Übung aus und spiel sie nochmal – Wiederholen macht dich sicherer.")}</p>
-        <StepList idx={-1} done={done} onPick={pick} />
+        <StepList idx={-1} done={done} onPick={pick} onOpen={onOpen} />
         <button className="ghost" style={{ width: "100%", marginTop: 14 }} onClick={() => onHome?.()}>{t("Zurück zur Übersicht")}</button>
       </div>
     );
@@ -243,6 +262,7 @@ export default function FirstLesson({ onHome, onOpen, preset }) {
               <div className="card-title" style={{ fontSize: 26 }}>{t("Hand Control")}</div>
               <div className="card-lead">{t("24 kurze Handwechsel. Tempo bleibt gleich, nur die Folge ändert sich.")}</div>
             </button>
+            <NoStickCard onOpen={onOpen} style={{ marginBottom: 10 }} />
           </>
         )}
         <div className="bg-row">
@@ -284,7 +304,7 @@ export default function FirstLesson({ onHome, onOpen, preset }) {
       {playing ? null : (
         <>
           <button className="ghost" style={{ width: "100%", minHeight: 44, border: "1px solid transparent" }} onClick={skip}>{t("Überspringen")}</button>
-          <StepList idx={idx} done={done} onPick={pick} />
+          <StepList idx={idx} done={done} onPick={pick} onOpen={onOpen} />
         </>
       )}
     </div>
