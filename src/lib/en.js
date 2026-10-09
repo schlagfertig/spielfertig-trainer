@@ -21,6 +21,13 @@ export const EN = {
   "Rhythmuspyramide": "Rhythm Pyramid",
   "Noten": "Sheet Music",
   "Meine Grooves": "My grooves",
+  "Clip": "Clip",
+  "Aufnahme": "Record",
+  "Drehen": "Flip",
+  "Teilen": "Share",
+  "Schließen": "Close",
+  "Kamera nicht freigegeben.": "Camera not allowed.",
+
   "Eigenen Groove bauen und üben. Eintippen nur quer, hochkant siehst du den Rhythmus.": "Build and practise your own groove. Enter it in landscape, portrait shows the rhythm.",
   "Erstellen": "Create",
   "Nur quer: Hi-Hat, Snare und Bass antippen. Eine Zeile wird aktiv, oben rechts gelten 1, + und e a. Taktzahl 1–4 sitzt neben der Vorschau.": "Landscape only: tap hi-hat, snare and bass. A row becomes active, 1, + and e a apply at the top right. Bar count 1–4 sits beside the preview.",
