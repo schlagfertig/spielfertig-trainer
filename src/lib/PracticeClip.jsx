@@ -97,15 +97,8 @@ export function PracticeClip({ title, view }) {
     canvas.height = 1280;
     const ctx = canvas.getContext("2d");
     const canvasStream = canvas.captureStream(30);
-    try {
-      const actx = getCtx();
-      const mix = actx.createMediaStreamDestination();
-      actx.createMediaStreamSource(recordStream()).connect(mix);
-      const mic = stream.getAudioTracks()[0];
-      if (mic) actx.createMediaStreamSource(new MediaStream([mic])).connect(mix);
-      const track = mix.stream.getAudioTracks()[0];
-      if (track) canvasStream.addTrack(track);
-    } catch { /* nur Bild, falls Audio fehlt */ }
+    const mic = stream.getAudioTracks()[0];
+    if (mic) canvasStream.addTrack(mic);
     chunks.current = [];
     const mime = pickMime();
     const recorder = new MediaRecorder(canvasStream, mime ? { mimeType: mime } : undefined);
@@ -116,32 +109,36 @@ export function PracticeClip({ title, view }) {
       cancelAnimationFrame(drawRef.current);
     };
     const draw = () => {
+      ctx.fillStyle = "#101416";
+      ctx.fillRect(0, 0, 720, 1280);
       const back = view === "rudiments" ? backRef.current : null;
+      let top = 24;
       if (back) {
-        const scale = Math.max(720 / back.width, 1280 / back.height);
+        const bannerH = 250;
+        const scale = Math.min(720 / back.width, bannerH / back.height);
         const w = back.width * scale;
         const h = back.height * scale;
-        ctx.drawImage(back, (720 - w) / 2, (1280 - h) / 2, w, h);
-      } else {
-        ctx.fillStyle = "#000";
-        ctx.fillRect(0, 0, 720, 1280);
+        ctx.drawImage(back, (720 - w) / 2, 12, w, h);
+        top = 12 + h + 12;
       }
       const vw = video.videoWidth || 1280;
       const vh = video.videoHeight || 720;
-      const camScale = Math.max((back ? 672 : 720) / vw, (back ? 760 : 1280) / vh);
-      const sw = (back ? 672 : 720) / camScale;
-      const sh = (back ? 760 : 1280) / camScale;
-      const cam = back ? { x: 24, y: 470, w: 672, h: 760 } : { x: 24, y: 470, w: 672, h: 760 };
+      const cam = { x: 24, y: top, w: 672, h: 1280 - top - 24 };
+      const camScale = Math.max(cam.w / vw, cam.h / vh);
+      const sw = cam.w / camScale;
+      const sh = cam.h / camScale;
       ctx.save();
       if (back) { ctx.beginPath(); ctx.roundRect(cam.x, cam.y, cam.w, cam.h, 28); ctx.clip(); }
       ctx.drawImage(video, (vw - sw) / 2, (vh - sh) / 2, sw, sh, cam.x, cam.y, cam.w, cam.h);
       ctx.restore();
-      const logo = logoRef.current;
-      if (logo) ctx.drawImage(logo, 28, 28, 250, 200);
-      ctx.fillStyle = "#f4f7f6";
-      ctx.font = "800 34px Figtree, sans-serif";
-      ctx.textAlign = "left";
-      ctx.fillText("SCHLAGFERTIG", 28, 258);
+      if (!back) {
+        const logo = logoRef.current;
+        if (logo) ctx.drawImage(logo, 28, 28, 200, 160);
+        ctx.fillStyle = "#f4f7f6";
+        ctx.font = "800 30px Figtree, sans-serif";
+        ctx.textAlign = "left";
+        ctx.fillText("SCHLAGFERTIG", 28, 214);
+      }
       const ex = exRef.current;
       if (ex.name || ex.img) {
         ctx.fillStyle = "rgba(244,247,246,.94)";
@@ -160,8 +157,8 @@ export function PracticeClip({ title, view }) {
         }
       }
       const dial = dialRef.current;
-      const cx = 560;
-      const cy = 150;
+      const cx = 600;
+      const cy = back ? top + 70 : 150;
       ctx.beginPath();
       ctx.arc(cx, cy, 78, 0, Math.PI * 2);
       ctx.fillStyle = dial.beat ? "#f4f7f6" : INK;
