@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { t } from "./i18n.js";
+import { getCtx, recordStream } from "./audio.js";
 
 const TEAL = "#5cc8b8";
 const INK = "#161a1d";
@@ -9,12 +10,12 @@ function pickMime() {
   return types.find((type) => window.MediaRecorder?.isTypeSupported?.(type)) || "";
 }
 
-function loadLogo() {
+function loadImg(src) {
   return new Promise((resolve) => {
     const img = new Image();
     img.onload = () => resolve(img);
     img.onerror = () => resolve(null);
-    img.src = "/logo.svg";
+    img.src = src;
   });
 }
 
@@ -24,7 +25,7 @@ function readDial() {
   return { bpm: el.dataset.bpm || "—", beat: el.dataset.beat === "1", on: el.dataset.on === "1" };
 }
 
-export function PracticeClip({ title }) {
+export function PracticeClip({ title, view }) {
   const [open, setOpen] = useState(false);
   const [rec, setRec] = useState(false);
   const [seconds, setSeconds] = useState(0);
@@ -37,6 +38,7 @@ export function PracticeClip({ title }) {
   const chunks = useRef([]);
   const drawRef = useRef(0);
   const logoRef = useRef(null);
+  const backRef = useRef(null);
   const dialRef = useRef({ bpm: "—", beat: false, on: false });
 
   function stopCamera() {
@@ -76,8 +78,15 @@ export function PracticeClip({ title }) {
     canvas.height = 1280;
     const ctx = canvas.getContext("2d");
     const canvasStream = canvas.captureStream(30);
-    const audio = stream.getAudioTracks()[0];
-    if (audio) canvasStream.addTrack(audio);
+    try {
+      const actx = getCtx();
+      const mix = actx.createMediaStreamDestination();
+      actx.createMediaStreamSource(recordStream()).connect(mix);
+      const mic = stream.getAudioTracks()[0];
+      if (mic) actx.createMediaStreamSource(new MediaStream([mic])).connect(mix);
+      const track = mix.stream.getAudioTracks()[0];
+      if (track) canvasStream.addTrack(track);
+    } catch { /* nur Bild, falls Audio fehlt */ }
     chunks.current = [];
     const mime = pickMime();
     const recorder = new MediaRecorder(canvasStream, mime ? { mimeType: mime } : undefined);
@@ -88,20 +97,32 @@ export function PracticeClip({ title }) {
       cancelAnimationFrame(drawRef.current);
     };
     const draw = () => {
-      ctx.fillStyle = "#000";
-      ctx.fillRect(0, 0, 720, 1280);
+      const back = view === "rudiments" ? backRef.current : null;
+      if (back) {
+        const scale = Math.max(720 / back.width, 1280 / back.height);
+        const w = back.width * scale;
+        const h = back.height * scale;
+        ctx.drawImage(back, (720 - w) / 2, (1280 - h) / 2, w, h);
+      } else {
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, 720, 1280);
+      }
       const vw = video.videoWidth || 1280;
       const vh = video.videoHeight || 720;
-      const scale = Math.max(720 / vw, 1280 / vh);
-      const sw = 720 / scale;
-      const sh = 1280 / scale;
-      ctx.drawImage(video, (vw - sw) / 2, (vh - sh) / 2, sw, sh, 0, 0, 720, 1280);
+      const camScale = Math.max((back ? 672 : 720) / vw, (back ? 760 : 1280) / vh);
+      const sw = (back ? 672 : 720) / camScale;
+      const sh = (back ? 760 : 1280) / camScale;
+      const cam = back ? { x: 24, y: 470, w: 672, h: 760 } : { x: 0, y: 0, w: 720, h: 1280 };
+      ctx.save();
+      if (back) { ctx.beginPath(); ctx.roundRect(cam.x, cam.y, cam.w, cam.h, 28); ctx.clip(); }
+      ctx.drawImage(video, (vw - sw) / 2, (vh - sh) / 2, sw, sh, cam.x, cam.y, cam.w, cam.h);
+      ctx.restore();
       const logo = logoRef.current;
-      if (logo) ctx.drawImage(logo, 28, 28, 168, 134);
+      if (logo) ctx.drawImage(logo, 28, 28, 250, 200);
       ctx.fillStyle = "#f4f7f6";
-      ctx.font = "800 28px Figtree, sans-serif";
+      ctx.font = "800 34px Figtree, sans-serif";
       ctx.textAlign = "left";
-      ctx.fillText("SCHLAGFERTIG", 28, 196);
+      ctx.fillText("SCHLAGFERTIG", 28, 258);
       const dial = dialRef.current;
       const cx = 560;
       const cy = 150;
@@ -121,7 +142,8 @@ export function PracticeClip({ title }) {
       ctx.fillText("CLICK", cx, cy + 34);
       drawRef.current = requestAnimationFrame(draw);
     };
-    loadLogo().then((img) => { logoRef.current = img; });
+    loadImg("/logo.svg").then((img) => { logoRef.current = img; });
+    if (view === "rudiments") loadImg("/rudiments-now.png").then((img) => { backRef.current = img; });
     const snap = window.setInterval(() => { dialRef.current = readDial(); }, 50);
     recorder._snap = snap;
     draw();
