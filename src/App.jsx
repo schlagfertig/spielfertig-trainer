@@ -10,6 +10,7 @@ import RhythmArchive from "./embedded/RhythmArchive.jsx";
 import { Help } from "./lib/Help.jsx";
 import { Welcome } from "./lib/Welcome.jsx";
 import FirstLesson, { loadBeginnerDone } from "./lib/FirstLesson.jsx";
+import NoStick from "./lib/NoStick.jsx";
 import { STEPS as BEGIN_STEPS, nextIndex as beginNext } from "./lib/beginner.js";
 import Today from "./lib/Today.jsx";
 import { FIRST_SKIP_KEY, hideFirstToday, isFirstHidden } from "./lib/firstSkip.js";
@@ -41,6 +42,7 @@ const FLAG_DE = (
 
 const META = {
   first: { title: "Einstieg", help: "home" },
+  nostick: { title: "No-Stick-Challenge", help: "home" },
   rudiments: { title: "Rudiments", help: "rudiments" },
   click: { title: "Click-Trainer", help: "click" },
   pyramid: { title: "Rhythmuspyramide", help: "pyramid" },
@@ -282,6 +284,10 @@ export default function App() {
               </button>
               {/* eigener Knopf neben (nicht in) der Karte – Knöpfe dürfen nicht verschachtelt sein */}
               <button type="button" className="first-skip" onClick={skipFirstToday} aria-label={t("Erste Übung für heute ausblenden")}>{t("Nicht heute")}</button>
+              {/* Bonus (zählt nicht zum Fortschritt): kleiner Link unter der Einstieg-Karte, verschwindet mit „Nicht heute“ */}
+              <button type="button" className="ns-link" onClick={() => open("nostick")}>
+                <span aria-hidden="true">🥄</span> {t("Bonus: No-Stick-Challenge")} <span className="ns-link-go" aria-hidden="true">›</span>
+              </button>
             </div>
           </div>
         )}
@@ -375,13 +381,14 @@ export default function App() {
                 onClick={() => setStage((v) => !v)}
               >{t("Fokus-Mode")}</button>
             )}
-            {!stage && !printOpen && view !== "first" && view !== "impressum" && view !== "datenschutz" && view !== "news" && <Help topic={meta.help} />}
+            {!stage && !printOpen && view !== "first" && view !== "nostick" && view !== "impressum" && view !== "datenschutz" && view !== "news" && <Help topic={meta.help} />}
           </div>
         </div>
         <div className="top-title">{t(printOpen && view === "rudiments" ? "Drucken" : meta.title)}</div>
       </header>
       <main className="main">
         {view === "first" ? <FirstLesson key={preset?.step || "next"} onHome={goHome} onOpen={open} preset={preset} />
+          : view === "nostick" ? <NoStick onHome={goHome} onOpen={open} />
           : view === "impressum" ? <Legal topic="impressum" onOpen={open} />
           : view === "datenschutz" ? <Legal topic="datenschutz" onOpen={open} />
           : view === "news" ? <News />
