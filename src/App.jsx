@@ -5,6 +5,7 @@ import PyramidTrainer from "./embedded/PyramidTrainer.jsx";
 import StickControl from "./embedded/StickControl.jsx";
 import Lexicon from "./embedded/Lexicon.jsx";
 import Archive from "./embedded/Archive.jsx";
+import { PracticeClip } from "./lib/PracticeClip.jsx";
 import RhythmArchive from "./embedded/RhythmArchive.jsx";
 import { Help } from "./lib/Help.jsx";
 import { Welcome } from "./lib/Welcome.jsx";
@@ -391,6 +392,7 @@ export default function App() {
           : view === "lexicon" ? <Lexicon />
           : view === "rhythm" ? <RhythmArchive />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
+      {["rudiments", "click", "pyramid", "stick", "rhythm"].includes(view) && !printOpen ? <PracticeClip title={t(meta.title)} /> : null}
       </main>
     </div>
   );
