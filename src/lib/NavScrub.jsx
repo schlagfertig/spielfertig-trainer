@@ -93,7 +93,9 @@ export function NavScrub({ items, index, disabled, onPick, renderPreview }) {
   return (
     <>
     <style>{`
-      .rudiment-wheel { width: 100%; }
+      /* .rud-nav ist ein 2-Spalten-Grid (Vor/Zurueck-Haelften); das Rad hat nur ein Kind
+         und lag deshalb nur in der linken Haelfte. Hier volle Breite wie die Touch-Flaeche. */
+      .rud-nav.rudiment-wheel { display: block; grid-template-columns: 1fr; width: 100%; }
       .rud-wheel { display: flex; gap: 8px; width: 100%; overflow-x: auto; padding: 10px 16px 12px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; box-sizing: border-box; }
       .rud-wheel::-webkit-scrollbar { display: none; }
       .rud-wheel button { flex: none; scroll-snap-align: center; min-width: 42px; height: 42px; border-radius: 999px; border: 1px solid #2f383d; background: #14191c; color: #8a969c; font: 800 16px Oswald, sans-serif; }

@@ -7,9 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-10-09",
     items: [
-      // Clip vorübergehend ausgeblendet – Eintrag wieder einkommentieren, wenn CLIP_ENABLED = true:
-      // { de: "Clip: in den Übungsmodulen nimmst du Notation und Pad-Kamera in einem Video auf und teilst es.",
-      //   en: "Clip: in the practice modules you record notation and the pad camera in one video and share it." },
+      { de: "Clip: Nimm deine Übung als Video auf – oben Logo und Noten auf einer Glas-Kachel, darunter deine Pad-Kamera, Click und Drums zusammen im Ton. Perfekt zum Teilen!",
+        en: "Clip: record your practice as a video – logo and notation on a glass card at the top, your pad camera below, click and drums together in the sound. Perfect for sharing!" },
       { de: "Neuer Name: Das Tempo-Drehrad heißt jetzt „SpinDial“. Tippen startet, drehen stellt dein Tempo ein – probier es gleich aus.",
         en: "New name: the tempo dial is now called the “SpinDial”. Tap to start, turn to set your tempo – give it a spin." },
       { de: "Noten: Schreib dir Notizen direkt zu deinen Blättern! Mit „Notiz“ hältst du Gedanken wie „Takt 12 langsamer üben“ fest, mit „Stift“ kreist du Stellen rot, türkis oder gelb ein, und mit „Marker“ heftest du eine kurze Notiz genau an die richtige Stelle. Das Auge blendet alles aus, wenn du das saubere Blatt sehen willst.",

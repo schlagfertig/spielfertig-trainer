@@ -1,22 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { t } from "./i18n.js";
-import { getCtx, recordStream } from "./audio.js";
+import { clipAudioMix, unlockAudio } from "./audio.js";
+import { CLIP_CARD_STYLE, drawClipFrame, prepareClipAssets, renderBackdrop, renderCard } from "./clipFrame.js";
 
 const TEAL = "#5cc8b8";
-const INK = "#161a1d";
 
 function pickMime() {
-  const types = ["video/mp4", "video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"];
+  const types = [
+    "video/mp4;codecs=avc1,mp4a.40.2",
+    "video/mp4",
+    "video/webm;codecs=vp9,opus",
+    "video/webm;codecs=vp8,opus",
+    "video/webm",
+  ];
   return types.find((type) => window.MediaRecorder?.isTypeSupported?.(type)) || "";
-}
-
-function loadImg(src) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => resolve(null);
-    img.src = src;
-  });
 }
 
 function readDial() {
@@ -26,14 +23,20 @@ function readDial() {
 }
 
 function readExercise() {
-  const name = document.querySelector(".rud-title-name, .stick-now, .staff-label")?.textContent?.trim();
-  return name || "";
+  const txt = (sel) => document.querySelector(sel)?.textContent?.trim() || "";
+  const kick = document.querySelector(".stick-now-kick");
+  const kickOwn = kick ? [...kick.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join("").trim() : "";
+  const stick = [kickOwn, txt(".stick-now-pos")].filter(Boolean).join(" ");
+  return txt(".rud-title-name") || stick || txt(".staff-label");
 }
 
-function exerciseShot() {
+function exerciseXml() {
   const svg = document.querySelector("#rud-live, .rud-staff-box svg, .staff-card svg, .stick-focus svg");
-  if (!svg) return Promise.resolve(null);
-  const xml = new XMLSerializer().serializeToString(svg);
+  return svg ? new XMLSerializer().serializeToString(svg) : "";
+}
+
+function svgImage(xml) {
+  if (!xml) return Promise.resolve(null);
   const url = URL.createObjectURL(new Blob([xml], { type: "image/svg+xml" }));
   return new Promise((resolve) => {
     const img = new Image();
@@ -44,7 +47,7 @@ function exerciseShot() {
 }
 
 // Clip-Button vorübergehend ausgeblendet (Tom, 09.10.2026). Zum Einschalten auf true setzen.
-export const CLIP_ENABLED = false;
+export const CLIP_ENABLED = true;
 
 export function PracticeClip(props) {
   return CLIP_ENABLED ? <PracticeClipInner {...props} /> : null;
@@ -62,10 +65,12 @@ function PracticeClipInner({ title, view }) {
   const recRef = useRef(null);
   const chunks = useRef([]);
   const drawRef = useRef(0);
-  const logoRef = useRef(null);
-  const backRef = useRef(null);
   const dialRef = useRef({ bpm: "—", beat: false, on: false });
   const exRef = useRef({ name: "", img: null });
+
+  const micRef = useRef(null);
+  const mixRef = useRef(null);
+  const [camTick, setCamTick] = useState(0);
 
   function stopCamera() {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -73,121 +78,140 @@ function PracticeClipInner({ title, view }) {
     if (videoRef.current) videoRef.current.srcObject = null;
   }
 
-  async function openCamera(nextFacing = facing) {
-    setErr("");
-    stopCamera();
+  function stopMic() {
+    micRef.current?.getTracks().forEach((track) => track.stop());
+    micRef.current = null;
+    try { if (navigator.audioSession) navigator.audioSession.type = "auto"; } catch { /* aelteres Safari */ }
+  }
+
+  // Mikrofon roh, ohne Echo-/Rauschunterdrueckung und ohne Auto-Pegel:
+  // sonst filtert iOS den Click und die Trommel heraus oder "pumpt".
+  async function openMic() {
+    if (micRef.current?.getAudioTracks().some((track) => track.readyState === "live")) return;
+    try { if (navigator.audioSession) navigator.audioSession.type = "play-and-record"; } catch { /* aelteres Safari */ }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: nextFacing }, width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: true,
+      micRef.current = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+        video: false,
       });
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
-      setFacing(nextFacing);
-      setOpen(true);
     } catch {
-      setErr(t("Kamera nicht freigegeben."));
+      micRef.current = null;
     }
   }
 
-  useEffect(() => () => stopCamera(), []);
+  async function openCamera(nextFacing = facing) {
+    setErr("");
+    unlockAudio();
+    stopCamera();
+    try {
+      // Nur Bild: das Mikrofon bleibt beim Drehen der Kamera bestehen.
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: nextFacing }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false,
+      });
+      streamRef.current = stream;
+      setFacing(nextFacing);
+      setOpen(true);
+      setCamTick((n) => n + 1);
+    } catch {
+      setErr(t("Kamera nicht freigegeben."));
+      return;
+    }
+    await openMic();
+    unlockAudio();
+  }
+
+  // Das <video> gibt es erst, wenn das Dock offen ist. Deshalb den Kamera-Stream
+  // erst nach dem Rendern anhaengen (vorher war videoRef beim ersten Oeffnen noch
+  // leer, das Bild kam erst nach dem Drehen).
+  useEffect(() => {
+    const video = videoRef.current;
+    const stream = streamRef.current;
+    if (!open || !video || !stream) return;
+    if (video.srcObject !== stream) video.srcObject = stream;
+    video.muted = true;
+    video.playsInline = true;
+    video.play().catch(() => { /* startet bei loadedmetadata erneut */ });
+  }, [open, camTick]);
+
+  useEffect(() => () => { stopRecNow(); stopCamera(); stopMic(); }, []);
 
   async function startRec() {
     const video = videoRef.current;
     const stream = streamRef.current;
     if (!video || !stream) return;
+    unlockAudio();
+    if (video.readyState < 2) {
+      video.play().catch(() => {});
+      await new Promise((resolve) => {
+        video.addEventListener("loadeddata", resolve, { once: true });
+        window.setTimeout(resolve, 1500);
+      });
+    }
+    await openMic();
     const canvas = document.createElement("canvas");
     canvas.width = 720;
     canvas.height = 1280;
     const ctx = canvas.getContext("2d");
     const canvasStream = canvas.captureStream(30);
-    const mic = stream.getAudioTracks()[0];
-    if (mic) canvasStream.addTrack(mic);
+    // Click (App-Ton) + Mikrofon (Trommel) zusammen in eine Tonspur.
+    mixRef.current?.dispose();
+    let mix = null;
+    try {
+      mix = clipAudioMix();
+      mix.setMic(micRef.current);
+    } catch { mix = null; /* nur Bild */ }
+    mixRef.current = mix;
+    const tracks = [...canvasStream.getVideoTracks()];
+    if (mix?.track) tracks.push(mix.track);
+    const recStream = new MediaStream(tracks);
     chunks.current = [];
     const mime = pickMime();
-    const recorder = new MediaRecorder(canvasStream, mime ? { mimeType: mime } : undefined);
+    let recorder;
+    try {
+      recorder = new MediaRecorder(recStream, mime ? { mimeType: mime } : undefined);
+    } catch {
+      recorder = new MediaRecorder(recStream);
+    }
     recorder.ondataavailable = (e) => { if (e.data.size) chunks.current.push(e.data); };
     recorder.onstop = () => {
       const blob = new Blob(chunks.current, { type: recorder.mimeType || "video/mp4" });
       setClip({ url: URL.createObjectURL(blob), blob, type: blob.type });
       cancelAnimationFrame(drawRef.current);
+      canvasStream.getTracks().forEach((track) => track.stop());
+      if (mixRef.current === mix) { mix?.dispose(); mixRef.current = null; }
     };
-    const draw = () => {
-      ctx.fillStyle = "#101416";
-      ctx.fillRect(0, 0, 720, 1280);
-      const back = view === "rudiments" ? backRef.current : null;
-      let top = 24;
-      if (back) {
-        const bannerH = 250;
-        const scale = Math.min(720 / back.width, bannerH / back.height);
-        const w = back.width * scale;
-        const h = back.height * scale;
-        ctx.drawImage(back, (720 - w) / 2, 12, w, h);
-        top = 12 + h + 12;
-      }
-      const vw = video.videoWidth || 1280;
-      const vh = video.videoHeight || 720;
-      const cam = { x: 24, y: top, w: 672, h: 1280 - top - 24 };
-      const camScale = Math.max(cam.w / vw, cam.h / vh);
-      const sw = cam.w / camScale;
-      const sh = cam.h / camScale;
-      ctx.save();
-      if (back) { ctx.beginPath(); ctx.roundRect(cam.x, cam.y, cam.w, cam.h, 28); ctx.clip(); }
-      ctx.drawImage(video, (vw - sw) / 2, (vh - sh) / 2, sw, sh, cam.x, cam.y, cam.w, cam.h);
-      ctx.restore();
-      if (!back) {
-        const logo = logoRef.current;
-        if (logo) ctx.drawImage(logo, 28, 28, 200, 160);
-        ctx.fillStyle = "#f4f7f6";
-        ctx.font = "800 30px Figtree, sans-serif";
-        ctx.textAlign = "left";
-        ctx.fillText("SCHLAGFERTIG", 28, 214);
-      }
+    const style = CLIP_CARD_STYLE;
+    const backdrop = renderBackdrop(style);
+    // Logos und erstes Notenbild vor dem Start laden, damit schon Bild 1 komplett ist.
+    let cardKey = "";
+    const firstXml = exerciseXml();
+    const [assets, firstImg] = await Promise.all([prepareClipAssets(view, style), svgImage(firstXml)]);
+    exRef.current = { name: readExercise(), img: firstImg };
+    cardKey = `${exRef.current.name}|${firstXml}`;
+    let card = null;
+    const rebuildCard = () => {
       const ex = exRef.current;
-      if (ex.name || ex.img) {
-        ctx.fillStyle = "rgba(244,247,246,.94)";
-        ctx.beginPath();
-        ctx.roundRect(24, 286, 672, 168, 18);
-        ctx.fill();
-        ctx.fillStyle = INK;
-        ctx.font = "800 26px Figtree, sans-serif";
-        ctx.textAlign = "left";
-        ctx.fillText(ex.name || title || "", 42, 322);
-        if (ex.img) {
-          const scale = Math.min(620 / ex.img.width, 108 / ex.img.height);
-          const w = ex.img.width * scale;
-          const h = ex.img.height * scale;
-          ctx.drawImage(ex.img, 36 + (640 - w) / 2, 334 + (100 - h) / 2, w, h);
-        }
-      }
-      const dial = dialRef.current;
-      const cx = 600;
-      const cy = back ? top + 70 : 150;
-      ctx.beginPath();
-      ctx.arc(cx, cy, 78, 0, Math.PI * 2);
-      ctx.fillStyle = dial.beat ? "#f4f7f6" : INK;
-      ctx.fill();
-      ctx.lineWidth = 8;
-      ctx.strokeStyle = dial.beat ? "#fff" : TEAL;
-      ctx.stroke();
-      ctx.fillStyle = dial.beat ? TEAL : "#f4f7f6";
-      ctx.font = "800 42px Figtree, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText(String(dial.bpm), cx, cy + 8);
-      ctx.font = "700 16px Figtree, sans-serif";
-      ctx.fillStyle = TEAL;
-      ctx.fillText("CLICK", cx, cy + 34);
+      card = renderCard({ view, kicker: title, name: ex.name || title || "", notation: ex.img, assets, style });
+    };
+    rebuildCard();
+    const draw = () => {
+      drawClipFrame(ctx, { backdrop, card, view, video, seal: assets.seal, dial: dialRef.current });
       drawRef.current = requestAnimationFrame(draw);
     };
-    loadImg("/logo.svg").then((img) => { logoRef.current = img; });
-    if (view === "rudiments") loadImg("/rudiments-now.png").then((img) => { backRef.current = img; });
     const snap = window.setInterval(() => { dialRef.current = readDial(); }, 50);
-    const snapEx = window.setInterval(() => {
-      exerciseShot().then((img) => { exRef.current = { name: readExercise(), img: img || exRef.current.img }; });
-    }, 350);
+    const refreshEx = () => {
+      const name = readExercise();
+      const svgXml = exerciseXml();
+      const key = `${name}|${svgXml}`;
+      if (key === cardKey) return;
+      cardKey = key;
+      svgImage(svgXml).then((img) => {
+        exRef.current = { name, img: img || exRef.current.img };
+        rebuildCard();
+      });
+    };
+    const snapEx = window.setInterval(refreshEx, 350);
     recorder._snapEx = snapEx;
     recorder._snap = snap;
     draw();
@@ -198,13 +222,17 @@ function PracticeClipInner({ title, view }) {
     setClip(null);
   }
 
-  function stopRec() {
+  function stopRecNow() {
     const recorder = recRef.current;
     if (recorder && recorder.state !== "inactive") {
       window.clearInterval(recorder._snap);
       window.clearInterval(recorder._snapEx);
       recorder.stop();
     }
+  }
+
+  function stopRec() {
+    stopRecNow();
     setRec(false);
   }
 
@@ -233,6 +261,7 @@ function PracticeClipInner({ title, view }) {
   function close() {
     stopRec();
     stopCamera();
+    stopMic();
     setOpen(false);
     setClip(null);
   }
@@ -246,7 +275,7 @@ function PracticeClipInner({ title, view }) {
       )}
       {open && (
         <div className="clip-dock">
-          <video ref={videoRef} playsInline muted autoPlay />
+          <video ref={videoRef} playsInline muted autoPlay onLoadedMetadata={(e) => e.currentTarget.play().catch(() => {})} />
           <div className="clip-actions">
             {err ? <span>{err}</span> : null}
             {rec ? <button type="button" className="play" onClick={stopRec}>{clock} · {t("Stop")}</button> : <button type="button" className="play" onClick={startRec}>{t("Aufnahme")}</button>}
