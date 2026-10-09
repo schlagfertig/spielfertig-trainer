@@ -25,6 +25,24 @@ function readDial() {
   return { bpm: el.dataset.bpm || "—", beat: el.dataset.beat === "1", on: el.dataset.on === "1" };
 }
 
+function readExercise() {
+  const name = document.querySelector(".rud-title-name, .stick-now, .staff-label")?.textContent?.trim();
+  return name || "";
+}
+
+function exerciseShot() {
+  const svg = document.querySelector("#rud-live, .rud-staff-box svg, .staff-card svg, .stick-focus svg");
+  if (!svg) return Promise.resolve(null);
+  const xml = new XMLSerializer().serializeToString(svg);
+  const url = URL.createObjectURL(new Blob([xml], { type: "image/svg+xml" }));
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+    img.src = url;
+  });
+}
+
 export function PracticeClip({ title, view }) {
   const [open, setOpen] = useState(false);
   const [rec, setRec] = useState(false);
@@ -40,6 +58,7 @@ export function PracticeClip({ title, view }) {
   const logoRef = useRef(null);
   const backRef = useRef(null);
   const dialRef = useRef({ bpm: "—", beat: false, on: false });
+  const exRef = useRef({ name: "", img: null });
 
   function stopCamera() {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -112,7 +131,7 @@ export function PracticeClip({ title, view }) {
       const camScale = Math.max((back ? 672 : 720) / vw, (back ? 760 : 1280) / vh);
       const sw = (back ? 672 : 720) / camScale;
       const sh = (back ? 760 : 1280) / camScale;
-      const cam = back ? { x: 24, y: 470, w: 672, h: 760 } : { x: 0, y: 0, w: 720, h: 1280 };
+      const cam = back ? { x: 24, y: 470, w: 672, h: 760 } : { x: 24, y: 470, w: 672, h: 760 };
       ctx.save();
       if (back) { ctx.beginPath(); ctx.roundRect(cam.x, cam.y, cam.w, cam.h, 28); ctx.clip(); }
       ctx.drawImage(video, (vw - sw) / 2, (vh - sh) / 2, sw, sh, cam.x, cam.y, cam.w, cam.h);
@@ -123,6 +142,23 @@ export function PracticeClip({ title, view }) {
       ctx.font = "800 34px Figtree, sans-serif";
       ctx.textAlign = "left";
       ctx.fillText("SCHLAGFERTIG", 28, 258);
+      const ex = exRef.current;
+      if (ex.name || ex.img) {
+        ctx.fillStyle = "rgba(244,247,246,.94)";
+        ctx.beginPath();
+        ctx.roundRect(24, 286, 672, 168, 18);
+        ctx.fill();
+        ctx.fillStyle = INK;
+        ctx.font = "800 26px Figtree, sans-serif";
+        ctx.textAlign = "left";
+        ctx.fillText(ex.name || title || "", 42, 322);
+        if (ex.img) {
+          const scale = Math.min(620 / ex.img.width, 108 / ex.img.height);
+          const w = ex.img.width * scale;
+          const h = ex.img.height * scale;
+          ctx.drawImage(ex.img, 36 + (640 - w) / 2, 334 + (100 - h) / 2, w, h);
+        }
+      }
       const dial = dialRef.current;
       const cx = 560;
       const cy = 150;
@@ -145,6 +181,10 @@ export function PracticeClip({ title, view }) {
     loadImg("/logo.svg").then((img) => { logoRef.current = img; });
     if (view === "rudiments") loadImg("/rudiments-now.png").then((img) => { backRef.current = img; });
     const snap = window.setInterval(() => { dialRef.current = readDial(); }, 50);
+    const snapEx = window.setInterval(() => {
+      exerciseShot().then((img) => { exRef.current = { name: readExercise(), img: img || exRef.current.img }; });
+    }, 350);
+    recorder._snapEx = snapEx;
     recorder._snap = snap;
     draw();
     recorder.start(250);
@@ -158,6 +198,7 @@ export function PracticeClip({ title, view }) {
     const recorder = recRef.current;
     if (recorder && recorder.state !== "inactive") {
       window.clearInterval(recorder._snap);
+      window.clearInterval(recorder._snapEx);
       recorder.stop();
     }
     setRec(false);
