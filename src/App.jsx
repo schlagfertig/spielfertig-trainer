@@ -8,7 +8,8 @@ import Archive from "./embedded/Archive.jsx";
 import RhythmArchive from "./embedded/RhythmArchive.jsx";
 import { Help } from "./lib/Help.jsx";
 import { Welcome } from "./lib/Welcome.jsx";
-import FirstLesson from "./lib/FirstLesson.jsx";
+import FirstLesson, { loadBeginnerDone } from "./lib/FirstLesson.jsx";
+import { STEPS as BEGIN_STEPS, nextIndex as beginNext } from "./lib/beginner.js";
 import Today from "./lib/Today.jsx";
 import { FIRST_SKIP_KEY, hideFirstToday, isFirstHidden } from "./lib/firstSkip.js";
 import Legal from "./lib/Legal.jsx";
@@ -38,7 +39,7 @@ const FLAG_DE = (
 );
 
 const META = {
-  first: { title: "Erste Übung", help: "home" },
+  first: { title: "Einstieg", help: "home" },
   rudiments: { title: "Rudiments", help: "rudiments" },
   click: { title: "Click-Trainer", help: "click" },
   pyramid: { title: "Rhythmuspyramide", help: "pyramid" },
@@ -76,7 +77,10 @@ export default function App() {
   viewRef.current = view;
   // Scroll-Position der Startseite (beim Verlassen gemerkt, bei der Rückkehr wiederhergestellt).
   const homeScrollRef = useRef(0);
-  const firstDone = !!loadSession("firstLesson", {}).done;
+  // Einstieg (Erste Übung + Folgeübungen): nächster offener Schritt, -1 = alle geschafft.
+  const beginDone = loadBeginnerDone();
+  const beginIdx = beginNext(beginDone);
+  const beginStep = BEGIN_STEPS[beginIdx];
   // Einmaliger Hinweis auf „Neuigkeiten“ – erst nachdem die Begrüßung (Welcome) geschlossen ist.
   const [welcomeOpen, setWelcomeOpen] = useState(() => !loadSession("welcomeSeen", {}).seen);
   // „Nicht heute“: Karte „Erste Übung starten“ bis Tagesende ausblenden (gespeichert: nur der Tag).
@@ -264,9 +268,15 @@ export default function App() {
             <div className="first-inner">
               <button className="card has-icon" style={{ width: "100%", borderColor: "#5cc8b8" }} onClick={() => open("first")}>
                 <TileIcon name="first" />
-                <div className="card-kicker">{t(firstDone ? "Nochmal" : "Loslegen")}</div>
-                <div className="card-title">{t("Erste Übung starten")}</div>
-                <div className="card-lead">{t("Leg einfach los: Spiel eine Minute zum Click – ganz ohne Vorwissen.")}</div>
+                <div className="card-kicker">
+                  {beginIdx < 0 ? t("Nochmal")
+                    : `${t(beginIdx === 0 ? "Loslegen" : "Weiter")} · ${t("Schritt {n} von {total}", { n: beginIdx + 1, total: BEGIN_STEPS.length })}`}
+                </div>
+                <div className="card-title">{beginIdx < 0 ? t("Einstieg wiederholen") : beginIdx === 0 ? t("Erste Übung starten") : t(beginStep.title)}</div>
+                <div className="card-lead">{beginIdx < 0 ? t("Alle 5 Schritte geschafft – such dir eine Übung aus und spiel sie nochmal.") : t(beginStep.lead)}</div>
+                <div className="bg-progress is-card" aria-hidden="true">
+                  {BEGIN_STEPS.map((x, i) => <span key={x.id} className={`${beginDone.has(x.id) ? "is-done" : ""}${i === beginIdx ? " is-cur" : ""}`} />)}
+                </div>
                 <div className="card-go">Start</div>
               </button>
               {/* eigener Knopf neben (nicht in) der Karte – Knöpfe dürfen nicht verschachtelt sein */}
@@ -370,7 +380,7 @@ export default function App() {
         <div className="top-title">{t(printOpen && view === "rudiments" ? "Drucken" : meta.title)}</div>
       </header>
       <main className="main">
-        {view === "first" ? <FirstLesson onHome={goHome} onOpen={open} />
+        {view === "first" ? <FirstLesson key={preset?.step || "next"} onHome={goHome} onOpen={open} preset={preset} />
           : view === "impressum" ? <Legal topic="impressum" onOpen={open} />
           : view === "datenschutz" ? <Legal topic="datenschutz" onOpen={open} />
           : view === "news" ? <News />
