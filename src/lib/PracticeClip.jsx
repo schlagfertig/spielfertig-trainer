@@ -1,0 +1,196 @@
+import { useEffect, useRef, useState } from "react";
+import { t } from "./i18n.js";
+
+const TEAL = "#5cc8b8";
+const INK = "#161a1d";
+
+function pickMime() {
+  const types = ["video/mp4", "video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"];
+  return types.find((type) => window.MediaRecorder?.isTypeSupported?.(type)) || "";
+}
+
+function staffShot() {
+  const card = document.querySelector(".staff-card svg, .stick-now, .pyramid-now");
+  const svg = card?.tagName === "svg" ? card : card?.querySelector?.("svg");
+  if (!svg) return Promise.resolve(null);
+  const xml = new XMLSerializer().serializeToString(svg);
+  const url = URL.createObjectURL(new Blob([xml], { type: "image/svg+xml" }));
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+    img.src = url;
+  });
+}
+
+export function PracticeClip({ title }) {
+  const [open, setOpen] = useState(false);
+  const [rec, setRec] = useState(false);
+  const [seconds, setSeconds] = useState(0);
+  const [clip, setClip] = useState(null);
+  const [err, setErr] = useState("");
+  const [facing, setFacing] = useState("environment");
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
+  const recRef = useRef(null);
+  const chunks = useRef([]);
+  const drawRef = useRef(0);
+  const shotRef = useRef(null);
+
+  function stopCamera() {
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
+  }
+
+  async function openCamera(nextFacing = facing) {
+    setErr("");
+    stopCamera();
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: nextFacing }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: true,
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+      setFacing(nextFacing);
+      setOpen(true);
+    } catch {
+      setErr(t("Kamera nicht freigegeben."));
+    }
+  }
+
+  useEffect(() => () => stopCamera(), []);
+
+  async function startRec() {
+    const video = videoRef.current;
+    const stream = streamRef.current;
+    if (!video || !stream) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = 720;
+    canvas.height = 1280;
+    const ctx = canvas.getContext("2d");
+    const canvasStream = canvas.captureStream(30);
+    const audio = stream.getAudioTracks()[0];
+    if (audio) canvasStream.addTrack(audio);
+    chunks.current = [];
+    const mime = pickMime();
+    const recorder = new MediaRecorder(canvasStream, mime ? { mimeType: mime } : undefined);
+    recorder.ondataavailable = (e) => { if (e.data.size) chunks.current.push(e.data); };
+    recorder.onstop = () => {
+      const blob = new Blob(chunks.current, { type: recorder.mimeType || "video/mp4" });
+      setClip({ url: URL.createObjectURL(blob), blob, type: blob.type });
+      cancelAnimationFrame(drawRef.current);
+    };
+    const draw = () => {
+      ctx.fillStyle = INK;
+      ctx.fillRect(0, 0, 720, 1280);
+      ctx.fillStyle = "#f4f7f6";
+      ctx.fillRect(24, 24, 672, 430);
+      const shot = shotRef.current;
+      if (shot) {
+        const scale = Math.min(640 / shot.width, 360 / shot.height);
+        const w = shot.width * scale;
+        const h = shot.height * scale;
+        ctx.drawImage(shot, 36 + (640 - w) / 2, 48 + (340 - h) / 2, w, h);
+      } else {
+        ctx.fillStyle = INK;
+        ctx.font = "700 42px Figtree, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(title || "Spielfertig", 360, 230);
+      }
+      ctx.fillStyle = TEAL;
+      ctx.font = "800 22px Figtree, sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText("SPIELFERTIG", 40, 78);
+      const vw = video.videoWidth || 1280;
+      const vh = video.videoHeight || 720;
+      const dw = 672;
+      const dh = 760;
+      const scale = Math.max(dw / vw, dh / vh);
+      const sw = dw / scale;
+      const sh = dh / scale;
+      ctx.drawImage(video, (vw - sw) / 2, (vh - sh) / 2, sw, sh, 24, 486, dw, dh);
+      drawRef.current = requestAnimationFrame(draw);
+    };
+    staffShot().then((img) => { shotRef.current = img; });
+    const snap = window.setInterval(() => { staffShot().then((img) => { if (img) shotRef.current = img; }); }, 400);
+    recorder._snap = snap;
+    draw();
+    recorder.start(250);
+    recRef.current = recorder;
+    setSeconds(0);
+    setRec(true);
+    setClip(null);
+  }
+
+  function stopRec() {
+    const recorder = recRef.current;
+    if (recorder && recorder.state !== "inactive") {
+      window.clearInterval(recorder._snap);
+      recorder.stop();
+    }
+    setRec(false);
+  }
+
+  useEffect(() => {
+    if (!rec) return undefined;
+    const id = window.setInterval(() => setSeconds((n) => n + 1), 1000);
+    return () => window.clearInterval(id);
+  }, [rec]);
+
+  async function share() {
+    if (!clip) return;
+    const ext = clip.type.includes("mp4") ? "mp4" : "webm";
+    const file = new File([clip.blob], `spielfertig-clip.${ext}`, { type: clip.type });
+    try {
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: "Spielfertig" });
+        return;
+      }
+    } catch { /* abgebrochen */ }
+    const a = document.createElement("a");
+    a.href = clip.url;
+    a.download = file.name;
+    a.click();
+  }
+
+  function close() {
+    stopRec();
+    stopCamera();
+    setOpen(false);
+    setClip(null);
+  }
+
+  const clock = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+
+  return (
+    <>
+      {!open && (
+        <button type="button" className="clip-fab" onClick={() => openCamera()}>{t("Clip")}</button>
+      )}
+      {open && (
+        <div className="clip-dock">
+          <video ref={videoRef} playsInline muted autoPlay />
+          <div className="clip-actions">
+            {err ? <span>{err}</span> : null}
+            {rec ? <button type="button" className="play" onClick={stopRec}>{clock} · {t("Stop")}</button> : <button type="button" className="play" onClick={startRec}>{t("Aufnahme")}</button>}
+            <button type="button" className="ghost" onClick={() => openCamera(facing === "environment" ? "user" : "environment")}>{t("Drehen")}</button>
+            {clip ? <button type="button" className="ghost" onClick={share}>{t("Teilen")}</button> : null}
+            <button type="button" className="ghost" onClick={close}>{t("Schließen")}</button>
+          </div>
+        </div>
+      )}
+      <style>{`
+        .clip-fab { position: fixed; right: 16px; bottom: 18px; z-index: 30; min-width: 64px; min-height: 44px; border-radius: 999px; border: 1px solid #2f383d; background: rgba(22,26,29,.82); color: ${TEAL}; font: 800 15px Figtree, sans-serif; backdrop-filter: blur(10px); }
+        .clip-dock { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 40; display: grid; grid-template-columns: 132px 1fr; gap: 8px; padding: 8px; border-radius: 16px; background: rgba(22,26,29,.9); border: 1px solid #2f383d; }
+        .clip-dock video { width: 132px; height: 96px; object-fit: cover; border-radius: 12px; background: #000; }
+        .clip-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+        .clip-actions .play, .clip-actions .ghost { min-height: 40px; }
+      `}</style>
+    </>
+  );
+}
