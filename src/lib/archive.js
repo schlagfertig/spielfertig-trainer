@@ -1,6 +1,7 @@
 import { t } from "./i18n.js";
 import { applyMeta, normalizeMeta, parseView } from "./archiveMeta.js";
 import { loadSession, saveSession } from "./session.js";
+import { normalizeNotes } from "./sheetNotes.js";
 
 const DB = "sf.archive.v1";
 const STORE = "sheets";
@@ -97,6 +98,18 @@ export async function updateSheetMeta(id, meta) {
   const req = store.get(id);
   req.onsuccess = () => {
     if (req.result) store.put(applyMeta(req.result, meta));
+  };
+  await txDone(tx);
+}
+
+/** Notizen (Notizfeld, Stift, Marker) im selben Eintrag wie das Blatt speichern – siehe sheetNotes.js. */
+export async function updateSheetNotes(id, notes) {
+  const db = await openDb();
+  const tx = db.transaction(STORE, "readwrite");
+  const store = tx.objectStore(STORE);
+  const req = store.get(id);
+  req.onsuccess = () => {
+    if (req.result) store.put({ ...req.result, notes: normalizeNotes({ ...notes, updated: Date.now() }) });
   };
   await txDone(tx);
 }

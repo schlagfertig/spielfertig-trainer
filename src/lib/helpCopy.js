@@ -46,5 +46,6 @@ export const HELP = {
     ["Ansehen", "Blatt antippen öffnet die Vorschau (Einzelseite). ‚Auswählen‘ markiert es türkis und zeigt es im Vollbild."],
     ["Blättern", "Im Vollbild mit ‹ › (oder Wischen, wenn nicht gezoomt) zum vorigen bzw. nächsten Blatt der Liste."],
     ["Zoomen", "Zwei Finger oder Doppeltipp zoomen bis 5×, gezoomt mit einem Finger verschieben. − / + / „Ganz“ unten; „Ganz“ zeigt wieder die ganze Seite."],
+    ["Notizen & Zeichnen", "‚Notiz‘ hält deine Gedanken zum Blatt fest. Mit ‚Stift‘ kreist du Stellen ein oder zeichnest Pfeile, mit ‚Marker‘ heftest du eine kurze Notiz an eine Stelle. Das Auge blendet alles aus, und alles bleibt auf diesem Gerät."],
   ],
 };

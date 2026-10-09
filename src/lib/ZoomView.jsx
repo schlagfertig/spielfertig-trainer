@@ -4,7 +4,10 @@ import { getLang, t } from "./i18n.js";
 /* Zoom-Ansicht für Noten (Foto oder PDF): Standard = ganze Seite eingepasst (nichts abgeschnitten).
    Zwei Finger = zoomen (1× bis 5×), Doppeltipp = Zoom an/aus, ein Finger verschiebt, solange gezoomt ist.
    Nicht gezoomt: waagerecht wischen = voriges/nächstes Blatt (onSwipe). PDFs zeichnet pdf.js selbst in ein
-   Canvas (das iPhone zeigt PDFs im iframe nur als starres Bild) und nach dem Zoomen schärfer nach. */
+   Canvas (das iPhone zeigt PDFs im iframe nur als starres Bild) und nach dem Zoomen schärfer nach.
+   Notizen: renderOverlay({ page, aspect }) liegt in derselben Fläche wie die Seite und zoomt/verschiebt mit.
+   mode = "draw": ein Finger/Stift/Maus zeichnet (onDraw), zwei Finger zoomen weiter.
+   mode = "pin": Tippen aufs Blatt ruft onTapPage({ x, y }, page) mit normierten Seitenkoordinaten. */
 
 const MAX_ZOOM = 5;
 const DT_MS = 300; // Doppeltipp-Fenster
@@ -32,7 +35,7 @@ function fmtZoom(s) {
   return `${getLang() === "en" ? String(v) : String(v).replace(".", ",")}×`;
 }
 
-export function ZoomView({ file, url, onSwipe, mini = false }) {
+export function ZoomView({ file, url, onSwipe, mini = false, mode = "view", onDraw, onTapPage, onPage, renderOverlay }) {
   const isPdf = file?.kind === "pdf";
   const box = useRef(null);
   const stage = useRef(null);
@@ -86,6 +89,8 @@ export function ZoomView({ file, url, onSwipe, mini = false }) {
     return () => { gone = true; };
   }, [doc, pageNo]);
 
+  useEffect(() => { onPage?.(pageNo); }, [pageNo]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const fit = nat && vp.w && vp.h ? Math.min(vp.w / nat.w, vp.h / nat.h) : 0;
   const fw = nat ? nat.w * fit : 0;
   const fh = nat ? nat.h * fit : 0;
@@ -95,6 +100,7 @@ export function ZoomView({ file, url, onSwipe, mini = false }) {
     if (!el) return;
     const { s, tx, ty } = view.current;
     el.style.transform = `translate(${tx}px, ${ty}px) scale(${s})`;
+    el.style.setProperty("--zv-inv", String(1 / s));
   }, []);
 
   // Grenzen: kleiner als die Fläche = mittig, größer = Ränder bleiben am Rand
@@ -160,14 +166,41 @@ export function ZoomView({ file, url, onSwipe, mini = false }) {
     const r = box.current.getBoundingClientRect();
     return { x: e.clientX - r.left, y: e.clientY - r.top };
   };
+  // Bildschirmpunkt (in der Fläche) → normierte Seitenkoordinate (0…1)
+  const norm = (p) => {
+    const v = view.current;
+    return fw && fh ? { x: (p.x - v.tx) / (fw * v.s), y: (p.y - v.ty) / (fh * v.s) } : null;
+  };
+  const drawRef = useRef(onDraw);
+  drawRef.current = onDraw;
+  function endDraw(cancel) {
+    const G = g.current;
+    if (!G.draw) return;
+    G.draw = null;
+    if (cancel) drawRef.current?.cancel?.();
+    else drawRef.current?.end?.();
+  }
+  useEffect(() => { if (mode !== "draw") endDraw(true); }, [mode]); // eslint-disable-line react-hooks/exhaustive-deps
+
   function onDown(e) {
     if (mini || e.button > 0) return;
-    if (e.target.closest("button")) return;
-    box.current.setPointerCapture?.(e.pointerId);
+    if (e.target.closest("button, textarea, input, .zv-noptr")) return;
     const G = g.current;
+    // Stift zeichnet: aufgelegte Hand (Touch) ignorieren
+    if (mode === "draw" && G.draw?.pen && e.pointerType === "touch") return;
+    box.current.setPointerCapture?.(e.pointerId);
     const p = local(e);
     G.pts.set(e.pointerId, p);
     if (G.pts.size === 1) { G.start = { ...p, t: Date.now() }; G.moved = 0; G.multi = false; G.last = p; }
+    if (mode === "draw" && G.pts.size === 1) {
+      const q = norm(p);
+      if (q) {
+        G.draw = { id: e.pointerId, pen: e.pointerType === "pen" };
+        drawRef.current?.start?.(q, pageNo, { pressure: e.pointerType === "pen" ? e.pressure : 0, aspect: nat ? nat.h / nat.w : 1, px: 1 / (fw * view.current.s) });
+      }
+      return;
+    }
+    if (G.pts.size === 2 && G.draw) endDraw(true); // zweiter Finger: doch zoomen statt zeichnen
     if (G.pts.size === 2) {
       const [a, b] = [...G.pts.values()];
       G.multi = true;
@@ -179,6 +212,13 @@ export function ZoomView({ file, url, onSwipe, mini = false }) {
     if (!G.pts.has(e.pointerId)) return;
     const p = local(e);
     G.pts.set(e.pointerId, p);
+    if (G.draw && G.draw.id === e.pointerId) {
+      const evs = e.nativeEvent?.getCoalescedEvents?.() || [];
+      const list = evs.length ? evs.map((ce) => local(ce)) : [p];
+      const q = list.map(norm).filter(Boolean);
+      if (q.length) drawRef.current?.move?.(q, { pressure: e.pointerType === "pen" ? e.pressure : 0, px: 1 / (fw * view.current.s) });
+      return;
+    }
     if (G.pts.size >= 2 && G.pinch) {
       const [a, b] = [...G.pts.values()];
       const d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
@@ -205,6 +245,12 @@ export function ZoomView({ file, url, onSwipe, mini = false }) {
     if (!G.pts.has(e.pointerId)) return;
     const p = local(e);
     G.pts.delete(e.pointerId);
+    if (G.draw && G.draw.id === e.pointerId) {
+      endDraw(e.type === "pointercancel");
+      G.pts.clear();
+      G.start = null;
+      return;
+    }
     if (G.pts.size === 1) {
       // von zwei auf einen Finger: mit dem verbleibenden weiter verschieben, ohne Sprung
       G.pinch = null;
@@ -219,6 +265,14 @@ export function ZoomView({ file, url, onSwipe, mini = false }) {
     const dx = p.x - st.x;
     const dy = p.y - st.y;
     const zoomed = view.current.s > 1.01;
+    if (mode !== "view") {
+      // Marker setzen: einfacher Tipp, kein Doppeltipp-Zoom, kein Blättern
+      if (mode === "pin" && G.moved < TAP_PX) {
+        const q = norm(p);
+        if (q && q.x >= 0 && q.x <= 1 && q.y >= 0 && q.y <= 1) onTapPage?.(q, pageNo);
+      }
+      return;
+    }
     if (G.moved < TAP_PX) {
       const now = Date.now();
       const lt = G.lastTap;
@@ -264,6 +318,7 @@ export function ZoomView({ file, url, onSwipe, mini = false }) {
   useEffect(() => {
     if (mini) return undefined;
     const onKey = (e) => {
+      if (e.target?.closest?.("input, textarea, select, [contenteditable]")) return;
       const c = { x: vp.w / 2, y: vp.h / 2 };
       if (e.key === "+" || e.key === "=") zoomAt(view.current.s * 1.5, c.x, c.y, true);
       else if (e.key === "-" || e.key === "_") zoomAt(view.current.s / 1.5, c.x, c.y, true);
@@ -284,7 +339,7 @@ export function ZoomView({ file, url, onSwipe, mini = false }) {
   return (
     <div
       ref={box}
-      className={mini ? "zv mini" : zoomed ? "zv zoomed" : "zv"}
+      className={`${mini ? "zv mini" : zoomed ? "zv zoomed" : "zv"}${mode !== "view" ? ` zv-${mode}` : ""}`}
       data-sf-gesture=""
       data-zoom={Math.round(level * 100) / 100}
       onPointerDown={onDown}
@@ -310,6 +365,7 @@ export function ZoomView({ file, url, onSwipe, mini = false }) {
               onLoad={(e) => setNat({ w: e.currentTarget.naturalWidth || 1, h: e.currentTarget.naturalHeight || 1 })}
             />
           )}
+          {renderOverlay && fit && nat ? renderOverlay({ page: pageNo, aspect: nat.h / nat.w }) : null}
         </div>
       ) : null}
       {!mini && fit ? (
@@ -336,6 +392,8 @@ export function ZoomView({ file, url, onSwipe, mini = false }) {
 export const ZOOM_CSS = `
   .zv { position: relative; width: 100%; height: 100%; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; background: #0b0d0e; }
   .zv.mini { touch-action: auto; }
+  .zv.zv-draw { cursor: crosshair; }
+  .zv.zv-pin { cursor: copy; }
   .zv-stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; background: #fff; box-shadow: 0 0 0 1px #2f383d; }
   .zv-page { display: block; width: 100%; height: 100%; pointer-events: none; }
   .zv-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #8a969c; padding: 16px; text-align: center; }
