@@ -26,7 +26,7 @@ export const PLANS = [
     id: "C",
     title: "Kurz",
     steps: [
-      { min: 1, label: "Erste Übung", detail: "im Click bleiben · 80 BPM", view: "first", preset: null },
+      { min: 1, label: "Erste Übung", detail: "im Click bleiben · 80 BPM", view: "first", preset: { step: "puls" } },
       { min: 6, label: "Single Stroke Roll", detail: "Rudiments · 70 BPM", view: "rudiments", preset: { rud: 1, bpm: 70 } },
     ],
   },
