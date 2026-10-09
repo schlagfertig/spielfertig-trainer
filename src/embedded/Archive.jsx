@@ -6,6 +6,7 @@ import {
 import { allTags, filterSheets, fold, MAX_NAME_LEN, MAX_TAG_LEN, MAX_TAGS, normTags, suggestTags } from "../lib/archiveMeta.js";
 import { fmtDate, t } from "../lib/i18n.js";
 import { ZoomView, ZOOM_CSS } from "../lib/ZoomView.jsx";
+import { NotePanel, NotesBadge, NotesOverlay, NotesToolbar, NOTES_CSS, PinDialog, useAnnotator } from "./SheetNotes.jsx";
 
 const ARCH_CSS = `
   .arch-tools { display: flex; gap: 8px; margin: 0 0 10px; }
@@ -52,7 +53,7 @@ const ARCH_CSS = `
   .arch-nav.next { right: 6px; }
   .arch-nav:disabled { opacity: .25; cursor: default; }
   .arch-nav:focus-visible { outline: 2px solid #5cc8b8; outline-offset: 2px; }
-${ZOOM_CSS}`;
+${ZOOM_CSS}${NOTES_CSS}`;
 
 function EditDialog({ row, known, onCancel, onSave }) {
   const [name, setName] = useState(row.name || "");
@@ -185,7 +186,10 @@ function PreviewDialog({ id, onClose, onSelect }) {
           <div className="arch-kick">{t("Einzelseite")}</div>
           <h2 className="arch-prev-name" id="arch-prev-h">{file?.name || "…"}</h2>
         </div>
-        <div className="arch-prev-view"><ZoomView key={url} file={file} url={url} mini /></div>
+        <div className="arch-prev-view">
+          <ZoomView key={url} file={file} url={url} mini
+            renderOverlay={file?.notes ? ({ page, aspect }) => <NotesOverlay notes={file.notes} page={page} aspect={aspect} /> : undefined} />
+        </div>
         <div className="arch-actions">
           <button type="button" className="ghost" onClick={onClose}>{t("Schließen")}</button>
           <button type="button" ref={btn} className="ghost on" onClick={() => onSelect(id)}>{t("Auswählen")}</button>
@@ -206,6 +210,8 @@ function FullView({ id, list, onMove, onClose }) {
   const name = file?.name || list[pos]?.name || "";
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
+  const A = useAnnotator(file);
+  const editing = A.mode !== "view";
 
   useEffect(() => {
     const el = ref.current;
@@ -221,13 +227,15 @@ function FullView({ id, list, onMove, onClose }) {
   }, []);
   useEffect(() => {
     const onKey = (e) => {
+      if (e.target?.closest?.("input, textarea, select")) return;
+      if (editing || A.pinEdit) { if (e.key === "Escape" && editing) A.setMode("view"); return; }
       if (e.key === "Escape") onClose();
       else if (e.key === "ArrowLeft" && prevId) onMove(prevId);
       else if (e.key === "ArrowRight" && nextId) onMove(nextId);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose, onMove, prevId, nextId]);
+  }, [onClose, onMove, prevId, nextId, editing, A.pinEdit, A.setMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="arch-full" ref={ref} role="dialog" aria-modal="true" aria-label={`${t("Einzelseite")}: ${name}`}>
@@ -236,21 +244,42 @@ function FullView({ id, list, onMove, onClose }) {
           <strong>{name}</strong>
           <span>{t("Einzelseite")} · {t("{n} von {m}", { n: pos + 1, m: list.length })}</span>
         </div>
-        <button type="button" className="ghost" onClick={onClose}>{t("Schließen")}</button>
+        <button type="button" className="ghost" onClick={() => { A.flush(); onClose(); }}>{t("Schließen")}</button>
       </div>
-      <div className="arch-full-body">
-        <button type="button" className="arch-nav prev" onClick={() => onMove(prevId)} disabled={!prevId} aria-label={t("Vorheriges Blatt")}>‹</button>
+      <NotesToolbar
+        mode={A.mode} setMode={A.setMode} color={A.color} setColor={A.setColor}
+        show={A.show} setShow={A.setShow} hasText={!!A.notes.text.trim()}
+        panel={A.panel} setPanel={A.setPanel}
+        canUndo={A.canUndo} onUndo={A.undo} onClear={A.clearAll} canClear={A.canClear}
+      />
+      <div className={A.panel && !editing ? "arch-full-body sn-side" : "arch-full-body"}>
+        {!editing ? <button type="button" className="arch-nav prev" onClick={() => onMove(prevId)} disabled={!prevId} aria-label={t("Vorheriges Blatt")}>‹</button> : null}
         <ZoomView
           key={url}
           file={file}
           url={url}
+          mode={A.mode === "erase" ? "draw" : A.mode}
+          onDraw={A.onDraw}
+          onTapPage={A.onTapPage}
+          onPage={A.setPageNo}
+          renderOverlay={A.show ? ({ page, aspect }) => (
+            <NotesOverlay notes={A.notes} page={page} aspect={aspect} live={A.live} onPin={A.openPin(page)} interactive={A.mode === "view"} />
+          ) : undefined}
           onSwipe={(dir) => {
             if (dir > 0 && nextId) onMove(nextId);
             if (dir < 0 && prevId) onMove(prevId);
           }}
         />
-        <button type="button" className="arch-nav next" onClick={() => onMove(nextId)} disabled={!nextId} aria-label={t("Nächstes Blatt")}>›</button>
+        {!editing ? <button type="button" className="arch-nav next" onClick={() => onMove(nextId)} disabled={!nextId} aria-label={t("Nächstes Blatt")}>›</button> : null}
+        {A.mode === "draw" ? <div className="sn-hint">{t("Zeichne mit Finger oder Stift. Zwei Finger zoomen.")}</div> : null}
+        {A.mode === "erase" ? <div className="sn-hint">{t("Fahr über einen Strich, um ihn zu löschen.")}</div> : null}
+        {A.mode === "pin" ? <div className="sn-hint">{t("Tipp aufs Blatt, um dort einen Marker zu setzen.")}</div> : null}
+        {A.panel && !editing ? <NotePanel text={A.notes.text} saved={A.saved} onText={A.setTextValue} onClose={() => A.setPanel(false)} /> : null}
       </div>
+      {A.pinEdit ? (
+        <PinDialog key={A.pinEdit.pin.id || "neu"} pin={A.pinEdit.pin} isNew={A.pinEdit.isNew}
+          onSave={A.savePin} onDelete={A.deletePin} onClose={() => A.setPinEdit(null)} />
+      ) : null}
     </div>
   );
 }
@@ -338,7 +367,7 @@ export default function Archive() {
   }, [known, tagF]);
 
   const closePreview = useCallback(() => setPreview(""), []);
-  const closeFull = useCallback(() => setFull(""), []);
+  const closeFull = useCallback(() => { setFull(""); window.setTimeout(refresh, 450); }, []); // Notiz-Vorschau in der Liste auffrischen
   const selectAndOpen = useCallback((id) => {
     setSel(id);
     rememberLast(id);
@@ -416,6 +445,7 @@ export default function Archive() {
                     {r.tags.map((tag) => <span key={tag} className="arch-tag">{tag}</span>)}
                   </span>
                 ) : null}
+                <NotesBadge notes={r.notes} />
               </button>
               <span style={{ display: "flex", gap: 6, marginLeft: "auto", whiteSpace: "nowrap" }}>
               <button type="button" className="ghost" onClick={() => setEdit(r)} aria-label={t("Name & Tags bearbeiten: {name}", { name: r.name })}>{t("Name & Tags")}</button>
