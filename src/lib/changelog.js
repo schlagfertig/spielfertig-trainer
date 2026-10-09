@@ -17,6 +17,8 @@ export const CHANGELOG = [
         en: "Glossary: a tapped term moves up but leaves room for the title and one term above it – so you keep your bearings." },
       { de: "Neu für Einsteiger: Nach der Ersten Übung geht es jetzt Schritt für Schritt weiter – Doppelschläge, eine Tempo-Welle von 60 auf 90 BPM und zurück, ein Akzent auf der Eins und Einzel- und Doppelschläge im Wechsel. Die Startseite zeigt dir, bei welchem Schritt du bist, und jede Übung kannst du jederzeit wiederholen.",
         en: "New for beginners: after the first lesson you now keep going step by step – double strokes, a tempo wave from 60 to 90 BPM and back, an accent on the one, and switching between singles and doubles. Home shows you which step you’re on, and you can repeat any exercise whenever you like." },
+      { de: "Bonus für Einsteiger: die No-Stick-Challenge! Trommel mit allem außer Sticks – Hände, Kochlöffel, Schuhe, Essstäbchen und mehr. Drei kurze Runden mit Einzelschlägen, Doppelschlägen und Akzent; gefällt dir ein Teil nicht, würfelst du neu. Du findest sie im Einstieg und unter der Einstieg-Karte auf der Startseite.",
+        en: "Beginner bonus: the No-Stick Challenge! Drum with anything except sticks – hands, wooden spoons, shoes, chopsticks and more. Three short rounds with single strokes, double strokes and an accent; don’t like what you got? Just reroll. You’ll find it in the starter path and below the starter card on Home." },
     ],
   },
   {
