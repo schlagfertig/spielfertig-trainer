@@ -315,7 +315,7 @@ export default function App() {
             <TileIcon name="rhythm" />
             <div className="card-kicker">{t("Groove")}</div>
             <div className="card-title">{t("Meine Grooves")}</div>
-            <div className="card-lead">{t("Bau deinen eigenen Groove, gib ihm einen Namen und üb ihn mit der Dial, bis er sitzt.")}</div>
+            <div className="card-lead">{t("Bau deinen eigenen Groove, gib ihm einen Namen und üb ihn mit dem SpinDial, bis er sitzt.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card has-icon" onClick={() => open("archive")}>
