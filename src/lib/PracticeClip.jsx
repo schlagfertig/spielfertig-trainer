@@ -9,18 +9,19 @@ function pickMime() {
   return types.find((type) => window.MediaRecorder?.isTypeSupported?.(type)) || "";
 }
 
-function staffShot() {
-  const card = document.querySelector(".staff-card svg, .stick-now, .pyramid-now");
-  const svg = card?.tagName === "svg" ? card : card?.querySelector?.("svg");
-  if (!svg) return Promise.resolve(null);
-  const xml = new XMLSerializer().serializeToString(svg);
-  const url = URL.createObjectURL(new Blob([xml], { type: "image/svg+xml" }));
+function loadLogo() {
   return new Promise((resolve) => {
     const img = new Image();
-    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
-    img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
-    img.src = url;
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = "/logo.svg";
   });
+}
+
+function readDial() {
+  const el = document.querySelector(".clip-dial");
+  if (!el) return { bpm: "—", beat: false, on: false };
+  return { bpm: el.dataset.bpm || "—", beat: el.dataset.beat === "1", on: el.dataset.on === "1" };
 }
 
 export function PracticeClip({ title }) {
@@ -35,7 +36,8 @@ export function PracticeClip({ title }) {
   const recRef = useRef(null);
   const chunks = useRef([]);
   const drawRef = useRef(0);
-  const shotRef = useRef(null);
+  const logoRef = useRef(null);
+  const dialRef = useRef({ bpm: "—", beat: false, on: false });
 
   function stopCamera() {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -86,38 +88,41 @@ export function PracticeClip({ title }) {
       cancelAnimationFrame(drawRef.current);
     };
     const draw = () => {
-      ctx.fillStyle = INK;
+      ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, 720, 1280);
-      ctx.fillStyle = "#f4f7f6";
-      ctx.fillRect(24, 24, 672, 430);
-      const shot = shotRef.current;
-      if (shot) {
-        const scale = Math.min(640 / shot.width, 360 / shot.height);
-        const w = shot.width * scale;
-        const h = shot.height * scale;
-        ctx.drawImage(shot, 36 + (640 - w) / 2, 48 + (340 - h) / 2, w, h);
-      } else {
-        ctx.fillStyle = INK;
-        ctx.font = "700 42px Figtree, sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(title || "Spielfertig", 360, 230);
-      }
-      ctx.fillStyle = TEAL;
-      ctx.font = "800 22px Figtree, sans-serif";
-      ctx.textAlign = "left";
-      ctx.fillText("SPIELFERTIG", 40, 78);
       const vw = video.videoWidth || 1280;
       const vh = video.videoHeight || 720;
-      const dw = 672;
-      const dh = 760;
-      const scale = Math.max(dw / vw, dh / vh);
-      const sw = dw / scale;
-      const sh = dh / scale;
-      ctx.drawImage(video, (vw - sw) / 2, (vh - sh) / 2, sw, sh, 24, 486, dw, dh);
+      const scale = Math.max(720 / vw, 1280 / vh);
+      const sw = 720 / scale;
+      const sh = 1280 / scale;
+      ctx.drawImage(video, (vw - sw) / 2, (vh - sh) / 2, sw, sh, 0, 0, 720, 1280);
+      const logo = logoRef.current;
+      if (logo) ctx.drawImage(logo, 28, 28, 168, 134);
+      ctx.fillStyle = "#f4f7f6";
+      ctx.font = "800 28px Figtree, sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText("SCHLAGFERTIG", 28, 196);
+      const dial = dialRef.current;
+      const cx = 560;
+      const cy = 150;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 78, 0, Math.PI * 2);
+      ctx.fillStyle = dial.beat ? "#f4f7f6" : INK;
+      ctx.fill();
+      ctx.lineWidth = 8;
+      ctx.strokeStyle = dial.beat ? "#fff" : TEAL;
+      ctx.stroke();
+      ctx.fillStyle = dial.beat ? TEAL : "#f4f7f6";
+      ctx.font = "800 42px Figtree, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(String(dial.bpm), cx, cy + 8);
+      ctx.font = "700 16px Figtree, sans-serif";
+      ctx.fillStyle = TEAL;
+      ctx.fillText("CLICK", cx, cy + 34);
       drawRef.current = requestAnimationFrame(draw);
     };
-    staffShot().then((img) => { shotRef.current = img; });
-    const snap = window.setInterval(() => { staffShot().then((img) => { if (img) shotRef.current = img; }); }, 400);
+    loadLogo().then((img) => { logoRef.current = img; });
+    const snap = window.setInterval(() => { dialRef.current = readDial(); }, 50);
     recorder._snap = snap;
     draw();
     recorder.start(250);
