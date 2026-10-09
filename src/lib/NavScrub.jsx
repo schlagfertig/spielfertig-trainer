@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const TEAL = "#5cc8b8";
 
@@ -82,8 +82,23 @@ export function NavScrub({ items, index, disabled, onPick, renderPreview }) {
   const shown = previewAt(hover >= 0 ? hover : idx);
   const shownI = hover >= 0 ? hover : idx;
   const letters = shown ? eight(shown.preview, shown.label) : [];
+  const scroller = useRef(null);
+  useEffect(() => {
+    const box = scroller.current;
+    const el = box?.querySelector(".on");
+    if (!box || !el) return;
+    box.scrollTo({ left: el.offsetLeft - box.clientWidth / 2 + el.clientWidth / 2, behavior: "smooth" });
+  }, [idx]);
 
   return (
+    <>
+    <style>{`
+      .rud-wheel { display: flex; gap: 8px; overflow-x: auto; padding: 8px 18px 10px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+      .rud-wheel::-webkit-scrollbar { display: none; }
+      .rud-wheel button { flex: none; scroll-snap-align: center; min-width: 42px; height: 42px; border-radius: 999px; border: 1px solid #2f383d; background: #14191c; color: #8a969c; font: 800 16px Oswald, sans-serif; }
+      .rud-wheel button.on { min-width: 52px; height: 52px; background: ${TEAL}; color: #06120f; border-color: ${TEAL}; }
+      .rud-wheel button:disabled { opacity: 0.4; }
+    `}</style>
     <div
       className="rud-nav"
       onTouchStart={onTouchStart}
@@ -144,14 +159,12 @@ export function NavScrub({ items, index, disabled, onPick, renderPreview }) {
           </div>
         </div>
       ) : null}
-      <button type="button" className="rud-half prev" disabled={!prev || disabled} onClick={() => go(idx - 1)}>
-        <span className="rud-half-arrow">‹</span>
-        <span className="rud-half-name">{prev ? prev.label : ""}</span>
-      </button>
-      <button type="button" className="rud-half next" disabled={!next || disabled} onClick={() => go(idx + 1)}>
-        <span className="rud-half-name">{next ? next.label : ""}</span>
-        <span className="rud-half-arrow">›</span>
-      </button>
+      <div className="rud-wheel" ref={scroller}>
+        {list.map((row, i) => (
+          <button key={row.id} type="button" className={i === idx ? "on" : ""} disabled={disabled} onClick={() => go(i)}>{row.id}</button>
+        ))}
+      </div>
     </div>
+    </>
   );
 }
