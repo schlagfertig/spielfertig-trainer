@@ -11,6 +11,8 @@ export const CHANGELOG = [
         en: "New name: the tempo dial is now called the “SpinDial”. Tap to start, turn to set your tempo – give it a spin." },
       { de: "Noten: Schreib dir Notizen direkt zu deinen Blättern! Mit „Notiz“ hältst du Gedanken wie „Takt 12 langsamer üben“ fest, mit „Stift“ kreist du Stellen rot, türkis oder gelb ein, und mit „Marker“ heftest du eine kurze Notiz genau an die richtige Stelle. Das Auge blendet alles aus, wenn du das saubere Blatt sehen willst.",
         en: "Sheet music: write notes right on your sheets! Use “Note” for thoughts like “practise bar 12 more slowly”, “Pen” to circle spots in red, teal or yellow, and “Marker” to pin a short note exactly where it belongs. The eye hides everything whenever you want to see the clean sheet." },
+      { de: "Lexikon: Ein angetippter Begriff rutscht nach oben, lässt dir aber Platz für den Titel und einen Begriff darüber – so behältst du den Überblick.",
+        en: "Glossary: a tapped term moves up but leaves room for the title and one term above it – so you keep your bearings." },
     ],
   },
   {
