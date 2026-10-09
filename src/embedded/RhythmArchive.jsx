@@ -3,6 +3,7 @@ import { MetronomeDial, Nudge } from "../lib/metronome.jsx";
 import { playClick, playKit, unlockAudio } from "../lib/audio.js";
 import { loadSession, saveSession } from "../lib/session.js";
 import { t } from "../lib/i18n.js";
+import { PracticeClip } from "../lib/PracticeClip.jsx";
 import { beatLayout } from "../lib/grooveNotation.js";
 
 const TEAL = "#5cc8b8";
@@ -430,9 +431,13 @@ export default function RhythmArchive() {
       </div>
 
       {screen === "build" ? (
-        <div className="staff-card rhythm-preview" style={{ marginBottom: 12 }}>
-          <div className="staff-label">{name.trim() || t("Neuer Rhythmus")}</div>
-          <GrooveStaff grid={grid} bars={bars} playStep={-1} />
+        <div className="rhythm-side">
+          <div className="staff-card rhythm-preview">
+            <div className="staff-label">{name.trim() || t("Neuer Rhythmus")}</div>
+            <GrooveStaff grid={grid} bars={bars} playStep={-1} />
+          </div>
+          {/* Clip rechts direkt unter dem Notenbild – nicht schwebend über den Spurnamen. */}
+          <div className="rhythm-clip"><PracticeClip inline title={t("Meine Grooves")} view="rhythm" /></div>
         </div>
       ) : null}
 
@@ -506,9 +511,12 @@ export default function RhythmArchive() {
 
       {screen === "practice" ? (
         <div className="rhythm-practice">
-        <div className="staff-card rp-staff">
-          <div className="staff-label">{name.trim() || t("Neuer Rhythmus")}</div>
-          <GrooveStaff grid={grid} bars={bars} playStep={playStep} />
+        <div className="rp-staff">
+          <div className="staff-card">
+            <div className="staff-label">{name.trim() || t("Neuer Rhythmus")}</div>
+            <GrooveStaff grid={grid} bars={bars} playStep={playStep} />
+          </div>
+          <div className="rhythm-clip"><PracticeClip inline title={t("Meine Grooves")} view="rhythm" /></div>
         </div>
         <div className="rp-hear">
           <div className="seg" style={{ width: "fit-content" }}>
@@ -566,6 +574,10 @@ export default function RhythmArchive() {
         .rhythm-confirm-text { color: #f4f7f6; font-size: 16px; line-height: 1.4; margin: 4px 0 0; overflow-wrap: anywhere; }
         .rhythm-confirm-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
         .rhythm-practice .rp-staff { margin-bottom: 12px; }
+        .rhythm-side { margin-bottom: 12px; }
+        .rhythm-side .rhythm-preview { margin: 0; }
+        .rhythm-clip { display: flex; justify-content: flex-end; margin-top: 8px; }
+        .rhythm-clip:empty { display: none; }
         .rp-hear, .rp-edit { display: flex; justify-content: center; margin: 8px 0; }
         .rp-dial { margin-top: 8px; }
         .rhythm-name { display: flex; flex-direction: column; gap: 4px; color: ${DIM}; font-weight: 700; }
@@ -574,8 +586,9 @@ export default function RhythmArchive() {
         .rhythm-steps { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 3px; }
         .rhythm-counts { display: grid; grid-template-columns: 92px repeat(16, minmax(0, 1fr)); gap: 3px; color: ${DIM}; font: 700 11px Figtree, sans-serif; text-align: center; align-items: end; }
         .rhythm-counts .on { color: ${TEAL}; }
-        .rhythm-row { display: grid; grid-template-columns: 92px 1fr; align-items: center; gap: 6px; }
-        .rhythm-voice { border: 0; background: transparent; color: #f4f7f6; font: 800 16px Figtree, sans-serif; text-align: left; padding: 0; }
+        .rhythm-row { display: grid; grid-template-columns: 92px 1fr; align-items: center; gap: 4px; }
+        .rhythm-voice { border: 0; background: transparent; color: #f4f7f6; font: 800 16px Figtree, sans-serif; text-align: right; padding: 0; }
+        /* Spurnamen rechtsbündig dicht an den Feldern: links bleibt Platz für die Dynamic Island (quer). */
         .rhythm-voice.on { color: ${TEAL}; }
         .rhythm-tools { margin-left: auto; display: flex; gap: 4px; }
         .rhythm-tools button { min-width: 36px; min-height: 32px; border-radius: 8px; border: 1px solid #2f383d; background: transparent; color: ${TEAL}; font: 800 12px Figtree, sans-serif; }
@@ -600,13 +613,15 @@ export default function RhythmArchive() {
           .rhythm-bars { display: flex; margin-left: auto; }
           .rhythm-tip { display: none; }
           .rhythm-entry { display: block; padding-right: 34%; }
-          .rhythm-preview { position: fixed; top: 108px; right: 10px; width: 32%; margin: 0; z-index: 4; }
+          /* Quer sitzt die Dynamic Island links oder rechts: Spurnamen und Vorschau aus dem sicheren Bereich heraushalten. */
+          .rhythm-arch { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+          .rhythm-side { position: fixed; top: 108px; right: calc(10px + env(safe-area-inset-right, 0px)); width: 32%; margin: 0; z-index: 4; }
           .rhythm-steps button { min-height: 34px; }
           .rhythm-counts { font-size: 10px; }
           .rhythm-grid { gap: 6px; }
           .rhythm-counts { grid-template-columns: 108px repeat(16, minmax(0, 1fr)); }
           .rhythm-row { grid-template-columns: 108px 1fr; }
-          .rhythm-voice { flex-direction: column; align-items: flex-start; gap: 4px; }
+          .rhythm-voice { flex-direction: column; align-items: flex-end; gap: 4px; }
           .rhythm-steps button { min-height: 44px; }
           .rhythm-helps button { min-height: 28px; min-width: 28px; padding: 0 4px; }
           /* Üben quer: Noten links, Start-Rad rechts daneben – ohne Scrollen erreichbar. */

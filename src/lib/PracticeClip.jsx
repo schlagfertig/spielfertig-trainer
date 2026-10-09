@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { t } from "./i18n.js";
 import { clipAudioMix, unlockAudio } from "./audio.js";
 import { CLIP_CARD_STYLE, drawClipFrame, prepareClipAssets, renderBackdrop, renderCard } from "./clipFrame.js";
@@ -53,7 +54,10 @@ export function PracticeClip(props) {
   return CLIP_ENABLED ? <PracticeClipInner {...props} /> : null;
 }
 
-function PracticeClipInner({ title, view }) {
+// inline: Knopf im Layout statt schwebend (Meine Grooves: rechts unter dem Notenbild,
+// damit die Spurnamen frei bleiben). Das Kamera-Dock haengt dann direkt am <body>,
+// damit es nicht in der Stapel-Ebene des Elternelements gefangen ist.
+function PracticeClipInner({ title, view, inline = false }) {
   const [open, setOpen] = useState(false);
   const [rec, setRec] = useState(false);
   const [seconds, setSeconds] = useState(0);
@@ -266,14 +270,15 @@ function PracticeClipInner({ title, view }) {
     setClip(null);
   }
 
+  const portal = (node) => (inline && typeof document !== "undefined" ? createPortal(node, document.body) : node);
   const clock = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 
   return (
     <>
       {!open && (
-        <button type="button" className="clip-fab" onClick={() => openCamera()}>{t("Clip")}</button>
+        <button type="button" className={inline ? "clip-fab clip-inline" : "clip-fab"} onClick={() => openCamera()}>{t("Clip")}</button>
       )}
-      {open && (
+      {open && portal(
         <div className="clip-dock">
           <video ref={videoRef} playsInline muted autoPlay onLoadedMetadata={(e) => e.currentTarget.play().catch(() => {})} />
           <div className="clip-actions">
@@ -283,10 +288,11 @@ function PracticeClipInner({ title, view }) {
             {clip ? <button type="button" className="ghost" onClick={share}>{t("Teilen")}</button> : null}
             <button type="button" className="ghost" onClick={close}>{t("Schließen")}</button>
           </div>
-        </div>
+        </div>,
       )}
       <style>{`
         .clip-fab { position: fixed; left: 16px; bottom: 96px; z-index: 30; min-width: 84px; min-height: 52px; padding: 0 18px; border-radius: 999px; border: 0; background: ${TEAL}; color: #06120f; font: 800 17px Figtree, sans-serif; box-shadow: 0 8px 22px rgba(92,200,184,.35); }
+        .clip-fab.clip-inline { position: static; min-height: 44px; min-width: 76px; padding: 0 16px; font-size: 16px; box-shadow: 0 4px 14px rgba(92,200,184,.28); }
         .clip-dock { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 40; display: grid; grid-template-columns: 132px 1fr; gap: 8px; padding: 8px; border-radius: 16px; background: rgba(22,26,29,.9); border: 1px solid #2f383d; }
         .clip-dock video { width: 132px; height: 96px; object-fit: cover; border-radius: 12px; background: #000; }
         .clip-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
