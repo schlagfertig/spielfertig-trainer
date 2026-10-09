@@ -31,8 +31,9 @@ input, select { font-size: 17px; }
 p { font-size: 17px; line-height: 1.45; }
 .page {
   min-height: 100dvh;
-  /* Home-Bildschirm-App (black-translucent): Inhalt beginnt unter der Statusleiste; im Browser ist der Wert 0 */
-  padding: calc(16px + env(safe-area-inset-top, 0px)) 14px 28px;
+  /* Home-Bildschirm-App (black-translucent): Inhalt beginnt unter der Statusleiste; im Browser ist der Wert 0.
+     Links/rechts: Dynamic Island im Querformat. */
+  padding: calc(16px + env(safe-area-inset-top, 0px)) max(14px, env(safe-area-inset-right, 0px)) 28px max(14px, env(safe-area-inset-left, 0px));
   max-width: 100%;
   overflow-x: hidden;
 }
