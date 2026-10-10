@@ -16,7 +16,7 @@ export function hasUnseenNews() {
 
 function markNewsSeen() {
   if (CHANGELOG_LATEST) saveSession(SEEN_KEY, { date: CHANGELOG_LATEST });
-  // Wer die Seite (z. B. über den Footer) geöffnet hat, kennt sie – Hinweis nicht mehr zeigen.
+  // Wer die Seite (z. B. über den Footer) geöffnet hat, kennt sie - Hinweis nicht mehr zeigen.
   markNewsHintSeen();
 }
 
@@ -66,7 +66,7 @@ export function NewsButton() {
           <button type="button" className="news-x" onClick={() => setOpen(false)} aria-label={t("Schließen")}>×</button>
         </div>
         <div className="news-scroll" lang={en ? "en" : "de"}>
-          <p className="news-lead">{t("Was sich in Schlagfertig‽ geändert hat – das Neueste zuerst.")}</p>
+          <p className="news-lead">{t("Was sich in Schlagfertig‽ geändert hat - das Neueste zuerst.")}</p>
           {CHANGELOG.map((day) => (
             <section className="news-day" key={day.date}>
               <h2><time dateTime={day.date}>{fmtDate(dayDate(day.date))}</time></h2>
@@ -95,12 +95,12 @@ export default function News() {
   const en = getLang() === "en";
   useEffect(() => {
     markNewsSeen();
-    // Von der Startseite kommt man aus dem Footer – Seite oben beginnen.
+    // Von der Startseite kommt man aus dem Footer - Seite oben beginnen.
     try { window.scrollTo(0, 0); } catch { /* ignore */ }
   }, []);
   return (
     <div className="legal news" lang={en ? "en" : "de"}>
-      <p className="news-lead">{t("Was sich in Schlagfertig‽ geändert hat – das Neueste zuerst.")}</p>
+      <p className="news-lead">{t("Was sich in Schlagfertig‽ geändert hat - das Neueste zuerst.")}</p>
       {CHANGELOG.map((day) => (
         <section className="legal-block news-day" key={day.date}>
           <h2><time dateTime={day.date}>{fmtDate(dayDate(day.date))}</time></h2>
