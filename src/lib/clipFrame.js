@@ -44,7 +44,7 @@ export function loadImg(src) {
   });
 }
 
-/** Neutrale (schwarze/graue) Pixel hell faerben, Tuerkis bleibt – fuer dunkle Glas-Karten. */
+/** Neutrale (schwarze/graue) Pixel hell faerben, Tuerkis bleibt - fuer dunkle Glas-Karten. */
 function toLight(src, w, h) {
   const c = canvasOf(w, h);
   const g = c.getContext("2d", { willReadFrequently: true });
@@ -66,7 +66,7 @@ function toLight(src, w, h) {
       }
     }
     g.putImageData(data, 0, 0);
-  } catch { /* tainted – dann eben Original */ }
+  } catch { /* tainted - dann eben Original */ }
   return c;
 }
 
