@@ -96,7 +96,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
   const [beat, setBeat] = useState(false);
   const [loopN, setLoopN] = useState(0);
   const [leftSec, setLeftSec] = useState(0);
-  const [cheer, setCheer] = useState(null); // { i, text, goal } – Motivation am Ende des Ziels
+  const [cheer, setCheer] = useState(null); // { i, text, goal } - Motivation am Ende des Ziels
   const [info, setInfo] = useState(false);
   const lastCheer = useRef(-1);
   const stopRef = useRef(null);
@@ -304,7 +304,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           border-radius: 999px; padding: 3px 12px; font: 800 13px/1.2 Figtree, sans-serif;
         }
         .staff-card { position: relative; }
-        /* Paket C: alle Rudiment-Karten gleich groß – feste Notenfläche, die Noten passen sich ein */
+        /* Paket C: alle Rudiment-Karten gleich groß - feste Notenfläche, die Noten passen sich ein */
         .rud-staff-box { height: 150px; display: flex; align-items: center; justify-content: center; }
         .staff-card .rud-staff-box svg { width: 100%; height: 100%; max-height: 100%; }
         .rud-wrap.rud-short .rud-staff-box { height: 112px; }
@@ -317,7 +317,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
         .staff-card.rud-card-info { z-index: 17; }
         .rud-back-foot { display: flex; justify-content: flex-end; margin-top: 14px; }
         .rud-back-foot button { border: 1px solid #5cc8b8; background: #fff; color: #0b3d38; border-radius: 999px; padding: 8px 16px; font: 800 14px Figtree, sans-serif; }
-        /* Ziel und Klang: zwei Auswahlfelder in einer Zeile direkt über dem Rad – nichts überlappt */
+        /* Ziel und Klang: zwei Auswahlfelder in einer Zeile direkt über dem Rad - nichts überlappt */
         .rud-picks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 auto 6px; max-width: 420px; width: 100%; }
         .rud-pick { position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 0; min-height: 46px; padding: 5px 30px 5px 12px; border-radius: 14px; border: 1px solid rgba(92,200,184,.42); background: rgba(19,33,31,.82); color: #f4f7f6; text-align: left; box-sizing: border-box; }
         .rud-pick-kick { font: 800 10px/1.2 Figtree, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #5cc8b8; }
@@ -399,7 +399,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
             </div>
             {/* Loop-Anzeige unter den Zählzeiten (Paket C) */}
             <div className={playing ? "beat-loop on" : "beat-loop"} aria-live="polite">
-              {playing && goal.sec ? fmt(leftSec) : playing ? `Loop ${loopN}${goal.loops ? " / " + goal.loops : ""}` : "Loop —"}
+              {playing && goal.sec ? fmt(leftSec) : playing ? `Loop ${loopN}${goal.loops ? " / " + goal.loops : ""}` : "Loop -"}
             </div>
           </>
         )}
