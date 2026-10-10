@@ -95,7 +95,7 @@ function handFill(ch, on, onLight) {
 
 function Hands({ id, hands, nextHands = null, swapGroups = 0, playT = -1, ternary, size = 28, light = true }) {
   // Fokus-Mode, letzte Wiederholung: schon gespielte 4er-Gruppen (swapGroups) zeigen den Handsatz
-  // der nächsten Übung – weicher Opacity-Fade, aktuelle und kommende Gruppen bleiben unverändert.
+  // der nächsten Übung - weicher Opacity-Fade, aktuelle und kommende Gruppen bleiben unverändert.
   const letters = (ternary ? triHands(hands) : String(hands || "")).split("");
   const nextLetters = nextHands
     ? (ternary ? triHands(nextHands) : String(nextHands || "")).split("")
@@ -266,7 +266,7 @@ export default function StickControl({ preset = null } = {}) {
   const ex = EXERCISES[idx] || EXERCISES[0];
   const previous = EXERCISES.slice(0, idx);
   const nextEx = EXERCISES[idx + 1] || null;
-  // Alle weiteren Übungen nach „Als Nächstes“ (idx+2 … 24) – bleiben erreichbar, gedämpft/unscharf wie die früheren
+  // Alle weiteren Übungen nach „Als Nächstes“ (idx+2 … 24) - bleiben erreichbar, gedämpft/unscharf wie die früheren
   const later = EXERCISES.slice(idx + 2);
   const challenge = mode === "challenge";
   const lastRep = challenge && playing && repNow > 0 && repNow >= reps;
@@ -361,7 +361,7 @@ export default function StickControl({ preset = null } = {}) {
     const repAt = (n, when) => window.setTimeout(() => {
       if (cancelled) return;
       setRepNow(n);
-      // Neuer Durchgang: Highlight zurücksetzen – sonst bliebe playT kurz auf dem letzten Buchstaben
+      // Neuer Durchgang: Highlight zurücksetzen - sonst bliebe playT kurz auf dem letzten Buchstaben
       // und würde in der letzten Wiederholung fälschlich schon Gruppen morphen.
       if (n > 1) setPlayT(-1);
     }, Math.max(0, (when - ctx.currentTime) * 1000));
@@ -459,13 +459,13 @@ export default function StickControl({ preset = null } = {}) {
           --rud-dock: 220px;
         }
         body:has(.stick-wrap), #root:has(.stick-wrap), .page:has(.stick-wrap) { overflow-x: clip; }
-        /* Kopfzeile ist hier angeheftet – in der Home-Bildschirm-App unterhalb der Statusleiste (im Browser 0) */
+        /* Kopfzeile ist hier angeheftet - in der Home-Bildschirm-App unterhalb der Statusleiste (im Browser 0) */
         .page:has(.stick-wrap) .top { top: env(safe-area-inset-top, 0px); }
         .stick-far { filter: blur(1.8px); opacity: 0.45 !important; transition: filter 0.3s, opacity 0.3s; }
-        /* Frühere (schon gespielte) Übungen: wie die fernen kommenden unscharf und gedämpft – die direkt davor etwas weniger, damit sie lesbar bleibt */
+        /* Frühere (schon gespielte) Übungen: wie die fernen kommenden unscharf und gedämpft - die direkt davor etwas weniger, damit sie lesbar bleibt */
         .stick-prev { filter: blur(1.1px); opacity: 0.55 !important; transition: filter 0.3s, opacity 0.3s; }
         .stick-scrolling :is(.stick-far, .stick-prev) { filter: none; opacity: 0.7 !important; }
-        /* Frühere Übungen, die unter die (durchsichtige) Kopfzeile geraten, ausblenden – sonst scheinen sie hinter „HAND CONTROL“ durch */
+        /* Frühere Übungen, die unter die (durchsichtige) Kopfzeile geraten, ausblenden - sonst scheinen sie hinter „HAND CONTROL“ durch */
         .stick-wrap .stick-list > .stick-under { opacity: 0 !important; pointer-events: none; }
         .stick-wrap .stick-list > button { transition: filter 0.3s, opacity 0.2s; }
         /* Kommende Übungen nach der Vorschau: unter der angehefteten Bühne durchscrollen; Reserve (nur auf hohen Screens), damit #24 ganz unten zwischen Bühne und Dock sichtbar landet */
@@ -487,7 +487,7 @@ export default function StickControl({ preset = null } = {}) {
           height: calc(var(--rud-dock) + var(--rud-foot) + 88px);
           background: linear-gradient(to bottom, rgba(22,26,29,0) 0%, rgba(22,26,29,.35) 28%, rgba(22,26,29,.82) 62%, #161a1d 88%);
         }
-        /* Aktuelle Übung: helle Karte (wie die Notenkarte), ohne türkisen Rand – überschreibt das dunkle Glas aus styles-glass.css.
+        /* Aktuelle Übung: helle Karte (wie die Notenkarte), ohne türkisen Rand - überschreibt das dunkle Glas aus styles-glass.css.
            Beim Spielen kein Rahmen/Schleier: der gerade gespielte Buchstabe wird dunkler. */
         .stick-wrap .stick-card {
           background: ${LIST} !important;
@@ -502,7 +502,7 @@ export default function StickControl({ preset = null } = {}) {
         }
         /* Kein Scroll-Anchoring: sonst springt die Seite, wenn sich die Bühne in der Höhe ändert, und die angeheftete Karte rutscht über die Vorschau */
         html:has(.stick-wrap) { overflow-anchor: none; }
-        /* Angeheftet: Werkzeuge, „Jetzt“-Zeile, aktuelle Übung und „Als Nächstes“ – alles in einem Block, damit sich nichts überlappt */
+        /* Angeheftet: Werkzeuge, „Jetzt“-Zeile, aktuelle Übung und „Als Nächstes“ - alles in einem Block, damit sich nichts überlappt */
         .stick-pin {
           position: sticky;
           top: var(--stick-top, 0px);
@@ -572,7 +572,7 @@ export default function StickControl({ preset = null } = {}) {
         .stick-reps-kick { color: ${DIM}; font: 800 11px Figtree, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; }
         .stick-reps-num { color: ${TEAL}; font: 700 34px/1 Oswald, sans-serif; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
         .stick-reps-num .of { color: ${DIM}; font-size: 24px; }
-        /* Letzte Wiederholung: Ziffer hell mit türkisem Schein (passend zur türkisen Vorschau) – vorher dunkel auf dunkel, unsichtbar */
+        /* Letzte Wiederholung: Ziffer hell mit türkisem Schein (passend zur türkisen Vorschau) - vorher dunkel auf dunkel, unsichtbar */
         .stick-reps.last .stick-reps-num { color: ${LIST}; text-shadow: 0 0 14px rgba(92,200,184,.75); }
         /* Clickwheel offen: Zähler rückt etwas nach oben, damit der Ring ihn nicht überdeckt */
         .stick-reps { transition: transform .24s cubic-bezier(.2,.8,.2,1); }
@@ -586,7 +586,7 @@ export default function StickControl({ preset = null } = {}) {
           .stick-reps { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
           .stick-next-reps { display: inline; font-size: 18px; }
           .stick-next-reps .of { font-size: 14px; }
-          /* Zähler mittig zur Kopfzeile statt an der Grundlinie – sonst stößt die große Ziffer an den oberen Kartenrand */
+          /* Zähler mittig zur Kopfzeile statt an der Grundlinie - sonst stößt die große Ziffer an den oberen Kartenrand */
           .stick-next-head { align-items: center; min-height: 20px; }
         }
         /* Drehrädchen */
@@ -611,7 +611,7 @@ export default function StickControl({ preset = null } = {}) {
           .stick-next-body, .stick-next-end { animation: stickNextIn .28s ease-out; }
           @keyframes stickNextIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 0.9; transform: none; } }
         }
-        /* Querformat (Paket C): aufgeräumt in zwei Spalten – links Modus, aktuelle Übung und Vorschau,
+        /* Querformat (Paket C): aufgeräumt in zwei Spalten - links Modus, aktuelle Übung und Vorschau,
            rechts Tempo (Rad mit ±5/±10) und Einzählen. Kopf in einer Zeile, nichts liegt übereinander. */
         @media (orientation: landscape) {
           .page.tool.view-stick .top { flex-direction: row; align-items: center; gap: 12px; padding: 2px 0 8px; }
