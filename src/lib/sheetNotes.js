@@ -1,5 +1,5 @@
-// Noten: Notizen pro Blatt – Notizfeld, Stift-Striche und Textmarker.
-// Rein funktional (kein DOM, kein IndexedDB) – damit per node --test prüfbar.
+// Noten: Notizen pro Blatt - Notizfeld, Stift-Striche und Textmarker.
+// Rein funktional (kein DOM, kein IndexedDB) - damit per node --test prüfbar.
 // Gespeichert wird alles im selben IndexedDB-Eintrag wie das Blatt (Feld `notes`).
 // Koordinaten sind normiert auf die Seite: x = 0…1 der Breite, y = 0…1 der Höhe.
 // So bleiben Striche und Marker beim Zoomen, Verschieben, im Vollbild und beim Drehen
@@ -72,7 +72,7 @@ export function thin(points, min = 0.0015) {
 }
 
 /** Strich prüfen/normieren. pressure (0…1, Stift) verändert die Breite leicht. */
-/** Neuer Strich (points) oder gespeicherter Strich (pts, w) – beides wird geprüft. */
+/** Neuer Strich (points) oder gespeicherter Strich (pts, w) - beides wird geprüft. */
 export function makeStroke({ id, color = "red", points, pts: saved, pressure, w } = {}) {
   const c = COLORS[color] ? color : "red";
   const pts = thin(points ?? saved ?? []);
@@ -243,5 +243,5 @@ export function preview(text, max = 60) {
   if (s.length <= max) return s;
   const cut = s.slice(0, max);
   const sp = cut.lastIndexOf(" ");
-  return `${(sp > max * 0.6 ? cut.slice(0, sp) : cut).replace(/[\s,.;:–-]+$/, "")}…`;
+  return `${(sp > max * 0.6 ? cut.slice(0, sp) : cut).replace(/[\s,.;:--]+$/, "")}…`;
 }
