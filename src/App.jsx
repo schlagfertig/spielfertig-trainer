@@ -71,7 +71,7 @@ export default function App() {
   // Startwerte für ein Modul, wenn es aus der „Heute“-Karte geöffnet wird (sonst null = eigene Werte).
   const [preset, setPreset] = useState(null);
   // Hand Control startet immer in der Fokus-Ansicht (aktuelle Übung groß, nächste als Vorschau).
-  // Der frühere Schalter „Fokus + Preview“ ist weg – seine gemerkte Einstellung (sf.v1.stick) einmalig aufräumen.
+  // Der frühere Schalter „Fokus + Preview“ ist weg - seine gemerkte Einstellung (sf.v1.stick) einmalig aufräumen.
   useEffect(() => {
     try { localStorage.removeItem("sf.v1.stick"); } catch { /* Speicher nicht verfügbar */ }
   }, []);
@@ -84,10 +84,10 @@ export default function App() {
   const beginDone = loadBeginnerDone();
   const beginIdx = beginNext(beginDone);
   const beginStep = BEGIN_STEPS[beginIdx];
-  // Einmaliger Hinweis auf „Neuigkeiten“ – erst nachdem die Begrüßung (Welcome) geschlossen ist.
+  // Einmaliger Hinweis auf „Neuigkeiten“ - erst nachdem die Begrüßung (Welcome) geschlossen ist.
   const [welcomeOpen, setWelcomeOpen] = useState(() => !loadSession("welcomeSeen", {}).seen);
   // „Nicht heute“: Karte „Erste Übung starten“ bis Tagesende ausblenden (gespeichert: nur der Tag).
-  // Der Tag wird bei jedem Rendern neu verglichen – nach Mitternacht ist die Karte wieder da.
+  // Der Tag wird bei jedem Rendern neu verglichen - nach Mitternacht ist die Karte wieder da.
   const [firstSkip, setFirstSkip] = useState(() => loadSession(FIRST_SKIP_KEY, {}));
   const [firstLeaving, setFirstLeaving] = useState(false);
   const [, setTick] = useState(0);
@@ -111,7 +111,7 @@ export default function App() {
     };
     const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     if (reduced) { done(); return; }
-    // Karte erst weich zusammenklappen (Höhe, Abstand, Deckkraft), dann entfernen – kein Sprung.
+    // Karte erst weich zusammenklappen (Höhe, Abstand, Deckkraft), dann entfernen - kein Sprung.
     setFirstLeaving(true);
     window.setTimeout(done, 300);
   }
@@ -163,7 +163,7 @@ export default function App() {
   // Ansichtswechsel ist kein Seitenwechsel: ohne Zurücksetzen erbt die neue Ansicht die
   // Scroll-Position der Startseite (z. B. Rudiments öffnet halb gescrollt, Zurück-Knopf weg).
   // Jede Ansicht beginnt oben; die Startseite kehrt dorthin zurück, wo man sie verlassen hat.
-  // Läuft als Layout-Effekt vor den normalen Effekten der Ansicht – deren eigenes Scrollen
+  // Läuft als Layout-Effekt vor den normalen Effekten der Ansicht - deren eigenes Scrollen
   // (z. B. Hand Control: aktuelle Übung unter die Kopfzeile) gewinnt also weiterhin.
   useLayoutEffect(() => {
     try {
@@ -218,7 +218,7 @@ export default function App() {
       const t = e.changedTouches?.[0];
       if (!t) return;
       if (t.clientX > 32) return;
-      // offene Dialoge (z. B. Noten-Vollbild, Vorschau) haben eigene Gesten – kein Zurück-Wischen
+      // offene Dialoge (z. B. Noten-Vollbild, Vorschau) haben eigene Gesten - kein Zurück-Wischen
       if (document.querySelector('[aria-modal="true"]')) return;
       startX = t.clientX;
       startY = t.clientY;
@@ -262,9 +262,9 @@ export default function App() {
         </div>
         <header className="hero">
           <LogoMetronome locked={scrolled} />
-          {/* Das runde Logo zeigt schon „schlagfertig‽ · Zeit für guten Sound“ – darunter der Untertitel. */}
-          <h1 className="app-logo" aria-label={`Schlagfertig‽ – ${t("Drums lernen – Schlag für Schlag")}`}>
-            <span className="app-logo-sub" aria-hidden="true">{t("Drums lernen – Schlag für Schlag")}</span>
+          {/* Das runde Logo zeigt schon „schlagfertig‽ · Zeit für guten Sound“ - darunter der Untertitel. */}
+          <h1 className="app-logo" aria-label={`Schlagfertig‽ - ${t("Drums lernen - Schlag für Schlag")}`}>
+            <span className="app-logo-sub" aria-hidden="true">{t("Drums lernen - Schlag für Schlag")}</span>
           </h1>
           {false && <p className="app-price" style={{ margin: "6px 0 0", color: "#5cc8b8", font: "800 15px Figtree, sans-serif", letterSpacing: "0.02em" }}>12,99 € einmalig</p>}
         </header>
@@ -278,13 +278,13 @@ export default function App() {
                     : `${t(beginIdx === 0 ? "Loslegen" : "Weiter")} · ${t("Schritt {n} von {total}", { n: beginIdx + 1, total: BEGIN_STEPS.length })}`}
                 </div>
                 <div className="card-title">{beginIdx < 0 ? t("Einstieg wiederholen") : beginIdx === 0 ? t("Erste Übung starten") : t(beginStep.title)}</div>
-                <div className="card-lead">{beginIdx < 0 ? t("Alle 5 Schritte geschafft – such dir eine Übung aus und spiel sie nochmal.") : t(beginStep.lead)}</div>
+                <div className="card-lead">{beginIdx < 0 ? t("Alle 5 Schritte geschafft - such dir eine Übung aus und spiel sie nochmal.") : t(beginStep.lead)}</div>
                 <div className="bg-progress is-card" aria-hidden="true">
                   {BEGIN_STEPS.map((x, i) => <span key={x.id} className={`${beginDone.has(x.id) ? "is-done" : ""}${i === beginIdx ? " is-cur" : ""}`} />)}
                 </div>
                 <div className="card-go">Start</div>
               </button>
-              {/* eigener Knopf neben (nicht in) der Karte – Knöpfe dürfen nicht verschachtelt sein */}
+              {/* eigener Knopf neben (nicht in) der Karte - Knöpfe dürfen nicht verschachtelt sein */}
               <button type="button" className="first-skip" onClick={skipFirstToday} aria-label={t("Erste Übung für heute ausblenden")}>{t("Nicht heute")}</button>
               {/* Bonus (zählt nicht zum Fortschritt): kleiner Link unter der Einstieg-Karte, verschwindet mit „Nicht heute“ */}
               <button type="button" className="ns-link" onClick={() => open("nostick")}>
@@ -327,7 +327,7 @@ export default function App() {
             <TileIcon name="lexicon" />
             <div className="card-kicker">{t("Nachschlagen")}</div>
             <div className="card-title">{t("Lexikon")}</div>
-            <div className="card-lead">{t("Downbeat, Flam, Groove: Schlag nach, was dahintersteckt – von A bis Z.")}</div>
+            <div className="card-lead">{t("Downbeat, Flam, Groove: Schlag nach, was dahintersteckt - von A bis Z.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card has-icon" type="button" onClick={() => open("rhythm")}>
