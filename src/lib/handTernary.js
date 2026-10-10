@@ -1,6 +1,6 @@
 // Hand Control, ternär (WA-24): dasselbe Sticking auf Achteltriolen.
 // Ein 4/4-Takt = 12 Triolen-Achtel (4 Gruppen zu 3, Zählzeit auf jeder 1. der Gruppe).
-// Vorerst ausgeblendet (TERNARY_ENABLED = false), bis passende Stickings feststehen – Code und Daten bleiben.
+// Vorerst ausgeblendet (TERNARY_ENABLED = false), bis passende Stickings feststehen - Code und Daten bleiben.
 // Reines Datenmodul ohne DOM-Import, damit der Test es direkt mit node laden kann.
 
 export const TERNARY_ENABLED = false;
