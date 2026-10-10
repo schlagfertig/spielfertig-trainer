@@ -207,9 +207,9 @@ function HoldLever({ cx, cy, x, y, size, visible }) {
 /* Clickwheel (Entwurf, iPod-artig): ein Ring um den Kreis, der in Ruhe leise sichtbar ist
    und sich beim Antippen vergrößert. Gezeichnet wird immer die offene Größe; in Ruhe ist das
    SVG auf WHEEL_REST verkleinert, so dass nur der äußere Streifen (Striche, − und +) um den
-   Kreis herum sichtbar bleibt – der Rest liegt unter dem Kreis. Die Logik bleibt die des Dials:
+   Kreis herum sichtbar bleibt - der Rest liegt unter dem Kreis. Die Logik bleibt die des Dials:
    Mitte = Start/Stop, am Ring drehen = Tempo. */
-// Schmaler Ring (Paket C): Außenradius offen = Kreisradius × 1.3 – überall gleich, der Ring drängt sich nicht mehr vor.
+// Schmaler Ring (Paket C): Außenradius offen = Kreisradius × 1.3 - überall gleich, der Ring drängt sich nicht mehr vor.
 export const WHEEL_K = 1.3;
 const WHEEL_REST_PX = 14; // in Ruhe ragt der Ring so weit über den Kreis hinaus
 const WHEEL_TICKS = 60;
@@ -361,7 +361,7 @@ export function MetronomeDial({
   const fadeTimer = useRef(null);
   const cw = wheel && !!setBpm;
   const [wheelOpen, setWheelOpen] = useState(false);
-  const [thumb, setThumb] = useState(null); // { deg, r } – Fingerposition relativ zur Kreismitte
+  const [thumb, setThumb] = useState(null); // { deg, r } - Fingerposition relativ zur Kreismitte
   const shrinkTimer = useRef(null);
   const [lever, setLever] = useState({
     visible: false,
@@ -456,7 +456,7 @@ export function MetronomeDial({
     }, HOLD_MS);
   }
 
-  // Sofort ausblenden (weich, ohne Halte-Pause) – z. B. wenn der Finger zurück in den Ring geht.
+  // Sofort ausblenden (weich, ohne Halte-Pause) - z. B. wenn der Finger zurück in den Ring geht.
   function fadeLeverNow() {
     clearTimers();
     setLever((prev) => (prev.mounted ? { ...prev, visible: false } : prev));
