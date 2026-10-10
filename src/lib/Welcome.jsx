@@ -42,8 +42,8 @@ export function Welcome({ onClose } = {}) {
     <div className="modal welcome" onClick={close}>
       <div className="modal-card" role="dialog" aria-modal="true" aria-labelledby="welcome-title" aria-describedby="welcome-text" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head" id="welcome-title">{gruss === "schatz" ? t("Hallo mein Schatz! ❤️") : (name ? t("Hallo {name}, willkommen bei Schlagfertig‽ 🥁", { name }) : t("Willkommen bei Schlagfertig‽ 🥁"))}</div>
-        <p className="welcome-sub">{t("Drums lernen – Schlag für Schlag")}</p>
-        <p id="welcome-text">{t("Schön, dass du dabei bist und die App testest. Starte am besten mit „Erste Übung“ – das dauert nur eine Minute. Über das „?“ oben rechts findest du überall Hilfe. Ich freue mich über jede Rückmeldung!")}</p>
+        <p className="welcome-sub">{t("Drums lernen - Schlag für Schlag")}</p>
+        <p id="welcome-text">{t("Schön, dass du dabei bist und die App testest. Starte am besten mit „Erste Übung“ - das dauert nur eine Minute. Über das „?“ oben rechts findest du überall Hilfe. Ich freue mich über jede Rückmeldung!")}</p>
         <p className="welcome-sig">Tom</p>
         <button ref={btn} type="button" className="play" onClick={close} style={{ width: "100%" }}>{t("Los geht's")}</button>
       </div>
