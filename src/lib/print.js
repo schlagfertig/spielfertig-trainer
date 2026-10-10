@@ -93,7 +93,7 @@ export function sheetHtml(tiles, perPage = 6, section = "Rudiments") {
       <footer class="foot"><span>${foot}</span><span>${i + 1} / ${pages.length}</span></footer>
     </section>`
   ).join("");
-  return `<!doctype html><html lang="${getLang()}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${BRAND.product} — ${section}</title>
+  return `<!doctype html><html lang="${getLang()}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${BRAND.product} - ${section}</title>
     <style>${printStyles(cols)}</style></head><body>
     <div class="bar">
       <button type="button" onclick="try{window.close()}catch(e){} if(!window.closed){history.back()}">${t("Zurück")}</button>
