@@ -19,8 +19,8 @@ function pickMime() {
 
 function readDial() {
   const el = document.querySelector(".clip-dial");
-  if (!el) return { bpm: "—", beat: false, on: false };
-  return { bpm: el.dataset.bpm || "—", beat: el.dataset.beat === "1", on: el.dataset.on === "1" };
+  if (!el) return { bpm: "-", beat: false, on: false };
+  return { bpm: el.dataset.bpm || "-", beat: el.dataset.beat === "1", on: el.dataset.on === "1" };
 }
 
 function readExercise() {
@@ -69,7 +69,7 @@ function PracticeClipInner({ title, view, inline = false }) {
   const recRef = useRef(null);
   const chunks = useRef([]);
   const drawRef = useRef(0);
-  const dialRef = useRef({ bpm: "—", beat: false, on: false });
+  const dialRef = useRef({ bpm: "-", beat: false, on: false });
   const exRef = useRef({ name: "", img: null });
 
   const micRef = useRef(null);
