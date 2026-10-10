@@ -36,14 +36,14 @@ export default function Lexicon() {
         .lex-details summary::after {
           content: "+"; position: absolute; right: 2px; top: 14px; color: #5cc8b8; font-size: 18px;
         }
-        .lex-details[open] summary::after { content: "–"; }
+        .lex-details[open] summary::after { content: "-"; }
         .lex-details .lex-brand { color: #5cc8b8; }
         .lex-body { color: #d5dcde; font: 600 15px/1.45 Figtree, sans-serif; margin: 0 0 8px; }
         .lex-letter { color: #5cc8b8; font: 800 12px Figtree, sans-serif; letter-spacing: 0.14em; margin: 14px 0 0; }
         .lex-fig { margin: 0 0 14px; }
         .lex-fig img { display: block; width: 100%; height: auto; border-radius: 12px; background: #101416; }
       `}</style>
-      <p className="lex-lead">{t("Kurze Erklärungen zum Nachschlagen – tipp einen Begriff an.")}</p>
+      <p className="lex-lead">{t("Kurze Erklärungen zum Nachschlagen - tipp einen Begriff an.")}</p>
       <input
         className="lex-search"
         value={q}
@@ -94,7 +94,7 @@ export default function Lexicon() {
               <p className="lex-body">{e.text}</p>
               {e.img ? (
                 <figure className="lex-fig">
-                  {/* Bild bleibt in der Liste – kein Vollbild mehr beim Antippen */}
+                  {/* Bild bleibt in der Liste - kein Vollbild mehr beim Antippen */}
                   <img src={e.img} alt={e.alt || e.term} loading="lazy" decoding="async" />
                 </figure>
               ) : null}
