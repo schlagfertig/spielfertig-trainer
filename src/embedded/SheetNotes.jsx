@@ -70,7 +70,7 @@ export function Icon({ name }) {
   );
 }
 
-/** Zeichnungen + Marker einer Seite – liegt in der Zoom-Fläche (zoomt/verschiebt mit). */
+/** Zeichnungen + Marker einer Seite - liegt in der Zoom-Fläche (zoomt/verschiebt mit). */
 export function NotesOverlay({ notes, page, aspect, live, onPin, interactive = false }) {
   const pg = getPage(notes, page);
   const all = live ? [...pg.strokes, live] : pg.strokes;
