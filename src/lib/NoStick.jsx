@@ -115,7 +115,7 @@ export default function NoStick({ onHome, onOpen }) {
         <button className="card bg-next" style={{ width: "100%", marginBottom: 10 }} onClick={again}>
           <div className="card-kicker">{t("Nochmal")}</div>
           <div className="card-title" style={{ fontSize: 26 }}>{t("Neue Challenge")}</div>
-          <div className="card-lead">{t("Drei neue Teile, gleiche Muster – mal sehen, was diesmal groovt.")}</div>
+          <div className="card-lead">{t("Drei neue Teile, gleiche Muster - mal sehen, was diesmal groovt.")}</div>
           <div className="card-go">Start</div>
         </button>
         <div className="bg-row">
@@ -135,7 +135,7 @@ export default function NoStick({ onHome, onOpen }) {
       {playing ? null : yay ? (
         <p className="bg-cheer ns-yay" role="status">{`${t("Runde {n} geschafft!", { n: ri })} ${yay}`}</p>
       ) : (
-        <p style={{ color: DIM, fontSize: 17, margin: "0 0 12px" }}>{t("Alles erlaubt – außer Sticks! Schnapp dir, was gerade herumliegt, und spiel zum Click.")}</p>
+        <p style={{ color: DIM, fontSize: 17, margin: "0 0 12px" }}>{t("Alles erlaubt - außer Sticks! Schnapp dir, was gerade herumliegt, und spiel zum Click.")}</p>
       )}
       <div className={`ns-obj${playing ? " is-play" : ""}${rolling ? " is-roll" : ""}`}>
         <span className="ns-emoji" aria-hidden="true">{obj.emoji}</span>
@@ -180,7 +180,7 @@ export default function NoStick({ onHome, onOpen }) {
       </div>
       {playing ? null : (
         <>
-          <p style={{ color: DIM, fontSize: 15, margin: "0 0 12px", textAlign: "center" }}>{t("Zu schnell? Dreh am SpinDial – 50 bis 100 BPM.")}</p>
+          <p style={{ color: DIM, fontSize: 15, margin: "0 0 12px", textAlign: "center" }}>{t("Zu schnell? Dreh am SpinDial - 50 bis 100 BPM.")}</p>
           <button className="ghost" style={{ width: "100%", minHeight: 44 }} onClick={() => onOpen?.("first")}>{t("Zum Einstieg")}</button>
         </>
       )}
