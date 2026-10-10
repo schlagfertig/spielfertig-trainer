@@ -6,7 +6,7 @@ import { QuestFlag } from "./HomeIcons.jsx";
 import { t } from "./i18n.js";
 
 // „Heute“: ein kleiner Übeplan als Vorschlag. Schritte antippen öffnet das Modul mit Startwerten;
-// kein Timer, keine Haken – die Minuten sind nur Richtwerte.
+// kein Timer, keine Haken - die Minuten sind nur Richtwerte.
 // Als „Tagesquest“ gekennzeichnet; „Überspringen“ blendet sie bis Tagesende aus (wie „Nicht heute“ bei der Ersten Übung).
 export default function Today({ onOpen }) {
   const [planId, setPlanId] = useState(() => pickPlanId(new Date(), loadSession("today", {})));
