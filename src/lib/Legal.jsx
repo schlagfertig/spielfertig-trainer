@@ -57,7 +57,7 @@ function LegalEn({ isPrivacy }) {
       <section className="legal-block">
         <h2>Note</h2>
         <p>
-          {BRAND.product} is a practice tool made by a drummer for drummers: rudiments, grooves and timing – beat by beat.
+          {BRAND.product} is a practice tool made by a drummer for drummers: rudiments, grooves and timing - beat by beat.
           No user account and no ads. Questions, ideas or feedback? Just send me an email.
         </p>
       </section>
@@ -109,7 +109,7 @@ export default function Legal({ topic = "impressum", onOpen }) {
           <section className="legal-block">
             <h2>Hinweis</h2>
             <p>
-              {BRAND.product} ist ein Übungs-Tool von einem Drummer für Drummer: Rudiments, Grooves und Timing – Schlag für Schlag.
+              {BRAND.product} ist ein Übungs-Tool von einem Drummer für Drummer: Rudiments, Grooves und Timing - Schlag für Schlag.
               Ohne Nutzerkonto und ohne Werbung. Fragen, Ideen oder Feedback? Schreib mir einfach eine E-Mail.
             </p>
           </section>
