@@ -5,7 +5,7 @@ const TEAL = "#5cc8b8";
 const INK = "#161a1d";
 const DIM = "#8a969c";
 
-// Kurzanleitung zum Tempo-Rad – Grafik im Stil des echten Rads (Paket C):
+// Kurzanleitung zum Tempo-Rad - Grafik im Stil des echten Rads (Paket C):
 // Kreis mit Tempo und „Start“, schmaler Ring mit Strichen, Daumen auf dem Ring, ±5 und ±10 außen.
 const CX = 160;
 const CY = 92;
