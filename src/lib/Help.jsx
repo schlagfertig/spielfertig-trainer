@@ -39,7 +39,7 @@ export function Help({ topic = "home", onFirstClose }) {
         <div className="modal-head">{t(first ? "Kurz anschauen" : "Kurz")}</div>
         {first ? (
           <p className="help-lead">
-            {t("Einmalig beim ersten Öffnen — danach jederzeit über ?")}
+            {t("Einmalig beim ersten Öffnen - danach jederzeit über ?")}
           </p>
         ) : null}
         <ul className="help-list">
