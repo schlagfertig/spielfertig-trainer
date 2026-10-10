@@ -1,14 +1,14 @@
-// Notation eines Schlags in „Meine Grooves“ (vier 16tel-Positionen 0–3, alle Stimmen zusammen).
+// Notation eines Schlags in „Meine Grooves“ (vier 16tel-Positionen 0-3, alle Stimmen zusammen).
 // Reines Datenmodul ohne DOM/JSX, damit der Test es direkt mit node laden kann.
 //
 // Dauer einer Note = Abstand zur nächsten belegten Position im Schlag (bzw. bis zum Schlagende):
 // 1 = 16tel, 2 = Achtel, 3 = punktierte Achtel, 4 = Viertel.
 // Ergebnis:
-//   rests  – Pausen vor der ersten Note: { kind: "4" | "8" | "16", pos }
-//   notes  – { pos, dur, dot, flag: "" | "8" | "16" } (Fähnchen nur bei einer einzelnen Note im Schlag)
-//   beam   – [erste, letzte] Position des Hauptbalkens (ab zwei Noten), sonst null
-//   sub    – zweite Balken zwischen aufeinanderfolgenden 16teln: [[von, bis], …]
-//   stubs  – kurze 16tel-Balken an einzelnen 16teln: { pos, dir } (1 = nach rechts, -1 = nach links)
+//   rests  - Pausen vor der ersten Note: { kind: "4" | "8" | "16", pos }
+//   notes  - { pos, dur, dot, flag: "" | "8" | "16" } (Fähnchen nur bei einer einzelnen Note im Schlag)
+//   beam   - [erste, letzte] Position des Hauptbalkens (ab zwei Noten), sonst null
+//   sub    - zweite Balken zwischen aufeinanderfolgenden 16teln: [[von, bis], …]
+//   stubs  - kurze 16tel-Balken an einzelnen 16teln: { pos, dir } (1 = nach rechts, -1 = nach links)
 export function beatLayout(positions) {
   const P = [...new Set(positions)].filter((p) => p >= 0 && p < 4).sort((a, b) => a - b);
   if (!P.length) return { empty: true, rests: [{ kind: "4", pos: 0 }], notes: [], beam: null, sub: [], stubs: [] };
@@ -28,7 +28,7 @@ export function beatLayout(positions) {
   }
   // 16tel folgen immer direkt aufeinander (Dauer 1 = nächste Note eine Position weiter).
   // Zwei oder mehr in Folge teilen einen zweiten Balken; eine einzelne 16tel bekommt einen
-  // kurzen Balken – am Anfang des Schlags nach rechts, sonst nach links.
+  // kurzen Balken - am Anfang des Schlags nach rechts, sonst nach links.
   const sub = [];
   const stubs = [];
   let run = [];
