@@ -61,7 +61,7 @@ function beatNotes(stage, beat) {
 }
 
 // Ein 4/4-Takt der Stufe. Im letzten Durchgang vor dem Wechsel (swapBeats > 0) sind die schon
-// gespielten Schläge bereits durch die nächste Stufe ersetzt – so läuft der Takt Schlag für Schlag hinüber.
+// gespielten Schläge bereits durch die nächste Stufe ersetzt - so läuft der Takt Schlag für Schlag hinüber.
 function barRud(stage, nextStage = null, swapBeats = 0) {
   const notes = [];
   let hands = "";
@@ -108,7 +108,7 @@ export default function PyramidTrainer({ preset = null } = {}) {
   const [idx, setIdx] = useState(0);
   const [leftBars, setLeftBars] = useState(0);
   const [playT, setPlayT] = useState(-1);
-  // Letzter Durchgang vor dem Wechsel: schon übernommene Schläge (0–3) und verbleibende Schläge (4–1, sonst 0).
+  // Letzter Durchgang vor dem Wechsel: schon übernommene Schläge (0-3) und verbleibende Schläge (4-1, sonst 0).
   const [swapBeats, setSwapBeats] = useState(0);
   const [countdown, setCountdown] = useState(0);
   const [done, setDone] = useState("");
@@ -462,9 +462,9 @@ export default function PyramidTrainer({ preset = null } = {}) {
         @media (prefers-reduced-motion: reduce) {
           .pyr-layer-old { display: none; }
         }
-        /* Quer beim Üben: Noten links, Rad und Takt-Zähler rechts – nichts liegt übereinander */
+        /* Quer beim Üben: Noten links, Rad und Takt-Zähler rechts - nichts liegt übereinander */
         @media (orientation: landscape) and (max-height: 820px) {
-          /* Rechte Spalte breit genug für −5 · Rad (144 px mit Ring) · +5 samt Rand – vorher ragte +5 um 4 px über den Bildschirm */
+          /* Rechte Spalte breit genug für −5 · Rad (144 px mit Ring) · +5 samt Rand - vorher ragte +5 um 4 px über den Bildschirm */
           .pyramid-wrap.focus { padding-bottom: 12px; padding-right: calc(284px + env(safe-area-inset-right, 0px)); }
           .pyr-dock.focus { left: auto; top: 0; width: calc(284px + env(safe-area-inset-right, 0px)); padding: 8px calc(12px + env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) 12px; display: flex; flex-direction: column; justify-content: center; }
           .pyr-dock.focus .dial-row { gap: 8px; }
