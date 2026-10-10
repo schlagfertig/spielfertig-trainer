@@ -239,7 +239,7 @@ export default function ClickTrainer({ preset = null } = {}) {
         <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 8 }}>{t("Einstellung")}</div>
         <p style={{ color: DIM, fontSize: 13, margin: "0 0 12px", lineHeight: 1.35 }}>
           {ramp
-            ? t("Alle paar Sekunden wird das Tempo angehoben — Du bleibst am Pad.")
+            ? t("Alle paar Sekunden wird das Tempo angehoben - Du bleibst am Pad.")
             : t("Gleichmäßiges Tempo. SpinDial drehen oder ±5.")}
         </p>
         <TempoControl bpm={startBpm} setBpm={setStart} min={30} max={260} hideNudge slider={false} />
@@ -293,7 +293,7 @@ export default function ClickTrainer({ preset = null } = {}) {
           </div>
         ) : null}
         {done ? <p style={{ color: "#5cc8b8", textAlign: "center", fontSize: 14, margin: "12px 0 0" }}>{done}</p> : null}
-        {bgHint ? <p style={{ color: "#e8b84b", textAlign: "center", fontSize: 12, margin: "10px 0 0" }}>{t("App im Hintergrund — der Click kann pausieren. Zurückkommen und ggf. neu starten.")}</p> : null}
+        {bgHint ? <p style={{ color: "#e8b84b", textAlign: "center", fontSize: 12, margin: "10px 0 0" }}>{t("App im Hintergrund - der Click kann pausieren. Zurückkommen und ggf. neu starten.")}</p> : null}
         <button
           ref={advBtnRef}
           type="button"
