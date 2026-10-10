@@ -338,7 +338,7 @@ export default function RhythmArchive() {
     return id;
   }
 
-  // „Speichern als…“ legt immer einen neuen Groove an (neue id) – nie überschreiben.
+  // „Speichern als…“ legt immer einen neuen Groove an (neue id) - nie überschreiben.
   function saveAs(title) {
     const item = { id: newId(), name: title, bpm, bars, grid, at: Date.now() };
     const next = [item, ...list];
@@ -436,7 +436,7 @@ export default function RhythmArchive() {
             <div className="staff-label">{name.trim() || t("Neuer Rhythmus")}</div>
             <GrooveStaff grid={grid} bars={bars} playStep={-1} />
           </div>
-          {/* Clip rechts direkt unter dem Notenbild – nicht schwebend über den Spurnamen. */}
+          {/* Clip rechts direkt unter dem Notenbild - nicht schwebend über den Spurnamen. */}
           <div className="rhythm-clip"><PracticeClip inline title={t("Meine Grooves")} view="rhythm" /></div>
         </div>
       ) : null}
@@ -449,7 +449,7 @@ export default function RhythmArchive() {
           </div>
           <div className="rhythm-entry">
           <div className="rhythm-tools-row">
-            {/* Vor/zurück: Nummer nur, wenn es den Takt gibt – in Takt 1 kein „Takt 0“. */}
+            {/* Vor/zurück: Nummer nur, wenn es den Takt gibt - in Takt 1 kein „Takt 0“. */}
             <button type="button" className="ghost" onClick={() => setBar((b) => Math.max(0, b - 1))} disabled={bar === 0} aria-label={t("Vorheriger Takt")}>{bar > 0 ? `‹ ${t("Takt")} ${bar}` : "‹"}</button>
             <span style={{ color: TEAL, fontWeight: 800 }}>{t("Takt")} {bar + 1}/{bars}</span>
             <button type="button" className="ghost" onClick={() => setBar((b) => Math.min(bars - 1, b + 1))} disabled={bar >= bars - 1} aria-label={t("Nächster Takt")}>{bar < bars - 1 ? `${bar + 2} ›` : "›"}</button>
@@ -624,7 +624,7 @@ export default function RhythmArchive() {
           .rhythm-voice { flex-direction: column; align-items: flex-end; gap: 4px; }
           .rhythm-steps button { min-height: 44px; }
           .rhythm-helps button { min-height: 28px; min-width: 28px; padding: 0 4px; }
-          /* Üben quer: Noten links, Start-Rad rechts daneben – ohne Scrollen erreichbar. */
+          /* Üben quer: Noten links, Start-Rad rechts daneben - ohne Scrollen erreichbar. */
           .rhythm-practice { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "staff hear" "staff dial" "edit dial"; column-gap: 16px; row-gap: 8px; align-items: start; }
           .rhythm-practice .rp-staff { grid-area: staff; margin-bottom: 0; }
           .rp-hear { grid-area: hear; margin: 0; }
