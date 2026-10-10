@@ -200,7 +200,7 @@ function PreviewDialog({ id, onClose, onSelect }) {
 }
 
 /* Vollbild: eine Seite groß, eingepasst; zoomen per Zwei-Finger/Doppeltipp/± (siehe ZoomView).
-   ‹ › (Pfeiltasten, Wischen – Wischen nur ungezoomt) springt zum vorigen/nächsten Blatt der Liste. */
+   ‹ › (Pfeiltasten, Wischen - Wischen nur ungezoomt) springt zum vorigen/nächsten Blatt der Liste. */
 function FullView({ id, list, onMove, onClose }) {
   const { file, url } = useSheet(id);
   const ref = useRef(null);
@@ -215,7 +215,7 @@ function FullView({ id, list, onMove, onClose }) {
 
   useEffect(() => {
     const el = ref.current;
-    // echtes Vollbild, wo der Browser es erlaubt (iPhone: nicht für Elemente – dann bleibt die Fläche bildschirmfüllend)
+    // echtes Vollbild, wo der Browser es erlaubt (iPhone: nicht für Elemente - dann bleibt die Fläche bildschirmfüllend)
     try { el?.requestFullscreen?.().catch(() => {}); } catch { /* ignore */ }
     const onFs = () => { if (!document.fullscreenElement) onCloseRef.current(); };
     const t0 = window.setTimeout(() => document.addEventListener("fullscreenchange", onFs), 400);
@@ -402,7 +402,7 @@ export default function Archive() {
             <select className="arch-sort" value={sort} onChange={(e) => changeSort(e.target.value)} aria-label={t("Sortieren")}>
               <option value="new">{t("Neueste zuerst")}</option>
               <option value="old">{t("Älteste zuerst")}</option>
-              <option value="name">{t("Name A–Z")}</option>
+              <option value="name">{t("Name A-Z")}</option>
             </select>
           </div>
           {known.length ? (
