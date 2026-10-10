@@ -1,10 +1,10 @@
-/** Zentrale Kurzhilfe — deutsch. Übersetzung über t() / en.js. */
+/** Zentrale Kurzhilfe - deutsch. Übersetzung über t() / en.js. */
 export const HELP = {
   home: [
     ["Rudiments", "40 Grundlagen für Technik, Kontrolle und Timing. Mit Notation, Click und Tempo."],
     ["Click-Trainer", "Metronom: Tempo steigern oder halten. ‚Erweitert‘ = Click-Mixer."],
     ["Rhythmuspyramide", "Subdivisionen auf und ab, 4tel bis 32tel."],
-    ["Hand Control", "24 Handübungen. Fokus-Mode spielt 1⁠–⁠24 durch."],
+    ["Hand Control", "24 Handübungen. Fokus-Mode spielt 1⁠-⁠24 durch."],
     ["Noten", "Eigene Fotos/PDFs, nur auf diesem Gerät. Antippen = Vorschau, ‚Auswählen‘ = Vollbild mit Zoom."],
     ["Meine Grooves", "Eigenen Groove bauen und üben. Eintippen nur quer, hochkant siehst du den Rhythmus."],
     ["SpinDial", "Tippen = Start/Stop. Halten + drehen = Tempo."],
@@ -15,34 +15,34 @@ export const HELP = {
     ["Nav unten", "‹ › tippen = vor/zurück. Wischen springt mehrere. Halten öffnet das Zahlenrad."],
     ["Titel", "‚Rudiment wählen‘ + ▾ öffnet die komplette Liste."],
     ["Ziel & Klang", "Über dem SpinDial: Ziel (frei, 8 oder 16 Loops, 2 Min) und Klang (Snare, Tom / Snare, Nur Click)."],
-    ["Clip", "Zeig, was du draufhast! Tipp auf ‚Clip‘, richte die Kamera auf deine Hände und dein Pad und starte mit ‚Aufnahme‘. ‚Drehen‘ wechselt zwischen Front- und Rückkamera. Oben im Video stehen Logo und Noten auf einer Glas-Kachel, darunter siehst du dich spielen – Click und Drums sind zusammen im Ton. Mit ‚Teilen‘ schickst du dein Video direkt an Freunde oder auf Social Media; bis dahin bleibt es nur auf deinem Gerät. Tipp: Mit Kopfhörern hörst du den Click am besten."],
+    ["Clip", "Zeig, was du draufhast! Tipp auf ‚Clip‘, richte die Kamera auf deine Hände und dein Pad und starte mit ‚Aufnahme‘. ‚Drehen‘ wechselt zwischen Front- und Rückkamera. Oben im Video stehen Logo und Noten auf einer Glas-Kachel, darunter siehst du dich spielen - Click und Drums sind zusammen im Ton. Mit ‚Teilen‘ schickst du dein Video direkt an Freunde oder auf Social Media; bis dahin bleibt es nur auf deinem Gerät. Tipp: Mit Kopfhörern hörst du den Click am besten."],
   ],
   click: [
     ["SpinDial", "Tippen = Start/Stop. Am Ring drehen: rechtsrum schneller."],
     ["Tasten", "−5/+5 und −10/+10 neben dem SpinDial springen in Schritten."],
     ["Erweitert", "‚Erweitert‘ unter dem SpinDial öffnet den Click-Mixer von unten. Mixer für Viertel, Offbeat, 16tel, Triolen, Beat und Master. Der Click läuft dabei weiter."],
     ["Modi", "Tempo halten oder steigern (alle X Sekunden +Y BPM)."],
-    ["Clip", "Zeig, was du draufhast! Tipp auf ‚Clip‘, richte die Kamera auf deine Hände und dein Pad und starte mit ‚Aufnahme‘. ‚Drehen‘ wechselt zwischen Front- und Rückkamera. Oben im Video stehen Logo und Noten auf einer Glas-Kachel, darunter siehst du dich spielen – Click und Drums sind zusammen im Ton. Mit ‚Teilen‘ schickst du dein Video direkt an Freunde oder auf Social Media; bis dahin bleibt es nur auf deinem Gerät. Tipp: Mit Kopfhörern hörst du den Click am besten."],
+    ["Clip", "Zeig, was du draufhast! Tipp auf ‚Clip‘, richte die Kamera auf deine Hände und dein Pad und starte mit ‚Aufnahme‘. ‚Drehen‘ wechselt zwischen Front- und Rückkamera. Oben im Video stehen Logo und Noten auf einer Glas-Kachel, darunter siehst du dich spielen - Click und Drums sind zusammen im Ton. Mit ‚Teilen‘ schickst du dein Video direkt an Freunde oder auf Social Media; bis dahin bleibt es nur auf deinem Gerät. Tipp: Mit Kopfhörern hörst du den Click am besten."],
   ],
   pyramid: [
     ["Metronom unten", "Tippen = Start/Stop. Halten + drehen = Tempo. −5/+5 und −10/+10 daneben."],
     ["Stufen", "4tel → 8tel → 8tel-Triole → 16tel → Quintole → 16tel-Sextole → Septole → 32tel. Tippen schaltet einzeln an/aus, eine bleibt immer an."],
     ["Takte", "1, 2 oder 4 Takte pro Stufe, immer im 4/4."],
-    ["Clip", "Zeig, was du draufhast! Tipp auf ‚Clip‘, richte die Kamera auf deine Hände und dein Pad und starte mit ‚Aufnahme‘. ‚Drehen‘ wechselt zwischen Front- und Rückkamera. Oben im Video stehen Logo und Noten auf einer Glas-Kachel, darunter siehst du dich spielen – Click und Drums sind zusammen im Ton. Mit ‚Teilen‘ schickst du dein Video direkt an Freunde oder auf Social Media; bis dahin bleibt es nur auf deinem Gerät. Tipp: Mit Kopfhörern hörst du den Click am besten."],
+    ["Clip", "Zeig, was du draufhast! Tipp auf ‚Clip‘, richte die Kamera auf deine Hände und dein Pad und starte mit ‚Aufnahme‘. ‚Drehen‘ wechselt zwischen Front- und Rückkamera. Oben im Video stehen Logo und Noten auf einer Glas-Kachel, darunter siehst du dich spielen - Click und Drums sind zusammen im Ton. Mit ‚Teilen‘ schickst du dein Video direkt an Freunde oder auf Social Media; bis dahin bleibt es nur auf deinem Gerät. Tipp: Mit Kopfhörern hörst du den Click am besten."],
   ],
   grooves: [
-    ["Erstellen", "Nur quer: Hi-Hat, Snare und Bass antippen. Eine Zeile wird aktiv, oben rechts gelten 1, + und e a. Taktzahl 1–4 sitzt neben der Vorschau."],
+    ["Erstellen", "Nur quer: Hi-Hat, Snare und Bass antippen. Eine Zeile wird aktiv, oben rechts gelten 1, + und e a. Taktzahl 1-4 sitzt neben der Vorschau."],
     ["Hochkant", "Nur die Notation. Zum Eintippen das Gerät quer drehen."],
     ["Speichern als…", "Fragt den Namen ab. Der Groove bleibt auf diesem Gerät."],
     ["Üben", "Nur Click, Playback oder Beides. Der Click blinkt auf den vollen Zählzeiten. SpinDial wie überall: tippen startet, drehen ändert das Tempo."],
-    ["Clip", "Zeig, was du draufhast! Tipp auf ‚Clip‘, richte die Kamera auf deine Hände und dein Pad und starte mit ‚Aufnahme‘. ‚Drehen‘ wechselt zwischen Front- und Rückkamera. Oben im Video stehen Logo und Noten auf einer Glas-Kachel, darunter siehst du dich spielen – Click und Drums sind zusammen im Ton. Mit ‚Teilen‘ schickst du dein Video direkt an Freunde oder auf Social Media; bis dahin bleibt es nur auf deinem Gerät. Tipp: Mit Kopfhörern hörst du den Click am besten."],
+    ["Clip", "Zeig, was du draufhast! Tipp auf ‚Clip‘, richte die Kamera auf deine Hände und dein Pad und starte mit ‚Aufnahme‘. ‚Drehen‘ wechselt zwischen Front- und Rückkamera. Oben im Video stehen Logo und Noten auf einer Glas-Kachel, darunter siehst du dich spielen - Click und Drums sind zusammen im Ton. Mit ‚Teilen‘ schickst du dein Video direkt an Freunde oder auf Social Media; bis dahin bleibt es nur auf deinem Gerät. Tipp: Mit Kopfhörern hörst du den Click am besten."],
   ],
   stick: [
     ["Metronom unten", "Tippen = Start/Stop. Drehen = Tempo. −5/+5 und −10/+10 daneben."],
     ["Nav unten", "‹ › oder wischen. Halten öffnet das Rad, Vorschau = erste 8 Achtel."],
-    ["Liste", "Die aktuelle Nummer groß, darunter die nächste als Vorschau – antippen = weiter. Nach oben scrollen zeigt frühere Nummern, leicht unscharf."],
-    ["Fokus-Mode", "1–24 durchspielen. Wiederholungen = komplette Übung (beide Takte). Einzählen nur am Start, nicht zwischen den Nummern."],
-    ["Clip", "Zeig, was du draufhast! Tipp auf ‚Clip‘, richte die Kamera auf deine Hände und dein Pad und starte mit ‚Aufnahme‘. ‚Drehen‘ wechselt zwischen Front- und Rückkamera. Oben im Video stehen Logo und Noten auf einer Glas-Kachel, darunter siehst du dich spielen – Click und Drums sind zusammen im Ton. Mit ‚Teilen‘ schickst du dein Video direkt an Freunde oder auf Social Media; bis dahin bleibt es nur auf deinem Gerät. Tipp: Mit Kopfhörern hörst du den Click am besten."],
+    ["Liste", "Die aktuelle Nummer groß, darunter die nächste als Vorschau - antippen = weiter. Nach oben scrollen zeigt frühere Nummern, leicht unscharf."],
+    ["Fokus-Mode", "1-24 durchspielen. Wiederholungen = komplette Übung (beide Takte). Einzählen nur am Start, nicht zwischen den Nummern."],
+    ["Clip", "Zeig, was du draufhast! Tipp auf ‚Clip‘, richte die Kamera auf deine Hände und dein Pad und starte mit ‚Aufnahme‘. ‚Drehen‘ wechselt zwischen Front- und Rückkamera. Oben im Video stehen Logo und Noten auf einer Glas-Kachel, darunter siehst du dich spielen - Click und Drums sind zusammen im Ton. Mit ‚Teilen‘ schickst du dein Video direkt an Freunde oder auf Social Media; bis dahin bleibt es nur auf deinem Gerät. Tipp: Mit Kopfhörern hörst du den Click am besten."],
   ],
   archive: [
     ["Nur hier", "Fotos und PDFs bleiben in diesem Browser, nichts wird hochgeladen. Auf einem anderen Gerät sind sie nicht da; Browserdaten löschen entfernt sie."],
