@@ -13,7 +13,7 @@ export function markFirstLessonDone() {
   saveSession("firstLesson", { done: true });
 }
 
-// Fortschritt im Einstieg (Schritte 1–5), inkl. alter Speicherung der Ersten Übung.
+// Fortschritt im Einstieg (Schritte 1-5), inkl. alter Speicherung der Ersten Übung.
 export function loadBeginnerDone() {
   return doneSet(loadSession(BEGINNER_KEY, {}), !!loadSession("firstLesson", {}).done);
 }
@@ -225,7 +225,7 @@ export default function FirstLesson({ onHome, onOpen, preset }) {
       <div>
         <p style={KICK}>{t("Alle Schritte geschafft")}</p>
         <h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: 30, margin: "0 0 10px" }}>{t("Einstieg wiederholen")}</h2>
-        <p style={{ color: DIM, fontSize: 17, margin: "0 0 6px" }}>{t("Such dir eine Übung aus und spiel sie nochmal – Wiederholen macht dich sicherer.")}</p>
+        <p style={{ color: DIM, fontSize: 17, margin: "0 0 6px" }}>{t("Such dir eine Übung aus und spiel sie nochmal - Wiederholen macht dich sicherer.")}</p>
         <StepList idx={-1} done={done} onPick={pick} onOpen={onOpen} />
         <button className="ghost" style={{ width: "100%", marginTop: 14 }} onClick={() => onHome?.()}>{t("Zurück zur Übersicht")}</button>
       </div>
