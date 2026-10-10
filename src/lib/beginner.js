@@ -10,8 +10,8 @@ export const STEPS = [
     id: "puls",
     title: "Im Puls bleiben",
     head: "Eine Minute im Puls bleiben",
-    text: "Du hörst einen gleichmäßigen Klick — 80 Schläge pro Minute, das ist ein ruhiges Gehtempo. Bei jedem Klick ein Schlag auf dem Pad. Nicht schneller werden.",
-    lead: "Leg einfach los: Spiel eine Minute zum Click – ganz ohne Vorwissen.",
+    text: "Du hörst einen gleichmäßigen Klick - 80 Schläge pro Minute, das ist ein ruhiges Gehtempo. Bei jedem Klick ein Schlag auf dem Pad. Nicht schneller werden.",
+    lead: "Leg einfach los: Spiel eine Minute zum Click - ganz ohne Vorwissen.",
     done: "Eine Minute gehalten.",
     bpm: 80, sec: 60, sticking: ["R", "L"], accent: [],
   },
@@ -19,8 +19,8 @@ export const STEPS = [
     id: "doppel",
     title: "Doppelschläge",
     head: "Zweimal rechts, zweimal links",
-    text: "Jetzt spielt jede Hand zwei Schläge hintereinander: rechts, rechts, links, links. Ein Schlag pro Klick, 60 BPM – ganz ruhig. Lass den Stock locker zurückfedern, dann klingen beide Schläge gleich laut.",
-    lead: "Spiel RRLL ganz langsam zum Click – jede Hand zwei Schläge.",
+    text: "Jetzt spielt jede Hand zwei Schläge hintereinander: rechts, rechts, links, links. Ein Schlag pro Klick, 60 BPM - ganz ruhig. Lass den Stock locker zurückfedern, dann klingen beide Schläge gleich laut.",
+    lead: "Spiel RRLL ganz langsam zum Click - jede Hand zwei Schläge.",
     done: "Deine Doppelschläge laufen.",
     bpm: 60, sec: 90, sticking: ["R", "R", "L", "L"], accent: [],
   },
@@ -28,8 +28,8 @@ export const STEPS = [
     id: "welle",
     title: "Tempo-Welle",
     head: "Mit dem Tempo mitgehen",
-    text: "Der Click startet bei 60 BPM und wird alle zwei Takte ein kleines bisschen schneller – bis 90 BPM. Danach geht es genauso sanft zurück auf 60. Spiel abwechselnd rechts und links und geh einfach mit. Der Pfeil zeigt dir, wohin es gerade geht.",
-    lead: "Werde mit dem Click langsam schneller – von 60 auf 90 BPM und wieder zurück.",
+    text: "Der Click startet bei 60 BPM und wird alle zwei Takte ein kleines bisschen schneller - bis 90 BPM. Danach geht es genauso sanft zurück auf 60. Spiel abwechselnd rechts und links und geh einfach mit. Der Pfeil zeigt dir, wohin es gerade geht.",
+    lead: "Werde mit dem Click langsam schneller - von 60 auf 90 BPM und wieder zurück.",
     done: "Welle geritten.",
     wave: { from: 60, to: 90, step: 3, bars: 2 }, sticking: ["R", "L"], accent: [],
   },
@@ -37,8 +37,8 @@ export const STEPS = [
     id: "akzent",
     title: "Akzent auf der Eins",
     head: "Spiel die Eins lauter",
-    text: "Jeder vierte Schlag ist die Eins – spiel ihn etwas lauter, die anderen drei ganz leise. Die Eins hörst du im Click als hellen Ton, und oben siehst du sie mit „>“ markiert. 70 BPM, abwechselnd rechts und links.",
-    lead: "Spiel die Eins lauter, die anderen Schläge leise – so hörst du den Takt.",
+    text: "Jeder vierte Schlag ist die Eins - spiel ihn etwas lauter, die anderen drei ganz leise. Die Eins hörst du im Click als hellen Ton, und oben siehst du sie mit „>“ markiert. 70 BPM, abwechselnd rechts und links.",
+    lead: "Spiel die Eins lauter, die anderen Schläge leise - so hörst du den Takt.",
     done: "Die Eins sitzt.",
     bpm: 70, sec: 90, sticking: ["R", "L", "R", "L"], accent: [0],
   },
@@ -46,8 +46,8 @@ export const STEPS = [
     id: "wechsel",
     title: "Einzel & Doppel",
     head: "Einzel- und Doppelschläge im Wechsel",
-    text: "Ein Takt Einzelschläge, ein Takt Doppelschläge: R L R L, dann R R L L – immer im Wechsel. 70 BPM, ein Schlag pro Klick. Achte auf den Übergang: Das Tempo bleibt gleich.",
-    lead: "Ein Takt RLRL, ein Takt RRLL – im Wechsel, ohne aus dem Tempo zu fallen.",
+    text: "Ein Takt Einzelschläge, ein Takt Doppelschläge: R L R L, dann R R L L - immer im Wechsel. 70 BPM, ein Schlag pro Klick. Achte auf den Übergang: Das Tempo bleibt gleich.",
+    lead: "Ein Takt RLRL, ein Takt RRLL - im Wechsel, ohne aus dem Tempo zu fallen.",
     done: "Einstieg geschafft!",
     bpm: 70, sec: 120, sticking: ["R", "L", "R", "L", "R", "R", "L", "L"], accent: [],
   },
@@ -111,11 +111,11 @@ export function nextIndex(done) {
   return STEPS.findIndex((s) => !done.has(s.id));
 }
 
-// Kurzinfo „60 BPM · 1½ Min“ bzw. „60–90 BPM · 2½ Min“ (Minuten auf halbe gerundet).
+// Kurzinfo „60 BPM · 1½ Min“ bzw. „60-90 BPM · 2½ Min“ (Minuten auf halbe gerundet).
 export function stepMeta(step) {
   const plan = tempoPlan(step);
   const half = Math.max(1, Math.round((planSeconds(plan) / 60) * 2));
   const min = `${Math.floor(half / 2) || ""}${half % 2 ? "½" : ""}`;
-  const bpm = step.wave ? `${step.wave.from}–${step.wave.to}` : String(step.bpm);
+  const bpm = step.wave ? `${step.wave.from}-${step.wave.to}` : String(step.bpm);
   return { bpm, min };
 }
