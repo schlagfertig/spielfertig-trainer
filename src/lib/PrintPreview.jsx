@@ -23,7 +23,7 @@ export function PrintPreview({ tiles = [], perPage = 6, section = "Rudiments" })
               <h3>{r.label}</h3>
               <div className="sheet-prev-svg" dangerouslySetInnerHTML={{ __html: svg?.outerHTML || "" }} />
             </article>
-          )) : <div className="sheet-prev-empty">{t("Übungen anhaken — die Seite baut sich hier auf.")}</div>}
+          )) : <div className="sheet-prev-empty">{t("Übungen anhaken - die Seite baut sich hier auf.")}</div>}
         </div>
         <div className="sheet-prev-foot">
           <span>{brandLine()}</span>
