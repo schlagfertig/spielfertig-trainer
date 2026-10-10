@@ -1,5 +1,5 @@
 // WA-22: Metadaten fürs Noten-Archiv (Name + Tags), Suche/Filter/Sortierung.
-// Rein funktional (kein DOM, kein IndexedDB) – damit per node --test prüfbar.
+// Rein funktional (kein DOM, kein IndexedDB) - damit per node --test prüfbar.
 
 export const MAX_NAME_LEN = 80;
 export const MAX_TAG_LEN = 24;
