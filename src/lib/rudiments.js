@@ -12,7 +12,7 @@ const six = (beat, hands, accAt = [], extra = {}) =>
 const flip = (s) => String(s).replace(/R/g, "x").replace(/L/g, "R").replace(/x/g, "L");
 const dual = (s) => [s, flip(s)];
 const dualTok = (arr) => [arr, arr.map(flip)];
-// sub: Untergruppe je Triole – Achtelbalken verbindet zwei Triolen (g), Sechzehntelbalken + „3“ je Triole.
+// sub: Untergruppe je Triole - Achtelbalken verbindet zwei Triolen (g), Sechzehntelbalken + „3“ je Triole.
 const swiss16 = (start, lead, g, sub) => {
   const oth = lead === "R" ? "L" : "R";
   return [
