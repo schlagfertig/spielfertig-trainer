@@ -20,7 +20,7 @@ html, body, #root {
 }
 html { font-size: 18px; }
 /* Seiten fest verankern: kein Gummiband/Bounce, kein Pull-to-refresh (siehe lib/noBounce.js für ältere iOS) */
-/* nur html: body ist wegen overflow-x:hidden selbst ein Scroll-Container – overscroll-behavior dort würde das Weiterreichen ans Fenster und damit das Scrollen blockieren */
+/* nur html: body ist wegen overflow-x:hidden selbst ein Scroll-Container - overscroll-behavior dort würde das Weiterreichen ans Fenster und damit das Scrollen blockieren */
 html { overscroll-behavior: none; }
 .modal-card, .click-adv-list { overscroll-behavior: none; }
 /* Hand Control während der Click läuft: Liste gesperrt, nur die App selbst scrollt (Auto-Weiter per scrollTo) */
@@ -47,7 +47,7 @@ p { font-size: 17px; line-height: 1.45; }
 .logo-dial { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; animation: logoDialIn .25s ease; }
 .logo-dial-x { position: absolute; top: 0; left: 0; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--dim); font-size: 22px; line-height: 1; padding: 0; }
 @keyframes logoDialIn { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
-/* Beim Tempo-Drehen überlappen die Drehhinweise ×, ? und den Hören-Umschalter (Rudiments) – solange ausblenden */
+/* Beim Tempo-Drehen überlappen die Drehhinweise ×, ? und den Hören-Umschalter (Rudiments) - solange ausblenden */
 .home-help, .logo-dial-x, .rud-hear { transition: opacity .2s ease; }
 body.metro-gesturing .home-help, body.metro-gesturing .logo-dial-x, body.metro-gesturing .rud-hear { opacity: 0; pointer-events: none; }
 /* Clickwheel offen: der vergrößerte Ring darf über das (sonst scrollbare) Dock hinausragen, statt oben abgeschnitten zu werden */
@@ -79,7 +79,7 @@ body.metro-gesturing .rud-metro .metro-face { overflow: visible; }
   margin: 12px 0 6px;
   font-size: clamp(32px, 11vw, 44px);
 }
-/* App-Name „Schlagfertig‽“ steht im runden Logo, darunter der Untertitel „Drums lernen – Schlag für Schlag“ – türkis, Bebas Neue, gesperrt, mittig.
+/* App-Name „Schlagfertig‽“ steht im runden Logo, darunter der Untertitel „Drums lernen - Schlag für Schlag“ - türkis, Bebas Neue, gesperrt, mittig.
    Negativer Abstand = transparenter Rand unten im Logo-Bild (≈14,3 % der Bildbreite), sichtbarer Abstand ≈ 15 px. */
 .hero .app-logo { display: block; margin: calc(13px - min(380px, 88vw) * .1432) 0 0; pointer-events: none; font-family: "Bebas Neue", Oswald, sans-serif; font-weight: 400; font-size: clamp(16px, 4.8vw, 22px); line-height: 1.1; letter-spacing: .14em; text-transform: uppercase; color: var(--teal); }
 .app-logo-sub { display: inline-block; padding-left: .14em; }
@@ -759,13 +759,13 @@ body.metro-gesturing .rud-metro .metro-face { overflow: visible; }
 }
 
 /* Lexikon: Die Zeile mit „Zurück“ bleibt beim Scrollen oben stehen.
-   overflow-x: clip statt hidden – sonst sind body, #root und .page eigene Scroll-Container und sticky greift nicht.
+   overflow-x: clip statt hidden - sonst sind body, #root und .page eigene Scroll-Container und sticky greift nicht.
    display: contents löst die Kopfzeile auf, damit nur die Knopfzeile klebt und der große Titel normal wegscrollt. */
 body:has(.page.view-lexicon), body:has(.page.view-lexicon) #root, .page.tool.view-lexicon { overflow-x: clip; }
 .page.tool.view-lexicon .top { display: contents; }
 .page.tool.view-lexicon .top-row { position: sticky; top: 0; z-index: 20; background: var(--ink); padding: max(6px, env(safe-area-inset-top, 0px)) 0 8px; box-shadow: 0 1px 0 var(--line); }
 
-/* Paket C: ±10 außen neben ±5 – etwas kleiner, Reihe enger, damit alles neben das Rad passt */
+/* Paket C: ±10 außen neben ±5 - etwas kleiner, Reihe enger, damit alles neben das Rad passt */
 .dial-row:has(.nudge-10) { gap: 8px; }
 .dial-row .nudge-lg { width: 50px; height: 50px; font-size: 18px; border-radius: 15px; }
 .dial-row .nudge-lg.nudge-10 { width: 42px; height: 42px; font-size: 15px; border-radius: 13px; }
