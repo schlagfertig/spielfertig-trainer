@@ -512,7 +512,7 @@ export function lexEntry(e, lang = "de") {
   return { id: e.id, term: en ? e.en.term : e.term, text: en ? e.en.text : e.text, brand: !!e.brand, img: e.img || "", alt: en && e.en.alt ? e.en.alt : (e.alt || "") };
 }
 
-/** Liste in der gewünschten Sprache, A–Z nach dem Begriff dieser Sprache; Suche in Begriff und Text. */
+/** Liste in der gewünschten Sprache, A-Z nach dem Begriff dieser Sprache; Suche in Begriff und Text. */
 export function searchLexicon(q, lang = "de") {
   const s = String(q || "").trim().toLowerCase();
   const loc = lang === "en" ? "en" : "de";
