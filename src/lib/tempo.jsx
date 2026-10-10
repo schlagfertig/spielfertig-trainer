@@ -9,7 +9,7 @@ function clamp(n, min, max) {
   return Math.max(min, Math.min(max, Math.round(n)));
 }
 
-// slider=false: kein Schieberegler (Click-Trainer – dort stellt das Rad das Tempo ein).
+// slider=false: kein Schieberegler (Click-Trainer - dort stellt das Rad das Tempo ein).
 export function TempoControl({ bpm, setBpm, min = 30, max = 260, hideNudge = false, slider = true }) {
   const safe = clamp(Number(bpm) || min, min, max);
   const [draft, setDraft] = useState(String(safe));
