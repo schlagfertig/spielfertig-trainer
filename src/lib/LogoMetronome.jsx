@@ -7,7 +7,7 @@ import { t } from "./i18n.js";
 const clamp = (n) => Math.max(30, Math.min(260, Math.round(n)));
 
 // Easter Egg: Logo antippen = Metronom (gleiches Dial und gleicher Click wie im Click-Trainer)
-// locked: Startseite ist gescrollt – dann kein Antippen, und ein offenes Metronom schließt sich (kein Easter Egg beim Scrollen).
+// locked: Startseite ist gescrollt - dann kein Antippen, und ein offenes Metronom schließt sich (kein Easter Egg beim Scrollen).
 export function LogoMetronome({ locked = false }) {
   const [open, setOpen] = useState(false);
   // Einmal entdeckt = Logo blinkt nicht mehr (CSS-Animation nur ohne .found)
