@@ -31,7 +31,7 @@ const GLYPHS = {
       <circle className="ti-acc ti-fill" cx="19.9" cy="12.8" r="2" />
     </>
   ),
-  // Rhythmuspyramide: 1 – 2 – 4 Unterteilungen als Stufen
+  // Rhythmuspyramide: 1 - 2 - 4 Unterteilungen als Stufen
   pyramid: (
     <>
       <rect className="ti-acc ti-fill" x="11" y="6" width="10" height="4.4" rx="2.2" />
