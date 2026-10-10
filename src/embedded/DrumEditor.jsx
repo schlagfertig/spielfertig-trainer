@@ -223,7 +223,7 @@ export default function DrumEditor({ handwritten, printNonce }) {
             <div key={v + "l"} className="gv">{v}</div>,
             ...bars.flatMap((b, bi) => b[v].map((on, si) => (
               <button key={v + bi + "-" + si} className={on ? "cell on" : "cell"} aria-label={`${v} ${heads[bi * barSteps + si]} ${on ? "an" : "aus"}`} style={{ touchAction: "pan-x pan-y" }} onPointerDown={(e) => onCellDown(bi, v, si, e)} onPointerEnter={(e) => { if (e.buttons) onCellEnter(bi, v, si); }} onPointerUp={onCellUp}>
-                {on ? "✓" : "–"}
+                {on ? "✓" : "-"}
               </button>
             ))),
           ])}
