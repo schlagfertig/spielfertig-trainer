@@ -1,4 +1,4 @@
-// Dial-Hinweis („Tempo drehen“) nur EINMAL für die ganze App zeigen – nicht pro Bereich.
+// Dial-Hinweis („Tempo drehen“) nur EINMAL für die ganze App zeigen - nicht pro Bereich.
 // Gemeinsamer Schlüssel: sf.v1.dialHint = { seen: true }.
 // Migration: Bisher kam der Hinweis nach der ersten Kurzhilfe jedes Rad-Bereichs
 // (sf.v1.tour.<bereich>). Wer irgendeine davon schon geschlossen hat, hat ihn gesehen.
