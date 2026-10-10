@@ -102,7 +102,7 @@ export async function updateSheetMeta(id, meta) {
   await txDone(tx);
 }
 
-/** Notizen (Notizfeld, Stift, Marker) im selben Eintrag wie das Blatt speichern – siehe sheetNotes.js. */
+/** Notizen (Notizfeld, Stift, Marker) im selben Eintrag wie das Blatt speichern - siehe sheetNotes.js. */
 export async function updateSheetNotes(id, notes) {
   const db = await openDb();
   const tx = db.transaction(STORE, "readwrite");
@@ -118,7 +118,7 @@ export async function renameSheet(id, name) {
   await updateSheetMeta(id, { name });
 }
 
-// WA-22: Sortierung merken (Suche/Tag-Filter bewusst nicht – nach dem Neuladen sieht man wieder alles).
+// WA-22: Sortierung merken (Suche/Tag-Filter bewusst nicht - nach dem Neuladen sieht man wieder alles).
 export function loadArchiveView() { return parseView(loadSession("archiveView", {})); }
 export function saveArchiveView(v) { saveSession("archiveView", parseView(v)); }
 
