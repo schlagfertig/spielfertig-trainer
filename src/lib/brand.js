@@ -1,9 +1,9 @@
-// App-Name: „Schlagfertig‽“ – wie das runde Logo, Toms Markenzeichen. Das ‽ kommt aus src/fonts/fonts.css (eingebettet),
+// App-Name: „Schlagfertig‽“ - wie das runde Logo, Toms Markenzeichen. Das ‽ kommt aus src/fonts/fonts.css (eingebettet),
 // damit es überall als Interrobang erscheint und nicht wie ein „?“. Untertitel: BRAND.subtitle (EN in en.js).
 export const BRAND = {
   mark: "schlagfertig‽",
   product: "Schlagfertig‽",
-  subtitle: "Drums lernen – Schlag für Schlag",
+  subtitle: "Drums lernen - Schlag für Schlag",
   person: "Thomas Schuster",
   phone: "01522 574 2199",
   email: "Schlagfertig@iCloud.com",
