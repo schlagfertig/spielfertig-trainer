@@ -1,10 +1,10 @@
 // Seiten fest verankern: kein Gummiband-/Bounce-Effekt und kein Pull-to-refresh (auch iOS-Home-Bildschirm).
 // CSS (overscroll-behavior: none) deckt moderne Browser ab. Für ältere iOS-Versionen, die das am
 // Dokument ignorieren, fängt dieser Wächter senkrechte Wischbewegungen ab, die nichts mehr scrollen könnten:
-//  – Seite passt ganz auf den Bildschirm → senkrecht wischen tut nichts,
-//  – Seite ist oben/unten am Ende → kein Überziehen,
-//  – html.sf-scroll-lock (z. B. Hand Control während der Click läuft) → gar kein Wischen,
-//  – offene Dialoge/Vollbild (aria-modal) → nur deren eigene Scrollbereiche.
+//  - Seite passt ganz auf den Bildschirm → senkrecht wischen tut nichts,
+//  - Seite ist oben/unten am Ende → kein Überziehen,
+//  - html.sf-scroll-lock (z. B. Hand Control während der Click läuft) → gar kein Wischen,
+//  - offene Dialoge/Vollbild (aria-modal) → nur deren eigene Scrollbereiche.
 // Waagerechte Gesten (Zurück-Wischen, Noten blättern), Zwei-Finger-Zoom und das Tempo-Rad
 // (touch-action: none, Pointer-Events) bleiben unberührt; ebenso Flächen mit eigener Gestensteuerung
 // ([data-sf-gesture], z. B. Noten-Zoom: Verschieben mit einem Finger).
