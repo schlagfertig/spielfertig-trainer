@@ -7,7 +7,6 @@ import Lexicon from "./embedded/Lexicon.jsx";
 import Archive from "./embedded/Archive.jsx";
 import { PracticeClip } from "./lib/PracticeClip.jsx";
 import RhythmArchive, { lockGrooveLandscape, unlockGrooveLandscape } from "./embedded/RhythmArchive.jsx";
-import SnareEtude from "./embedded/SnareEtude.jsx";
 import { Help } from "./lib/Help.jsx";
 import { Welcome } from "./lib/Welcome.jsx";
 import FirstLesson, { loadBeginnerDone } from "./lib/FirstLesson.jsx";
@@ -50,7 +49,6 @@ const META = {
   stick: { title: "Hand Control", help: "stick" },
   archive: { title: "Noten", help: "archive" },
   rhythm: { title: "Meine Grooves", help: "grooves" },
-  etude: { title: "Snare-Etüden", help: "etude" },
   lexicon: { title: "Lexikon", help: "home" },
   impressum: { title: "Impressum", help: "home" },
   datenschutz: { title: "Datenschutz", help: "home" },
@@ -68,8 +66,6 @@ function viewFromPath() {
 
 export default function App() {
   const [view, setView] = useState(viewFromPath);
-  const [etudeOpen, setEtudeOpen] = useState(() => { try { return localStorage.getItem("sf.v1.etude.open") === "1"; } catch { return false; } });
-  const etudeTaps = useRef(0);
   const [printOpen, setPrintOpen] = useState(false);
   const [stage, setStage] = useState(false);
   // Startwerte für ein Modul, wenn es aus der „Heute“-Karte geöffnet wird (sonst null = eigene Werte).
@@ -153,7 +149,6 @@ export default function App() {
     setPreset(nextPreset && typeof nextPreset === "object" && !("nativeEvent" in nextPreset) ? nextPreset : null);
     setPrintOpen(false);
     setStage(false);
-    if (next === "etude" && !etudeOpen) return;
     if (next === "rhythm") lockGrooveLandscape();
     else unlockGrooveLandscape();
     setView(next);
@@ -335,24 +330,6 @@ export default function App() {
             <div className="card-lead">{t("Downbeat, Flam, Groove: Schlag nach, was dahintersteckt - von A bis Z.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
-          <button className={`card has-icon${etudeOpen ? "" : " is-soon"}`} type="button" onClick={() => {
-              if (etudeOpen) { open("etude"); return; }
-              etudeTaps.current += 1;
-              if (etudeTaps.current >= 7) {
-                try { localStorage.setItem("sf.v1.etude.open", "1"); } catch { /* ignore */ }
-                setEtudeOpen(true);
-                open("etude");
-              }
-            }}>
-            {etudeOpen ? null : <span className="soon">{t("Bald")} · {t("Coming soon")}</span>}
-            <span className="soon-body">
-              <TileIcon name="etude" />
-              <div className="card-kicker">{t("Baukasten")}</div>
-              <div className="card-title">{t("Snare-Etüden")}</div>
-              {etudeOpen ? <div className="card-lead">{t("Setze Vierer-Kacheln zu einer Etüde. Stufe 1 ein Takt, Stufe 2 zwei Viertel, Stufe 3 eine Viertel.")}</div> : null}
-              <div className="card-go">{t("Öffnen")}</div>
-            </span>
-          </button>
           <button className="card has-icon" type="button" onClick={() => open("rhythm")}>
             <TileIcon name="rhythm" />
             <div className="card-kicker">{t("Groove")}</div>
@@ -423,11 +400,9 @@ export default function App() {
           : view === "archive" ? <Archive />
           : view === "lexicon" ? <Lexicon />
           : view === "rhythm" ? <RhythmArchive />
-          : view === "etude" ? <SnareEtude />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
       {/* Meine Grooves: Clip-Knopf sitzt dort im Layout unter dem Notenbild (RhythmArchive). */}
       {["rudiments", "click", "pyramid", "stick", "etude"].includes(view) && !printOpen ? <PracticeClip title={t(meta.title)} view={view} /> : null}
-      <style>{`.card .soon { position: absolute; top: 10px; left: 12px; z-index: 2; padding: 3px 8px; border-radius: 999px; background: #5cc8b8; color: #06120f; font: 800 11px Figtree, sans-serif; } .card.is-soon .soon-body { filter: blur(1.6px); opacity: .82; display: block; }`}</style>
       </main>
     </div>
   );
