@@ -243,5 +243,5 @@ export function preview(text, max = 60) {
   if (s.length <= max) return s;
   const cut = s.slice(0, max);
   const sp = cut.lastIndexOf(" ");
-  return `${(sp > max * 0.6 ? cut.slice(0, sp) : cut).replace(/[\s,.;:--]+$/, "")}…`;
+  return `${(sp > max * 0.6 ? cut.slice(0, sp) : cut).replace(/[\s,.;:\-]+$/, "")}…`;
 }
