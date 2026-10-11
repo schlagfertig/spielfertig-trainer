@@ -335,7 +335,7 @@ export default function App() {
             <div className="card-lead">{t("Downbeat, Flam, Groove: Schlag nach, was dahintersteckt - von A bis Z.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
-          <button className="card has-icon" type="button" onClick={() => {
+          <button className={`card has-icon${etudeOpen ? "" : " is-soon"}`} type="button" onClick={() => {
               if (etudeOpen) { open("etude"); return; }
               etudeTaps.current += 1;
               if (etudeTaps.current >= 7) {
@@ -344,12 +344,14 @@ export default function App() {
                 open("etude");
               }
             }}>
-            <TileIcon name="etude" />
             {etudeOpen ? null : <span className="soon">{t("Bald")} · {t("Coming soon")}</span>}
-            <div className="card-kicker">{t("Baukasten")}</div>
-            <div className="card-title">{t("Snare-Etüden")}</div>
-            <div className="card-lead">{t("Setze Vierer-Kacheln zu einer Etüde. Stufe 1 ein Takt, Stufe 2 zwei Viertel, Stufe 3 eine Viertel.")}</div>
-            <div className="card-go">{t("Öffnen")}</div>
+            <span className="soon-body">
+              <TileIcon name="etude" />
+              <div className="card-kicker">{t("Baukasten")}</div>
+              <div className="card-title">{t("Snare-Etüden")}</div>
+              <div className="card-lead">{t("Setze Vierer-Kacheln zu einer Etüde. Stufe 1 ein Takt, Stufe 2 zwei Viertel, Stufe 3 eine Viertel.")}</div>
+              <div className="card-go">{t("Öffnen")}</div>
+            </span>
           </button>
           <button className="card has-icon" type="button" onClick={() => open("rhythm")}>
             <TileIcon name="rhythm" />
@@ -425,7 +427,7 @@ export default function App() {
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
       {/* Meine Grooves: Clip-Knopf sitzt dort im Layout unter dem Notenbild (RhythmArchive). */}
       {["rudiments", "click", "pyramid", "stick", "etude"].includes(view) && !printOpen ? <PracticeClip title={t(meta.title)} view={view} /> : null}
-      <style>{`.card .soon { position: absolute; top: 10px; left: 12px; z-index: 2; padding: 3px 8px; border-radius: 999px; background: #5cc8b8; color: #06120f; font: 800 11px Figtree, sans-serif; }`}</style>
+      <style>{`.card .soon { position: absolute; top: 10px; left: 12px; z-index: 2; padding: 3px 8px; border-radius: 999px; background: #5cc8b8; color: #06120f; font: 800 11px Figtree, sans-serif; } .card.is-soon .soon-body { filter: blur(1.6px); opacity: .82; display: block; }`}</style>
       </main>
     </div>
   );
