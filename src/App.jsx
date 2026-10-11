@@ -332,13 +332,6 @@ export default function App() {
             <div className="card-lead">{t("Downbeat, Flam, Groove: Schlag nach, was dahintersteckt - von A bis Z.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
-          <button className="card has-icon" type="button" onClick={() => open("etude")}>
-            <TileIcon name="etude" />
-            <div className="card-kicker">{t("Baukasten")}</div>
-            <div className="card-title">{t("Snare-Etüden")}</div>
-            <div className="card-lead">{t("Baue eine kleine Etüde aus Rhythmus-Bausteinen oder lass den Zufall Takte füllen.")}</div>
-            <div className="card-go">{t("Öffnen")}</div>
-          </button>
           <button className="card has-icon" type="button" onClick={() => open("rhythm")}>
             <TileIcon name="rhythm" />
             <div className="card-kicker">{t("Groove")}</div>
@@ -409,10 +402,9 @@ export default function App() {
           : view === "archive" ? <Archive />
           : view === "lexicon" ? <Lexicon />
           : view === "rhythm" ? <RhythmArchive />
-          : view === "etude" ? <SnareEtude />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
       {/* Meine Grooves: Clip-Knopf sitzt dort im Layout unter dem Notenbild (RhythmArchive). */}
-      {["rudiments", "click", "pyramid", "stick", "etude"].includes(view) && !printOpen ? <PracticeClip title={t(meta.title)} view={view} /> : null}
+      {["rudiments", "click", "pyramid", "stick"].includes(view) && !printOpen ? <PracticeClip title={t(meta.title)} view={view} /> : null}
       </main>
     </div>
   );
