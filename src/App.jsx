@@ -349,7 +349,7 @@ export default function App() {
               <TileIcon name="etude" />
               <div className="card-kicker">{t("Baukasten")}</div>
               <div className="card-title">{t("Snare-Etüden")}</div>
-              <div className="card-lead">{t("Setze Vierer-Kacheln zu einer Etüde. Stufe 1 ein Takt, Stufe 2 zwei Viertel, Stufe 3 eine Viertel.")}</div>
+              {etudeOpen ? <div className="card-lead">{t("Setze Vierer-Kacheln zu einer Etüde. Stufe 1 ein Takt, Stufe 2 zwei Viertel, Stufe 3 eine Viertel.")}</div> : null}
               <div className="card-go">{t("Öffnen")}</div>
             </span>
           </button>
