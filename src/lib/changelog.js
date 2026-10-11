@@ -5,6 +5,13 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-10-11",
+    items: [
+      { de: "Snare-Etüden: Baukasten aus Rhythmus-Bausteinen. Stufe 1 Viertel, Stufe 2 Achtel, Stufe 3 16tel. Selbst setzen oder per Zufall füllen.",
+        en: "Snare etudes: a builder from rhythm cells. Level 1 quarters, level 2 eighths, level 3 16ths. Set them yourself or fill at random." },
+    ],
+  },
+  {
     date: "2026-10-09",
     items: [
       { de: "Meine Grooves: Dreh dein Handy quer! Beim Öffnen startet Meine Grooves jetzt im Querformat - so hast du alle Felder und die Noten bequem nebeneinander im Blick.",
