@@ -402,7 +402,7 @@ export default function App() {
           : view === "rhythm" ? <RhythmArchive />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
       {/* Meine Grooves: Clip-Knopf sitzt dort im Layout unter dem Notenbild (RhythmArchive). */}
-      {["rudiments", "click", "pyramid", "stick", "etude"].includes(view) && !printOpen ? <PracticeClip title={t(meta.title)} view={view} /> : null}
+      {["rudiments", "click", "pyramid", "stick"].includes(view) && !printOpen ? <PracticeClip title={t(meta.title)} view={view} /> : null}
       </main>
     </div>
   );
