@@ -30,6 +30,11 @@ export const HELP = {
     ["Takte", "1, 2 oder 4 Takte pro Stufe, immer im 4/4."],
     ["Clip", "Zeig, was du draufhast! Tipp auf ‚Clip‘, richte die Kamera auf deine Hände und dein Pad und starte mit ‚Aufnahme‘. ‚Drehen‘ wechselt zwischen Front- und Rückkamera. Oben im Video stehen Logo und Noten auf einer Glas-Kachel, darunter siehst du dich spielen - Click und Drums sind zusammen im Ton. Mit ‚Teilen‘ schickst du dein Video direkt an Freunde oder auf Social Media; bis dahin bleibt es nur auf deinem Gerät. Tipp: Mit Kopfhörern hörst du den Click am besten."],
   ],
+  etude: [
+    ["Stufe", "1 = Viertel im Takt, 2 = Achtel über 2 Viertel, 3 = 16tel pro Viertel."],
+    ["Bauen", "Zelle antippen setzt oder löscht eine Note. Zufall füllt die gewählte Taktzahl."],
+    ["Üben", "Start spielt die Etüde auf der Snare zum Click."],
+  ],
   grooves: [
     ["Erstellen", "Nur quer: Hi-Hat, Snare und Bass antippen. Eine Zeile wird aktiv, oben rechts gelten 1, + und e a. Taktzahl 1-4 sitzt neben der Vorschau."],
     ["Hochkant", "Nur die Notation. Zum Eintippen das Gerät quer drehen."],
