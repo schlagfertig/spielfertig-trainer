@@ -62,6 +62,14 @@ const GLYPHS = {
     </>
   ),
   // Meine Grooves: Pad-Raster wie im Groove-Editor
+  etude: (
+    <>
+      <path d="M6 22h20M6 16h20M6 10h20" />
+      <circle cx="11" cy="16" r="2.2" className="ti-acc" />
+      <circle cx="18" cy="10" r="2.2" className="ti-acc" />
+      <circle cx="22" cy="22" r="2.2" />
+    </>
+  ),
   rhythm: (
     <>
       <rect x="5" y="5" width="6" height="6" rx="1.8" className="ti-acc ti-fill" />
