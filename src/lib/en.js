@@ -22,6 +22,8 @@ export const EN = {
   "Noten": "Sheet Music",
   "Meine Grooves": "My grooves",
   "Snare-Etüden": "Snare etudes",
+  "Bald": "Soon",
+  "Coming soon": "Coming soon",
   "Baukasten": "Builder",
   "Baue eine kleine Etüde aus Rhythmus-Bausteinen oder lass den Zufall Takte füllen.": "Build a short etude from rhythm cells, or let chance fill the bars.",
   "Bauen": "Build",
