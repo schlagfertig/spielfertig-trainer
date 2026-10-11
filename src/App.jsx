@@ -7,6 +7,7 @@ import Lexicon from "./embedded/Lexicon.jsx";
 import Archive from "./embedded/Archive.jsx";
 import { PracticeClip } from "./lib/PracticeClip.jsx";
 import RhythmArchive, { lockGrooveLandscape, unlockGrooveLandscape } from "./embedded/RhythmArchive.jsx";
+import SnareEtude from "./embedded/SnareEtude.jsx";
 import { Help } from "./lib/Help.jsx";
 import { Welcome } from "./lib/Welcome.jsx";
 import FirstLesson, { loadBeginnerDone } from "./lib/FirstLesson.jsx";
@@ -49,6 +50,7 @@ const META = {
   stick: { title: "Hand Control", help: "stick" },
   archive: { title: "Noten", help: "archive" },
   rhythm: { title: "Meine Grooves", help: "grooves" },
+  etude: { title: "Snare-Etüden", help: "etude" },
   lexicon: { title: "Lexikon", help: "home" },
   impressum: { title: "Impressum", help: "home" },
   datenschutz: { title: "Datenschutz", help: "home" },
@@ -330,6 +332,13 @@ export default function App() {
             <div className="card-lead">{t("Downbeat, Flam, Groove: Schlag nach, was dahintersteckt - von A bis Z.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
+          <button className="card has-icon" type="button" onClick={() => open("etude")}>
+            <TileIcon name="etude" />
+            <div className="card-kicker">{t("Baukasten")}</div>
+            <div className="card-title">{t("Snare-Etüden")}</div>
+            <div className="card-lead">{t("Baue eine kleine Etüde aus Rhythmus-Bausteinen oder lass den Zufall Takte füllen.")}</div>
+            <div className="card-go">{t("Öffnen")}</div>
+          </button>
           <button className="card has-icon" type="button" onClick={() => open("rhythm")}>
             <TileIcon name="rhythm" />
             <div className="card-kicker">{t("Groove")}</div>
@@ -400,9 +409,10 @@ export default function App() {
           : view === "archive" ? <Archive />
           : view === "lexicon" ? <Lexicon />
           : view === "rhythm" ? <RhythmArchive />
+          : view === "etude" ? <SnareEtude />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
       {/* Meine Grooves: Clip-Knopf sitzt dort im Layout unter dem Notenbild (RhythmArchive). */}
-      {["rudiments", "click", "pyramid", "stick"].includes(view) && !printOpen ? <PracticeClip title={t(meta.title)} view={view} /> : null}
+      {["rudiments", "click", "pyramid", "stick", "etude"].includes(view) && !printOpen ? <PracticeClip title={t(meta.title)} view={view} /> : null}
       </main>
     </div>
   );
