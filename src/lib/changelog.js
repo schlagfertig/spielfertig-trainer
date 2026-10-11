@@ -7,6 +7,13 @@ export const CHANGELOG = [
   {
     date: "2026-10-11",
     items: [
+      { de: "Snare-Etüden sind vorerst deaktiviert.",
+        en: "Snare etudes are deactivated for now." },
+    ],
+  },
+  {
+    date: "2026-10-11",
+    items: [
       { de: "Snare-Etüden: Baukasten aus Rhythmus-Bausteinen. Stufe 1 Viertel, Stufe 2 Achtel, Stufe 3 16tel. Selbst setzen oder per Zufall füllen.",
         en: "Snare etudes: a builder from rhythm cells. Level 1 quarters, level 2 eighths, level 3 16ths. Set them yourself or fill at random." },
     ],
