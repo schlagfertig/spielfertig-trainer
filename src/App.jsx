@@ -68,6 +68,8 @@ function viewFromPath() {
 
 export default function App() {
   const [view, setView] = useState(viewFromPath);
+  const [etudeOpen, setEtudeOpen] = useState(() => { try { return localStorage.getItem("sf.v1.etude.open") === "1"; } catch { return false; } });
+  const etudeTaps = useRef(0);
   const [printOpen, setPrintOpen] = useState(false);
   const [stage, setStage] = useState(false);
   // Startwerte für ein Modul, wenn es aus der „Heute“-Karte geöffnet wird (sonst null = eigene Werte).
@@ -151,6 +153,7 @@ export default function App() {
     setPreset(nextPreset && typeof nextPreset === "object" && !("nativeEvent" in nextPreset) ? nextPreset : null);
     setPrintOpen(false);
     setStage(false);
+    if (next === "etude" && !etudeOpen) return;
     if (next === "rhythm") lockGrooveLandscape();
     else unlockGrooveLandscape();
     setView(next);
@@ -332,8 +335,17 @@ export default function App() {
             <div className="card-lead">{t("Downbeat, Flam, Groove: Schlag nach, was dahintersteckt - von A bis Z.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
-          <button className="card has-icon" type="button" onClick={() => open("etude")}>
+          <button className="card has-icon" type="button" onClick={() => {
+              if (etudeOpen) { open("etude"); return; }
+              etudeTaps.current += 1;
+              if (etudeTaps.current >= 7) {
+                try { localStorage.setItem("sf.v1.etude.open", "1"); } catch { /* ignore */ }
+                setEtudeOpen(true);
+                open("etude");
+              }
+            }}>
             <TileIcon name="etude" />
+            {etudeOpen ? null : <span className="soon">{t("Bald")} · {t("Coming soon")}</span>}
             <div className="card-kicker">{t("Baukasten")}</div>
             <div className="card-title">{t("Snare-Etüden")}</div>
             <div className="card-lead">{t("Setze Vierer-Kacheln zu einer Etüde. Stufe 1 ein Takt, Stufe 2 zwei Viertel, Stufe 3 eine Viertel.")}</div>
@@ -413,6 +425,7 @@ export default function App() {
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
       {/* Meine Grooves: Clip-Knopf sitzt dort im Layout unter dem Notenbild (RhythmArchive). */}
       {["rudiments", "click", "pyramid", "stick", "etude"].includes(view) && !printOpen ? <PracticeClip title={t(meta.title)} view={view} /> : null}
+      <style>{`.card .soon { position: absolute; top: 10px; left: 12px; z-index: 2; padding: 3px 8px; border-radius: 999px; background: #5cc8b8; color: #06120f; font: 800 11px Figtree, sans-serif; }`}</style>
       </main>
     </div>
   );
