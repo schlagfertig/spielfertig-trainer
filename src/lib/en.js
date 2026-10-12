@@ -20,7 +20,7 @@ export const EN = {
   "Click-Trainer": "Click Trainer",
   "Rhythmuspyramide": "Rhythm Pyramid",
   "Noten": "Sheet Music",
-  "Meine Grooves": "My grooves",
+  "Eigene Grooves": "My grooves",
   "Snare-Etüden": "Snare etudes",
   "Bald": "Soon",
   "Coming soon": "Coming soon",
