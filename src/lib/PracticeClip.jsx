@@ -54,7 +54,7 @@ export function PracticeClip(props) {
   return CLIP_ENABLED ? <PracticeClipInner {...props} /> : null;
 }
 
-// inline: Knopf im Layout statt schwebend (Meine Grooves: rechts unter dem Notenbild,
+// inline: Knopf im Layout statt schwebend (Eigene Grooves: rechts unter dem Notenbild,
 // damit die Spurnamen frei bleiben). Das Kamera-Dock haengt dann direkt am <body>,
 // damit es nicht in der Stapel-Ebene des Elternelements gefangen ist.
 function PracticeClipInner({ title, view, inline = false }) {
