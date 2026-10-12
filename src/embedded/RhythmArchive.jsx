@@ -437,7 +437,7 @@ export default function RhythmArchive() {
             <GrooveStaff grid={grid} bars={bars} playStep={-1} />
           </div>
           {/* Clip rechts direkt unter dem Notenbild - nicht schwebend über den Spurnamen. */}
-          <div className="rhythm-clip"><PracticeClip inline title={t("Meine Grooves")} view="rhythm" /></div>
+          <div className="rhythm-clip"><PracticeClip inline title={t("Eigene Grooves")} view="rhythm" /></div>
         </div>
       ) : null}
 
@@ -516,7 +516,7 @@ export default function RhythmArchive() {
             <div className="staff-label">{name.trim() || t("Neuer Rhythmus")}</div>
             <GrooveStaff grid={grid} bars={bars} playStep={playStep} />
           </div>
-          <div className="rhythm-clip"><PracticeClip inline title={t("Meine Grooves")} view="rhythm" /></div>
+          <div className="rhythm-clip"><PracticeClip inline title={t("Eigene Grooves")} view="rhythm" /></div>
         </div>
         <div className="rp-hear">
           <div className="seg" style={{ width: "fit-content" }}>
