@@ -61,7 +61,7 @@ const GLYPHS = {
       <path className="ti-acc" d="M18.6 13.1c1.4-.7 3-1 4.8-.9M18.6 17.1c1.4-.7 3-1 4.8-.9M18.6 21.1c1.4-.7 3-1 4.8-.9" />
     </>
   ),
-  // Meine Grooves: Pad-Raster wie im Groove-Editor
+  // Eigene Grooves: Pad-Raster wie im Groove-Editor
   etude: (
     <>
       <path d="M6 22h20M6 16h20M6 10h20" />
