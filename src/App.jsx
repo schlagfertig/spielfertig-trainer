@@ -21,6 +21,7 @@ import { LogoMetronome } from "./lib/LogoMetronome.jsx";
 import { SocialLinks } from "./lib/Social.jsx";
 import { TileIcon } from "./lib/HomeIcons.jsx";
 import { getLang, setLang, t } from "./lib/i18n.js";
+import { holdWake } from "./lib/wake.js";
 
 const FLAG_EN = (
   <svg viewBox="0 0 60 30" width="30" height="30" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -66,6 +67,11 @@ function viewFromPath() {
 
 export default function App() {
   const [view, setView] = useState(viewFromPath);
+  useEffect(() => {
+    const practice = ["rudiments", "click", "pyramid", "stick", "rhythm", "first", "nostick"].includes(view);
+    if (!practice) return undefined;
+    return holdWake();
+  }, [view]);
   const [printOpen, setPrintOpen] = useState(false);
   const [stage, setStage] = useState(false);
   // Startwerte für ein Modul, wenn es aus der „Heute“-Karte geöffnet wird (sonst null = eigene Werte).
