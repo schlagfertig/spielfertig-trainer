@@ -48,7 +48,7 @@ const META = {
   pyramid: { title: "Rhythmuspyramide", help: "pyramid" },
   stick: { title: "Hand Control", help: "stick" },
   archive: { title: "Noten", help: "archive" },
-  rhythm: { title: "Meine Grooves", help: "grooves" },
+  rhythm: { title: "Eigene Grooves", help: "grooves" },
   lexicon: { title: "Lexikon", help: "home" },
   impressum: { title: "Impressum", help: "home" },
   datenschutz: { title: "Datenschutz", help: "home" },
@@ -333,7 +333,7 @@ export default function App() {
           <button className="card has-icon" type="button" onClick={() => open("rhythm")}>
             <TileIcon name="rhythm" />
             <div className="card-kicker">{t("Groove")}</div>
-            <div className="card-title">{t("Meine Grooves")}</div>
+            <div className="card-title">{t("Eigene Grooves")}</div>
             <div className="card-lead">{t("Bau deinen eigenen Groove, gib ihm einen Namen und üb ihn mit dem SpinDial, bis er sitzt.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
@@ -401,7 +401,7 @@ export default function App() {
           : view === "lexicon" ? <Lexicon />
           : view === "rhythm" ? <RhythmArchive />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
-      {/* Meine Grooves: Clip-Knopf sitzt dort im Layout unter dem Notenbild (RhythmArchive). */}
+      {/* Eigene Grooves: Clip-Knopf sitzt dort im Layout unter dem Notenbild (RhythmArchive). */}
       {["rudiments", "click", "pyramid", "stick"].includes(view) && !printOpen ? <PracticeClip title={t(meta.title)} view={view} /> : null}
       </main>
     </div>
