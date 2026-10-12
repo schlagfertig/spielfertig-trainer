@@ -79,8 +79,8 @@ const GLYPHS = {
       <path d="M11.6 14.6l2.6-2.6M11.6 12l2.6 2.6" />
       <path d="M17.6 14.6l2.6-2.6M17.6 12l2.6 2.6" className="ti-acc" />
       <path d="M23.6 14.6l2.6-2.6M23.6 12l2.6 2.6" />
-      <ellipse cx="7" cy="26.2" rx="2.6" ry="1.8" className="ti-acc ti-fill" />
-      <path d="M9.4 26.2v-6" className="ti-acc" />
+      <ellipse cx="7" cy="24" rx="2.6" ry="1.8" className="ti-acc ti-fill" />
+      <path d="M4.5 24v5.4" className="ti-acc" />
       <ellipse cx="19" cy="16" rx="2.6" ry="1.8" className="ti-fill" />
     </>
   ),
