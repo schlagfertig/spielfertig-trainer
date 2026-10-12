@@ -368,7 +368,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           .page.tool .rud-tool .beat-loop { margin-top: 4px; }
           .rud-cheer { top: 18%; }
         }
-        .rud-random { position: relative; z-index: 3; margin-left: auto; min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid #5cc8b8; background: transparent; color: #5cc8b8; font: 800 14px Figtree, sans-serif; }
+        .rud-random { position: relative; z-index: 4; display: block; width: fit-content; margin: 0 0 10px auto; min-height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: #5cc8b8; color: #06120f; font: 800 15px Figtree, sans-serif; pointer-events: auto; }
         .rud-back { padding: 28px 8px 8px; color: #161a1d; text-align: left; }
         .rud-back h3 { margin: 12px 0 4px; font: 800 13px Figtree, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; color: #0b3d38; }
         .rud-back p { margin: 0; font: 600 15px/1.4 Figtree, sans-serif; }
@@ -380,7 +380,6 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           <div className="rud-title-row">
             <div className="rud-title-name">{rud.label}</div>
             <span className="rud-title-caret" aria-hidden="true">▾</span>
-            <button type="button" className="rud-random" onClick={(e) => { e.stopPropagation(); randomRud(); }}>{t("Zufall")}</button>
           </div>
           <select className="rud-title-select" value={rud.id} onChange={(e) => pickRud(Number(e.target.value))} aria-label={t("Rudiment wählen")}>
             {CATS.map((c) => (
@@ -392,6 +391,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
             ))}
           </select>
         </div>
+        <button type="button" className="rud-random" onClick={randomRud}>{t("Zufall")}</button>
         {info ? (
           <RudimentBack rud={rud} onBack={() => setInfo(false)} />
         ) : (
