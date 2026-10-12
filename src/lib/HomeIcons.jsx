@@ -72,13 +72,16 @@ const GLYPHS = {
   ),
   rhythm: (
     <>
-      <path d="M3 12.5h26M3 17.5h26M3 22.5h26" strokeWidth="1.1" opacity="0.45" />
-      <path d="M7 8.5v8M13 8.5v8M19 8.5v8M25 8.5v8" />
-      <path d="M7 8.5h18" className="ti-acc" />
-      <path d="M5.6 16.2l2.6-2.6M5.6 13.6l2.6 2.6" className="ti-acc" />
-      <path d="M11.6 16.2l2.6-2.6M11.6 13.6l2.6 2.6" />
-      <path d="M17.6 16.2l2.6-2.6M17.6 13.6l2.6 2.6" className="ti-acc" />
-      <path d="M23.6 16.2l2.6-2.6M23.6 13.6l2.6 2.6" />
+      <path d="M3 11h26M3 16h26M3 21h26" strokeWidth="1.1" opacity="0.45" />
+      <path d="M7 7v7M13 7v7M19 7v7M25 7v7" />
+      <path d="M7 7h18" className="ti-acc" />
+      <path d="M5.6 14.6l2.6-2.6M5.6 12l2.6 2.6" className="ti-acc" />
+      <path d="M11.6 14.6l2.6-2.6M11.6 12l2.6 2.6" />
+      <path d="M17.6 14.6l2.6-2.6M17.6 12l2.6 2.6" className="ti-acc" />
+      <path d="M23.6 14.6l2.6-2.6M23.6 12l2.6 2.6" />
+      <ellipse cx="7" cy="26.2" rx="2.6" ry="1.8" className="ti-acc ti-fill" />
+      <path d="M9.4 26.2v-6" className="ti-acc" />
+      <ellipse cx="19" cy="16" rx="2.6" ry="1.8" className="ti-fill" />
     </>
   ),
   // Noten: Notenblatt mit Achtelpaar
