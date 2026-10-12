@@ -6,7 +6,7 @@ export const HELP = {
     ["Rhythmuspyramide", "Subdivisionen auf und ab, 4tel bis 32tel."],
     ["Hand Control", "24 Handübungen. Fokus-Mode spielt 1⁠-⁠24 durch."],
     ["Noten", "Eigene Fotos/PDFs, nur auf diesem Gerät. Antippen = Vorschau, ‚Auswählen‘ = Vollbild mit Zoom."],
-    ["Meine Grooves", "Eigenen Groove bauen und üben. Eintippen nur quer, hochkant siehst du den Rhythmus."],
+    ["Eigene Grooves", "Eigenen Groove bauen und üben. Eintippen nur quer, hochkant siehst du den Rhythmus."],
     ["SpinDial", "Tippen = Start/Stop. Halten + drehen = Tempo."],
   ],
   rudiments: [
