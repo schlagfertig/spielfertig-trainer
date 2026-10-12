@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useLayoutEffect, useId } from "react";
 import { t } from "./i18n.js";
+import { holdWake } from "./wake.js";
 
 const TEAL = "#5cc8b8";
 const INK = "#161a1d";
@@ -349,6 +350,10 @@ export function MetronomeDial({
 }) {
   const large = size >= 72;
   const on = !!active;
+  useEffect(() => {
+    if (!on) return undefined;
+    return holdWake();
+  }, [on]);
   const fill = beat ? "#fff" : on ? TEAL : INK;
   const ring = beat ? "#fff" : TEAL;
   const num = beat ? TEAL : on ? INK : TEAL;
