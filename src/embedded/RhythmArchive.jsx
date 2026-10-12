@@ -146,7 +146,12 @@ function GrooveStaff({ grid, bars, playStep }) {
   );
 }
 
+function isPhone() {
+  return window.matchMedia("(max-width: 699px)").matches;
+}
+
 export async function lockGrooveLandscape() {
+  if (!isPhone()) return false;
   try {
     if (screen.orientation?.lock) await screen.orientation.lock("landscape");
     return true;
@@ -169,7 +174,7 @@ export function unlockGrooveLandscape() {
 export default function RhythmArchive() {
   const [screen, setScreen] = useState("build");
   useEffect(() => {
-    lockGrooveLandscape();
+    if (isPhone()) lockGrooveLandscape();
     return () => unlockGrooveLandscape();
   }, []);
   const [name, setName] = useState("");
@@ -607,7 +612,7 @@ export default function RhythmArchive() {
         .rhythm-save-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
         .rhythm-save { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
         .rhythm-save input { flex: 1; min-height: 40px; border-radius: 10px; border: 1px solid #2f383d; background: #101416; color: #f4f7f6; padding: 0 10px; }
-        @media (orientation: landscape) {
+        @media (orientation: portrait) and (min-width: 700px), (orientation: landscape) {
           .rhythm-arch { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 280px); gap: 14px 16px; align-items: start; padding-left: 4px; padding-right: 4px; }
           .rhythm-top, .rhythm-top.build { padding-right: 0; grid-column: 1; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
           .rhythm-bars { display: flex; margin-left: 0; }
