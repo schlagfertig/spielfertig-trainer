@@ -36,8 +36,8 @@ export const HELP = {
     ["Üben", "Start spielt die Etüde auf der Snare zum Click."],
   ],
   grooves: [
-    ["Erstellen", "Nur quer: Hi-Hat, Snare und Bass antippen. Eine Zeile wird aktiv, oben rechts gelten 1, + und e a. Taktzahl 1-4 sitzt neben der Vorschau."],
-    ["Hochkant", "Nur die Notation. Zum Eintippen das Gerät quer drehen."],
+    ["Erstellen", "Hi-Hat, Snare und Bass antippen. Eine Zeile wird aktiv, oben rechts gelten 1, + und e a. Taktzahl 1-4 sitzt neben der Vorschau."],
+    ["Hochkant", "Am Smartphone nur die Notation, zum Eintippen quer drehen. Auf dem iPad geht die Eingabe auch hochkant."],
     ["Speichern als…", "Fragt den Namen ab. Der Groove bleibt auf diesem Gerät."],
     ["Üben", "Nur Click, Playback oder Beides. Der Click blinkt auf den vollen Zählzeiten. SpinDial wie überall: tippen startet, drehen ändert das Tempo."],
     ["Clip", "Zeig, was du draufhast! Tipp auf ‚Clip‘, richte die Kamera auf deine Hände und dein Pad und starte mit ‚Aufnahme‘. ‚Drehen‘ wechselt zwischen Front- und Rückkamera. Oben im Video stehen Logo und Noten auf einer Glas-Kachel, darunter siehst du dich spielen - Click und Drums sind zusammen im Ton. Mit ‚Teilen‘ schickst du dein Video direkt an Freunde oder auf Social Media; bis dahin bleibt es nur auf deinem Gerät. Tipp: Mit Kopfhörern hörst du den Click am besten."],
