@@ -21,6 +21,8 @@ export const EN = {
   "Rhythmuspyramide": "Rhythm Pyramid",
   "Noten": "Sheet Music",
   "Eigene Grooves": "My grooves",
+  "Am Smartphone nur die Notation, zum Eintippen quer drehen. Auf dem iPad geht die Eingabe auch hochkant.": "On a phone, portrait shows notation only. Turn it sideways to enter notes. On iPad, portrait entry works too.",
+  "Hi-Hat, Snare und Bass antippen. Eine Zeile wird aktiv, oben rechts gelten 1, + und e a. Taktzahl 1-4 sitzt neben der Vorschau.": "Tap hi-hat, snare and bass. A row becomes active, then 1, + and e a apply. Bar count 1-4 sits beside the preview.",
   "Snare-Etüden": "Snare etudes",
   "Bald": "Soon",
   "Coming soon": "Coming soon",
