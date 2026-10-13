@@ -2,26 +2,6 @@ import { useMemo, useState } from "react";
 import { searchLexicon } from "../lib/lexicon.js";
 import { t, getLang } from "../lib/i18n.js";
 
-const SUB = {
-  akzent: "stressed stroke",
-  backbeat: "beats 2 and 4",
-  cowbell: "mounted metal bell",
-  cross: "shaft on the rim",
-  flam: "grace note + main stroke",
-  four: "bass drum on every beat",
-  ghost: "very soft stroke",
-  kessel: "the resonating body",
-  mallets: "yarn, felt or rubber heads",
-  offbeat: "the and between beats",
-  paradiddle: "singles and a double",
-  takt: "beats per bar",
-  triole: "three even strokes",
-  wirbel: "a long even roll",
-  fell: "the drumhead",
-  spannreifen: "the metal hoop",
-  sticksbesen: "sticks and brushes",
-};
-
 export default function Lexicon() {
   const [q, setQ] = useState("");
   const lang = getLang();
@@ -61,12 +41,7 @@ export default function Lexicon() {
         .lex-body { color: #d5dcde; font: 600 15px/1.45 Figtree, sans-serif; margin: 0 0 8px; }
         .lex-letter { color: #5cc8b8; font: 800 12px Figtree, sans-serif; letter-spacing: 0.14em; margin: 14px 0 0; }
         .lex-fig { margin: 0 0 14px; }
-        .lex-fig { position: relative; }
         .lex-fig img { display: block; width: 100%; height: auto; border-radius: 12px; background: #101416; }
-        .lex-cap { margin: 8px 2px 0; color: #8a969c; font: 600 13px/1.35 Figtree, sans-serif; }
-        .lex-overlay { position: absolute; left: 8%; right: 8%; bottom: 7%; border-radius: 16px; background: rgba(22,24,28,.94); text-align: center; padding: 10px 12px 12px; }
-        .lex-overlay strong { display: block; color: #f4f7f6; font: 800 22px/1.1 Figtree, sans-serif; }
-        .lex-overlay span { display: inline-block; margin-top: 6px; color: #5cc8b8; border: 1px solid #5cc8b8; border-radius: 999px; padding: 3px 10px; font: 700 13px Figtree, sans-serif; }
       `}</style>
       <p className="lex-lead">{t("Kurze Erklärungen zum Nachschlagen - tipp einen Begriff an.")}</p>
       <input
@@ -119,14 +94,8 @@ export default function Lexicon() {
               <p className="lex-body">{e.text}</p>
               {e.img ? (
                 <figure className="lex-fig">
+                  {/* Bild bleibt in der Liste - kein Vollbild mehr beim Antippen */}
                   <img src={e.img} alt={e.alt || e.term} loading="lazy" decoding="async" />
-                  {lang === "en" && e.img.includes("/begriffe/") ? (
-                    <div className="lex-overlay">
-                      <strong>{e.term}</strong>
-                      <span>{SUB[e.id] || e.alt}</span>
-                    </div>
-                  ) : null}
-                  {e.alt ? <figcaption className="lex-cap">{e.alt}</figcaption> : null}
                 </figure>
               ) : null}
             </details>
