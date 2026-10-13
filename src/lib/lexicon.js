@@ -494,7 +494,7 @@ export const LEXICON = [
 /** Eintrag in der gewünschten Sprache: { id, term, text, brand }. Englisch aus `en`, sonst Deutsch. */
 export function lexEntry(e, lang = "de") {
   const en = lang === "en" && e.en;
-  return { id: e.id, term: en ? e.en.term : e.term, text: en ? e.en.text : e.text, brand: !!e.brand, img: e.img || "", alt: en && e.en.alt ? e.en.alt : (e.alt || "") };
+  return { id: e.id, term: en ? e.en.term : e.term, text: en ? e.en.text : e.text, brand: !!e.brand, img: en && e.img && e.img.startsWith("/lexikon/noten-") ? e.img.replace("/lexikon/", "/lexikon/en/") : (e.img || ""), alt: en && e.en.alt ? e.en.alt : (e.alt || "") };
 }
 
 /** Liste in der gewünschten Sprache, A-Z nach dem Begriff dieser Sprache; Suche in Begriff und Text. */
