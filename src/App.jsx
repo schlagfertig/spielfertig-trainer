@@ -305,49 +305,49 @@ export default function App() {
             <TileIcon name="rudiments" />
             <div className="card-kicker">{t("Üben")}</div>
             <div className="card-title">Rudiments</div>
-            <div className="card-lead">{t("Meistere 40 Grundlagen für Technik, Kontrolle und Timing.")}<br />{t("Mit Notation, Click und Tempo.")}</div>
+            <div className="card-lead">{t("Hier die 40 berühmten International Drum Rudiments, die von der Percussive Arts Society seit 42 Jahren kuratiert werden.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card has-icon" onClick={() => open("click")}>
             <TileIcon name="click" />
             <div className="card-kicker">Tempo</div>
             <div className="card-title">{t("Click-Trainer")}</div>
-            <div className="card-lead">{t("Dein Tempo, dein Groove: Halte es sicher oder steigere es Schritt für Schritt.")}</div>
+            <div className="card-lead">{t("Halte dein Tempo und steigere deinen Groove Schritt für Schritt.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card has-icon" onClick={() => open("pyramid")}>
             <TileIcon name="pyramid" />
             <div className="card-kicker">Subdivision</div>
             <div className="card-title">{t("Rhythmuspyramide")}</div>
-            <div className="card-lead">{t("Von 4teln bis 32teln: Festige deinen Puls und wechsle sauber zwischen den Unterteilungen.")}</div>
+            <div className="card-lead">{t("Von 4teln bis 32teln: Übe deine Pulskontrolle und wechsle sauber zwischen den Unterteilungen.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card has-icon" onClick={() => open("stick")}>
             <TileIcon name="stick" />
             <div className="card-kicker">{t("Technik")}</div>
             <div className="card-title">{t("Hand Control")}</div>
-            <div className="card-lead">{t("Stärke deine schwache Hand, übe saubere Wechsel und halte das Tempo ganz locker.")}</div>
+            <div className="card-lead">{t("Stärke deine schwache Hand, übe saubere Wechsel und halte das Tempo.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card has-icon" onClick={() => open("lexicon")}>
             <TileIcon name="lexicon" />
             <div className="card-kicker">{t("Nachschlagen")}</div>
             <div className="card-title">{t("Lexikon")}</div>
-            <div className="card-lead">{t("Downbeat, Flam, Groove: Schlag nach, was dahintersteckt - von A bis Z.")}</div>
+            <div className="card-lead">{t("Manche Begriffe verwirren dich? Schlag nach!")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card has-icon" type="button" onClick={() => open("rhythm")}>
             <TileIcon name="rhythm" />
             <div className="card-kicker">{t("Groove")}</div>
             <div className="card-title">{t("Eigene Grooves")}</div>
-            <div className="card-lead">{t("Bau deinen eigenen Groove, gib ihm einen Namen und üb ihn mit dem SpinDial, bis er sitzt.")}</div>
+            <div className="card-lead">{t("Entwirf deinen eigenen Groove und übe ihn, bis er sitzt.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card has-icon" onClick={() => open("archive")}>
             <TileIcon name="archive" />
             <div className="card-kicker">{t("Eigene Blätter")}</div>
             <div className="card-title">{t("Noten")}</div>
-            <div className="card-lead">{t("Hab deine Noten immer dabei: Speichere Fotos und PDFs, schlag sie beim Üben auf und zoom hinein.")}</div>
+            <div className="card-lead">{t("Lade deine Notenblätter hoch, füge Notizen hinzu und nimm sie überall hin mit.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
         </div>
