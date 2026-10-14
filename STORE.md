@@ -2,7 +2,7 @@
 
 Die Web-App bleibt die Quelle. iOS/Android sind eine native Schale um `dist/`.
 
-App-Name: **Schlagfertig‽** (`appName` in `capacitor.config.json`; Manifest `name` „Schlagfertig‽ – Drums lernen“, `short_name` „Schlagfertig‽“), wie das Logo. Untertitel: „Drums lernen – Schlag für Schlag“ / EN „Learn drums – beat by beat“. Das ‽ kommt in der App aus `src/fonts/interrobang*.woff2` (Noto Sans, OFL). Paket-ID bleibt `de.schlagfertig.control`.  
+App-Name: **Schlagfertig‽** (`appName` in `capacitor.config.json`; Manifest `name` „Schlagfertig‽ – Drums lernen“, `short_name` „Schlagfertig‽“), wie das Logo. Untertitel: „Drums lernen – Schlag für Schlag“ / EN „Learn drums – beat by beat“. Das ‽ kommt in der App aus `src/fonts/interrobang*.woff2` (Noto Sans, OFL). Paket-ID bleibt `de.schlagfertig.app`.  
 Live im Browser: https://spielfertig-trainer.vercel.app  
 Die Vercel-Zugangssperre gilt **nicht** im Store-Build (kein Middleware, gebündeltes `dist`).
 
@@ -28,7 +28,7 @@ Oder getrennt: `npm run cap:sync` und danach Xcode / Android Studio öffnen.
 ## iOS → TestFlight / App Store
 
 - Apple-Developer-Konto (99 €/Jahr); gebaut wird per Cloud-Build (siehe unten), kein eigener Mac nötig
-- Bundle-ID: `de.schlagfertig.control` (in Apple Developer anlegen)
+- Bundle-ID: `de.schlagfertig.app` (in Apple Developer anlegen)
 - Signing: Dein Team in Xcode wählen
 - Icons/Splash: aus `assets/` erzeugt (siehe „Icons und Splash im Cloud-Build“)
 - Archive → TestFlight → Review
@@ -38,7 +38,7 @@ Apple lehnt oft „nur eine Website“ ab. Dagegen: Offline (gebündeltes `dist`
 ## Android → Play Store
 
 - Google-Play-Konto (~25 $ einmalig)
-- Application ID: `de.schlagfertig.control`
+- Application ID: `de.schlagfertig.app`
 - Cloud-Build: GitHub → Actions → „Android App Bundle (.aab)“ → Run workflow (`.github/workflows/android-aab.yml`). Ergebnis: Artefakt `schlagfertig-control-aab` (`app-release.aab`), versionCode = Run-Nummer, versionName `1.0.<Run>`.
 - Target SDK 36 (Play-Pflicht seit 31.08.2026): der Workflow setzt compile/targetSdk 36 und AGP 8.9.1 (Capacitor 7 bringt nur 35 mit).
 - Signatur: Upload-Key (Play App Signing), Secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`. Keystore sicher aufbewahren (Verlust → Upload-Key-Reset bei Google nötig).
