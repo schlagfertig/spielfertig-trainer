@@ -1,6 +1,6 @@
 {
-  "appId": "de.schlagfertig.control",
-  "appName": "Schlagfertig‽",
+  "appId": "de.schlagfertig.app",
+  "appName": "Schlagfertig\u203d",
   "webDir": "dist",
   "backgroundColor": "#161a1d",
   "ios": {
