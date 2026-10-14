@@ -48,16 +48,17 @@ jobs:
           --iconBackgroundColor '#161a1d' --iconBackgroundColorDark '#161a1d'
           --splashBackgroundColor '#161a1d' --splashBackgroundColorDark '#161a1d'
 
-      - name: Target SDK 36 (Play-Pflicht seit 31.08.2026) + Version
+      - name: Target SDK 36, min SDK 24 (Play-Schutz) + Version
         working-directory: android
         run: |
-          sed -i 's/compileSdkVersion = 35/compileSdkVersion = 36/; s/targetSdkVersion = 35/targetSdkVersion = 36/' variables.gradle
+          sed -i 's/compileSdkVersion = 35/compileSdkVersion = 36/; s/targetSdkVersion = 35/targetSdkVersion = 36/; s/minSdkVersion = 23/minSdkVersion = 24/' variables.gradle
           sed -i "s/com.android.tools.build:gradle:8.7.2/com.android.tools.build:gradle:8.9.1/" build.gradle
           sed -i "s/versionCode 1$/versionCode ${VERSION_CODE}/; s/versionName \"1.0\"/versionName \"${VERSION_NAME}\"/" app/build.gradle
           grep -n 'SdkVersion' variables.gradle
           grep -n 'tools.build:gradle' build.gradle
           grep -n 'versionCode\|versionName' app/build.gradle
           grep -q "targetSdkVersion = 36" variables.gradle
+          grep -q "minSdkVersion = 24" variables.gradle
           grep -q "versionCode ${VERSION_CODE}$" app/build.gradle
 
       - name: Signatur (Upload-Key)
