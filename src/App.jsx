@@ -267,7 +267,7 @@ export default function App() {
     open(next);
   }
   function cta(next) {
-    return canOpen(next) ? t("Öffnen") : DEMO_PRICE;
+    return canOpen(next) ? t("Öffnen") : t("Volle App");
   }
 
   if (view === "home") {
@@ -403,7 +403,7 @@ export default function App() {
           )}
           <div className="top-right">
             {view === "rudiments" && !stage && !printOpen && (
-              <button className="ghost" onClick={() => (unlocked ? setPrintOpen(true) : setPaywall(true))}>{unlocked ? t("Drucken") : DEMO_PRICE}</button>
+              <button className="ghost" onClick={() => (unlocked ? setPrintOpen(true) : setPaywall(true))}>{unlocked ? t("Drucken") : t("Volle App")}</button>
             )}
             {/* Fokus-Mode (früher „Übepad“): gleicher Name in beiden Zuständen, an = türkis gefüllt + aria-pressed */}
             {view === "rudiments" && !printOpen && (
