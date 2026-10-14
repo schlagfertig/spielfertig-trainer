@@ -550,4 +550,15 @@ export const EN = {
   "Ja, wirklich: zwei Bananen! Tipp ganz sanft auf den Tisch - du spürst den Puls, und das Obst bleibt heil.": "Yes, really: two bananas! Tap very gently on the table - you feel the pulse, and the fruit stays in one piece.",
   "Bananen-Beat gemeistert - und alles bleibt heil.": "Banana beat mastered - and everything’s still in one piece.",
   "Zeig, was du draufhast! Tipp auf ‚Clip‘, richte die Kamera auf deine Hände und dein Pad und starte mit ‚Aufnahme‘. ‚Drehen‘ wechselt zwischen Front- und Rückkamera. Oben im Video stehen Logo und Noten auf einer Glas-Kachel, darunter siehst du dich spielen - Click und Drums sind zusammen im Ton. Mit ‚Teilen‘ schickst du dein Video direkt an Freunde oder auf Social Media; bis dahin bleibt es nur auf deinem Gerät. Tipp: Mit Kopfhörern hörst du den Click am besten.": "Show what you've got! Tap ‘Clip’, point the camera at your hands and pad and start with ‘Record’. ‘Flip’ switches between front and back camera. Logo and notation sit on a glass card at the top of the video, you're playing below - click and drums are together in the sound. Tap ‘Share’ to send your video straight to friends or social media; until then it stays on your device. Tip: with headphones you hear the click best.",
+
+  // Demo
+  "Demo": "Demo",
+  "volle App": "full app",
+  "Volle App": "Full app",
+  "Einmalig. Danach alles offen: alle Rudiments, Hand Control, Rhythmuspyramide, Eigene Grooves und Drucken.": "One-time. Then everything is open: all rudiments, Hand Control, rhythm pyramid, your own grooves and printing.",
+  "In der Demo bleiben erste Übung, Click-Trainer, Single Stroke Roll und Lexikon offen.": "The demo keeps the first lesson, click trainer, Single Stroke Roll and the glossary open.",
+  "Code aus der Stunde": "Code from the lesson",
+  "Code passt nicht.": "Code does not match.",
+  "Freischalten": "Unlock",
+  "Schließen": "Close",
 };
