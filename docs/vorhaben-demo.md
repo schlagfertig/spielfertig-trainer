@@ -1,6 +1,6 @@
 # Vorhaben: Demo-Ausschnitt statt Katze im Sack
 
-Stand: 2026-10-06. Noch nicht gebaut. Preis 12,99 € einmalig, Anzeige auf der Startseite ist ausgeblendet (false && in src/App.jsx), Text behalten.
+Stand: 2026-10-14. Gebaut. Sperre in src/lib/demo.js, localStorage sf-unlocked. Code in der Stunde: sf-stunde. Preis 12,99 € einmalig, Anzeige auf der Startseite ist ausgeblendet (false && in src/App.jsx), Text behalten.
 
 Frei, ohne Ablaufdatum:
 - Erste Übung
