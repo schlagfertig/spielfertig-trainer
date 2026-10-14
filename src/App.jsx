@@ -22,6 +22,7 @@ import { SocialLinks } from "./lib/Social.jsx";
 import { TileIcon } from "./lib/HomeIcons.jsx";
 import { getLang, setLang, t } from "./lib/i18n.js";
 import { holdWake } from "./lib/wake.js";
+import { canOpen, isUnlocked, setUnlocked, DEMO_PRICE, unlockCodeOk } from "./lib/demo.js";
 
 const FLAG_EN = (
   <svg viewBox="0 0 60 30" width="30" height="30" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -74,6 +75,8 @@ export default function App() {
   }, [view]);
   const [printOpen, setPrintOpen] = useState(false);
   const [stage, setStage] = useState(false);
+  const [unlocked, setUnlockedState] = useState(isUnlocked);
+  const [paywall, setPaywall] = useState(false);
   // Startwerte für ein Modul, wenn es aus der „Heute“-Karte geöffnet wird (sonst null = eigene Werte).
   const [preset, setPreset] = useState(null);
   // Hand Control startet immer in der Fokus-Ansicht (aktuelle Übung groß, nächste als Vorschau).
@@ -151,8 +154,11 @@ export default function App() {
   }
 
   function open(next, nextPreset = null) {
+    if (!canOpen(next)) { setPaywall(true); return; }
     rememberHomeScroll();
-    setPreset(nextPreset && typeof nextPreset === "object" && !("nativeEvent" in nextPreset) ? nextPreset : null);
+    let preset = nextPreset && typeof nextPreset === "object" && !("nativeEvent" in nextPreset) ? nextPreset : null;
+    if (next === "rudiments" && !isUnlocked()) preset = { ...(preset || {}), rud: 1 };
+    setPreset(preset);
     setPrintOpen(false);
     setStage(false);
     if (next === "rhythm") lockGrooveLandscape();
@@ -256,9 +262,23 @@ export default function App() {
     };
   }, [view, stage, printOpen]);
 
+  function go(next) {
+    if (!canOpen(next)) { setPaywall(true); return; }
+    open(next);
+  }
+  function cta(next) {
+    return canOpen(next) ? t("Öffnen") : DEMO_PRICE;
+  }
+
   if (view === "home") {
     return (
       <div className={scrolled ? "page home is-scrolled" : "page home"}>
+      {paywall && (
+        <DemoPaywall
+          onClose={() => setPaywall(false)}
+          onUnlock={() => { setUnlocked(true); setUnlockedState(true); setPaywall(false); }}
+        />
+      )}
         <div className={helpHidden ? "home-help is-hidden" : "home-help"}>
           <button type="button" className="help-dot lang-flag" onClick={switchLang} aria-label={lang === "de" ? "Switch to English" : "Auf Deutsch umschalten"}>{lang === "de" ? FLAG_EN : FLAG_DE}</button>
           <div className="home-help-col">
@@ -272,7 +292,7 @@ export default function App() {
           <h1 className="app-logo" aria-label={`Schlagfertig‽ - ${t("Drums lernen - Schlag für Schlag")}`}>
             <span className="app-logo-sub" aria-hidden="true">{t("Drums lernen - Schlag für Schlag")}</span>
           </h1>
-          {false && <p className="app-price" style={{ margin: "6px 0 0", color: "#5cc8b8", font: "800 15px Figtree, sans-serif", letterSpacing: "0.02em" }}>12,99 € einmalig</p>}
+          {!unlocked && <p className="app-price" style={{ margin: "6px 0 0", color: "#5cc8b8", font: "800 15px Figtree, sans-serif", letterSpacing: "0.02em" }}>{t("Demo")} · {t("volle App")} {DEMO_PRICE}</p>}
         </header>
         {firstHidden ? null : (
           <div className={firstLeaving ? "first-wrap leaving" : "first-wrap"}>
@@ -315,19 +335,19 @@ export default function App() {
             <div className="card-lead">{t("Halte dein Tempo und steigere deinen Groove Schritt für Schritt.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
-          <button className="card has-icon" onClick={() => open("pyramid")}>
+          <button className="card has-icon" onClick={() => go("pyramid")}>
             <TileIcon name="pyramid" />
             <div className="card-kicker">Subdivision</div>
             <div className="card-title">{t("Rhythmuspyramide")}</div>
             <div className="card-lead">{t("Von 4teln bis 32teln: Übe deine Pulskontrolle und wechsle sauber zwischen den Unterteilungen.")}</div>
-            <div className="card-go">{t("Öffnen")}</div>
+            <div className="card-go">{cta("pyramid")}</div>
           </button>
-          <button className="card has-icon" onClick={() => open("stick")}>
+          <button className="card has-icon" onClick={() => go("stick")}>
             <TileIcon name="stick" />
             <div className="card-kicker">{t("Technik")}</div>
             <div className="card-title">{t("Hand Control")}</div>
             <div className="card-lead">{t("Stärke deine schwache Hand, übe saubere Wechsel und halte das Tempo.")}</div>
-            <div className="card-go">{t("Öffnen")}</div>
+            <div className="card-go">{cta("stick")}</div>
           </button>
           <button className="card has-icon" onClick={() => open("lexicon")}>
             <TileIcon name="lexicon" />
@@ -336,19 +356,19 @@ export default function App() {
             <div className="card-lead">{t("Manche Begriffe verwirren dich? Schlag nach!")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
-          <button className="card has-icon" type="button" onClick={() => open("rhythm")}>
+          <button className="card has-icon" type="button" onClick={() => go("rhythm")}>
             <TileIcon name="rhythm" />
             <div className="card-kicker">{t("Groove")}</div>
             <div className="card-title">{t("Eigene Grooves")}</div>
             <div className="card-lead">{t("Entwirf deinen eigenen Groove und übe ihn, bis er sitzt.")}</div>
-            <div className="card-go">{t("Öffnen")}</div>
+            <div className="card-go">{cta("rhythm")}</div>
           </button>
-          <button className="card has-icon" onClick={() => open("archive")}>
+          <button className="card has-icon" onClick={() => go("archive")}>
             <TileIcon name="archive" />
             <div className="card-kicker">{t("Eigene Blätter")}</div>
             <div className="card-title">{t("Noten")}</div>
             <div className="card-lead">{t("Lade deine Notenblätter hoch, füge Notizen hinzu und nimm sie überall hin mit.")}</div>
-            <div className="card-go">{t("Öffnen")}</div>
+            <div className="card-go">{cta("archive")}</div>
           </button>
         </div>
         <footer className="foot">
@@ -368,6 +388,12 @@ export default function App() {
   const meta = META[view] || META.rudiments;
   return (
     <div className={`page tool view-${view}${stage ? " stage" : ""}`}>
+      {paywall && (
+        <DemoPaywall
+          onClose={() => setPaywall(false)}
+          onUnlock={() => { setUnlocked(true); setUnlockedState(true); setPaywall(false); }}
+        />
+      )}
       <header className="top">
         <div className="top-row">
           {stage && !printOpen ? (
@@ -377,7 +403,7 @@ export default function App() {
           )}
           <div className="top-right">
             {view === "rudiments" && !stage && !printOpen && (
-              <button className="ghost" onClick={() => setPrintOpen(true)}>{t("Drucken")}</button>
+              <button className="ghost" onClick={() => (unlocked ? setPrintOpen(true) : setPaywall(true))}>{unlocked ? t("Drucken") : DEMO_PRICE}</button>
             )}
             {/* Fokus-Mode (früher „Übepad“): gleicher Name in beiden Zuständen, an = türkis gefüllt + aria-pressed */}
             {view === "rudiments" && !printOpen && (
@@ -410,6 +436,34 @@ export default function App() {
       {/* Eigene Grooves: Clip-Knopf sitzt dort im Layout unter dem Notenbild (RhythmArchive). */}
       {["rudiments", "click", "pyramid", "stick"].includes(view) && !printOpen ? <PracticeClip title={t(meta.title)} view={view} /> : null}
       </main>
+    </div>
+  );
+}
+
+function DemoPaywall({ onClose, onUnlock }) {
+  const [code, setCode] = useState("");
+  const [bad, setBad] = useState(false);
+  function tryCode() {
+    if (unlockCodeOk(code)) onUnlock();
+    else setBad(true);
+  }
+  return (
+    <div role="dialog" aria-modal="true" aria-label={t("Volle App")} style={{ position: "fixed", inset: 0, zIndex: 80, background: "rgba(8,10,12,.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div style={{ width: "min(420px, 100%)", background: "rgba(22,26,29,.94)", border: "1px solid rgba(92,200,184,.45)", borderRadius: 22, padding: 22, color: "#f4f7f6" }}>
+        <div style={{ color: "#5cc8b8", fontWeight: 800, letterSpacing: "0.04em" }}>{t("Demo")}</div>
+        <h2 style={{ margin: "6px 0 8px", fontSize: 26 }}>{t("Volle App")} · {DEMO_PRICE}</h2>
+        <p style={{ margin: "0 0 10px", color: "#c5d0d2", lineHeight: 1.4 }}>{t("Einmalig. Danach alles offen: alle Rudiments, Hand Control, Rhythmuspyramide, Eigene Grooves und Drucken.")}</p>
+        <p style={{ margin: "0 0 14px", color: "#c5d0d2", lineHeight: 1.4 }}>{t("In der Demo bleiben erste Übung, Click-Trainer, Single Stroke Roll und Lexikon offen.")}</p>
+        <label style={{ display: "block", fontSize: 14, color: "#9aa6aa" }}>
+          {t("Code aus der Stunde")}
+          <input value={code} onChange={(e) => { setCode(e.target.value); setBad(false); }} autoCapitalize="none" autoCorrect="off" style={{ display: "block", width: "100%", marginTop: 6, padding: "12px 14px", borderRadius: 12, border: "1px solid #3a4448", background: "#101416", color: "#f4f7f6", fontSize: 16 }} />
+        </label>
+        {bad && <p style={{ color: "#e07a7a", margin: "8px 0 0" }}>{t("Code passt nicht.")}</p>}
+        <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
+          <button type="button" onClick={tryCode} style={{ flex: 1, padding: "12px 14px", borderRadius: 14, border: 0, background: "#5cc8b8", color: "#10201c", fontWeight: 800 }}>{t("Freischalten")}</button>
+          <button type="button" onClick={onClose} style={{ flex: 1, padding: "12px 14px", borderRadius: 14, border: "1px solid #3a4448", background: "transparent", color: "#f4f7f6" }}>{t("Schließen")}</button>
+        </div>
+      </div>
     </div>
   );
 }
