@@ -78,7 +78,6 @@ test("middleware", async (t) => {
       assert.equal(r.headers.get("x-robots-tag"), "noindex");
       const html = await r.text();
       assert.match(html, /Testphase/);
-      assert.match(html, /Testing phase/);
       assert.match(html, /Angaben gemäß § 5 DDG/);
       assert.match(html, /sf_zugang/);
       assert.match(html, /sf_name/);
@@ -111,7 +110,8 @@ test("middleware", async (t) => {
   await t.test("Sperrseite verlinkt die öffentliche Datenschutzseite", async () => {
     const html = await (await middleware(req("/"))).text();
     assert.match(html, /href="\/datenschutz\.html"/);
-    assert.match(html, /href="\/privacy\.html"/);
+    const en = await (await middleware(req("/?lang=en"))).text();
+    assert.match(en, /href="\/privacy\.html"/);
   });
 
   await t.test("gültiger ?zugang= setzt Cookie und leitet auf saubere URL", async () => {
@@ -228,7 +228,41 @@ test("middleware", async (t) => {
     assert.equal(r1.headers.get("set-cookie"), null);
     assert.match(await r1.text(), /ungültig oder nicht mehr gültig/);
     const r2 = await middleware(req(`/?zugang=${old}`));
-    assert.match(await r2.text(), /abgelaufen/);
+    assert.equal(r2.headers.get("set-cookie"), null);
+    const h2 = await r2.text();
+    assert.match(h2, /Dein Zugang ist abgelaufen/);
+    assert.match(h2, /wa\.me\/4915225742199\?text=[^"]*anna-7k/);
+    assert.match(h2, /instagram\.com\/xschlagfertigx/);
+    assert.match(h2, /mailto:schlagfertig@icloud\.com\?subject=/);
+    assert.doesNotMatch(h2, /<script/);
+  });
+
+  await t.test("Sperrseite ohne Zugang: freundlich, drei Buttons ohne Kürzel, DE/EN", async () => {
+    const de = await (await middleware(req("/"))).text();
+    assert.match(de, /Testphase/);
+    assert.match(de, /wa\.me\/4915225742199\?text=/);
+    assert.doesNotMatch(de, /K%C3%BCrzel/);
+    assert.match(de, /instagram\.com\/xschlagfertigx/);
+    assert.match(de, /mailto:schlagfertig@icloud\.com\?subject=/);
+    assert.match(de, /name="zugang"/);
+    assert.match(de, /§ 5 DDG/);
+    assert.match(de, /sf_zugang/);
+    assert.doesNotMatch(de, /<script/);
+    const en = await (await middleware(new Request("https://spielfertig-trainer.vercel.app/", { headers: { "accept-language": "en-GB" } }))).text();
+    assert.match(en, /Testing phase/);
+    assert.match(en, /<html lang="en">/);
+    const inv = await (await middleware(req("/?zugang=quatsch&lang=en"))).text();
+    assert.match(inv, /invalid or no longer valid/);
+  });
+
+  await t.test("abgelaufen: Englisch per ?lang=en, sf_lang oder Accept-Language", async () => {
+    const en = /Your access has expired/;
+    assert.match(await (await middleware(req(`/?zugang=${old}&lang=en`))).text(), en);
+    assert.match(await (await middleware(req("/", `sf_lang=en; sf_zugang=${old}`))).text(), en);
+    const r = await middleware(new Request(`https://spielfertig-trainer.vercel.app/?zugang=${old}`, { headers: { "accept-language": "en-US,en;q=0.9" } }));
+    assert.match(await r.text(), en);
+    const de = await middleware(new Request(`https://spielfertig-trainer.vercel.app/?zugang=${old}`, { headers: { "accept-language": "de-DE,en;q=0.5" } }));
+    assert.match(await de.text(), /Dein Zugang ist abgelaufen/);
   });
 
   await t.test("gültiges Cookie: durchlassen (Seiten und Assets)", async () => {
