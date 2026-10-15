@@ -42,12 +42,23 @@ function cleanLang(raw) {
 // signiertem Link; das lesbare Cookie sf_gruss enthält weder Token noch Kürzel, gewährt keinen Zugang.
 const GRUSS = { claudi: "schatz" };
 
-function lock(state) {
-  return new Response(lockPage(state), {
+function lock(state, lang = "de") {
+  return new Response(lockPage(state, lang), {
     status: 200,
-    headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex" },
+    headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex", "referrer-policy": "no-referrer" },
   });
 }
+
+// Sprache der Sperrseite: ?lang= > Cookie sf_lang > Accept-Language (nur de/en)
+function pageLang(request, url, pasted) {
+  const q = cleanLang((pasted && pasted.lang) ?? url.searchParams.get("lang"));
+  if (q) return q;
+  const c = (request.headers.get("cookie") || "").match(/(?:^|;\s*)sf_lang=(de|en)(?:;|$)/);
+  if (c) return c[1];
+  const al = (request.headers.get("accept-language") || "").toLowerCase().split(",")[0].trim();
+  return al.startsWith("en") ? "en" : "de";
+}
+
 
 export default async function middleware(request) {
   const url = new URL(request.url);
@@ -60,7 +71,7 @@ export default async function middleware(request) {
     const pasted = fromPaste(raw);
     const token = pasted.token;
     const r = await verifyToken(secret, token, gesperrt);
-    if (!r.ok) return lock(r.reason === "expired" ? { expired: r.exp } : "invalid");
+    if (!r.ok) return lock(r.reason === "expired" ? { expired: r.exp, id: r.id } : "invalid", pageLang(request, url, pasted));
     const name = cleanName(pasted.name ?? url.searchParams.get("name"));
     const lang = cleanLang(pasted.lang ?? url.searchParams.get("lang"));
     url.searchParams.delete("zugang");
@@ -80,5 +91,5 @@ export default async function middleware(request) {
   if (url.pathname.startsWith("/assets/")) {
     return new Response("Kein Zugang", { status: 401, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
   }
-  return lock(r.reason === "expired" ? { expired: r.exp } : "none");
+  return lock(r.reason === "expired" ? { expired: r.exp, id: r.id } : "none", pageLang(request, url, null));
 }

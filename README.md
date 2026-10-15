@@ -10,7 +10,7 @@ Kein Login, kein Store, keine Setlist.
 
 ## Testzugang (persönliche Einladungslinks)
 
-Die App ist nur mit persönlichem Link nutzbar. `middleware.js` (Vercel Routing Middleware) prüft jede Anfrage; ohne gültigen Link erscheint die Sperrseite (`access/lockPage.js`, mit Impressum und Datenschutz-Kurzinfo).
+Die App ist nur mit persönlichem Link nutzbar. `middleware.js` (Vercel Routing Middleware) prüft jede Anfrage; ohne gültigen Link erscheint die Sperrseite (`access/lockPage.js`, DE/EN, mit Anfrage-Buttons, Impressum und Datenschutz-Kurzinfo; abgelaufene Links bekommen eine eigene freundliche Variante).
 
 - **Geheimnis:** Env-Var `ZUGANG_SECRET` in Vercel (mind. 32 Zeichen, Production + Preview). Nie ins Repo. Fehlt es, ist alles gesperrt.
 - **Link erzeugen:** `ZUGANG_SECRET=… npm run zugang -- anna` (21 Tage bis Tagesende Berlin), `… -- anna 30`, feste Kürzel: `… -- --id tom 365`. Mit `ZUGANG_LISTE=/pfad/links.csv` wird die Zuordnung Kürzel → Name außerhalb des Repos protokolliert.
