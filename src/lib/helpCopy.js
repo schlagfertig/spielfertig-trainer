@@ -35,6 +35,12 @@ export const HELP = {
     ["Bauen", "Vierer-Kachel wählen, dann die Stelle in der Etüde antippen. Länge am Rad, Zufall füllt alles."],
     ["Üben", "Start spielt die Etüde auf der Snare zum Click."],
   ],
+  dice: [
+    ["Würfeln", "Wähl 4 oder 8 Takte, eine Stufe und den Takt (4/4 oder 6/8), dann tipp auf ‚Würfeln‘. Die App setzt passende Rudiments zu deiner Etüde zusammen - 2/4-Rudiments spielst du zweimal pro Takt."],
+    ["Takt neu würfeln", "Ein Takt liegt dir nicht? Tipp auf 🎲 daneben - nur dieser Takt wird neu gewürfelt, der Rest bleibt."],
+    ["Üben", "SpinDial antippen = Start/Stop, drehen = Tempo. Der aktuelle Takt leuchtet mit. ‚Snare + Click‘ oder ‚Nur Snare‘ wählst du darüber."],
+    ["Labs", "Der Etüden-Würfel ist noch im Test. Deine letzte Etüde bleibt auf diesem Gerät gespeichert."],
+  ],
   grooves: [
     ["Erstellen", "Hi-Hat, Snare und Bass antippen. Eine Zeile wird aktiv, oben rechts gelten 1, + und e a. Taktzahl 1-4 sitzt neben der Vorschau."],
     ["Hochkant", "Am Smartphone nur die Notation, zum Eintippen quer drehen. Auf dem iPad geht die Eingabe auch hochkant."],

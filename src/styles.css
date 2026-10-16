@@ -843,3 +843,25 @@ body:has(.page.view-lexicon), body:has(.page.view-lexicon) #root, .page.tool.vie
 .ns-recap li > span:nth-child(2) { flex: 1; display: flex; flex-direction: column; gap: 2px; }
 .ns-recap small { color: var(--dim); font-size: 14px; }
 .ns-recap-ok { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: var(--teal); color: var(--ink); font-weight: 800; }
+
+/* Etüden-Würfel (Labs) */
+.ed-link { margin: 0 0 12px; border-color: rgba(92, 200, 184, 0.55); background: rgba(92, 200, 184, 0.06); }
+.ed-setup { padding: 12px; border-radius: 14px; display: grid; gap: 10px; }
+.ed-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ed-lab { min-width: 64px; color: var(--dim, #8a969c); font: 700 14px Figtree, sans-serif; }
+.ed-seg { flex: 1; display: flex; }
+.ed-seg button { flex: 1; min-height: 40px; }
+.ed-roll { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 54px; font: 800 20px Oswald, sans-serif; letter-spacing: 0.04em; border-color: var(--teal, #5cc8b8); }
+.ed-die { font-size: 26px; }
+.ed-bars { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 8px; }
+.ed-bar { background: #fff; border-radius: 12px; padding: 6px 8px 2px; border: 2px solid transparent; transition: border-color .15s, transform .3s; }
+.ed-bar.is-now { border-color: var(--teal, #5cc8b8); }
+.ed-bar.is-roll { animation: ed-pop .34s ease; }
+@keyframes ed-pop { 0% { transform: scale(.96) rotate(-1deg); opacity: .4; } 100% { transform: none; opacity: 1; } }
+.ed-bar-head { display: flex; align-items: center; gap: 8px; color: #161a1d; }
+.ed-num { width: 24px; height: 24px; border-radius: 50%; background: #161a1d; color: #fff; display: grid; place-items: center; font: 800 13px Figtree, sans-serif; }
+.ed-name { flex: 1; font: 700 14px Figtree, sans-serif; }
+.ed-name small { color: #8a969c; }
+.ed-reroll { min-width: 40px; min-height: 36px; padding: 0 8px; font-size: 18px; }
+.ed-staff svg { width: 100%; height: auto; display: block; }
+@media (orientation: landscape) and (min-width: 700px) { .ed-bars { grid-template-columns: 1fr 1fr; } }

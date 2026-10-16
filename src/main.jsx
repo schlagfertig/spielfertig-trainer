@@ -9,7 +9,9 @@ import "./styles-home.css";
 import "./lib/enableAltStick.js";
 import { initNative } from "./lib/native.js";
 import { installNoBounce } from "./lib/noBounce.js";
+import { initLabs } from "./lib/labs.js";
 
+initLabs();
 initNative();
 installNoBounce();
 
