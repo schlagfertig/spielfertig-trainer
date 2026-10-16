@@ -11,6 +11,8 @@ import { Help } from "./lib/Help.jsx";
 import { Welcome } from "./lib/Welcome.jsx";
 import FirstLesson, { loadBeginnerDone } from "./lib/FirstLesson.jsx";
 import NoStick from "./lib/NoStick.jsx";
+import EtudeDice from "./lib/EtudeDice.jsx";
+import { labsOn } from "./lib/labs.js";
 import { STEPS as BEGIN_STEPS, nextIndex as beginNext } from "./lib/beginner.js";
 import Today from "./lib/Today.jsx";
 import { FIRST_SKIP_KEY, hideFirstToday, isFirstHidden } from "./lib/firstSkip.js";
@@ -45,6 +47,7 @@ const FLAG_DE = (
 const META = {
   first: { title: "Einstieg", help: "home" },
   nostick: { title: "No-Stick-Challenge", help: "home" },
+  dice: { title: "Etüden-Würfel", help: "dice" },
   rudiments: { title: "Rudiments", help: "rudiments" },
   click: { title: "Click-Trainer", help: "click" },
   pyramid: { title: "Rhythmuspyramide", help: "pyramid" },
@@ -69,7 +72,7 @@ function viewFromPath() {
 export default function App() {
   const [view, setView] = useState(viewFromPath);
   useEffect(() => {
-    const practice = ["rudiments", "click", "pyramid", "stick", "rhythm", "first", "nostick"].includes(view);
+    const practice = ["rudiments", "click", "pyramid", "stick", "rhythm", "first", "nostick", "dice"].includes(view);
     if (!practice) return undefined;
     return holdWake();
   }, [view]);
@@ -320,6 +323,12 @@ export default function App() {
           </div>
         )}
         <Today onOpen={open} />
+        {/* Labs (nur mit ?labs=1 auf diesem Gerät): Funktionen im Test, für alle anderen unsichtbar */}
+        {labsOn() ? (
+          <button type="button" className="ns-link ed-link" onClick={() => open("dice")}>
+            <span aria-hidden="true">🎲</span> {`Labs: ${t("Etüden-Würfel")}`} <span className="ns-link-go" aria-hidden="true">›</span>
+          </button>
+        ) : null}
         <div className="cards">
           <button className="card has-icon" onClick={() => open("rudiments")}>
             <TileIcon name="rudiments" />
@@ -423,6 +432,7 @@ export default function App() {
       <main className="main">
         {view === "first" ? <FirstLesson key={preset?.step || "next"} onHome={goHome} onOpen={open} preset={preset} />
           : view === "nostick" ? <NoStick onHome={goHome} onOpen={open} />
+          : view === "dice" ? <EtudeDice />
           : view === "impressum" ? <Legal topic="impressum" onOpen={open} />
           : view === "datenschutz" ? <Legal topic="datenschutz" onOpen={open} />
           : view === "news" ? <News />
