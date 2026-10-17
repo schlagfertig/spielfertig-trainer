@@ -88,6 +88,9 @@ export default async function middleware(request) {
 
   const r = await verifyToken(secret, cookieValue(request), gesperrt);
   if (r.ok) return undefined; // durchlassen
+  if (url.pathname.startsWith("/api/")) {
+    return new Response(JSON.stringify({ error: "zugang" }), { status: 401, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+  }
   if (url.pathname.startsWith("/assets/")) {
     return new Response("Kein Zugang", { status: 401, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
   }
