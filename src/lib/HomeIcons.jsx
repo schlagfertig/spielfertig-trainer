@@ -43,11 +43,12 @@ const GLYPHS = {
       <rect className="ti-soft ti-fill" x="25" y="21.6" width="5" height="4.4" rx="2" />
     </>
   ),
-  // Hand Control: offene Hand mit Stick
+  // Hand Control: offene Hand mit Stick. Hand hautfarben hell (wie 👋🏻): Füllung #F7DECE, Kontur/Schatten #E0BBA4 (.ti-skin).
   stick: (
     <>
-      <path d="M10.5 16V8.6a1.7 1.7 0 0 1 3.4 0V15M13.9 14V6.4a1.7 1.7 0 0 1 3.4 0V14M17.3 14.2V7.6a1.7 1.7 0 0 1 3.4 0v8.2" />
-      <path d="M20.7 13.2a1.7 1.7 0 0 1 3.4 0v5.6c0 4.4-3.3 8-7.7 8h-.8c-2.6 0-4.4-1.2-5.8-3.4l-3.3-5.2a1.8 1.8 0 0 1 2.9-2.1l1.1 1.4" />
+      <path className="ti-skin" d="M20.7 13.2a1.7 1.7 0 0 1 3.4 0v5.6c0 4.4-3.3 8-7.7 8h-.8c-2.6 0-4.4-1.2-5.8-3.4l-3.3-5.2a1.8 1.8 0 0 1 2.9-2.1l1.1 1.4" />
+      <path className="ti-skin ti-nostroke" d="M11.4 13.4h8.4v5.4h-8.4z" />
+      <path className="ti-skin" d="M10.5 16V8.6a1.7 1.7 0 0 1 3.4 0V15M13.9 14V6.4a1.7 1.7 0 0 1 3.4 0V14M17.3 14.2V7.6a1.7 1.7 0 0 1 3.4 0v8.2" />
       <path className="ti-acc" d="M27.5 4.5 21.6 10.4" />
       <circle className="ti-acc ti-fill" cx="27.6" cy="4.4" r="1.4" />
     </>
