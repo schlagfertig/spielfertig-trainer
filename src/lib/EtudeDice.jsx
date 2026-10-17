@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useEffect, useRef, useState } from "react";
 import { RudimentStaff } from "./staff.jsx";
 import { MetronomeDial, Nudge } from "./metronome.jsx";
 import { playClick, playOrnament, unlockAudio } from "./audio.js";
@@ -8,7 +8,66 @@ import { BPM, BPM_MAX, BPM_MIN, LENGTHS, LEVELS, METERS, barOf, etudeEvents, rer
 
 // Etüden-Würfel (Labs, nur für Tom sichtbar): Länge + Schwierigkeit wählen, würfeln, Takt für Takt neu würfeln, üben.
 const DIM = "#8a969c";
+const clampBpm = (n) => Math.min(BPM_MAX, Math.max(BPM_MIN, Math.round(Number(n) || BPM.leicht)));
+
+// Notenbild eng zuschneiden: RudimentStaff hat oben/unten viel Luft (viewBox-Höhe fest) - hier nur der belegte Bereich.
+function tightenStaves(root) {
+  if (!root) return;
+  root.querySelectorAll(".ed-staff svg").forEach((svg) => {
+    try {
+      const cur = svg.getAttribute("viewBox") || "";
+      // Hat React die viewBox neu gesetzt (anderer Takt), gilt die neue als Original.
+      if (cur !== svg.dataset.tight) svg.dataset.vb = cur;
+      const vb = (svg.dataset.vb || "").split(/\s+/).map(Number);
+      if (vb.length !== 4) return;
+      const bb = svg.getBBox();
+      if (!bb.height) return;
+      const top = Math.max(0, bb.y - 4);
+      const bot = Math.min(vb[3], bb.y + bb.height + 4);
+      const tight = `${vb[0]} ${top} ${vb[2]} ${bot - top}`;
+      svg.dataset.tight = tight;
+      svg.setAttribute("viewBox", tight);
+    } catch { /* getBBox geht nur sichtbar - dann bleibt die Original-Ansicht */ }
+  });
+}
+
 const KICK = { color: "#5cc8b8", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", fontSize: 13, margin: "8px 0 10px" };
+
+// Klang-Symbole im Stil der Startseiten-Glyphen (HomeIcons): helle Linien (currentColor), türkise Akzente, Gold sparsam.
+function DrumGlyph() {
+  return (
+    <svg className="ed-glyph" viewBox="0 0 32 32" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+      <ellipse cx="16" cy="18" rx="10" ry="3.6" />
+      <path d="M6 18v5.2c0 2 4.5 3.6 10 3.6s10-1.6 10-3.6V18" />
+      <path className="ed-g-soft" d="M10 21.4v4M16 21.8v5M22 21.4v4" />
+      <path className="ed-g-acc" d="M8.5 5.5 18 15.2M23.5 5.5 14 15.2" />
+      <circle className="ed-g-acc ed-g-fill" cx="8.3" cy="5.3" r="1.5" />
+      <circle className="ed-g-acc ed-g-fill" cx="23.7" cy="5.3" r="1.5" />
+    </svg>
+  );
+}
+
+function MetroGlyph() {
+  return (
+    <svg className="ed-glyph" viewBox="0 0 32 32" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+      <path d="M12.6 4.5h6.8l5.1 22H7.5z" />
+      <path d="M7.5 26.5h17" />
+      <path className="ed-g-soft" d="M10.5 20.5h11" />
+      <path className="ed-g-acc" d="M16 22.5 21.8 8" />
+      <circle className="ed-g-gold" cx="19.9" cy="12.8" r="2.2" />
+    </svg>
+  );
+}
+
+// Klang-Knopf (Liquid Glass): Trommel = nur Snare, Trommel + Metronom = Snare + Click.
+function SoundBtn({ on, metro, label, onClick }) {
+  return (
+    <button type="button" className={`ed-snd${metro ? " ed-snd-click" : " ed-snd-snare"}${on ? " on" : ""}`} aria-pressed={on} aria-label={label} title={label} onClick={onClick}>
+      <DrumGlyph />
+      {metro ? <><span aria-hidden="true" className="ed-snd-plus">+</span><MetroGlyph /></> : null}
+    </button>
+  );
+}
 
 function Seg({ value, options, onChange, label }) {
   return (
@@ -29,7 +88,8 @@ export default function EtudeDice() {
   const [level, setLevel] = useState(LEVELS.some((l) => l.id === saved.level) ? saved.level : "leicht");
   const [meter, setMeter] = useState(METERS.includes(saved.meter) ? saved.meter : "4/4");
   const [etude, setEtude] = useState(saved.etude?.ids?.length ? saved.etude : null);
-  const [bpm, setBpm] = useState(saved.bpm || BPM.leicht);
+  const [bpm, setBpmRaw] = useState(clampBpm(saved.bpm || BPM.leicht));
+  const setBpm = (v) => setBpmRaw((b) => clampBpm(typeof v === "function" ? v(b) : v));
   const [click, setClick] = useState(saved.click !== false);
   const [playing, setPlaying] = useState(false);
   const [playT, setPlayT] = useState(-1);
@@ -72,30 +132,32 @@ export default function EtudeDice() {
     stop();
     const ctx = unlockAudio();
     const { ev, total } = etudeEvents(etude, { click, snare: true });
-    const stepSec = () => 60 / Math.max(30, bpmRef.current) / 4;
+    if (!ev.length) return;
+    const stepSec = () => 60 / Math.max(BPM_MIN, bpmRef.current) / 4;
     let cancelled = false;
     let timer = 0;
     let i = 0;
-    let cycle = ctx.currentTime + 0.05;
+    // Zeit der nächsten Note wird Schritt für Schritt mit dem aktuellen Tempo weitergezählt.
+    // So greift ein neues Tempo (SpinDial / ±5) sofort ab der nächsten Note - ohne Sprung, ohne verschluckte Noten.
+    let when = ctx.currentTime + 0.05;
     const schedule = () => {
       if (cancelled) return;
       const now = ctx.currentTime;
-      const horizon = now + 0.16;
-      while (!cancelled) {
+      if (when < now - 0.05) when = now + 0.02; // Tab im Hintergrund o. Ä.: neu einrasten statt nachholen
+      const horizon = now + 0.12;
+      while (!cancelled && when < horizon) {
         const e = ev[i];
-        const when = cycle + e.t * stepSec();
-        if (when >= horizon) break;
-        if (when >= now - 0.02) {
-          if (e.kind === "click") {
-            playClick(ctx, when, e.down);
-            const d = Math.max(0, (when - now) * 1000);
-            window.setTimeout(() => { if (cancelled) return; setBeat(true); window.setTimeout(() => setBeat(false), 80); }, d);
-          } else playOrnament(ctx, e.nt, when, "snare", stepSec());
-          const d = Math.max(0, (when - now) * 1000);
-          window.setTimeout(() => { if (!cancelled) setPlayT(e.t); }, d);
-        }
-        i += 1;
-        if (i >= ev.length) { i = 0; cycle += total * stepSec(); }
+        const step = stepSec();
+        const d = Math.max(0, (when - now) * 1000);
+        if (e.kind === "click") {
+          playClick(ctx, when, e.down);
+          window.setTimeout(() => { if (cancelled) return; setBeat(true); window.setTimeout(() => setBeat(false), 80); }, d);
+        } else playOrnament(ctx, e.nt, when, "snare", step);
+        window.setTimeout(() => { if (!cancelled) setPlayT(e.t); }, d);
+        const next = i + 1 < ev.length ? ev[i + 1].t : total;
+        when += (next - e.t) * step;
+        i = i + 1 < ev.length ? i + 1 : 0;
+        if (i === 0 && ev[0].t > 0) when += ev[0].t * step;
       }
       timer = window.setTimeout(schedule, 25);
     };
@@ -103,6 +165,9 @@ export default function EtudeDice() {
     schedule();
     stopRef.current = () => { cancelled = true; window.clearTimeout(timer); };
   }
+
+  const barsRef = useRef(null);
+  useLayoutEffect(() => { tightenStaves(barsRef.current); }, [etude]);
 
   const steps = etude?.meter === "6/8" ? 12 : 16;
   const curBar = playT < 0 ? -1 : Math.floor((playT + 1e-4) / steps);
@@ -124,7 +189,7 @@ export default function EtudeDice() {
       {etude ? (
         <>
           <div className="bg-meta" style={{ margin: "14px 0 8px" }}>{`${t("{n} Takte", { n: etude.ids.length })} · ${t(LEVELS.find((l) => l.id === etude.level)?.label || "")} · ${etude.meter}`}</div>
-          <ol className="ed-bars">
+          <ol className="ed-bars" ref={barsRef}>
             {etude.ids.map((id, i) => {
               const bar = barOf(id, etude.meter);
               const now = curBar === i;
@@ -142,18 +207,16 @@ export default function EtudeDice() {
               );
             })}
           </ol>
-          <div className="panel dock" style={{ position: "static", margin: "6px 0 14px", borderRadius: 12, boxShadow: "none", border: "1px solid transparent" }}>
-            <div className="ed-row" style={{ justifyContent: "center" }}>
-              <div className="seg ed-seg" role="radiogroup" aria-label={t("Klang")}>
-                <button type="button" role="radio" aria-checked={click} className={click ? "on" : ""} onClick={() => { setClick(true); if (playing) stop(); }}>{t("Snare + Click")}</button>
-                <button type="button" role="radio" aria-checked={!click} className={!click ? "on" : ""} onClick={() => { setClick(false); if (playing) stop(); }}>{t("Nur Snare")}</button>
-              </div>
+          <div className="panel dock ed-dock dial-row" style={{ position: "static", margin: "6px 0 14px", borderRadius: 12, boxShadow: "none", border: "1px solid transparent" }}>
+            <SoundBtn on={click} metro label={t("Snare + Click")} onClick={() => { setClick(true); if (playing) stop(); }} />
+            <SoundBtn on={!click} label={t("Nur Snare")} onClick={() => { setClick(false); if (playing) stop(); }} />
+            <span className="ed-n ed-m10"><Nudge by={-10} bpm={bpm} set={setBpm} min={BPM_MIN} max={BPM_MAX} /></span>
+            <span className="ed-n ed-m5"><Nudge by={-5} bpm={bpm} set={setBpm} min={BPM_MIN} max={BPM_MAX} /></span>
+            <div className="ed-dial">
+              <MetronomeDial bpm={bpm} setBpm={setBpm} min={BPM_MIN} max={BPM_MAX} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={124} now subLabel={playing ? "Stop" : "Start"} wheel />
             </div>
-            <div className="dial-row">
-              <Nudge by={-5} bpm={bpm} set={setBpm} min={BPM_MIN} max={BPM_MAX} />
-              <MetronomeDial bpm={bpm} setBpm={setBpm} min={BPM_MIN} max={BPM_MAX} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={150} now subLabel={playing ? "Stop" : "Start"} />
-              <Nudge by={5} bpm={bpm} set={setBpm} min={BPM_MIN} max={BPM_MAX} />
-            </div>
+            <span className="ed-n ed-p5"><Nudge by={5} bpm={bpm} set={setBpm} min={BPM_MIN} max={BPM_MAX} /></span>
+            <span className="ed-n ed-p10"><Nudge by={10} bpm={bpm} set={setBpm} min={BPM_MIN} max={BPM_MAX} /></span>
           </div>
           <p style={{ color: DIM, fontSize: 15, margin: "0 0 12px", textAlign: "center" }}>{t("Erst langsam, dann am SpinDial schneller drehen. Ein Takt gefällt dir nicht? Tipp auf 🎲.")}</p>
         </>
