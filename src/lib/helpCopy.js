@@ -38,7 +38,7 @@ export const HELP = {
   dice: [
     ["Würfeln", "Wähl 4 oder 8 Takte, eine Stufe und den Takt (4/4 oder 6/8), dann tipp auf ‚Würfeln‘. Die App setzt passende Rudiments zu deiner Etüde zusammen - 2/4-Rudiments spielst du zweimal pro Takt."],
     ["Takt neu würfeln", "Ein Takt liegt dir nicht? Tipp auf 🎲 daneben - nur dieser Takt wird neu gewürfelt, der Rest bleibt."],
-    ["Üben", "SpinDial antippen = Start/Stop, drehen = Tempo. Der aktuelle Takt leuchtet mit. ‚Snare + Click‘ oder ‚Nur Snare‘ wählst du darüber."],
+    ["Üben", "SpinDial antippen = Start/Stop, drehen = Tempo. Der aktuelle Takt leuchtet mit. Die Knöpfe neben dem SpinDial: Trommel + Metronom = Snare + Click, Trommel = nur Snare. ±5 und ±10 ändern das Tempo in Schritten."],
     ["Labs", "Der Etüden-Würfel ist noch im Test. Deine letzte Etüde bleibt auf diesem Gerät gespeichert."],
   ],
   grooves: [
