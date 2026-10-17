@@ -19,3 +19,22 @@ Die App ist nur mit persönlichem Link nutzbar. `middleware.js` (Vercel Routing 
 - **Sperren:** Kürzel in `access/gesperrt.json` eintragen, committen; wirkt nach dem Deploy auch für schon gesetzte Cookies.
 - **Alle Links auf einmal ungültig:** `ZUGANG_SECRET` in Vercel ändern und neu deployen.
 - **Tests:** `npm test`. Lokal (`npm run dev` / `preview`) läuft die Middleware nicht.
+
+## Test-Feedback (nur Web-/Testversion)
+
+Opt-in-Feedback nach Übungen, geheimer Dankeschön-Erfolg (Schwelle: `THANKS_AFTER` in `src/lib/feedbackRules.js`, Standard 7),
+Special Thanks. In der Store-App (`npm run build:cap`) ist alles aus (`__SF_STORE__`, `src/lib/feedbackClient.js`).
+
+- Server: `api/feedback.js` (Vercel Function), Speicher austauschbar in `api/_lib/store.js`.
+  Braucht eine Upstash-Redis-Datenbank aus dem Vercel Marketplace (setzt `KV_REST_API_URL` + `KV_REST_API_TOKEN`).
+  Ohne Speicher antwortet die Funktion 503 und die App hebt das Feedback im Postausgang auf dem Gerät auf.
+- `FEEDBACK_ADMIN_TOKEN` (Vercel-Env): `GET /api/feedback` mit `Authorization: Bearer …` exportiert alles als JSON;
+  `POST {type:"setcode", num:"SF-1234", code:"…", validUntil:"JJJJ-MM-TT"}` hinterlegt später den Code zu einer Nummer.
+- Testmodus: `?fbtest=1` (Erfolg nach 2, Frage schon nach 2 s), `&fbexpired=1` (Code gestern abgelaufen), `&fbcode=1` (gültiger Beispiel-Code), `?fbtest=0` aus.
+- Lokal: `npm run dev` bedient `/api/feedback` aus dem Arbeitsspeicher (Admin-Token `dev`).
+
+## „Neu in Schlagfertig“
+
+Einmal nach Minor/Major-Update (nicht Patch, nicht beim ersten Start); Inhalt `HIGHLIGHTS` in `src/lib/changelog.js`,
+Version in `src/lib/version.js` (= package.json). Pro App-Start höchstens ein Popup: Erfolg > Feedback-Frage > Neu (`src/lib/startModal.js`).
+Testhaken: `?whatsnew=1`.
