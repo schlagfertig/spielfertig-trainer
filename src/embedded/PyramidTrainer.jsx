@@ -4,6 +4,7 @@ import { RudimentStaff } from "../lib/staff.jsx";
 import { BeatGlyph } from "../lib/BeatGlyph.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
 import { t } from "../lib/i18n.js";
+import { usePracticeTrack } from "../lib/PracticeDiary.jsx";
 
 const DIM = "#8a969c";
 const TEAL = "#5cc8b8";
@@ -102,6 +103,8 @@ export default function PyramidTrainer({ preset = null } = {}) {
   const [dir, setDir] = useState("updown");
   const [enabled, setEnabled] = useState(() => new Set(STAGES.map((s) => s.id)));
   const [playing, setPlaying] = useState(false);
+  // Pyramide: ein Start → Stop (bzw. Ende) = ein Durchgang, auch über alle Stufen hinweg.
+  usePracticeTrack({ ex: "pyramid", playing, bpm });
   const [counting, setCounting] = useState(false);
   const [countN, setCountN] = useState(0);
   const [beat, setBeat] = useState(false);
