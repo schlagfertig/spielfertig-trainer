@@ -11,13 +11,13 @@ const address = [BRAND.person, BRAND.addressLine1, BRAND.addressLine2, "Deutschl
 
 export const PRIVACY_UPDATED = { de: "Oktober 2026", en: "October 2026" };
 
-export const PRIVACY = {
+const BASE = {
   de: {
     title: "Datenschutz",
     sections: [
       { h: "1. Verantwortlicher", body: [address, "\nE-Mail: ", mail, "\nTelefon: ", tel] },
       { h: "2. Allgemeines", body: [
-        "Schlagfertig‽ ist eine App zum Üben. Es gibt sie als Web-Version im Browser und als App für iOS und Android. Es gibt keine Registrierung und kein Nutzerkonto, kein Tracking und keine Werbung. Übungsdaten bleiben auf Ihrem Gerät.",
+        "Schlagfertig‽ ist eine App zum Üben. Es gibt sie als Web-Version im Browser und als App für iOS und Android. Es gibt keine Registrierung und kein Nutzerkonto, kein Tracking und keine Werbung. Übungsdaten bleiben auf deinem Gerät.",
       ] },
       { h: "3. Hosting (Web-Version)", body: [
         `Die Web-Version wird bei Vercel Inc. bereitgestellt (${BRAND.web}). Beim Aufruf verarbeitet der Hosting-Anbieter technisch notwendige Daten (z. B. IP-Adresse, Zeitpunkt, Browserkennung) in Server-Logs. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (Bereitstellung und Sicherheit der Website).`,
@@ -26,7 +26,7 @@ export const PRIVACY = {
         "In der App für iOS und Android sind Programm und Inhalte (einschließlich der Schriften) bereits enthalten. Bei der Nutzung lädt die App keine Inhalte von unserem Hosting-Server; für die Nutzung der App entstehen deshalb keine Server-Logs beim Hosting-Anbieter.\n\nFür Download und Updates über den App Store bzw. Google Play gelten die Datenschutzbestimmungen von Apple bzw. Google.",
       ] },
       { h: "5. Lokale Speicherung", body: [
-        "localStorage (Schlüsselpräfix „sf.v1.“): z. B. letzte Übungs-Einstellungen und ob Kurzhilfen schon gesehen wurden.\n\nIndexedDB („sf.archive.v1“): von Ihnen hinzugefügte Notenblätter (Fotos/PDFs), nur lokal auf diesem Gerät - kein Upload in unsere Cloud.\n\nIn der Web-Version liegen diese Daten im Browser, in der App im Speicher der App auf dem Gerät.\n\nRechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO bzw. § 25 Abs. 2 TDDDG (technisch erforderlich für die von Ihnen genutzte Funktion). Löschung: Browser-Daten für diese Seite löschen bzw. Blätter in der App entfernen; in der App für iOS/Android werden die Daten mit der App gelöscht.",
+        "localStorage (Schlüsselpräfix „sf.v1.“): z. B. letzte Übungs-Einstellungen und ob Kurzhilfen schon gesehen wurden.\n\nIndexedDB („sf.archive.v1“): von dir hinzugefügte Notenblätter (Fotos/PDFs), nur lokal auf diesem Gerät - kein Upload in unsere Cloud.\n\nIn der Web-Version liegen diese Daten im Browser, in der App im Speicher der App auf dem Gerät.\n\nRechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO bzw. § 25 Abs. 2 TDDDG (technisch erforderlich für die von dir genutzte Funktion). Löschung: Browser-Daten für diese Seite löschen bzw. Blätter in der App entfernen; in der App für iOS/Android werden die Daten mit der App gelöscht.",
       ] },
       { h: "6. Cookies und Analyse", body: [
         "Wir setzen keine eigenen Tracking-Cookies und keine Analyse-Tools (kein Google Analytics, Plausible, Matomo o. Ä.) ein.\n\nNur Web-Version (Testphase): Für den Testzugang setzen wir ein technisch notwendiges Cookie („sf_zugang“) mit einem pseudonymen Tester-Kürzel und Ablaufdatum; es dient nur dem Zugang, nicht der Analyse, und endet mit Ablauf des Einladungslinks (§ 25 Abs. 2 Nr. 2 TDDDG). Enthält der Einladungslink einen Vornamen oder eine Sprache, speichern wir sie in den Cookies „sf_name“ bzw. „sf_lang“ nur für die Begrüßung und die Startsprache der App; sie enden mit Ablauf des Links.",
@@ -35,10 +35,10 @@ export const PRIVACY = {
         "Die Schriftarten sind in der App enthalten und werden lokal ausgeliefert (Web-Version: vom selben Server wie die App). Es gibt keine Anfragen an Drittanbieter für Schriften (z. B. Google Fonts).",
       ] },
       { h: "8. Kontakt über WhatsApp, Instagram und E-Mail", body: [
-        "Die Kontakt-Knöpfe in der App öffnen WhatsApp, Instagram bzw. Ihr E-Mail-Programm erst, wenn Sie sie antippen. Erst dann werden Daten an den jeweiligen Dienst übertragen; dafür gelten dessen Datenschutzbestimmungen.",
+        "Die Kontakt-Knöpfe in der App öffnen WhatsApp, Instagram bzw. dein E-Mail-Programm erst, wenn du sie antippst. Erst dann werden Daten an den jeweiligen Dienst übertragen; dafür gelten dessen Datenschutzbestimmungen.",
       ] },
-      { h: "9. Ihre Rechte", body: [
-        "Sie haben Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung, Widerspruch und Datenübertragbarkeit sowie das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren. Zuständig ist das Bayerische Landesamt für Datenschutzaufsicht (BayLDA), Promenade 18, 91522 Ansbach, ", lda, ".",
+      { h: "9. Deine Rechte", body: [
+        "Du hast Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung, Widerspruch und Datenübertragbarkeit sowie das Recht, dich bei einer Datenschutz-Aufsichtsbehörde zu beschweren. Zuständig ist das Bayerische Landesamt für Datenschutzaufsicht (BayLDA), Promenade 18, 91522 Ansbach, ", lda, ".",
       ] },
       { h: "Stand", body: [PRIVACY_UPDATED.de] },
     ],
@@ -76,3 +76,32 @@ export const PRIVACY = {
     ],
   },
 };
+
+// Test-Feedback: nur Web-/Testversion (in der Store-App gibt es das Feature nicht). Text: App Store Lotse, Oktober 2026.
+export const PRIVACY_FEEDBACK = {
+  de: { h: "Test-Feedback", body: [
+    "Test-Feedback (nur in der Testversion, nur mit deiner Einwilligung): Wenn du zustimmst, sendet die App nach Übungen deine Bewertung (👍🏻/👎🏻), einen optionalen Kommentar, die Übung, das Datum und eine zufällige Geräte-Kennung ohne Bezug zu deinem Namen an einen Server bei Vercel. Das hilft mir, die App zu verbessern (Art. 6 Abs. 1 lit. a DSGVO). Kommentare zitiere ich nur, wenn du das ausdrücklich erlaubst. Deine Einwilligung kannst du jederzeit in den Einstellungen widerrufen. Die Daten lösche ich spätestens 6 Monate nach Ende der Testphase. Für die Special Thanks werden Name und Kontakt nur gespeichert, wenn du sie selbst einträgst.",
+  ] },
+  en: { h: "Test feedback", body: [
+    "Test feedback (test version only, only with your consent): if you agree, after exercises the app sends your rating (👍🏻/👎🏻), an optional comment, the exercise, the date and a random device ID with no link to your name to a server at Vercel. This helps me improve the app (Art. 6(1)(a) GDPR). I only quote comments if you explicitly allow it. You can withdraw your consent at any time in the settings. I delete the data no later than 6 months after the end of the testing phase. For the Special Thanks, your name and contact are only stored if you enter them yourself.",
+  ] },
+};
+
+// Abschnitt nach „6. Cookies und Analyse“ einfügen und die folgenden Nummern weiterzählen.
+function withFeedback(lang) {
+  const out = [];
+  let n = 0;
+  for (const sec of BASE[lang].sections) {
+    const m = sec.h.match(/^(\d+)\.\s*(.*)$/);
+    if (!m) { out.push(sec); continue; }
+    n += 1;
+    out.push({ ...sec, h: `${n}. ${m[2]}` });
+    if (m[1] === "6") { n += 1; out.push({ ...PRIVACY_FEEDBACK[lang], h: `${n}. ${PRIVACY_FEEDBACK[lang].h}` }); }
+  }
+  return { ...BASE[lang], sections: out };
+}
+
+// Store-App (Capacitor): ohne Test-Feedback.
+export const PRIVACY_APP = BASE;
+// Web-/Testversion und öffentliche /datenschutz.html: mit Test-Feedback.
+export const PRIVACY = { de: withFeedback("de"), en: withFeedback("en") };
