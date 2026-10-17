@@ -4,6 +4,7 @@ import { playClick, playClickLayer, unlockAudio } from "../lib/audio.js";
 import { NavScrub } from "../lib/NavScrub.jsx";
 import { t } from "../lib/i18n.js";
 import { TERNARY_ENABLED, TRI_LEN, triHands, triNotes } from "../lib/handTernary.js";
+import { usePracticeTrack } from "../lib/PracticeDiary.jsx";
 
 const DIM = "#8a969c";
 const TEAL = "#5cc8b8";
@@ -264,6 +265,7 @@ export default function StickControl({ preset = null } = {}) {
   ternaryRef.current = ternary;
   const idx = Math.max(0, EXERCISES.findIndex((e) => e.id === exId));
   const ex = EXERCISES[idx] || EXERCISES[0];
+  usePracticeTrack({ ex: "stick", item: ex.id, playing, bpm });
   const previous = EXERCISES.slice(0, idx);
   const nextEx = EXERCISES[idx + 1] || null;
   // Alle weiteren Übungen nach „Als Nächstes“ (idx+2 … 24) - bleiben erreichbar, gedämpft/unscharf wie die früheren
