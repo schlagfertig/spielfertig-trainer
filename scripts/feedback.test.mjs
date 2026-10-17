@@ -97,6 +97,11 @@ test("Datenschutz: Test-Feedback nur in der Web-/Testfassung", () => {
   }
   assert.match(JSON.stringify(PRIVACY.de), /spätestens 6 Monate nach Ende der Testphase/);
   assert.match(JSON.stringify(PRIVACY.de), /Art\. 6 Abs\. 1 lit\. a DSGVO/);
+  // Abschnitt 2: Ausnahme nur in der Web-/Testfassung
+  assert.ok(PRIVACY.de.sections[1].body.join("").includes("Kein Tracking, keine Werbung. Einzige Ausnahme: Wenn du in der Testversion freiwillig beim Test-Feedback mitmachst, wird dein Feedback ohne Namen gespeichert (siehe Abschnitt 7)."));
+  assert.ok(PRIVACY.en.sections[1].body.join("").includes("No tracking, no ads. The only exception: if you voluntarily take part in tester feedback in the test version, your feedback is stored without your name (see section 7)."));
+  assert.match(PRIVACY_APP.de.sections[1].body.join(""), /kein Tracking und keine Werbung\. Übungsdaten bleiben auf deinem Gerät\.$/);
+  assert.doesNotMatch(JSON.stringify(PRIVACY_APP), /Einzige Ausnahme|only exception/);
 });
 
 test("middleware: /api/* ohne Einladungs-Cookie → 401 JSON statt Sperrseite", async () => {
