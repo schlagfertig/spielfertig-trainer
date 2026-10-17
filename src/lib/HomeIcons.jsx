@@ -70,6 +70,26 @@ const GLYPHS = {
       <circle cx="22" cy="22" r="2.2" />
     </>
   ),
+  // Etüden-Würfel: Würfel mit türkisen Augen
+  dice: (
+    <>
+      <rect x="6" y="6" width="20" height="20" rx="5" />
+      <circle className="ti-acc ti-fill" cx="11.5" cy="11.5" r="2" />
+      <circle className="ti-acc ti-fill" cx="16" cy="16" r="2" />
+      <circle className="ti-acc ti-fill" cx="20.5" cy="20.5" r="2" />
+      <circle className="ti-fill ti-soft" cx="20.5" cy="11.5" r="1.6" />
+      <circle className="ti-fill ti-soft" cx="11.5" cy="20.5" r="1.6" />
+    </>
+  ),
+  // Übe-Tagebuch: geschlossenes Tagebuch mit Rücken, türkisem Lesezeichen und Häkchen
+  diary: (
+    <>
+      <path d="M9 5h14a2 2 0 0 1 2 2v20H9a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z" />
+      <path className="ti-soft" d="M11 5v22" />
+      <path className="ti-acc ti-fill" d="M19 5h4v8l-2-1.6-2 1.6z" />
+      <path className="ti-acc" d="M14 19.2l2.2 2.2 4.4-4.8" />
+    </>
+  ),
   rhythm: (
     <>
       <path d="M3 11h26M3 16h26M3 21h26" strokeWidth="1.1" opacity="0.45" />
