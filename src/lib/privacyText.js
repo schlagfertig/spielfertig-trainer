@@ -87,17 +87,26 @@ export const PRIVACY_FEEDBACK = {
   ] },
 };
 
+// Abschnitt 2 der Web-/Testversion: Ausnahme für das Test-Feedback (Store-App behält den alten Text). {n} = Nummer des Abschnitts Test-Feedback.
+const GENERAL_TESTER = {
+  de: "Schlagfertig‽ ist eine App zum Üben. Es gibt sie als Web-Version im Browser und als App für iOS und Android. Es gibt keine Registrierung und kein Nutzerkonto. Übungsdaten bleiben auf deinem Gerät. Kein Tracking, keine Werbung. Einzige Ausnahme: Wenn du in der Testversion freiwillig beim Test-Feedback mitmachst, wird dein Feedback ohne Namen gespeichert (siehe Abschnitt {n}).",
+  en: "Schlagfertig‽ is an app for practicing. It is available as a web version in the browser and as an app for iOS and Android. There is no registration and no user account. Practice data stays on your device. No tracking, no ads. The only exception: if you voluntarily take part in tester feedback in the test version, your feedback is stored without your name (see section {n}).",
+};
+
 // Abschnitt nach „6. Cookies und Analyse“ einfügen und die folgenden Nummern weiterzählen.
 function withFeedback(lang) {
   const out = [];
   let n = 0;
+  let fbNum = 0;
   for (const sec of BASE[lang].sections) {
     const m = sec.h.match(/^(\d+)\.\s*(.*)$/);
     if (!m) { out.push(sec); continue; }
     n += 1;
     out.push({ ...sec, h: `${n}. ${m[2]}` });
-    if (m[1] === "6") { n += 1; out.push({ ...PRIVACY_FEEDBACK[lang], h: `${n}. ${PRIVACY_FEEDBACK[lang].h}` }); }
+    if (m[1] === "6") { n += 1; fbNum = n; out.push({ ...PRIVACY_FEEDBACK[lang], h: `${n}. ${PRIVACY_FEEDBACK[lang].h}` }); }
   }
+  const general = out.findIndex((sec) => /^2\./.test(sec.h));
+  if (general >= 0) out[general] = { ...out[general], body: [GENERAL_TESTER[lang].replace("{n}", String(fbNum))] };
   return { ...BASE[lang], sections: out };
 }
 
