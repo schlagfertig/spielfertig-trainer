@@ -6,6 +6,7 @@ import { loadSession, saveSession } from "../lib/session.js";
 import { ClickAdvanced } from "../lib/ClickAdvanced.jsx";
 import { createMixClock, extrasOn, readMix, writeMix } from "../lib/clickMix.js";
 import { t } from "../lib/i18n.js";
+import { usePracticeTrack } from "../lib/PracticeDiary.jsx";
 
 const INK = "#161a1d";
 const LINE = "#2f383d";
@@ -66,6 +67,7 @@ export default function ClickTrainer({ preset = null } = {}) {
   const sheetCloseRef = useRef(null);
   const sheetRef = useRef(null);
   const [playing, setPlaying] = useState(false);
+  usePracticeTrack({ ex: "click", playing, bpm });
   const [beat, setBeat] = useState(false);
   const [left, setLeft] = useState(0);
   const [done, setDone] = useState("");
