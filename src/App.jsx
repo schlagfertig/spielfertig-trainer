@@ -24,6 +24,10 @@ import { SocialLinks } from "./lib/Social.jsx";
 import { TileIcon } from "./lib/HomeIcons.jsx";
 import { getLang, setLang, t } from "./lib/i18n.js";
 import { holdWake } from "./lib/wake.js";
+import TesterFeedback, { FeedbackLink } from "./lib/TesterFeedback.jsx";
+import WhatsNew from "./lib/WhatsNew.jsx";
+import { startModal } from "./lib/startModal.js";
+import { APP_VERSION } from "./lib/version.js";
 import { canOpen, isUnlocked, setUnlocked, DEMO_PRICE, unlockCodeOk } from "./lib/demo.js";
 
 const FLAG_EN = (
@@ -101,6 +105,17 @@ export default function App() {
   const [welcomeOpen, setWelcomeOpen] = useState(() => !loadSession("welcomeSeen", {}).seen);
   // „Nicht heute“: Karte „Erste Übung starten“ bis Tagesende ausblenden (gespeichert: nur der Tag).
   // Der Tag wird bei jedem Rendern neu verglichen - nach Mitternacht ist die Karte wieder da.
+  // Höchstens ein Start-Popup pro App-Start (Erfolg > Test-Feedback-Frage > „Neu in Schlagfertig“), nur beim Öffnen
+  // auf der Startseite nach der Begrüßung - nie während oder nach einer Übung (startModal.js).
+  const openedOnHome = useRef(view === "home");
+  if (view !== "home") openedOnHome.current = false;
+  const [startPick, setStartPick] = useState(null);
+  const startPicked = useRef(false);
+  useEffect(() => {
+    if (view !== "home" || welcomeOpen || startPicked.current) return;
+    startPicked.current = true;
+    setStartPick(startModal({ onHome: openedOnHome.current }));
+  }, [view, welcomeOpen]);
   const [firstSkip, setFirstSkip] = useState(() => loadSession(FIRST_SKIP_KEY, {}));
   const [firstLeaving, setFirstLeaving] = useState(false);
   const [, setTick] = useState(0);
@@ -391,15 +406,18 @@ export default function App() {
         </div>
         <footer className="foot">
           <div className="foot-copy">Copyright by Thomas Schuster</div>
-          <div className="foot-copy">Version 1.0.2</div>
+          <div className="foot-copy">Version {APP_VERSION}</div>
           <SocialLinks />
           <div className="foot-links">
             <button type="button" className="foot-link" onClick={() => open("impressum")}>{t("Impressum")}</button>
             <button type="button" className="foot-link" onClick={() => open("datenschutz")}>{t("Datenschutz")}</button>
+            <FeedbackLink />
           </div>
         </footer>
         <Welcome onClose={() => setWelcomeOpen(false)} />
         <DiaryToast />
+        <TesterFeedback pick={startPick} />
+        {startPick === "whatsnew" ? <WhatsNew onOpen={open} onClose={() => setStartPick(null)} onNews={() => { setStartPick(null); open("news"); }} /> : null}
       </div>
     );
   }
@@ -455,6 +473,7 @@ export default function App() {
           : view === "rhythm" ? <RhythmArchive />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
       <DiaryToast />
+      <TesterFeedback />
       {/* Eigene Grooves: Clip-Knopf sitzt dort im Layout unter dem Notenbild (RhythmArchive). */}
       {["rudiments", "click", "pyramid", "stick"].includes(view) && !printOpen ? <PracticeClip title={t(meta.title)} view={view} /> : null}
       </main>
