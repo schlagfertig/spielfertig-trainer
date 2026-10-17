@@ -5,6 +5,15 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-10-17",
+    items: [
+      { de: "Neu: der Etüden-Würfel! Würfel dir aus den 40 Rudiments deine eigene Etüde - 4 oder 8 Takte, Leicht, Mittel oder Schwer, 4/4 oder 6/8. Ein Takt gefällt dir nicht? Tipp auf 🎲 und nur dieser Takt wird neu gewürfelt. Gespielt wird mit SpinDial, Snare und Click - du findest ihn auf der Startseite.",
+        en: "New: Etude Dice! Roll your own etude from the 40 rudiments - 4 or 8 bars, easy, medium or hard, 4/4 or 6/8. Don't like a bar? Tap 🎲 and only that bar gets rerolled. Play it with the SpinDial, snare and click - you'll find it on Home." },
+      { de: "Neu: dein Übe-Tagebuch! Spiel mindestens 30 Sekunden am Stück - nach Stop trägt die App deine Übung automatisch ein, mit Übezeit und höchstem Tempo. In der Monatsauswertung siehst du, wie viel du geübt hast, den Vergleich zum Vormonat, deine Lieblingszeit am Tag und deine Top 3. Leg los und füll dein Tagebuch!",
+        en: "New: your practice diary! Play for at least 30 seconds in a row - after Stop the app logs your exercise automatically, with practice time and top tempo. The monthly review shows how much you practised, how it compares with last month, your favourite time of day and your top 3. Get going and fill your diary!" },
+    ],
+  },
+  {
     date: "2026-10-11",
     items: [
       { de: "Snare-Etüden sind vorerst deaktiviert.",
