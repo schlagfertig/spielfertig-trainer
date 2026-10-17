@@ -5,7 +5,7 @@
 
 // Haushalts-„Instrumente“: name, tip (so geht's), yay (Lob nach der Runde).
 export const OBJECTS = [
-  { id: "haende", emoji: "👐", name: "Deine Hände",
+  { id: "haende", emoji: "👐🏻", name: "Deine Hände",
     tip: "Trommel flach mit den Händen auf deine Oberschenkel oder die Tischplatte. Locker aus dem Handgelenk - nicht hauen, federn lassen.",
     yay: "Hände-Groove: Du hast immer ein Instrument dabei." },
   { id: "kochloeffel", emoji: "🥄", name: "Zwei Kochlöffel",
@@ -20,7 +20,7 @@ export const OBJECTS = [
   { id: "stifte", emoji: "✏️", name: "Zwei Stifte",
     tip: "Zwei Stifte, ein Notizblock - fertig ist dein Reise-Pad. Spiel ganz locker aus den Fingern, die Stifte dürfen zurückfedern.",
     yay: "Dein Schreibtisch groovt jetzt mit." },
-  { id: "finger", emoji: "☝️", name: "Deine Zeigefinger",
+  { id: "finger", emoji: "☝🏻", name: "Deine Zeigefinger",
     tip: "Nur die Zeigefinger auf der Tischkante: leise wie eine Maus, aber genau auf dem Klick.",
     yay: "Leise, aber punktgenau - stark!" },
   { id: "zeitung", emoji: "📰", name: "Zwei Zeitungsrollen",
