@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { BRAND } from "./brand.js";
 import { getLang, t } from "./i18n.js";
-import { PRIVACY } from "./privacyText.js";
+import { PRIVACY, PRIVACY_APP } from "./privacyText.js";
+import { FEEDBACK_ENABLED } from "./feedbackClient.js";
 
 function lines(...parts) {
   return parts.filter(Boolean).join("\n");
@@ -11,7 +12,7 @@ function lines(...parts) {
 function PrivacyBody({ lang }) {
   return (
     <>
-      {PRIVACY[lang].sections.map((sec) => (
+      {(FEEDBACK_ENABLED ? PRIVACY : PRIVACY_APP)[lang].sections.map((sec) => (
         <section className="legal-block" key={sec.h}>
           <h2>{sec.h}</h2>
           <p>
