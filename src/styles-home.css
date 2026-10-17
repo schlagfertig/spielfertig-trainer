@@ -70,6 +70,9 @@
 .tile-icon .ti-fill { fill: currentColor; stroke: none; }
 .tile-icon .ti-acc.ti-fill { fill: #7fe3d3; }
 .tile-icon .ti-soft { opacity: 0.55; }
+/* Hände: helle Hautfarbe wie 👋🏻 (Fitzpatrick 1-2), Kontur als Schatten */
+.tile-icon .ti-skin { fill: #f7dece; stroke: #e0bba4; }
+.tile-icon .ti-nostroke { stroke: none; }
 .home .card.has-icon:hover .tile-icon { border-color: rgba(127, 227, 211, 0.55); }
 @media (max-width: 360px) {
   .home .card.has-icon { padding-right: 86px; }
