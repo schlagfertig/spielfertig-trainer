@@ -10,6 +10,7 @@ import { PrintDialog } from "./PrintDialog.jsx";
 import { rudimentInfo } from "../lib/rudimentInfo.js";
 import { t, getLang } from "../lib/i18n.js";
 import { pickCheer } from "../lib/cheers.js";
+import { usePracticeTrack } from "../lib/PracticeDiary.jsx";
 
 const HEAR_OK = ["snare", "hands", "click"];
 const HEARS = [
@@ -105,6 +106,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
   const bpmRef = useRef(bpm); bpmRef.current = bpm;
   const hearRef = useRef(hear); hearRef.current = hear;
   const rud = RUDIMENTS.find((r) => r.id === sel) || RUDIMENTS[0];
+  usePracticeTrack({ ex: "rudiments", item: rud.id, label: String(rud.label || "").replace(/^\d+\.\s*/, ""), playing, bpm });
   const idx = Math.max(0, RUDIMENTS.findIndex((r) => r.id === rud.id));
   const meterNow = meterPulse(rud.time);
   const beatsInBar = Math.max(1, Math.round(meterNow.bar / meterNow.pulse));
