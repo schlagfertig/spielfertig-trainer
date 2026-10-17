@@ -579,6 +579,6 @@ export const EN = {
   "Labs": "Labs",
   "Wähl 4 oder 8 Takte, eine Stufe und den Takt (4/4 oder 6/8), dann tipp auf ‚Würfeln‘. Die App setzt passende Rudiments zu deiner Etüde zusammen - 2/4-Rudiments spielst du zweimal pro Takt.": "Pick 4 or 8 bars, a level and the meter (4/4 or 6/8), then tap ‘Roll the dice’. The app builds your etude from matching rudiments - 2/4 rudiments are played twice per bar.",
   "Ein Takt liegt dir nicht? Tipp auf 🎲 daneben - nur dieser Takt wird neu gewürfelt, der Rest bleibt.": "Not feeling a bar? Tap the 🎲 next to it - only that bar gets rerolled, the rest stays.",
-  "SpinDial antippen = Start/Stop, drehen = Tempo. Der aktuelle Takt leuchtet mit. ‚Snare + Click‘ oder ‚Nur Snare‘ wählst du darüber.": "Tap the SpinDial = start/stop, spin = tempo. The current bar lights up. Choose ‘Snare + click’ or ‘Snare only’ above it.",
+  "SpinDial antippen = Start/Stop, drehen = Tempo. Der aktuelle Takt leuchtet mit. Die Knöpfe neben dem SpinDial: Trommel + Metronom = Snare + Click, Trommel = nur Snare. ±5 und ±10 ändern das Tempo in Schritten.": "Tap the SpinDial = start/stop, spin = tempo. The current bar lights up. The buttons next to the SpinDial: drum + metronome = snare + click, drum = snare only. ±5 and ±10 change the tempo in steps.",
   "Der Etüden-Würfel ist noch im Test. Deine letzte Etüde bleibt auf diesem Gerät gespeichert.": "Etude Dice is still in testing. Your last etude stays saved on this device.",
 };
