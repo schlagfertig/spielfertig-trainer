@@ -395,3 +395,14 @@ export const CHANGELOG = [
 
 // Datum des neuesten Eintrags (für den „neu“-Punkt auf der Startseite).
 export const CHANGELOG_LATEST = CHANGELOG[0]?.date || "";
+
+// „Neu in Schlagfertig“-Popup: Highlights je Minor-Version („1.1“). Erscheint einmal nach einem Minor/Major-Update
+// (nicht bei Patch, nicht beim allerersten Start). Für die nächste Version einfach einen Eintrag ergänzen.
+// action: Ansicht, die „Jetzt ausprobieren“ öffnet (wie in App.jsx open()).
+export const HIGHLIGHTS = {
+  "1.1": {
+    action: "dice",
+    de: { title: "Neu in Schlagfertig 🥁", lines: ["🎲 Etüden-Würfel: Jede Übung neu, Takt für Takt.", "📓 Übe-Tagebuch: Sieh, wie du besser wirst."], go: "Jetzt ausprobieren", later: "Später" },
+    en: { title: "New in Schlagfertig 🥁", lines: ["🎲 Etude Dice: A fresh exercise every time, bar by bar.", "📓 Practice Diary: See how you're getting better."], go: "Try it now", later: "Later" },
+  },
+};
