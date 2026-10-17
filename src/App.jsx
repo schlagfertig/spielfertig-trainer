@@ -12,7 +12,7 @@ import { Welcome } from "./lib/Welcome.jsx";
 import FirstLesson, { loadBeginnerDone } from "./lib/FirstLesson.jsx";
 import NoStick from "./lib/NoStick.jsx";
 import EtudeDice from "./lib/EtudeDice.jsx";
-import { labsOn } from "./lib/labs.js";
+import PracticeDiary, { DiaryToast } from "./lib/PracticeDiary.jsx";
 import { STEPS as BEGIN_STEPS, nextIndex as beginNext } from "./lib/beginner.js";
 import Today from "./lib/Today.jsx";
 import { FIRST_SKIP_KEY, hideFirstToday, isFirstHidden } from "./lib/firstSkip.js";
@@ -48,6 +48,7 @@ const META = {
   first: { title: "Einstieg", help: "home" },
   nostick: { title: "No-Stick-Challenge", help: "home" },
   dice: { title: "Etüden-Würfel", help: "dice" },
+  diary: { title: "Übe-Tagebuch", help: "diary" },
   rudiments: { title: "Rudiments", help: "rudiments" },
   click: { title: "Click-Trainer", help: "click" },
   pyramid: { title: "Rhythmuspyramide", help: "pyramid" },
@@ -323,12 +324,6 @@ export default function App() {
           </div>
         )}
         <Today onOpen={open} />
-        {/* Labs (nur mit ?labs=1 auf diesem Gerät): Funktionen im Test, für alle anderen unsichtbar */}
-        {labsOn() ? (
-          <button type="button" className="ns-link ed-link" onClick={() => open("dice")}>
-            <span aria-hidden="true">🎲</span> {`Labs: ${t("Etüden-Würfel")}`} <span className="ns-link-go" aria-hidden="true">›</span>
-          </button>
-        ) : null}
         <div className="cards">
           <button className="card has-icon" onClick={() => open("rudiments")}>
             <TileIcon name="rudiments" />
@@ -336,6 +331,13 @@ export default function App() {
             <div className="card-title">Rudiments</div>
             <div className="card-lead">{t("Hier die 40 berühmten International Drum Rudiments, die von der Percussive Arts Society seit 42 Jahren kuratiert werden.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
+          </button>
+          <button className="card has-icon" onClick={() => go("dice")}>
+            <TileIcon name="dice" />
+            <div className="card-kicker">{`${t("Neu")} · ${t("Etüde")}`}</div>
+            <div className="card-title">{t("Etüden-Würfel")}</div>
+            <div className="card-lead">{t("Würfel dir aus den 40 Rudiments deine eigene Etüde - jedes Mal neu, Takt für Takt.")}</div>
+            <div className="card-go">{cta("dice")}</div>
           </button>
           <button className="card has-icon" onClick={() => open("click")}>
             <TileIcon name="click" />
@@ -357,6 +359,13 @@ export default function App() {
             <div className="card-title">{t("Hand Control")}</div>
             <div className="card-lead">{t("Stärke deine schwache Hand, übe saubere Wechsel und halte das Tempo.")}</div>
             <div className="card-go">{cta("stick")}</div>
+          </button>
+          <button className="card has-icon dy-card" onClick={() => open("diary")}>
+            <TileIcon name="diary" />
+            <div className="card-kicker">{`${t("Neu")} · ${t("Fortschritt")}`}</div>
+            <div className="card-title">{t("Übe-Tagebuch")}</div>
+            <div className="card-lead">{t("Deine Übezeit zählt automatisch mit - ab 30 Sekunden am Stück. Mit Monatsauswertung und deinen Top 3.")}</div>
+            <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card has-icon" onClick={() => open("lexicon")}>
             <TileIcon name="lexicon" />
@@ -390,6 +399,7 @@ export default function App() {
           </div>
         </footer>
         <Welcome onClose={() => setWelcomeOpen(false)} />
+        <DiaryToast />
       </div>
     );
   }
@@ -433,6 +443,7 @@ export default function App() {
         {view === "first" ? <FirstLesson key={preset?.step || "next"} onHome={goHome} onOpen={open} preset={preset} />
           : view === "nostick" ? <NoStick onHome={goHome} onOpen={open} />
           : view === "dice" ? <EtudeDice />
+          : view === "diary" ? <PracticeDiary />
           : view === "impressum" ? <Legal topic="impressum" onOpen={open} />
           : view === "datenschutz" ? <Legal topic="datenschutz" onOpen={open} />
           : view === "news" ? <News />
@@ -443,6 +454,7 @@ export default function App() {
           : view === "lexicon" ? <Lexicon />
           : view === "rhythm" ? <RhythmArchive />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
+      <DiaryToast />
       {/* Eigene Grooves: Clip-Knopf sitzt dort im Layout unter dem Notenbild (RhythmArchive). */}
       {["rudiments", "click", "pyramid", "stick"].includes(view) && !printOpen ? <PracticeClip title={t(meta.title)} view={view} /> : null}
       </main>
