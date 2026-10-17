@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { loadSession, saveSession } from "./session.js";
 import { getLang, t } from "./i18n.js";
+import { offerFeedback } from "./feedbackClient.js";
 import { SLOTS, bumpBpm, createSession, dayKey, endSession, groupByDay, markToasted, minutes, monthKey, monthStats, needsToast, normalizeLog, record, removeEntry, restoreEntry, shiftMonth, weekStats } from "./practiceLog.js";
 
 // Übe-Tagebuch: speichert lokal (sf.v1.diary), Schalter in sf.v1.diaryPrefs (Standard: an).
@@ -43,15 +44,19 @@ export function usePracticeTrack({ ex, item = null, label = "", playing, bpm }) 
   }, [bpm, playing]);
 
   useEffect(() => {
-    if (!playing || !tracking()) return undefined;
+    if (!playing) return undefined;
+    const track = tracking();
     sess.current = createSession(ex, item, label, bpm, Date.now());
     return () => {
       const seg = endSession(sess.current, Date.now());
       sess.current = null;
-      if (!seg || !tracking()) return;
+      if (!seg) return;
+      const stopped = !playingRef.current || !alive.current;
+      // Test-Feedback (nur Testversion, nur mit Einwilligung): nach Stop kurz fragen - unabhängig vom Tagebuch-Schalter.
+      if (stopped) offerFeedback(seg);
+      if (!track || !tracking()) return;
       let { log, entry } = record(loadLog(), seg);
       if (entry) { saveLog(log); if (needsToast(log, entry.id)) pending.current = entry.id; }
-      const stopped = !playingRef.current || !alive.current;
       if (!stopped || !pending.current) return;
       const id = pending.current;
       pending.current = null;
