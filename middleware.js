@@ -63,6 +63,8 @@ function pageLang(request, url, pasted) {
 export default async function middleware(request) {
   const url = new URL(request.url);
   if (FREI.has(url.pathname)) return undefined; // durchlassen
+  // Admin-Export: GET /api/feedback mit Bearer-Token durchlassen; das Token prüft die Function (sonst 403).
+  if (url.pathname === "/api/feedback" && request.method === "GET" && /^Bearer\s+\S/.test(request.headers.get("authorization") || "")) return undefined;
   const secret = process.env.ZUGANG_SECRET;
   if (!secret) console.error("ZUGANG_SECRET fehlt: alle Anfragen gesperrt");
 
