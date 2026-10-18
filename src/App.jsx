@@ -51,7 +51,7 @@ const FLAG_DE = (
 const META = {
   first: { title: "Einstieg", help: "home" },
   nostick: { title: "No-Stick-Challenge", help: "home" },
-  dice: { title: "Etüden-Würfel", help: "dice" },
+  dice: { title: "Rudiment-Würfel", help: "dice" },
   diary: { title: "Übe-Tagebuch", help: "diary" },
   rudiments: { title: "Rudiments", help: "rudiments" },
   click: { title: "Click-Trainer", help: "click" },
@@ -350,7 +350,7 @@ export default function App() {
           <button className="card has-icon" onClick={() => go("dice")}>
             <TileIcon name="dice" />
             <div className="card-kicker">{`${t("Neu")} · ${t("Etüde")}`}</div>
-            <div className="card-title">{t("Etüden-Würfel")}</div>
+            <div className="card-title">{t("Rudiment-Würfel")}</div>
             <div className="card-lead">{t("Würfel dir aus den 40 Rudiments deine eigene Etüde - jedes Mal neu, Takt für Takt.")}</div>
             <div className="card-go">{cta("dice")}</div>
           </button>

@@ -14,8 +14,8 @@ export const CHANGELOG = [
   {
     date: "2026-10-17",
     items: [
-      { de: "Neu: der Etüden-Würfel! Würfel dir aus den 40 Rudiments deine eigene Etüde - 4 oder 8 Takte, Leicht, Mittel oder Schwer, 4/4 oder 6/8. Ein Takt gefällt dir nicht? Tipp auf 🎲 und nur dieser Takt wird neu gewürfelt. Gespielt wird mit SpinDial, Snare und Click - du findest ihn auf der Startseite.",
-        en: "New: Etude Dice! Roll your own etude from the 40 rudiments - 4 or 8 bars, easy, medium or hard, 4/4 or 6/8. Don't like a bar? Tap 🎲 and only that bar gets rerolled. Play it with the SpinDial, snare and click - you'll find it on Home." },
+      { de: "Neu: der Rudiment-Würfel! Würfel dir aus den 40 Rudiments deine eigene Etüde - 4 oder 8 Takte, Leicht, Mittel oder Schwer, 4/4 oder 6/8. Ein Takt gefällt dir nicht? Tipp auf 🎲 und nur dieser Takt wird neu gewürfelt. Gespielt wird mit SpinDial, Snare und Click - du findest ihn auf der Startseite.",
+        en: "New: Rudiment Dice! Roll your own etude from the 40 rudiments - 4 or 8 bars, easy, medium or hard, 4/4 or 6/8. Don't like a bar? Tap 🎲 and only that bar gets rerolled. Play it with the SpinDial, snare and click - you'll find it on Home." },
       { de: "Neu: dein Übe-Tagebuch! Spiel mindestens 30 Sekunden am Stück - nach Stop trägt die App deine Übung automatisch ein, mit Übezeit und höchstem Tempo. In der Monatsauswertung siehst du, wie viel du geübt hast, den Vergleich zum Vormonat, deine Lieblingszeit am Tag und deine Top 3. Leg los und füll dein Tagebuch!",
         en: "New: your practice diary! Play for at least 30 seconds in a row - after Stop the app logs your exercise automatically, with practice time and top tempo. The monthly review shows how much you practised, how it compares with last month, your favourite time of day and your top 3. Get going and fill your diary!" },
     ],
@@ -410,12 +410,12 @@ export const HIGHLIGHTS = {
   "1.2": {
     action: "click",
     preset: { mode: "noclick" },
-    de: { title: "Neu in Schlagfertig 1.2 🥁", lines: ["🔇 NoClick: Click an, Click aus, du hältst das Tempo.", "🎲 Etüden-Würfel: Jede Übung neu, Takt für Takt.", "📓 Übe-Tagebuch: Sieh, wie du besser wirst."], go: "Jetzt ausprobieren", later: "Später" },
-    en: { title: "New in Schlagfertig 1.2 🥁", lines: ["🔇 NoClick: Click on, click off, you keep the time.", "🎲 Etude Dice: A fresh exercise every time, bar by bar.", "📓 Practice Diary: See how you're getting better."], go: "Try it now", later: "Later" },
+    de: { title: "Neu in Schlagfertig 1.2 🥁", lines: ["🔇 NoClick: Click an, Click aus, du hältst das Tempo.", "🎲 Rudiment-Würfel: Jede Übung neu, Takt für Takt.", "📓 Übe-Tagebuch: Sieh, wie du besser wirst."], go: "Jetzt ausprobieren", later: "Später" },
+    en: { title: "New in Schlagfertig 1.2 🥁", lines: ["🔇 NoClick: Click on, click off, you keep the time.", "🎲 Rudiment Dice: A fresh exercise every time, bar by bar.", "📓 Practice Diary: See how you're getting better."], go: "Try it now", later: "Later" },
   },
   "1.1": {
     action: "dice",
-    de: { title: "Neu in Schlagfertig 🥁", lines: ["🎲 Etüden-Würfel: Jede Übung neu, Takt für Takt.", "📓 Übe-Tagebuch: Sieh, wie du besser wirst."], go: "Jetzt ausprobieren", later: "Später" },
-    en: { title: "New in Schlagfertig 🥁", lines: ["🎲 Etude Dice: A fresh exercise every time, bar by bar.", "📓 Practice Diary: See how you're getting better."], go: "Try it now", later: "Later" },
+    de: { title: "Neu in Schlagfertig 🥁", lines: ["🎲 Rudiment-Würfel: Jede Übung neu, Takt für Takt.", "📓 Übe-Tagebuch: Sieh, wie du besser wirst."], go: "Jetzt ausprobieren", later: "Später" },
+    en: { title: "New in Schlagfertig 🥁", lines: ["🎲 Rudiment Dice: A fresh exercise every time, bar by bar.", "📓 Practice Diary: See how you're getting better."], go: "Try it now", later: "Later" },
   },
 };

@@ -9,7 +9,7 @@ const LOG_KEY = "diary";
 const PREF_KEY = "diaryPrefs";
 const TOAST_EVENT = "sf-diary-toast";
 
-export const EX_TITLE = { rudiments: "Rudiments", click: "Click-Trainer", pyramid: "Rhythmuspyramide", stick: "Hand Control", dice: "Etüden-Würfel" };
+export const EX_TITLE = { rudiments: "Rudiments", click: "Click-Trainer", pyramid: "Rhythmuspyramide", stick: "Hand Control", dice: "Rudiment-Würfel" };
 
 export function loadLog() { return normalizeLog(loadSession(LOG_KEY, { entries: [] })); }
 export function saveLog(log) { saveSession(LOG_KEY, log); }
