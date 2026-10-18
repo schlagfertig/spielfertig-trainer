@@ -5,6 +5,13 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-10-18",
+    items: [
+      { de: "Neu im Click-Trainer: NoClick! Click an, Click aus, du hältst das Tempo. Stell ein, wie viele Takte mit und ohne Click laufen - zwei Balken und ein großer Countdown zeigen dir, wo du gerade bist.",
+        en: "New in the Click Trainer: NoClick! Click on, click off, you keep the time. Choose how many bars run with and without the click - two bars and a big countdown show you where you are." },
+    ],
+  },
+  {
     date: "2026-10-17",
     items: [
       { de: "Neu: der Etüden-Würfel! Würfel dir aus den 40 Rudiments deine eigene Etüde - 4 oder 8 Takte, Leicht, Mittel oder Schwer, 4/4 oder 6/8. Ein Takt gefällt dir nicht? Tipp auf 🎲 und nur dieser Takt wird neu gewürfelt. Gespielt wird mit SpinDial, Snare und Click - du findest ihn auf der Startseite.",
@@ -400,6 +407,12 @@ export const CHANGELOG_LATEST = CHANGELOG[0]?.date || "";
 // (nicht bei Patch, nicht beim allerersten Start). Für die nächste Version einfach einen Eintrag ergänzen.
 // action: Ansicht, die „Jetzt ausprobieren“ öffnet (wie in App.jsx open()).
 export const HIGHLIGHTS = {
+  "1.2": {
+    action: "click",
+    preset: { mode: "noclick" },
+    de: { title: "Neu in Schlagfertig 1.2 🥁", lines: ["🔇 NoClick: Click an, Click aus, du hältst das Tempo.", "🎲 Etüden-Würfel: Jede Übung neu, Takt für Takt.", "📓 Übe-Tagebuch: Sieh, wie du besser wirst."], go: "Jetzt ausprobieren", later: "Später" },
+    en: { title: "New in Schlagfertig 1.2 🥁", lines: ["🔇 NoClick: Click on, click off, you keep the time.", "🎲 Etude Dice: A fresh exercise every time, bar by bar.", "📓 Practice Diary: See how you're getting better."], go: "Try it now", later: "Later" },
+  },
   "1.1": {
     action: "dice",
     de: { title: "Neu in Schlagfertig 🥁", lines: ["🎲 Etüden-Würfel: Jede Übung neu, Takt für Takt.", "📓 Übe-Tagebuch: Sieh, wie du besser wirst."], go: "Jetzt ausprobieren", later: "Später" },
