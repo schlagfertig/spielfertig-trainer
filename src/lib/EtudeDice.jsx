@@ -7,7 +7,7 @@ import { t } from "./i18n.js";
 import { BPM, BPM_MAX, BPM_MIN, LENGTHS, LEVELS, METERS, barOf, etudeEvents, rerollBar, rollEtude } from "./etudeDice.js";
 import { usePracticeTrack } from "./PracticeDiary.jsx";
 
-// Etüden-Würfel: Länge + Schwierigkeit wählen, würfeln, Takt für Takt neu würfeln, üben.
+// Rudiment-Würfel: Länge + Schwierigkeit wählen, würfeln, Takt für Takt neu würfeln, üben.
 const DIM = "#8a969c";
 const clampBpm = (n) => Math.min(BPM_MAX, Math.max(BPM_MIN, Math.round(Number(n) || BPM.leicht)));
 
@@ -177,7 +177,7 @@ export default function EtudeDice() {
 
   return (
     <div className="ed-wrap">
-      <p style={KICK}>{`${t("Neu")} · ${t("Etüden-Würfel")}`}</p>
+      <p style={KICK}>{`${t("Neu")} · ${t("Rudiment-Würfel")}`}</p>
       <p style={{ color: DIM, fontSize: 17, margin: "0 0 12px" }}>{t("Würfel dir aus den 40 Rudiments deine eigene Etüde - jedes Mal neu, Takt für Takt.")}</p>
       <div className="panel ed-setup">
         <Seg label={t("Länge")} value={bars} onChange={setBars} options={LENGTHS.map((n) => ({ id: n, label: t("{n} Takte", { n }) }))} />
