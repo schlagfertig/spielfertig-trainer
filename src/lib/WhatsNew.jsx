@@ -33,7 +33,7 @@ export default function WhatsNew({ onOpen, onClose, onNews }) {
           })}
         </ul>
         <div className="fb-actions">
-          <button ref={go} type="button" className="fb-btn fb-primary" onClick={() => { onClose(); if (h.action) onOpen(h.action); }}>{c.go}</button>
+          <button ref={go} type="button" className="fb-btn fb-primary" onClick={() => { onClose(); if (h.action) onOpen(h.action, h.preset || null); }}>{c.go}</button>
           <button type="button" className="fb-btn" onClick={onClose}>{c.later}</button>
         </div>
         <button type="button" className="fb-link" onClick={onNews}>{t("Alle Neuigkeiten ansehen")}</button>
