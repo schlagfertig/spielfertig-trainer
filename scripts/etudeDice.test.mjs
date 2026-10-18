@@ -3,14 +3,14 @@ import assert from "node:assert/strict";
 import { POOLS, barOf, rollEtude, rerollBar, etudeEvents, barSteps } from "../src/lib/etudeDice.js";
 import { readLabsParam } from "../src/lib/labs.js";
 
-test("Etüden-Würfel: jeder Takt füllt genau den Etüden-Takt", () => {
+test("Rudiment-Würfel: jeder Takt füllt genau den Etüden-Takt", () => {
   for (const meter of Object.keys(POOLS)) for (const lvl of Object.keys(POOLS[meter])) for (const id of POOLS[meter][lvl]) {
     const b = barOf(id, meter);
     const end = Math.max(...b.notes.map((n) => n.t + n.dur));
     assert.ok(end <= barSteps(meter) + 1e-6 && end > barSteps(meter) - 4.01, `${id} in ${meter}: ${end}`);
   }
 });
-test("Etüden-Würfel: Länge, keine Doppel nebeneinander, Reroll ändert nur einen Takt", () => {
+test("Rudiment-Würfel: Länge, keine Doppel nebeneinander, Reroll ändert nur einen Takt", () => {
   for (let k = 0; k < 50; k++) {
     const e = rollEtude({ bars: 8, level: "mittel", meter: "4/4" });
     assert.equal(e.ids.length, 8);
