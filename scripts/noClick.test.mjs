@@ -5,7 +5,7 @@ import { EN } from "../src/lib/en.js";
 import { HELP } from "../src/lib/helpCopy.js";
 
 test("NoClick: Phasen im Kreis, Countdown zählt den laufenden Takt mit", () => {
-  const s = { click: 8, gap: 8 };
+  const s = { click: 8, gap: 8 }; // höchste Einstellung
   assert.deepEqual([0, 7, 8, 9, 15, 16].map((b) => barInfo(b, s.click, s.gap).phase), ["click", "click", "gap", "gap", "gap", "click"]);
   assert.equal(barInfo(9, 8, 8).left, 7); // 2. NoClick-Takt von 8 → noch 7 (wie im Entwurf)
   assert.equal(barInfo(15, 8, 8).left, 1);
@@ -48,7 +48,9 @@ test("NoClick 1·1: jeder Takt ist der letzte seiner Phase", () => {
 
 test("NoClick: Einstellungen begrenzt, Standard 2·2·4 mit Blinken an", () => {
   assert.equal(clampSetting("click", 0), 1);
-  assert.equal(clampSetting("gap", 99), 16);
+  assert.equal(clampSetting("gap", 99), 8);
+  assert.equal(clampSetting("click", 9), 8);
+  assert.deepEqual(readSettings({ click: 16, gap: 12, beats: 12 }), { click: 8, gap: 8, beats: 12, flash: true }); // alte gespeicherte Werte
   assert.equal(clampSetting("beats", 13), 12);
   assert.deepEqual(readSettings({}), { ...DEFAULTS });
   assert.equal(readSettings({ flash: false }).flash, false);
