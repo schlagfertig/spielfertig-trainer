@@ -1,7 +1,7 @@
 // NoClick (Click-Trainer-Untermodus): X Takte mit Click, Y Takte ohne Click, im Kreis.
 // Reines Datenmodul ohne DOM, damit node --test es direkt laden kann.
 
-export const LIMITS = { click: [1, 16], gap: [1, 16], beats: [1, 12] };
+export const LIMITS = { click: [1, 8], gap: [1, 8], beats: [1, 12] }; // gespeicherte Werte über 8 werden beim Laden auf 8 begrenzt
 export const DEFAULTS = { click: 2, gap: 2, beats: 4, flash: true };
 export const RING_HIDE_MS = 3000; // Ring blendet nach so langer Zeit ohne Drehen aus
 
@@ -11,7 +11,7 @@ export const PRE_FROM = 0.12;
 export const PRE_TO = 0.5;
 
 export function clampSetting(key, v) {
-  const [lo, hi] = LIMITS[key] || [1, 16];
+  const [lo, hi] = LIMITS[key] || [1, 8];
   const n = Math.round(Number(v));
   return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : DEFAULTS[key] ?? lo;
 }
