@@ -80,10 +80,13 @@ export function markAsked(seg, now = Date.now()) {
 }
 
 // Aus usePracticeTrack nach Stop aufgerufen.
+// Gibt true zurück, wenn gleich gefragt wird (dann wartet der Tagebuch-Hinweis, bis das Fenster zu ist).
+export const ASK_DELAY_MS = 650;
 export function offerFeedback(seg) {
-  if (!shouldAsk(seg)) return;
+  if (!shouldAsk(seg)) return false;
   markAsked(seg);
-  window.setTimeout(() => window.dispatchEvent(new CustomEvent(ASK_EVENT, { detail: seg })), 650);
+  window.setTimeout(() => window.dispatchEvent(new CustomEvent(ASK_EVENT, { detail: seg })), ASK_DELAY_MS);
+  return true;
 }
 
 // ---- Postausgang ----
