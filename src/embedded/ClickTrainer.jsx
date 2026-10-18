@@ -285,6 +285,9 @@ export default function ClickTrainer({ preset = null } = {}) {
           <Nudge by={5} bpm={bpm} set={setDial} min={30} max={260} />
           <Nudge by={10} bpm={bpm} set={setDial} min={30} max={260} />
         </div>
+        {/* Feste Höhe unter dem Rad (Countdown-Platz + „Erweitert“), damit das SpinDial in allen Modi still steht */}
+        <div className="ct-below">
+        <div className="ct-count-slot">
         {playing && ramp ? (
           <div className="count">
             {atCap ? (
@@ -297,6 +300,7 @@ export default function ClickTrainer({ preset = null } = {}) {
             )}
           </div>
         ) : null}
+        </div>
         {done ? <p style={{ color: "#5cc8b8", textAlign: "center", fontSize: 14, margin: "12px 0 0" }}>{done}</p> : null}
         {bgHint ? <p style={{ color: "#e8b84b", textAlign: "center", fontSize: 12, margin: "10px 0 0" }}>{t("App im Hintergrund - der Click kann pausieren. Zurückkommen und ggf. neu starten.")}</p> : null}
         <button
@@ -309,6 +313,7 @@ export default function ClickTrainer({ preset = null } = {}) {
         >
           {t("Erweitert")} <span aria-hidden="true" className="ct-adv-caret">▴</span>
         </button>
+        </div>
       </div>
       <div className={flipped ? "ct-backdrop open" : "ct-backdrop"} onClick={() => flip(false)} aria-hidden="true" />
       <div
@@ -340,16 +345,18 @@ export default function ClickTrainer({ preset = null } = {}) {
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: center;
+          justify-content: flex-end;
           gap: 4px;
           min-height: 0;
           padding: 12px 0 env(safe-area-inset-bottom, 0px);
         }
         .ct-stage .dial-row { padding-bottom: 22px; }
         .ct-stage .count { margin-top: 2px; }
+        .ct-below { flex: none; height: 84px; display: flex; flex-direction: column; align-items: center; }
+        .ct-count-slot { height: 48px; display: flex; flex-direction: column; justify-content: flex-start; }
         @media (max-width: 370px) { .ct-stage .dial-row { gap: 6px; } }
         .ct-adv-btn {
-          margin-top: 10px;
+          margin-top: 0;
           display: inline-flex;
           align-items: center;
           gap: 6px;
