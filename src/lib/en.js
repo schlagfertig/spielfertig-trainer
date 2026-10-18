@@ -561,8 +561,8 @@ export const EN = {
   "Code passt nicht.": "Code does not match.",
   "Freischalten": "Unlock",
   "Schließen": "Close",
-  // Etüden-Würfel (Labs)
-  "Etüden-Würfel": "Etude Dice",
+  // Rudiment-Würfel (Labs)
+  "Rudiment-Würfel": "Rudiment Dice",
   "Würfel dir aus den 40 Rudiments deine eigene Etüde - jedes Mal neu, Takt für Takt.": "Roll your own etude from the 40 rudiments - fresh every time, bar by bar.",
   "Länge": "Length",
   "Leicht": "Easy",
@@ -619,7 +619,7 @@ export const EN = {
   "Würfel dir aus den 40 Rudiments eine eigene Etüde und spiel sie zum Click.": "Roll your own etude from the 40 rudiments and play it to the click.",
   "Zählt deine Übezeit automatisch mit - ab 30 Sekunden am Stück. Mit Monatsauswertung.": "Tracks your practice time automatically - from 30 seconds in a row. With a monthly review.",
   "So zählt es": "How it counts",
-  "Spiel in Rudiments, Click-Trainer, Rhythmuspyramide, Hand Control oder im Etüden-Würfel mindestens 30 Sekunden am Stück - nach Stop steht die Übung im Tagebuch. Pro Übung und Tag gibt es einen Eintrag: Übezeit wird addiert, das höchste Tempo gemerkt.": "Play for at least 30 seconds in a row in Rudiments, Click Trainer, Rhythm Pyramid, Hand Control or Etude Dice - after Stop the exercise is in your diary. One entry per exercise and day: practice time adds up, your top tempo is kept.",
+  "Spiel in Rudiments, Click-Trainer, Rhythmuspyramide, Hand Control oder im Rudiment-Würfel mindestens 30 Sekunden am Stück - nach Stop steht die Übung im Tagebuch. Pro Übung und Tag gibt es einen Eintrag: Übezeit wird addiert, das höchste Tempo gemerkt.": "Play for at least 30 seconds in a row in Rudiments, Click Trainer, Rhythm Pyramid, Hand Control or Rudiment Dice - after Stop the exercise is in your diary. One entry per exercise and day: practice time adds up, your top tempo is kept.",
   "Mit ‹ und › blätterst du durch die Monate: Übezeit, Vergleich zum Vormonat, deine Lieblingszeit am Tag und deine Top 3.": "Use ‹ and › to flip through the months: practice time, comparison with the previous month, your favourite time of day and your top 3.",
   "Tipp auf den Papierkorb - versehentlich gelöscht? ‚Rückgängig‘ holt den Eintrag zurück.": "Tap the bin - deleted by mistake? ‘Undo’ brings the entry back.",
   "Ein/Aus": "On/Off",
