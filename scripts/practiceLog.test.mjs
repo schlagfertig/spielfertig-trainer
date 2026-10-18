@@ -160,3 +160,14 @@ test("Monatsauswertung: Monat wechseln über Jahresgrenzen", () => {
   assert.equal(monthKey(at(2026, 3, 31, 23)), "2026-03");
   for (const k of ["Monatsauswertung", "früh", "Vormittag", "Mittag", "Nachmittag", "Abend", "Nacht", "Deine Lieblingszeit"]) assert.ok(EN[k] && EN[k] !== k, k);
 });
+
+test("Rudiment-Würfel (früher Etüden-Würfel): alte Einträge zählen weiter unter der id dice, kein Doppel in den Top 3", () => {
+  // Alt-Eintrag wie vor der Umbenennung gespeichert (ex: "dice", ohne gespeicherten Namen)
+  const old = { v: 1, entries: [{ id: "2026-10-16|dice|", day: "2026-10-16", ex: "dice", item: null, label: "", sec: 300, bpm: 80, runs: 1, at: T0 - 86400 * S, toast: true }] };
+  const log = record(old, { ex: "dice", sec: 120, bpm: 90, at: T0 }).log;
+  const top = monthStats(log, "2026-10").top;
+  assert.equal(top.filter((x) => x.ex === "dice").length, 1);
+  assert.equal(top[0].sec, 420);
+  assert.equal(EN["Rudiment-Würfel"], "Rudiment Dice");
+  assert.equal(EN["Etüden-Würfel"], undefined);
+});
