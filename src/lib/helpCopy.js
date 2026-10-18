@@ -5,7 +5,7 @@ export const HELP = {
     ["Click-Trainer", "Metronom: Tempo steigern oder halten. ‚Erweitert‘ = Click-Mixer."],
     ["Rhythmuspyramide", "Subdivisionen auf und ab, 4tel bis 32tel."],
     ["Hand Control", "24 Handübungen. Fokus-Mode spielt 1⁠-⁠24 durch."],
-    ["Rudiment-Würfel", "Würfel dir aus den 40 Rudiments eine eigene Etüde und spiel sie zum Click."],
+    ["Rudiment-Würfel", "Würfel dir aus den 40 Rudiments eine eigene Übung und spiel sie zum Click."],
     ["Übe-Tagebuch", "Zählt deine Übezeit automatisch mit - ab 30 Sekunden am Stück. Mit Monatsauswertung."],
     ["Noten", "Eigene Fotos/PDFs, nur auf diesem Gerät. Antippen = Vorschau, ‚Auswählen‘ = Vollbild mit Zoom."],
     ["Eigene Grooves", "Eigenen Groove bauen und üben. Eintippen nur quer, hochkant siehst du den Rhythmus."],
@@ -42,7 +42,7 @@ export const HELP = {
     ["Üben", "Start spielt die Etüde auf der Snare zum Click."],
   ],
   dice: [
-    ["Würfeln", "Wähl 4 oder 8 Takte, eine Stufe und den Takt (4/4 oder 6/8), dann tipp auf ‚Würfeln‘. Die App setzt passende Rudiments zu deiner Etüde zusammen - 2/4-Rudiments spielst du zweimal pro Takt."],
+    ["Würfeln", "Wähl 4 oder 8 Takte, eine Stufe und den Takt (4/4 oder 6/8), dann tipp auf ‚Würfeln‘. Die App setzt passende Rudiments zu deiner Übung zusammen - 2/4-Rudiments spielst du zweimal pro Takt. Mit ‚Nochmal würfeln‘ bekommst du jederzeit eine neue Übung."],
     ["Takt neu würfeln", "Ein Takt liegt dir nicht? Tipp auf 🎲 daneben - nur dieser Takt wird neu gewürfelt, der Rest bleibt."],
     ["Üben", "SpinDial antippen = Start/Stop, drehen = Tempo. Der aktuelle Takt leuchtet mit. Die Knöpfe neben dem SpinDial: Trommel + Metronom = Snare + Click, Trommel = nur Snare. ±5 und ±10 ändern das Tempo in Schritten."],
   ],
