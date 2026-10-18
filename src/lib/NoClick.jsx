@@ -63,7 +63,8 @@ function Ring({ kind, value, onChange, center, inner, outer, shown, onTurn, drag
     d.acc += wrap(a - d.last);
     d.last = a;
     const st = ringStep(kind);
-    const steps = Math.trunc(d.acc / st);
+    // Runden statt Abschneiden: ab halbem Weg zur Nachbarzahl gilt schon die neue Zahl (beim Drehen wie beim Loslassen).
+    const steps = Math.round(d.acc / st);
     if (steps) {
       // Zahlen steigen im Uhrzeigersinn, der Ring folgt dem Finger: linksrum holt die größere Zahl nach oben.
       const nv = clampSetting(kind, d.v - steps);
@@ -89,15 +90,15 @@ function Ring({ kind, value, onChange, center, inner, outer, shown, onTurn, drag
   for (let k = lo; k <= hi; k++) {
     const deg = (k - lo) * stepDeg; // aufsteigend im Uhrzeigersinn
     const dist = Math.abs(((deg + rot + 540) % 360) - 180); // 180 = oben
-    // Gut lesbar schon beim Öffnen: groß, kräftig, mit dunklem Rand; oben weiß, weiter weg Teal und etwas zarter.
+    // Gut lesbar schon beim Öffnen: 28 px, fett, weiß bzw. sehr hell mit dunklem Rand, kaum abgeblendet.
     const near = dist < 60;
-    const op = Math.max(0.62, 1 - dist / 300);
-    const fill = near ? "#f4f7f6" : TEAL;
+    const op = Math.max(0.82, 1 - dist / 400);
+    const fill = near ? "#ffffff" : "#e6f7f4";
     nums.push(
       <g key={k} transform={`rotate(${deg} ${c} ${c})`} opacity={op}>
-        <text x={c} y={c - mid} textAnchor="middle" dominantBaseline="central" fill={fill} stroke="#161a1d" strokeWidth="3.5" strokeLinejoin="round" paintOrder="stroke" fontSize="21" fontWeight="800">{k}</text>
+        <text x={c} y={c - mid} textAnchor="middle" dominantBaseline="central" fill={fill} stroke="#161a1d" strokeWidth="4.5" strokeLinejoin="round" paintOrder="stroke" fontSize="28" fontWeight="800">{k}</text>
         {/* 6 und 9 drehen mit - der Unterstrich zeigt, wo unten ist */}
-        {k === 6 || k === 9 ? <line x1={c - 5} x2={c + 5} y1={c - mid + 11} y2={c - mid + 11} stroke={fill} strokeWidth="2" strokeLinecap="round" /> : null}
+        {k === 6 || k === 9 ? <line x1={c - 6} x2={c + 6} y1={c - mid + 14} y2={c - mid + 14} stroke={fill} strokeWidth="2.4" strokeLinecap="round" /> : null}
       </g>,
     );
   }
@@ -395,6 +396,8 @@ export default function NoClick({ dialSize = 140 }) {
           <Nudge by={5} bpm={bpm} set={setDial} min={30} max={260} />
           <Nudge by={10} bpm={bpm} set={setDial} min={30} max={260} />
         </div>
+        {/* gleiche Höhe unter dem Rad wie im Click-Trainer (Countdown + „Erweitert“) - das SpinDial steht in allen Modi gleich */}
+        <div className="ct-below" aria-hidden="true" />
       </div>
       {ringKind && typeof document !== "undefined" ? createPortal(
         <>
