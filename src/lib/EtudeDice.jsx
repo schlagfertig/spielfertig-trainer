@@ -178,14 +178,14 @@ export default function EtudeDice() {
   return (
     <div className="ed-wrap">
       <p style={KICK}>{`${t("Neu")} · ${t("Rudiment-Würfel")}`}</p>
-      <p style={{ color: DIM, fontSize: 17, margin: "0 0 12px" }}>{t("Würfel dir aus den 40 Rudiments deine eigene Etüde - jedes Mal neu, Takt für Takt.")}</p>
+      <p style={{ color: DIM, fontSize: 17, margin: "0 0 12px" }}>{t("Würfel dir aus den 40 Rudiments deine eigene Übung - jedes Mal neu, Takt für Takt.")}</p>
       <div className="panel ed-setup">
         <Seg label={t("Länge")} value={bars} onChange={setBars} options={LENGTHS.map((n) => ({ id: n, label: t("{n} Takte", { n }) }))} />
         <Seg label={t("Stufe")} value={level} onChange={setLevel} options={LEVELS.map((l) => ({ id: l.id, label: t(l.label) }))} />
         <Seg label={t("Takt")} value={meter} onChange={setMeter} options={METERS.map((m) => ({ id: m, label: m }))} />
         <button type="button" className="card ed-roll" onClick={roll}>
           <span className="ed-die" aria-hidden="true">🎲</span>
-          <span>{etude ? (setupChanged ? t("Neu würfeln") : t("Nochmal würfeln")) : t("Würfeln")}</span>
+          <span>{etude ? t("Nochmal würfeln") : t("Würfeln")}</span>
         </button>
       </div>
       {etude ? (
