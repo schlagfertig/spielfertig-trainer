@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { loadSession, saveSession } from "./session.js";
 import { getLang, t } from "./i18n.js";
-import { offerFeedback } from "./feedbackClient.js";
+import { ASK_DELAY_MS, offerFeedback } from "./feedbackClient.js";
 import { SLOTS, bumpBpm, createSession, dayKey, endSession, groupByDay, markToasted, minutes, monthKey, monthStats, needsToast, normalizeLog, record, removeEntry, restoreEntry, shiftMonth, weekStats } from "./practiceLog.js";
 
 // Übe-Tagebuch: speichert lokal (sf.v1.diary), Schalter in sf.v1.diaryPrefs (Standard: an).
@@ -53,7 +53,7 @@ export function usePracticeTrack({ ex, item = null, label = "", playing, bpm }) 
       if (!seg) return;
       const stopped = !playingRef.current || !alive.current;
       // Test-Feedback (nur Testversion, nur mit Einwilligung): nach Stop kurz fragen - unabhängig vom Tagebuch-Schalter.
-      if (stopped) offerFeedback(seg);
+      const asking = stopped && offerFeedback(seg);
       if (!track || !tracking()) return;
       let { log, entry } = record(loadLog(), seg);
       if (entry) { saveLog(log); if (needsToast(log, entry.id)) pending.current = entry.id; }
@@ -64,8 +64,9 @@ export function usePracticeTrack({ ex, item = null, label = "", playing, bpm }) 
       const e = log.entries.find((x) => x.id === id);
       if (!e || e.toast) return;
       saveLog(markToasted(log, id));
-      // Nach dem Stop kurz warten - kein Hinweis mitten in der letzten Bewegung.
-      window.setTimeout(() => window.dispatchEvent(new CustomEvent(TOAST_EVENT, { detail: { text: toastText(e) } })), 250);
+      // Nach dem Stop kurz warten - kein Hinweis mitten in der letzten Bewegung. Kommt die Feedback-Frage,
+      // erst nach deren Erscheinen melden: der Hinweis wartet dann, bis das Fenster geschlossen ist.
+      window.setTimeout(() => window.dispatchEvent(new CustomEvent(TOAST_EVENT, { detail: { text: toastText(e) } })), asking ? ASK_DELAY_MS + 250 : 250);
     };
     // label/bpm absichtlich nicht als Abhängigkeit: ändern die Session nicht
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -73,20 +74,41 @@ export function usePracticeTrack({ ex, item = null, label = "", playing, bpm }) 
 }
 
 // Kleiner Glas-Hinweis oben (nie über dem SpinDial), verschwindet nach 2,6 s.
+// Liegt gerade das Feedback-Fenster (oder ein anderes Feedback-Modal) darüber, wartet er,
+// bis es geschlossen ist - sonst liefe er unsichtbar hinter dem Fenster ab.
 export function DiaryToast() {
   const [msg, setMsg] = useState(null);
   useEffect(() => {
     let timer = 0;
-    const on = (e) => {
-      window.clearTimeout(timer);
-      setMsg({ text: e.detail?.text || "", k: Date.now(), top: toastTop() });
+    let wait = 0;
+    const show = (text) => {
+      setMsg({ text, k: Date.now(), top: toastTop() });
       timer = window.setTimeout(() => setMsg(null), 2600);
     };
+    const on = (e) => {
+      window.clearTimeout(timer);
+      window.clearInterval(wait);
+      setMsg(null);
+      const text = e.detail?.text || "";
+      if (!modalOpen()) { show(text); return; }
+      // erst zeigen, wenn ~0,75 s lang kein Feedback-Fenster offen ist (danach kann noch das Dankeschön kommen)
+      let free = 0;
+      wait = window.setInterval(() => {
+        free = modalOpen() ? 0 : free + 1;
+        if (free < 3) return;
+        window.clearInterval(wait);
+        show(text);
+      }, 250);
+    };
     window.addEventListener(TOAST_EVENT, on);
-    return () => { window.removeEventListener(TOAST_EVENT, on); window.clearTimeout(timer); };
+    return () => { window.removeEventListener(TOAST_EVENT, on); window.clearTimeout(timer); window.clearInterval(wait); };
   }, []);
   if (!msg) return null;
   return <div key={msg.k} className="dy-toast" role="status" aria-live="polite" style={msg.top ? { top: msg.top } : undefined}>{msg.text}</div>;
+}
+
+function modalOpen() {
+  return typeof document !== "undefined" && !!document.querySelector(".fb-modal");
 }
 
 // Hinweis unter die Kopfzeile (Zurück, Titel) legen statt darüber; ist sie weggescrollt, bleibt er oben.

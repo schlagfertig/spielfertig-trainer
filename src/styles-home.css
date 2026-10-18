@@ -117,3 +117,5 @@
 .home .card.has-icon .card-title { font-size: clamp(24px, 7.2vw, 32px); overflow-wrap: anywhere; }
 /* Erste Übung: Symbol etwas tiefer, damit es „Nicht heute“ oben rechts nicht berührt. */
 .first-inner .tile-icon { top: calc(50% + 16px); }
+/* Erste Übung: Kicker („Loslegen · Schritt 1 von 5“) hält Abstand zur Pille „Nicht heute“ oben rechts - lieber ausgeglichen umbrechen als darunterlaufen. */
+.first-inner .card.has-icon .card-kicker { margin-right: 40px; text-wrap: balance; }
