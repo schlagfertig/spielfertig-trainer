@@ -4,6 +4,10 @@ Alle für Nutzer sichtbaren Änderungen, nach Datum gruppiert (neueste zuerst).
 Kleine Fix-Commits sind dem jeweiligen Feature zugeordnet; reine Technik (Build-Fixes,
 Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SHA).
 
+## 18.10.2026
+
+- NoClick (neu, Untermodus im Click-Trainer): X Takte mit Click, Y Takte ohne Click, Beats pro Takt einstellbar (Zahl antippen, Ring ums SpinDial drehen; Tempo solange gesperrt). Beim Üben zwei Balken mit Countdown, Akzent auf der ersten 1 nach der Lücke, Schalter „Blinken auf der 1“, Vorankündigung im letzten Takt einer Phase. Logik `src/lib/noClick.js`, Ansicht `src/lib/NoClick.jsx`, Test `scripts/noClick.test.mjs`. Hilfe mit Easter Egg.
+
 ## 17.10.2026
 
 - Übe-Tagebuch (neu, für alle): Kachel „Übe-Tagebuch“ auf der Startseite (Glas-Symbol Buch, `HomeIcons.jsx`), Ansicht `diary` (`src/lib/PracticeDiary.jsx`, Logik `src/lib/practiceLog.js`, Test `scripts/practiceLog.test.mjs`). Zählt automatisch in Rudiments, Click-Trainer, Rhythmuspyramide, Hand Control und Etüden-Würfel ab 30 s am Stück (Start → Stop); ein Eintrag pro Übung und Tag (Zeit addiert, höchstes Tempo; Rudiments pro Rudiment, Hand Control pro Nr.; Pyramide = ein Durchgang). Nach Stop einmal pro Übung und Tag Glas-Hinweis oben „Eingetragen! 🥁 … · N min · BPM“ (2,6 s). Liste nach Tagen, 7-Tage-Bilanz, Löschen mit „Rückgängig“ (ohne Rückfrage). Schalter „Übe-Tagebuch führen“ (Standard an; aus = kein Zählen, Einträge nur ausgeblendet). Monatsauswertung: Monat wählen, Übezeit + Übetage, Vergleich zum Vormonat (± min, %), Lieblingszeit (früh/Vormittag/Mittag/Nachmittag/Abend/Nacht, Mini-Diagramm, je Session nach Startzeit in `entry.slots`), Top 3. Speicher lokal (`sf.v1.diary`, `sf.v1.diaryPrefs`). Kurzhilfe „Übe-Tagebuch“ + Startseiten-Hilfe ergänzt (EN „New: your practice diary! Play for at least 30 seconds in a row – after Stop the app logs your exercise automatically, with practice time and top tempo. The monthly review shows how much you practised, how it compares with last month, your favourite time of day and your top 3. Get going and fill your diary!“)
