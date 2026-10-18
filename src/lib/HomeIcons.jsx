@@ -71,7 +71,7 @@ const GLYPHS = {
       <circle cx="22" cy="22" r="2.2" />
     </>
   ),
-  // Etüden-Würfel: Würfel mit türkisen Augen
+  // Rudiment-Würfel: Würfel mit türkisen Augen
   dice: (
     <>
       <rect x="6" y="6" width="20" height="20" rx="5" />
