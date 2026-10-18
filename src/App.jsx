@@ -349,9 +349,9 @@ export default function App() {
           </button>
           <button className="card has-icon" onClick={() => go("dice")}>
             <TileIcon name="dice" />
-            <div className="card-kicker">{`${t("Neu")} · ${t("Etüde")}`}</div>
+            <div className="card-kicker">{`${t("Neu")} · Rudiment`}</div>
             <div className="card-title">{t("Rudiment-Würfel")}</div>
-            <div className="card-lead">{t("Würfel dir aus den 40 Rudiments deine eigene Etüde - jedes Mal neu, Takt für Takt.")}</div>
+            <div className="card-lead">{t("Würfel dir aus den 40 Rudiments deine eigene Übung - jedes Mal neu, Takt für Takt.")}</div>
             <div className="card-go">{cta("dice")}</div>
           </button>
           <button className="card has-icon" onClick={() => open("click")}>
