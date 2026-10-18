@@ -43,8 +43,9 @@ export function Help({ topic = "home", onFirstClose }) {
           </p>
         ) : null}
         <ul className="help-list">
-          {rows.map(([k, v]) => (
-            <li key={k}><strong>{t(k)}</strong> {t(v)}</li>
+          {rows.map(([k, v]) => (k
+            ? <li key={k}><strong>{t(k)}</strong> {t(v)}</li>
+            : <li key={v} className="help-egg">{t(v)}</li>
           ))}
         </ul>
         <button className="play" onClick={close} style={{ width: "100%" }}>
