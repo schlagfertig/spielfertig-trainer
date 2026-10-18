@@ -845,7 +845,7 @@ body:has(.page.view-lexicon), body:has(.page.view-lexicon) #root, .page.tool.vie
 .ns-recap small { color: var(--dim); font-size: 14px; }
 .ns-recap-ok { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: var(--teal); color: var(--ink); font-weight: 800; }
 
-/* Etüden-Würfel (Labs) */
+/* Rudiment-Würfel (Labs) */
 .ed-link { margin: 0 0 12px; border-color: rgba(92, 200, 184, 0.55); background: rgba(92, 200, 184, 0.06); }
 .ed-setup { padding: 12px; border-radius: 14px; display: grid; gap: 10px; }
 .ed-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
