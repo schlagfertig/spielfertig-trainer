@@ -1,4 +1,4 @@
-// Etüden-Würfel: würfelt kurze Etüden aus den 40 Rudiments zusammen. Reines Datenmodul (ohne DOM).
+// Rudiment-Würfel: würfelt kurze Etüden aus den 40 Rudiments zusammen. Reines Datenmodul (ohne DOM).
 // Jeder Takt ist ein Rudiment im Etüden-Takt: 4/4 (2/4-Rudiments zweimal hintereinander) oder 6/8.
 import { RUDIMENTS } from "./rudiments.js";
 
