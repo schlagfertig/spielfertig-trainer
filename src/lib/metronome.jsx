@@ -368,6 +368,9 @@ export function MetronomeDial({
   const [wheelOpen, setWheelOpen] = useState(false);
   const [thumb, setThumb] = useState(null); // { deg, r } - Fingerposition relativ zur Kreismitte
   const shrinkTimer = useRef(null);
+  // Soll der Hebel gerade zu sehen sein? Als Ref, weil ein schnelles Loslassen vor dem nächsten Render kommt
+  // (dann wäre lever.mounted im Handler noch false und der Hebel bliebe stehen).
+  const leverWanted = useRef(false);
   const [lever, setLever] = useState({
     visible: false,
     mounted: false,
@@ -429,6 +432,7 @@ export function MetronomeDial({
 
   function showLever(origin, ev) {
     clearTimers();
+    leverWanted.current = true;
     setLever((prev) => {
       const next = {
         mounted: true,
@@ -441,7 +445,7 @@ export function MetronomeDial({
       if (!prev.mounted) {
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            setLever((p) => (p.mounted ? { ...p, visible: true } : p));
+            setLever((p) => (p.mounted && leverWanted.current ? { ...p, visible: true } : p));
           });
         });
       }
@@ -452,6 +456,7 @@ export function MetronomeDial({
   function hideLever() {
     clearTimers();
     holdTimer.current = setTimeout(() => {
+      leverWanted.current = false;
       setLever((prev) => ({ ...prev, visible: false }));
       fadeTimer.current = setTimeout(() => {
         setLever((prev) => ({ ...prev, mounted: false }));
@@ -464,6 +469,7 @@ export function MetronomeDial({
   // Sofort ausblenden (weich, ohne Halte-Pause) - z. B. wenn der Finger zurück in den Ring geht.
   function fadeLeverNow() {
     clearTimers();
+    leverWanted.current = false;
     setLever((prev) => (prev.mounted ? { ...prev, visible: false } : prev));
     fadeTimer.current = setTimeout(() => {
       setLever((prev) => ({ ...prev, mounted: false }));
@@ -503,7 +509,7 @@ export function MetronomeDial({
       if (!cw) { showLever(d.origin, ev); return; }
       setThumb({ deg: (ang * 180) / Math.PI, r: dist });
       if (dist > (size / 2) * wheelK) showLever(d.origin, ev);
-      else if (lever.mounted && !fadeTimer.current) fadeLeverNow();
+      else if (leverWanted.current && !fadeTimer.current) fadeLeverNow();
     };
     if (d.moved < MOVE_PX || dist < DEAD_R * (size / 2)) {
       d.last = ang;
@@ -536,7 +542,7 @@ export function MetronomeDial({
     drag.current = null;
     try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* already released */ }
     if (d?.dragging) {
-      if (cw) { setThumb(null); if (lever.mounted) fadeLeverNow(); }
+      if (cw) { setThumb(null); fadeLeverNow(); } // immer: auch wenn der Hebel erst in diesem Moment erschienen ist
       else hideLever();
     }
     // Nach dem Loslassen kurz offen lassen, dann zurück auf die leise Ruhegröße.
