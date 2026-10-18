@@ -79,14 +79,21 @@ export function DiaryToast() {
     let timer = 0;
     const on = (e) => {
       window.clearTimeout(timer);
-      setMsg({ text: e.detail?.text || "", k: Date.now() });
+      setMsg({ text: e.detail?.text || "", k: Date.now(), top: toastTop() });
       timer = window.setTimeout(() => setMsg(null), 2600);
     };
     window.addEventListener(TOAST_EVENT, on);
     return () => { window.removeEventListener(TOAST_EVENT, on); window.clearTimeout(timer); };
   }, []);
   if (!msg) return null;
-  return <div key={msg.k} className="dy-toast" role="status" aria-live="polite">{msg.text}</div>;
+  return <div key={msg.k} className="dy-toast" role="status" aria-live="polite" style={msg.top ? { top: msg.top } : undefined}>{msg.text}</div>;
+}
+
+// Hinweis unter die Kopfzeile (Zurück, Titel) legen statt darüber; ist sie weggescrollt, bleibt er oben.
+function toastTop() {
+  const head = typeof document !== "undefined" ? document.querySelector(".page header.top") : null;
+  const bottom = head ? head.getBoundingClientRect().bottom : 0;
+  return bottom > 40 ? Math.round(Math.min(bottom + 8, window.innerHeight * 0.4)) : 0;
 }
 
 function dayLabel(day) {
@@ -272,7 +279,7 @@ export default function PracticeDiary() {
       {undo ? (
         <div className="dy-toast dy-undo" role="status" aria-live="polite">
           <span>{t("Eintrag gelöscht.")}</span>
-          <button type="button" onClick={restore}>{t("Rückgängig")}</button>
+          <button type="button" onClick={restore} style={{ minHeight: 44 }}>{t("Rückgängig")}</button>
         </div>
       ) : null}
     </div>
