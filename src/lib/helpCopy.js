@@ -25,6 +25,10 @@ export const HELP = {
     ["Erweitert", "‚Erweitert‘ unter dem SpinDial öffnet den Click-Mixer von unten. Mixer für Viertel, Offbeat, 16tel, Triolen, Beat und Master. Der Click läuft dabei weiter."],
     ["Modi", "Tempo halten oder steigern (alle X Sekunden +Y BPM)."],
     ["Clip", "Zeig, was du draufhast! Tipp auf ‚Clip‘, richte die Kamera auf deine Hände und dein Pad und starte mit ‚Aufnahme‘. ‚Drehen‘ wechselt zwischen Front- und Rückkamera. Oben im Video stehen Logo und Noten auf einer Glas-Kachel, darunter siehst du dich spielen - Click und Drums sind zusammen im Ton. Mit ‚Teilen‘ schickst du dein Video direkt an Freunde oder auf Social Media; bis dahin bleibt es nur auf deinem Gerät. Tipp: Mit Kopfhörern hörst du den Click am besten."],
+    ["NoClick", "Click an, Click aus, du hältst das Tempo. Stell oben ein, wie viele Takte mit Click und ohne Click laufen und wie viele Beats ein Takt hat: Zahl antippen, am Ring drehen. Solange der Ring offen ist, ist das Tempo gesperrt."],
+    ["Beim Üben", "Der leuchtende Balken zeigt dir, ob gerade Click oder NoClick läuft, die große Zahl zählt die übrigen Takte. In den NoClick-Takten bleibt das SpinDial still - du zählst innerlich weiter. Im letzten Click-Takt leuchtet der NoClick-Balken langsam auf. Nach der Lücke betont der Click die 1."],
+    ["Blinken auf der 1", "Ist der Schalter an, blitzt der NoClick-Balken auf jeder 1 kurz auf - ganz ohne Ton. Im letzten NoClick-Takt leuchtet dann auch der Click-Balken langsam auf."],
+    ["", "Psst… unter uns heißt NoClick eigentlich „Clickn't“. 🤫🥁"],
   ],
   pyramid: [
     ["Metronom unten", "Tippen = Start/Stop. Halten + drehen = Tempo. −5/+5 und −10/+10 daneben."],
