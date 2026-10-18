@@ -64,7 +64,7 @@ function Consent({ onDone }) {
           <button ref={yes} type="button" className="fb-btn fb-primary" onClick={() => { setConsent(true); onDone(); }}>{t("Ja, ich bin dabei 🥁")}</button>
           <button type="button" className="fb-btn" onClick={no}>{t("Lieber nicht")}</button>
         </div>
-        <p className="fb-fine">{t("Details stehen in der Datenschutzerklärung unter „Test-Feedback“.")}</p>
+        <p className="fb-fine">{t("Details findest du in der Datenschutzerklärung unter „Test-Feedback“.")}</p>
       </div>
     </div>
   );
@@ -102,7 +102,7 @@ function Ask({ seg, onClose, onReached }) {
             </label>
             <label className="fb-check">
               <input type="checkbox" checked={quote} onChange={(e) => setQuote(e.target.checked)} />
-              <span>{t("Darf ohne Namen zitiert werden")}</span>
+              <span>{t("Darf ich dich ohne Namen zitieren?")}</span>
             </label>
             <div className="fb-actions">
               <button type="button" className="fb-btn fb-primary" disabled={!rating} onClick={send}>{t("Absenden")}</button>
@@ -193,7 +193,7 @@ function Settings({ onClose, onThanks, focus }) {
         <div className="dy-glass dy-set">
           <div className="dy-set-txt">
             <b>{t("Nach Übungen nach Feedback fragen")}</b>
-            <small>{t("Ohne Namen, freiwillig. Gesendet werden Bewertung, Kommentar, Übung, Datum und eine zufällige Geräte-Kennung.")}</small>
+            <small>{t("Ohne Namen, freiwillig. Die App sendet deine Bewertung, deinen Kommentar, die Übung, das Datum und eine zufällige Geräte-Kennung.")}</small>
           </div>
           <Switch on={on} onChange={(v) => setConsent(v)} label={t("Nach Übungen nach Feedback fragen")} />
         </div>
@@ -209,10 +209,10 @@ function Settings({ onClose, onThanks, focus }) {
           {fb.special ? <p className="fb-ok">✓ {t("Eingetragen als „{name}“.", { name: fb.special.name })}</p> : null}
         </section>
         {fb.thanks ? (
-          <button type="button" className="fb-btn fb-gold-btn fb-wide" onClick={() => { onClose(); onThanks(); }}>🏆 {t("Mein Dankeschön ({num})", { num: fb.thanks.num })}</button>
+          <button type="button" className="fb-btn fb-gold-btn fb-wide" onClick={() => { onClose(); onThanks(); }}>🏆 {t("Dein Dankeschön ({num})", { num: fb.thanks.num })}</button>
         ) : null}
         <section className="fb-sec">
-          <button type="button" className="fb-link fb-danger" onClick={() => { forgetMine(); setForgot(true); }} disabled={forgot}>{forgot ? t("Deine Feedbacks werden gelöscht.") : t("Meine bisherigen Feedbacks löschen")}</button>
+          <button type="button" className="fb-link fb-danger" onClick={() => { forgetMine(); setForgot(true); }} disabled={forgot}>{forgot ? t("Alles klar, ich lösche deine Feedbacks.") : t("Deine bisherigen Feedbacks löschen")}</button>
         </section>
         <div className="fb-actions">
           <button type="button" className="fb-btn" onClick={onClose}>{t("Fertig")}</button>
