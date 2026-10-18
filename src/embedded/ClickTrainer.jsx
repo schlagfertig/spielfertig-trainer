@@ -7,6 +7,7 @@ import { ClickAdvanced } from "../lib/ClickAdvanced.jsx";
 import { createMixClock, extrasOn, readMix, writeMix } from "../lib/clickMix.js";
 import { t } from "../lib/i18n.js";
 import { usePracticeTrack } from "../lib/PracticeDiary.jsx";
+import NoClick from "../lib/NoClick.jsx";
 
 const INK = "#161a1d";
 const LINE = "#2f383d";
@@ -20,7 +21,7 @@ function readClickSession() {
   const s = loadSession("click", {});
   const startBpm = clamp(Number(s.startBpm) || 80, 30, 260);
   return {
-    mode: s.mode === "ramp" ? "ramp" : "hold",
+    mode: s.mode === "ramp" || s.mode === "noclick" ? s.mode : "hold",
     startBpm,
     everySec: clamp(Number(s.everySec) || 10, 2, 60),
     step: clamp(Number(s.step) || 4, 1, 20),
@@ -52,7 +53,7 @@ function useDialSize() {
 
 export default function ClickTrainer({ preset = null } = {}) {
   // Aus der „Heute“-Karte: Tempo halten mit vorgegebenem Tempo.
-  const init = useRef(preset?.bpm ? { ...readClickSession(), mode: "hold", startBpm: clamp(preset.bpm, 30, 260) } : readClickSession()).current;
+  const init = useRef(preset?.mode === "noclick" ? { ...readClickSession(), mode: "noclick" } : preset?.bpm ? { ...readClickSession(), mode: "hold", startBpm: clamp(preset.bpm, 30, 260) } : readClickSession()).current;
   const [mode, setMode] = useState(init.mode);
   const [startBpm, setStartBpm] = useState(init.startBpm);
   const [bpm, setBpm] = useState(init.startBpm);
@@ -234,9 +235,11 @@ export default function ClickTrainer({ preset = null } = {}) {
   return (
     <div className="ct-wrap">
       <div className="seg" style={{ margin: "8px 0 12px", maxWidth: "100%" }}>
-        <button type="button" className={!ramp ? "on" : ""} onClick={() => pickMode("hold")}>{t("Tempo halten")}</button>
+        <button type="button" className={mode === "hold" ? "on" : ""} onClick={() => pickMode("hold")}>{t("Tempo halten")}</button>
         <button type="button" className={ramp ? "on" : ""} onClick={() => pickMode("ramp")}>{t("Tempo steigern")}</button>
+        <button type="button" className={mode === "noclick" ? "on" : ""} onClick={() => pickMode("noclick")}>NoClick</button>
       </div>
+      {mode === "noclick" ? <NoClick dialSize={dialSize} /> : (<>
       <div className="panel">
         <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 8 }}>{t("Einstellung")}</div>
         <p style={{ color: DIM, fontSize: 13, margin: "0 0 12px", lineHeight: 1.35 }}>
@@ -326,6 +329,7 @@ export default function ClickTrainer({ preset = null } = {}) {
         </div>
         <ClickAdvanced mix={mix} setMix={setMix} slidersOnly />
       </div>
+      </>)}
       <style>{`
         .page.tool:has(.ct-wrap) { display: flex; flex-direction: column; }
         .page.tool:has(.ct-wrap) .main { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
