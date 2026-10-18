@@ -48,7 +48,7 @@ export function Help({ topic = "home", onFirstClose }) {
             : <li key={v} className="help-egg">{t(v)}</li>
           ))}
         </ul>
-        <button className="play" onClick={close} style={{ width: "100%" }}>
+        <button className="play" onClick={close} style={{ width: "100%", textTransform: "none", letterSpacing: "0.02em" }}>
           {t(first ? "Verstanden" : "Schließen")}
         </button>
       </div>

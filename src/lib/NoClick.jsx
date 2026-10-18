@@ -65,12 +65,12 @@ function Ring({ kind, value, onChange, center, inner, outer, shown, onTurn, drag
     const st = ringStep(kind);
     const steps = Math.trunc(d.acc / st);
     if (steps) {
-      // Wie beim SpinDial: rechtsrum = größere Zahl (der Ring folgt dem Finger, die Zahlen steigen linksrum).
-      const nv = clampSetting(kind, d.v + steps);
+      // Zahlen steigen im Uhrzeigersinn, der Ring folgt dem Finger: linksrum holt die größere Zahl nach oben.
+      const nv = clampSetting(kind, d.v - steps);
       d.acc -= steps * st;
       if (nv !== d.v) { d.v = nv; onChange(nv); }
     }
-    const atEnd = (d.v === hi && d.acc > 0) || (d.v === lo && d.acc < 0);
+    const atEnd = (d.v === hi && d.acc < 0) || (d.v === lo && d.acc > 0);
     setLive(atEnd ? 0 : d.acc);
     onTurn();
   }
@@ -84,15 +84,20 @@ function Ring({ kind, value, onChange, center, inner, outer, shown, onTurn, drag
   const mid = (inner + outer) / 2;
   const box = outer * 2 + 8;
   const c = box / 2;
-  const rot = (value - lo) * stepDeg + (live * 180) / Math.PI;
+  const rot = -(value - lo) * stepDeg + (live * 180) / Math.PI;
   const nums = [];
   for (let k = lo; k <= hi; k++) {
-    const deg = -(k - lo) * stepDeg;
+    const deg = (k - lo) * stepDeg; // aufsteigend im Uhrzeigersinn
     const dist = Math.abs(((deg + rot + 540) % 360) - 180); // 180 = oben
-    const op = Math.max(0.16, 1 - dist / 150);
+    // Gut lesbar schon beim Öffnen: groß, kräftig, mit dunklem Rand; oben weiß, weiter weg Teal und etwas zarter.
+    const near = dist < 60;
+    const op = Math.max(0.62, 1 - dist / 300);
+    const fill = near ? "#f4f7f6" : TEAL;
     nums.push(
-      <g key={k} transform={`rotate(${deg} ${c} ${c})`}>
-        <text x={c} y={c - mid} textAnchor="middle" dominantBaseline="central" fill="#dfe8e6" fontSize="15" fontWeight="700" opacity={op * 0.85}>{k}</text>
+      <g key={k} transform={`rotate(${deg} ${c} ${c})`} opacity={op}>
+        <text x={c} y={c - mid} textAnchor="middle" dominantBaseline="central" fill={fill} stroke="#161a1d" strokeWidth="3.5" strokeLinejoin="round" paintOrder="stroke" fontSize="21" fontWeight="800">{k}</text>
+        {/* 6 und 9 drehen mit - der Unterstrich zeigt, wo unten ist */}
+        {k === 6 || k === 9 ? <line x1={c - 5} x2={c + 5} y1={c - mid + 11} y2={c - mid + 11} stroke={fill} strokeWidth="2" strokeLinecap="round" /> : null}
       </g>,
     );
   }
@@ -115,6 +120,7 @@ function Ring({ kind, value, onChange, center, inner, outer, shown, onTurn, drag
           <stop offset={`${(outer / (box / 2)) * 100}%`} stopColor="rgba(92,200,184,0.16)" />
         </radialGradient>
       </defs>
+      <circle cx={c} cy={c} r={mid} fill="none" stroke="rgba(22,26,29,0.72)" strokeWidth={outer - inner} />
       <circle cx={c} cy={c} r={mid} fill="none" stroke="url(#nc-ring-g)" strokeWidth={outer - inner} />
       <circle cx={c} cy={c} r={outer} fill="none" stroke="rgba(92,200,184,0.38)" strokeWidth="1" />
       <circle cx={c} cy={c} r={inner} fill="none" stroke="rgba(92,200,184,0.28)" strokeWidth="1" />
@@ -381,7 +387,7 @@ export default function NoClick({ dialSize = 140 }) {
           </div>
         </>
       )}
-      <div ref={dockRef} className={locked ? "ct-stage click-dock nc-dock locked" : "ct-stage click-dock nc-dock"} aria-disabled={locked}>
+      <div ref={dockRef} className={`ct-stage click-dock nc-dock${locked ? " locked" : ""}${editing ? " ring-open" : ""}`} aria-disabled={locked}>
         <div className="dial-row">
           <Nudge by={-10} bpm={bpm} set={setDial} min={30} max={260} />
           <Nudge by={-5} bpm={bpm} set={setDial} min={30} max={260} />
@@ -434,7 +440,11 @@ export default function NoClick({ dialSize = 140 }) {
         .nc-cd-off { margin-top: 8px; font: 700 28px/46px Figtree, sans-serif; color: #4a585e; }
         .nc-dock { transition: opacity .22s ease, filter .22s ease; }
         .nc-dock.locked { opacity: .35; filter: saturate(.5); pointer-events: none; }
-        body.nc-ring-open .clip-fab { opacity: .35; transition: opacity .22s ease; }
+        /* Ring offen: ±5/±10 und Clip ausblenden (nicht nur abdunkeln) */
+        .nc-dock .nudge-lg { transition: opacity .22s ease, visibility .22s; }
+        .nc-dock.ring-open .nudge-lg { opacity: 0; visibility: hidden; pointer-events: none; }
+        .clip-fab { transition: opacity .22s ease, visibility .22s; }
+        body.nc-ring-open .clip-fab { opacity: 0; visibility: hidden; pointer-events: none; }
         .nc-backdrop { position: fixed; inset: 0; z-index: 60; touch-action: none; background: transparent; }
         .nc-ring { position: fixed; z-index: 61; touch-action: none; opacity: 0; pointer-events: none; transition: opacity ${RING_FADE_MS}ms ease; user-select: none; -webkit-user-select: none; }
         .nc-ring.shown { opacity: 1; pointer-events: auto; }

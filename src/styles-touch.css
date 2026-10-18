@@ -1,0 +1,17 @@
+/* Tippflächen mindestens 44 × 44 px. Wo der Platz neben dem SpinDial knapp ist, bleibt der Knopf
+   optisch gleich groß und bekommt eine unsichtbare, zentrierte 44-px-Tippfläche. */
+.nudge-lg::after,
+.ed-bar .ed-reroll::after,
+.rud-info::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
+}
+.ed-bar .ed-reroll { position: relative; }
+
+/* Rudiment-Würfel: Länge, Stufe, Takt */
+.ed-seg button { min-height: 44px; }

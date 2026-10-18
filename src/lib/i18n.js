@@ -1,5 +1,6 @@
 import { loadSession, saveSession } from "./session.js";
 import { EN } from "./en.js";
+import { EN2 } from "./en2.js";
 
 // Deutscher Text ist der Schlüssel; fehlt eine Übersetzung, bleibt es deutsch.
 function initial() {
@@ -32,7 +33,8 @@ export function setLang(next) {
 
 // ctx trennt gleiche deutsche Wörter mit verschiedener Übersetzung (EN-Schlüssel "ctx|Text").
 export function t(text, vars, ctx) {
-  const s = (lang === "en" && EN[ctx ? `${ctx}|${text}` : text]) || text;
+  const key = ctx ? `${ctx}|${text}` : text;
+  const s = (lang === "en" && (EN2[key] || EN[key])) || text;
   return vars ? s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : s;
 }
 

@@ -104,7 +104,7 @@ export function DialHint({ onDone }) {
           <text x={278} y={CY + 34} textAnchor="middle" fill={DIM} fontFamily="Figtree, sans-serif" fontSize="10" fontWeight="800" letterSpacing="0.08em">{t("SCHNELLER")}</text>
           <text x={CX} y={188} textAnchor="middle" fill={DIM} fontFamily="Figtree, sans-serif" fontSize="10" fontWeight="800" letterSpacing="0.08em">{t("MITTE ANTIPPEN = START / STOP")}</text>
         </svg>
-        <button className="play" onClick={onDone} style={{ width: "100%", marginTop: 8 }}>{t("Verstanden")}</button>
+        <button className="play" onClick={onDone} style={{ width: "100%", marginTop: 8, textTransform: "none", letterSpacing: "0.02em" }}>{t("Verstanden")}</button>
       </div>
     </div>,
     document.body,
