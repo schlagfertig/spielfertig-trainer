@@ -59,6 +59,8 @@ export const EN2 = {
   // Clip: Kamera-Hinweis
   "Kamera nicht freigegeben. Erlaube den Kamerazugriff in den Einstellungen.": "Camera not allowed. Allow camera access in your settings.",
   "Keine Kamera gefunden.": "No camera found.",
+  // Hausaufgaben: Start-Knopf ist ein Verb (britisch „practise“), die Tabs „Üben“ bleiben „Practice“
+  "hw|Üben": "Practise",
   // Journal mitnehmen (Export/Import)
   "Journal mitnehmen": "Take your Journal along",
   "Neues Handy? Sichere dein Journal als Datei und hol es auf dem neuen Gerät wieder rein. Alles bleibt bei dir - nichts wird hochgeladen.": "New phone? Save your Journal as a file and bring it back in on your new device. Everything stays with you - nothing is uploaded.",
