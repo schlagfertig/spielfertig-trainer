@@ -13,6 +13,8 @@ import FirstLesson, { loadBeginnerDone } from "./lib/FirstLesson.jsx";
 import NoStick from "./lib/NoStick.jsx";
 import EtudeDice from "./lib/EtudeDice.jsx";
 import PracticeDiary, { DiaryToast } from "./lib/PracticeDiary.jsx";
+import Journal, { JournalBar } from "./lib/Journal.jsx";
+import { labsOn } from "./lib/labs.js";
 import { STEPS as BEGIN_STEPS, nextIndex as beginNext } from "./lib/beginner.js";
 import Today from "./lib/Today.jsx";
 import { FIRST_SKIP_KEY, hideFirstToday, isFirstHidden } from "./lib/firstSkip.js";
@@ -76,6 +78,8 @@ function viewFromPath() {
 
 export default function App() {
   const [view, setView] = useState(viewFromPath);
+  // Labs (nur Tom): „Übe-Tagebuch“ wird zum Journal mit Hausaufgaben und Karteikasten.
+  const journal = useRef(labsOn()).current;
   useEffect(() => {
     const practice = ["rudiments", "click", "pyramid", "stick", "rhythm", "first", "nostick", "dice"].includes(view);
     if (!practice) return undefined;
@@ -377,9 +381,9 @@ export default function App() {
           </button>
           <button className="card has-icon dy-card" onClick={() => open("diary")}>
             <TileIcon name="diary" />
-            <div className="card-kicker">{`${t("Neu")} · ${t("Fortschritt")}`}</div>
-            <div className="card-title">{t("Übe-Tagebuch")}</div>
-            <div className="card-lead">{t("Deine Übezeit zählt automatisch mit - ab 30 Sekunden am Stück. Mit Monatsauswertung und deinen Top 3.")}</div>
+            <div className="card-kicker">{journal ? `Labs · ${t("Fortschritt")}` : `${t("Neu")} · ${t("Fortschritt")}`}</div>
+            <div className="card-title">{journal ? t("Journal") : t("Übe-Tagebuch")}</div>
+            <div className="card-lead">{journal ? t("Tagebuch, Hausaufgaben und Karteikasten - alles für dein Üben an einem Ort.") : t("Deine Übezeit zählt automatisch mit - ab 30 Sekunden am Stück. Mit Monatsauswertung und deinen Top 3.")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card has-icon" onClick={() => open("lexicon")}>
@@ -422,7 +426,7 @@ export default function App() {
     );
   }
 
-  const meta = META[view] || META.rudiments;
+  const meta = journal && view === "diary" ? { title: "Journal", help: "journal" } : META[view] || META.rudiments;
   return (
     <div className={`page tool view-${view}${stage ? " stage" : ""}`}>
       {paywall && (
@@ -456,12 +460,13 @@ export default function App() {
           </div>
         </div>
         <div className="top-title">{t(printOpen && view === "rudiments" ? "Drucken" : meta.title)}</div>
+        {journal && !printOpen ? <JournalBar view={view} /> : null}
       </header>
       <main className="main">
         {view === "first" ? <FirstLesson key={preset?.step || "next"} onHome={goHome} onOpen={open} preset={preset} />
           : view === "nostick" ? <NoStick onHome={goHome} onOpen={open} />
           : view === "dice" ? <EtudeDice />
-          : view === "diary" ? <PracticeDiary />
+          : view === "diary" ? (journal ? <Journal onOpen={open} /> : <PracticeDiary />)
           : view === "impressum" ? <Legal topic="impressum" onOpen={open} />
           : view === "datenschutz" ? <Legal topic="datenschutz" onOpen={open} />
           : view === "news" ? <News />
