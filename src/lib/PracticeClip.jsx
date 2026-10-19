@@ -63,6 +63,8 @@ function PracticeClipInner({ title, view, inline = false }) {
   const [seconds, setSeconds] = useState(0);
   const [clip, setClip] = useState(null);
   const [err, setErr] = useState("");
+  const [toastAt, setToastAt] = useState(null);
+  const fabRef = useRef(null);
   const [facing, setFacing] = useState("environment");
   const videoRef = useRef(null);
   const streamRef = useRef(null);
@@ -117,13 +119,27 @@ function PracticeClipInner({ title, view, inline = false }) {
       setFacing(nextFacing);
       setOpen(true);
       setCamTick((n) => n + 1);
-    } catch {
-      setErr(t("Kamera nicht freigegeben."));
+    } catch (e) {
+      // Kein Kamera-Gerät / keine Kamera-API → „Keine Kamera“, sonst (verweigert, belegt …) → Freigabe-Hinweis.
+      const none = !navigator.mediaDevices?.getUserMedia || e?.name === "NotFoundError" || e?.name === "OverconstrainedError";
+      setErr(none ? t("Keine Kamera gefunden.") : t("Kamera nicht freigegeben. Erlaube den Kamerazugriff in den Einstellungen."));
+      const box = fabRef.current?.getBoundingClientRect();
+      setToastAt(box ? { left: box.left, bottom: window.innerHeight - box.top + 10 } : null);
       return;
     }
     await openMic();
     unlockAudio();
   }
+
+  // Fehler bei geschlossenem Dock: kleiner Hinweis über dem Clip-Knopf, weg nach 4 s oder beim nächsten Tippen.
+  const toast = !open && err;
+  useEffect(() => {
+    if (!toast) return undefined;
+    const hide = () => setErr("");
+    const timer = setTimeout(hide, 4000);
+    document.addEventListener("pointerdown", hide, true);
+    return () => { clearTimeout(timer); document.removeEventListener("pointerdown", hide, true); };
+  }, [toast]);
 
   // Das <video> gibt es erst, wenn das Dock offen ist. Deshalb den Kamera-Stream
   // erst nach dem Rendern anhaengen (vorher war videoRef beim ersten Oeffnen noch
@@ -276,8 +292,12 @@ function PracticeClipInner({ title, view, inline = false }) {
   return (
     <>
       {!open && (
-        <button type="button" className={inline ? "clip-fab clip-inline" : "clip-fab"} onClick={() => openCamera()}>{t("Clip")}</button>
+        <button type="button" ref={fabRef} className={inline ? "clip-fab clip-inline" : "clip-fab"} onClick={() => openCamera()}>{t("Clip")}</button>
       )}
+      {toast && typeof document !== "undefined" ? createPortal(
+        <div className="clip-toast" role="status" aria-live="polite" style={toastAt ? { left: Math.max(12, Math.min(toastAt.left, window.innerWidth - 332)), bottom: toastAt.bottom } : undefined}>{err}</div>,
+        document.body,
+      ) : null}
       {open && portal(
         <div className="clip-dock">
           <video ref={videoRef} playsInline muted autoPlay onLoadedMetadata={(e) => e.currentTarget.play().catch(() => {})} />
@@ -295,6 +315,7 @@ function PracticeClipInner({ title, view, inline = false }) {
         .clip-fab.clip-inline { position: static; min-height: 44px; min-width: 76px; padding: 0 16px; font-size: 16px; box-shadow: 0 4px 14px rgba(92,200,184,.28); }
         .clip-dock { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 40; display: grid; grid-template-columns: 132px 1fr; gap: 8px; padding: 8px; border-radius: 16px; background: rgba(22,26,29,.9); border: 1px solid #2f383d; }
         .clip-dock video { width: 132px; height: 96px; object-fit: cover; border-radius: 12px; background: #000; }
+        .clip-toast { position: fixed; left: 16px; bottom: 160px; z-index: 45; max-width: min(320px, calc(100vw - 24px)); padding: 10px 14px; border-radius: 14px; background: rgba(22,26,29,.82); border: 1px solid rgba(92,200,184,.5); color: #f4f7f6; font: 600 15px/1.35 Figtree, sans-serif; box-shadow: 0 10px 28px rgba(0,0,0,.35); -webkit-backdrop-filter: blur(18px) saturate(160%); backdrop-filter: blur(18px) saturate(160%); pointer-events: none; }
         .clip-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
         .clip-actions .play, .clip-actions .ghost { min-height: 40px; }
       `}</style>
