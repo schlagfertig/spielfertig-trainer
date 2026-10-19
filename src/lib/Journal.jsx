@@ -106,7 +106,7 @@ function HwItem({ x, onOpen }) {
         <span className={x.lastAt ? "jr-when" : "jr-when is-new"}>{whenText(x.lastAt)}</span>
       </button>
       <div className="jr-acts">
-        <button type="button" className="jr-go" onClick={() => openHw(x, onOpen)}>{t("Üben")} ›</button>
+        <button type="button" className="jr-go" onClick={() => openHw(x, onOpen)}>{t("Üben", null, "hw")} ›</button>
         {x.done ? (
           <button type="button" className="jr-chip" onClick={() => saveHw(setHwDone(loadHw(), x.key, false))}>{t("Nochmal üben")}</button>
         ) : (
