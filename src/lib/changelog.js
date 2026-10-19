@@ -7,6 +7,10 @@ export const CHANGELOG = [
   {
     date: "2026-10-19",
     items: [
+      { de: "Neu für alle: dein Journal! Auf der Startseite findest du jetzt Tagebuch, Hausaufgaben und Karteikasten unter einer Kachel. Tipp in einer Übung oben auf ‚Zu Hausaufgaben‘ - die App merkt sich die Übung mit deinen Einstellungen, und du legst später mit einem Tipp direkt los. Im Karteikasten sammelst du Rudiments, die du besser können willst. Dein Übe-Tagebuch ist mit allen Einträgen dabei. Schau rein!",
+        en: "New for everyone: your Journal! On Home you'll now find your diary, homework and card box under one tile. In any exercise, tap ‘Add to homework’ at the top - the app remembers the exercise with your settings, and later you get going with a single tap. In the card box you collect the rudiments you want to get better at. Your practice diary comes along with all its entries. Take a look!" },
+      { de: "Neu im Journal: Exportieren und Importieren. Nimm dein Journal mit auf ein neues Handy - als kleine Datei über das Teilen-Menü oder zum Kopieren. Beim Importieren führt die App alles zusammen, ohne Doppelte. Deine Daten bleiben bei dir.",
+        en: "New in the Journal: export and import. Take your Journal along to a new phone - as a small file via the share menu or to copy. When importing, the app merges everything without duplicates. Your data stays with you." },
       { de: "NoClick: Einzählen - wähl Aus, 1 oder 2 Takte, bevor der Wechsel aus Click und Lücke startet. Beim Einzählen siehst du groß 1 – 2 – 3 – 4.",
         en: "NoClick: Count-in - choose Off, 1 or 2 bars before the switch between click and gap starts. While counting in you see a big 1 – 2 – 3 – 4." },
       { de: "Eigene Grooves: Auf dem iPad siehst du beim Üben jetzt den ganzen Rhythmus - nichts verschwindet mehr hinter dem SpinDial.",
@@ -416,6 +420,11 @@ export const CHANGELOG_LATEST = CHANGELOG[0]?.date || "";
 // (nicht bei Patch, nicht beim allerersten Start). Für die nächste Version einfach einen Eintrag ergänzen.
 // action: Ansicht, die „Jetzt ausprobieren“ öffnet (wie in App.jsx open()).
 export const HIGHLIGHTS = {
+  "1.4": {
+    action: "diary",
+    de: { title: "Neu in Schlagfertig 1.4 🥁", lines: ["📓 Journal: Tagebuch, Hausaufgaben und Karteikasten - alles für dein Üben an einem Ort.", "📌 Zu Hausaufgaben: Merk dir jede Übung mit deinen Einstellungen und leg später mit einem Tipp los.", "📲 Journal mitnehmen: Neues Handy? Exportier dein Journal und hol es dort wieder rein."], go: "Jetzt ausprobieren", later: "Später" },
+    en: { title: "New in Schlagfertig 1.4 🥁", lines: ["📓 Journal: diary, homework and card box - everything for your practice in one place.", "📌 Add to homework: save any exercise with your settings and get going later with one tap.", "📲 Take your Journal along: new phone? Export your Journal and bring it back in there."], go: "Try it now", later: "Later" },
+  },
   "1.3": {
     action: "click",
     preset: { mode: "noclick" },

@@ -1,13 +1,12 @@
-// Journal (Labs): Speicher, aktuelle Übung und Verknüpfung mit dem Tagebuch.
-// Alles nur mit Labs an - ohne Labs liest und schreibt hier nichts.
+// Journal: Speicher, aktuelle Übung und Verknüpfung mit dem Tagebuch.
+// Seit der Freigabe für alle an (vorher nur mit Labs). journalOn() bleibt als Schalter-Stelle bestehen.
 import { useEffect, useRef } from "react";
 import { loadSession, saveSession } from "./session.js";
-import { labsOn } from "./labs.js";
 import { MIN_SEC } from "./practiceLog.js";
 import { CARD_KEY, HW_KEY, exKey, findHw, normalizeCards, normalizeHw, noteCard, notePractice } from "./journal.js";
 
 export const JOURNAL_EVENT = "sf-journal";
-export const journalOn = () => labsOn();
+export const journalOn = () => true;
 
 export const loadHw = () => normalizeHw(loadSession(HW_KEY, { items: [] }));
 export const loadCards = () => normalizeCards(loadSession(CARD_KEY, { cards: [] }));
