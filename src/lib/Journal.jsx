@@ -1,5 +1,4 @@
-// Journal (Labs): Tagebuch, Hausaufgaben und Karteikasten unter einer Kachel.
-// Ohne Labs bleibt alles wie bisher (Kachel „Übe-Tagebuch“, kein Knopf in den Übungen).
+// Journal: Tagebuch, Hausaufgaben und Karteikasten unter einer Kachel, unten „Journal mitnehmen“ (Export/Import).
 import { useEffect, useState } from "react";
 import { getLang, t } from "./i18n.js";
 import { loadSession, saveSession } from "./session.js";
@@ -9,6 +8,7 @@ import PracticeDiary, { entryName } from "./PracticeDiary.jsx";
 import { CARD_LEVELS, addCard, hasCard, removeCard, removeHw, setCardLevel, setHwDone, sortCards, splitHw, toggleCard, toggleHw } from "./journal.js";
 import { JOURNAL_EVENT, buildEntry, getCtx, journalOn, loadCards, loadHw, restoreSessions, saveCards, saveHw } from "./journalStore.js";
 import { dayKey } from "./practiceLog.js";
+import JournalBackup from "./JournalBackup.jsx";
 import "../styles-journal.css";
 
 const TABS = [
@@ -198,6 +198,7 @@ export default function Journal({ onOpen }) {
   const [tab, setTabRaw] = useState(() => (TABS.some((x) => x.id === loadSession("journal", {}).tab) ? loadSession("journal", {}).tab : "diary"));
   const setTab = (id) => { setTabRaw(id); saveSession("journal", { tab: id }); };
   const hwOpen = splitHw(loadHw()).open.length;
+  const [gen, setGen] = useState(0); // nach einem Import neu laden
   return (
     <div className="jr-wrap">
       <div className="seg jr-tabs" role="tablist" aria-label={t("Journal")}>
@@ -207,7 +208,8 @@ export default function Journal({ onOpen }) {
           </button>
         ))}
       </div>
-      {tab === "diary" ? <PracticeDiary /> : tab === "hw" ? <Homework onOpen={onOpen} /> : <Cards onOpen={onOpen} />}
+      <div key={gen}>{tab === "diary" ? <PracticeDiary /> : tab === "hw" ? <Homework onOpen={onOpen} /> : <Cards onOpen={onOpen} />}</div>
+      <JournalBackup onChanged={() => setGen((g) => g + 1)} />
     </div>
   );
 }

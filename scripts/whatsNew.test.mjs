@@ -15,14 +15,14 @@ test("Version: package.json = APP_VERSION, Highlights für die aktuelle Minor-Ve
   for (const l of ["de", "en"]) {
     assert.ok(h[l].title && h[l].lines.length && h[l].go && h[l].later, l);
   }
-  assert.equal(h.de.title, "Neu in Schlagfertig 1.3 🥁");
-  assert.equal(h.en.title, "New in Schlagfertig 1.3 🥁");
-  assert.equal(h.de.lines[0], "🔇 NoClick: Jetzt mit Einzählen - wähl 1 oder 2 Takte und leg entspannt los.");
-  assert.equal(h.en.lines[0], "🔇 NoClick: Now with count-in - pick 1 or 2 bars and ease right in.");
+  assert.equal(h.de.title, "Neu in Schlagfertig 1.4 🥁");
+  assert.equal(h.en.title, "New in Schlagfertig 1.4 🥁");
+  assert.equal(h.de.lines[0], "📓 Journal: Tagebuch, Hausaufgaben und Karteikasten - alles für dein Üben an einem Ort.");
+  assert.equal(h.en.lines[0], "📓 Journal: diary, homework and card box - everything for your practice in one place.");
   assert.equal(h.de.go, "Jetzt ausprobieren");
   assert.equal(h.en.go, "Try it now");
-  assert.equal(h.action, "click");
-  assert.deepEqual(h.preset, { mode: "noclick" });
+  assert.equal(h.action, "diary");
+  assert.equal(h.preset, undefined);
 });
 
 test("minorKey", () => {
