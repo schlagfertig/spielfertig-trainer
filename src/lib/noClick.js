@@ -2,7 +2,8 @@
 // Reines Datenmodul ohne DOM, damit node --test es direkt laden kann.
 
 export const LIMITS = { click: [1, 8], gap: [1, 8], beats: [1, 12] }; // gespeicherte Werte über 8 werden beim Laden auf 8 begrenzt
-export const DEFAULTS = { click: 2, gap: 2, beats: 4, flash: true };
+export const DEFAULTS = { click: 2, gap: 2, beats: 4, flash: true, countIn: 1 };
+export const COUNT_IN = [0, 1, 2]; // Einzählen: aus, 1 Takt, 2 Takte
 export const RING_HIDE_MS = 3000; // Ring blendet nach so langer Zeit ohne Drehen aus
 
 // Vorankündigung im letzten Takt einer Phase: der nächste Balken fährt linear von zart bis etwa halb hell,
@@ -22,6 +23,7 @@ export function readSettings(raw = {}) {
     gap: clampSetting("gap", raw.gap ?? DEFAULTS.gap),
     beats: clampSetting("beats", raw.beats ?? DEFAULTS.beats),
     flash: raw.flash !== false,
+    countIn: COUNT_IN.includes(raw.countIn) ? raw.countIn : DEFAULTS.countIn,
   };
 }
 
@@ -50,6 +52,17 @@ export function beatInfo(n, { click, gap, beats }) {
     comeback: sound && down && b.index === 0 && bar > 0, // erste 1 nach der Lücke: stärkerer Akzent
     flash1: !sound && down, // 1 in der Lücke: NoClick-Balken blitzt (nur mit Schalter), ohne Ton
   };
+}
+
+// Schlag m ab Start inkl. Einzählen. Die ersten countIn Takte klingen wie der normale Click (Akzent auf der 1),
+// danach startet NoClick bei Takt 1 (beatInfo ab 0). countIn 0 = genau wie ohne Einzählen.
+export function playBeat(m, set) {
+  const pre = (set.countIn || 0) * set.beats;
+  if (m < pre) {
+    const beat = m % set.beats;
+    return { countIn: Math.floor(m / set.beats) + 1, beat, down: beat === 0, sound: true, comeback: false, flash1: false };
+  }
+  return { ...beatInfo(m - pre, set), countIn: 0 };
 }
 
 // Toms Regel: im letzten Click-Takt kündigt sich NoClick immer an. Im letzten NoClick-Takt kündigt sich

@@ -1,5 +1,6 @@
 // NoClick (Untermodus im Click-Trainer): X Takte mit Click, Y Takte ohne Click - du hältst das Tempo.
 // Einstellen über drei Zahlen und einen Ring ums SpinDial; beim Üben zwei Balken mit Countdown.
+// Einzählen (aus / 1 / 2 Takte): erst normaler Click mit großer Zählzahl, dann startet NoClick bei Takt 1.
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { MetronomeDial, Nudge } from "./metronome.jsx";
@@ -7,7 +8,7 @@ import { playClick, playClickLayer, unlockAudio } from "./audio.js";
 import { loadSession, saveSession } from "./session.js";
 import { t } from "./i18n.js";
 import { usePracticeTrack } from "./PracticeDiary.jsx";
-import { LIMITS, RING_HIDE_MS, announceLevel, barInfo, beatInfo, clampSetting, readSettings, ringStep } from "./noClick.js";
+import { COUNT_IN, LIMITS, RING_HIDE_MS, announceLevel, barInfo, clampSetting, playBeat, readSettings, ringStep } from "./noClick.js";
 
 const TEAL = "#5cc8b8";
 const FLASH_SEC = 0.13; // Blitz auf der 1 in der Lücke
@@ -138,6 +139,8 @@ export default function NoClick({ dialSize = 140 }) {
   const init = useRef(readState()).current;
   const [cfg, setCfg] = useState({ click: init.click, gap: init.gap, beats: init.beats });
   const [flash, setFlash] = useState(init.flash);
+  const [countIn, setCountIn] = useState(init.countIn);
+  const [count, setCount] = useState(null); // beim Einzählen: { ci, beat }
   const [bpm, setBpm] = useState(init.bpm);
   const [playing, setPlaying] = useState(false);
   const [beat, setBeat] = useState(false);
@@ -154,6 +157,10 @@ export default function NoClick({ dialSize = 140 }) {
   bpmRef.current = bpm;
   flashRef.current = flash;
   cfgRef.current = cfg;
+  const countInRef = useRef(countIn);
+  countInRef.current = countIn;
+  const countLine = useRef([]);
+  const countEnd = useRef(0); // Audio-Zeit, ab der NoClick läuft (Ende des Einzählens)
   const stopRef = useRef(null);
   const ctxRef = useRef(null);
   const timeline = useRef([]);
@@ -166,7 +173,7 @@ export default function NoClick({ dialSize = 140 }) {
   const gapFill = useRef(null);
   const gapBar = useRef(null);
 
-  useEffect(() => { saveSession("noclick", { ...cfg, flash, bpm }); }, [cfg, flash, bpm]);
+  useEffect(() => { saveSession("noclick", { ...cfg, flash, bpm, countIn }); }, [cfg, flash, bpm, countIn]);
   useEffect(() => () => { stopRef.current?.(); clearTimeout(hideTimer.current); clearTimeout(fadeTimer.current); }, []);
   useEffect(() => {
     if (!holdLock) return undefined;
@@ -239,6 +246,7 @@ export default function NoClick({ dialSize = 140 }) {
     setPlaying(false);
     setBeat(false);
     setCur(null);
+    setCount(null);
   }
 
   function start() {
@@ -246,12 +254,14 @@ export default function NoClick({ dialSize = 140 }) {
     if (editing) closeRing();
     const ctx = unlockAudio();
     ctxRef.current = ctx;
-    const set = { ...cfgRef.current };
+    const set = { ...cfgRef.current, countIn: countInRef.current };
     let cancelled = false;
     let timer = 0;
     let next = ctx.currentTime + 0.05;
     let n = 0;
     timeline.current = [];
+    countLine.current = [];
+    countEnd.current = set.countIn ? Infinity : 0;
     const log = import.meta.env.DEV ? (window.__noclick = []) : null;
     const pulse = (when) => {
       window.setTimeout(() => {
@@ -266,9 +276,13 @@ export default function NoClick({ dialSize = 140 }) {
       while (next < now - 0.02) { next += 60 / bpmRef.current; n += 1; } // verpasst (Hintergrund): überspringen
       const horizon = now + 0.16;
       while (next < horizon) {
-        const b = beatInfo(n, set);
+        const b = playBeat(n, set);
         const beatSec = 60 / bpmRef.current;
-        if (b.beat === 0) {
+        if (b.countIn) {
+          countLine.current.push({ at: next, ci: b.countIn, beat: b.beat });
+          if (countLine.current.length > 30) countLine.current.shift();
+        } else if (countEnd.current === Infinity) countEnd.current = next;
+        if (!b.countIn && b.beat === 0) {
           timeline.current.push({ at: next, bar: b.bar, dur: beatSec * set.beats });
           if (timeline.current.length > 6) timeline.current.shift();
         }
@@ -277,13 +291,14 @@ export default function NoClick({ dialSize = 140 }) {
           if (b.comeback) playClickLayer(ctx, next, "quarter", 0.9); // Akzent auf der ersten 1 nach der Lücke
           pulse(next);
         }
-        log?.push({ at: next, n, bar: b.bar, beat: b.beat, phase: b.phase, sound: b.sound, accent: b.sound && b.down, comeback: b.comeback });
+        log?.push({ at: next, n, ci: b.countIn, bar: b.bar, beat: b.beat, phase: b.phase, sound: b.sound, accent: b.sound && b.down, comeback: b.comeback });
         next += beatSec;
         n += 1;
       }
       timer = window.setTimeout(schedule, 25);
     };
     setCur({ bar: 0, ...barInfo(0, set.click, set.gap) });
+    setCount(set.countIn ? { ci: 1, beat: -1 } : null);
     setPlaying(true);
     schedule();
     stopRef.current = () => { cancelled = true; window.clearTimeout(timer); };
@@ -294,10 +309,22 @@ export default function NoClick({ dialSize = 140 }) {
     if (!playing) return undefined;
     let raf = 0;
     let lastBar = -1;
+    let lastCount = "";
     const set = { ...cfgRef.current };
     const frame = () => {
       const ctx = ctxRef.current;
       const now = ctx ? ctx.currentTime : 0;
+      if (now < countEnd.current) {
+        // Einzählen: große Zahl folgt der Audio-Uhr, Balken kommen erst danach
+        const cl = countLine.current;
+        let c = null;
+        for (let i = cl.length - 1; i >= 0; i--) if (cl[i].at <= now) { c = cl[i]; break; }
+        const key = c ? `${c.ci}.${c.beat}` : "";
+        if (key !== lastCount) { lastCount = key; if (c) setCount({ ci: c.ci, beat: c.beat }); }
+        raf = requestAnimationFrame(frame);
+        return;
+      }
+      if (lastCount !== "done") { lastCount = "done"; setCount(null); }
       const tl = timeline.current;
       let e = null;
       for (let i = tl.length - 1; i >= 0; i--) if (tl[i].at <= now) { e = tl[i]; break; }
@@ -337,7 +364,7 @@ export default function NoClick({ dialSize = 140 }) {
       <div className="nc-set" role="group" aria-label={t("NoClick-Einstellung")}>
         {ROWS.map((r) => {
           const on = editing === r.key;
-          const live = playing && ((r.key === "click" && phase === "click") || (r.key === "gap" && phase === "gap"));
+          const live = playing && !count && ((r.key === "click" && phase === "click") || (r.key === "gap" && phase === "gap"));
           return (
             <button
               key={r.key}
@@ -364,7 +391,9 @@ export default function NoClick({ dialSize = 140 }) {
           );
         })}
       </div>
-      {playing ? (
+      {playing && count ? (
+        <CountIn ci={count.ci} beat={count.beat} bars={countIn} beats={cfg.beats} />
+      ) : playing ? (
         <div className="nc-bars" aria-live="polite">
           <div className={phase === "click" ? "nc-col on" : "nc-col"}>
             <div className="nc-lab">Click</div>
@@ -385,6 +414,16 @@ export default function NoClick({ dialSize = 140 }) {
             <button type="button" role="switch" aria-checked={flash} aria-label={t("Blinken auf der 1")} className={flash ? "dy-switch on" : "dy-switch"} onClick={() => setFlash(!flash)}>
               <span className="dy-knob" />
             </button>
+          </div>
+          <div className="nc-ci">
+            <span>{t("Einzählen")}</span>
+            <div className="seg nc-seg" role="radiogroup" aria-label={t("Einzählen")}>
+              {COUNT_IN.map((v) => (
+                <button key={v} type="button" role="radio" aria-checked={countIn === v} className={countIn === v ? "on" : ""} onClick={() => setCountIn(v)}>
+                  {t(v === 0 ? "Aus" : v === 1 ? "1 Takt" : "2 Takte")}
+                </button>
+              ))}
+            </div>
           </div>
         </>
       )}
@@ -428,6 +467,17 @@ export default function NoClick({ dialSize = 140 }) {
         .nc-hint.on { color: ${TEAL}; }
         .nc-flash { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 48px; margin-top: 6px; color: #c9d3d6; font-size: 14px; }
         .nc-flash b { color: ${TEAL}; }
+        .nc-ci { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 4px; color: #c9d3d6; font-size: 14px; }
+        .nc-seg { display: inline-flex; gap: 2px; margin: 0; }
+        .nc-seg button { min-height: 40px; padding: 0 12px; font: 700 14px/1 Figtree, sans-serif; white-space: nowrap; cursor: pointer; }
+        .nc-count { margin: 14px 4px 0; min-height: 100px; text-align: center; }
+        .nc-count-lab { font: 800 11px/1 Figtree, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: ${TEAL}; margin-bottom: 8px; }
+        .nc-count-nums { display: flex; justify-content: center; align-items: baseline; gap: .32em; font: 700 var(--nc-fs, 54px)/1 Oswald, "Bebas Neue", sans-serif; }
+        .nc-count-nums i { font-style: normal; color: #4a585e; transition: color .08s, text-shadow .08s; }
+        .nc-count-nums i.done { color: #8a969c; }
+        .nc-count-nums i.now { color: ${TEAL}; text-shadow: 0 0 18px rgba(92,200,184,.7); }
+        .nc-count-nums i.now.one { color: #f4f7f6; text-shadow: 0 0 18px rgba(92,200,184,.9); }
+        .nc-count-nums .sep { color: #39454a; font-size: .5em; }
         .nc-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 14px 4px 0; }
         .nc-col { text-align: center; }
         .nc-lab { font: 800 11px/1 Figtree, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: #8a969c; margin-bottom: 7px; }
@@ -454,6 +504,22 @@ export default function NoClick({ dialSize = 140 }) {
         .nc-ring text { font-family: Figtree, sans-serif; pointer-events: none; }
         @media (prefers-reduced-motion: reduce) { .nc-ring, .nc-dock, .nc-num { transition: none; } }
       `}</style>
+    </div>
+  );
+}
+
+// Große Zählzahl beim Einzählen: „1 – 2 – 3 – 4“ (bzw. die Beats der Taktart), die laufende Zahl leuchtet.
+function CountIn({ ci, beat, bars, beats }) {
+  const fs = beats <= 4 ? 54 : beats <= 6 ? 40 : beats <= 8 ? 30 : 22;
+  const nums = [];
+  for (let k = 0; k < beats; k++) {
+    if (k && beats <= 6) nums.push(<span key={`s${k}`} className="sep">–</span>);
+    nums.push(<i key={k} className={k === beat ? (k === 0 ? "now one" : "now") : k < beat ? "done" : ""}>{k + 1}</i>);
+  }
+  return (
+    <div className="nc-count" aria-live="off">
+      <div className="nc-count-lab">{bars > 1 ? t("Einzählen · Takt {n} von {m}", { n: ci, m: bars }) : t("Einzählen")}</div>
+      <div className="nc-count-nums" style={{ "--nc-fs": `${fs}px` }}>{nums}</div>
     </div>
   );
 }

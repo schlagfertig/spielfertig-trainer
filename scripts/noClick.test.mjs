@@ -1,7 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { barInfo, beatInfo, announces, announceLevel, clampSetting, readSettings, PRE_FROM, PRE_TO, DEFAULTS } from "../src/lib/noClick.js";
-import { EN } from "../src/lib/en.js";
+import { barInfo, beatInfo, announces, announceLevel, clampSetting, readSettings, playBeat, PRE_FROM, PRE_TO, DEFAULTS } from "../src/lib/noClick.js";
+import { EN as EN1 } from "../src/lib/en.js";
+import { EN2 } from "../src/lib/en2.js";
+
+const EN = { ...EN1, ...EN2 }; // wie t(): EN2 gilt vor en.js
 import { HELP } from "../src/lib/helpCopy.js";
 
 test("NoClick: Phasen im Kreis, Countdown zählt den laufenden Takt mit", () => {
@@ -50,7 +53,7 @@ test("NoClick: Einstellungen begrenzt, Standard 2·2·4 mit Blinken an", () => {
   assert.equal(clampSetting("click", 0), 1);
   assert.equal(clampSetting("gap", 99), 8);
   assert.equal(clampSetting("click", 9), 8);
-  assert.deepEqual(readSettings({ click: 16, gap: 12, beats: 12 }), { click: 8, gap: 8, beats: 12, flash: true }); // alte gespeicherte Werte
+  assert.deepEqual(readSettings({ click: 16, gap: 12, beats: 12 }), { click: 8, gap: 8, beats: 12, flash: true, countIn: 1 }); // alte gespeicherte Werte
   assert.equal(clampSetting("beats", 13), 12);
   assert.deepEqual(readSettings({}), { ...DEFAULTS });
   assert.equal(readSettings({ flash: false }).flash, false);
@@ -68,4 +71,35 @@ test("NoClick: Texte übersetzt, Hilfe endet mit dem Easter Egg, keine Gap-Namen
   assert.equal(EN[egg[1]], "Psst… between us, NoClick is really called \"Clickn't\". 🤫🥁");
   for (const [k, v] of rows) for (const s of [k, v, EN[k], EN[v]]) if (s) assert.ok(!/gap ?click|gapclick/i.test(s), s);
   for (const [k, v] of rows) { if (k) assert.ok(EN[k] || /^[A-Za-z ]+$/.test(k), `EN fehlt: ${k}`); assert.ok(EN[v], `EN fehlt: ${v}`); }
+});
+
+test("NoClick Einzählen: Standard 1 Takt, wählbar aus/1/2, wird gemerkt", () => {
+  assert.equal(readSettings({}).countIn, 1);
+  assert.equal(readSettings({ countIn: 0 }).countIn, 0);
+  assert.equal(readSettings({ countIn: 2 }).countIn, 2);
+  assert.equal(readSettings({ countIn: 5 }).countIn, 1);
+  assert.equal(readSettings({ countIn: "2" }).countIn, 1);
+});
+
+test("NoClick Einzählen: 1 bzw. 2 Takte normaler Click mit Akzent auf der 1, dann NoClick ab Takt 1", () => {
+  const base = { click: 2, gap: 2, beats: 4 };
+  for (const countIn of [1, 2]) {
+    const s = { ...base, countIn };
+    const pre = countIn * 4;
+    const all = Array.from({ length: pre + 32 }, (_, m) => playBeat(m, s));
+    const ci = all.slice(0, pre);
+    assert.ok(ci.every((b) => b.countIn && b.sound && !b.comeback && !b.flash1));
+    assert.deepEqual(ci.map((b) => b.down), ci.map((_, i) => i % 4 === 0));
+    assert.deepEqual(ci.map((b) => b.countIn), ci.map((_, i) => Math.floor(i / 4) + 1));
+    const rest = all.slice(pre);
+    assert.deepEqual(rest, Array.from({ length: 32 }, (_, n) => ({ ...beatInfo(n, s), countIn: 0 })));
+  }
+  // 3/4: Einzählen folgt der Taktart
+  const t3 = Array.from({ length: 4 }, (_, m) => playBeat(m, { ...base, beats: 3, countIn: 1 }));
+  assert.deepEqual(t3.map((b) => [b.countIn, b.beat]), [[1, 0], [1, 1], [1, 2], [0, 0]]);
+});
+
+test("NoClick Einzählen aus: genau wie bisher", () => {
+  const s = { click: 3, gap: 1, beats: 4, countIn: 0 };
+  for (let n = 0; n < 40; n++) assert.deepEqual(playBeat(n, s), { ...beatInfo(n, s), countIn: 0 });
 });
