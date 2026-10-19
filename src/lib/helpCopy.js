@@ -47,6 +47,11 @@ export const HELP = {
     ["Takt neu würfeln", "Ein Takt liegt dir nicht? Tipp auf 🎲 daneben - nur dieser Takt wird neu gewürfelt, der Rest bleibt."],
     ["Üben", "SpinDial antippen = Start/Stop, drehen = Tempo. Der aktuelle Takt leuchtet mit. Die Knöpfe neben dem SpinDial: Trommel + Metronom = Snare + Click, Trommel = nur Snare. ±5 und ±10 ändern das Tempo in Schritten."],
   ],
+  journal: [
+    ["Tagebuch", "Hier landet automatisch, was du geübt hast - ab 30 Sekunden am Stück. Als Hausaufgabe Geübtes ist extra markiert."],
+    ["Hausaufgaben", "Tipp in einer Übung oben auf ‚Zu Hausaufgaben‘ - die App merkt sich die Übung mit deinen Einstellungen. Hier tippst du drauf und legst direkt los. Läuft sie, hak sie mit ‚Sitzt‘ ab."],
+    ["Karteikasten", "Leg Rudiments rein, die du besser können willst - in den Rudiments mit ‚In den Karteikasten‘ oder oben im Tab. Jede Karte zeigt die Noten, wann du sie zuletzt geübt hast und deine Stufe: Neu, Übe ich, Sitzt."],
+  ],
   diary: [
     ["So zählt es", "Spiel in Rudiments, Click-Trainer, Rhythmuspyramide, Hand Control oder im Rudiment-Würfel mindestens 30 Sekunden am Stück - nach Stop steht die Übung im Tagebuch. Pro Übung und Tag gibt es einen Eintrag: Übezeit wird addiert, das höchste Tempo gemerkt."],
     ["Monatsauswertung", "Mit ‹ und › blätterst du durch die Monate: Übezeit, Vergleich zum Vormonat, deine Lieblingszeit am Tag und deine Top 3."],
