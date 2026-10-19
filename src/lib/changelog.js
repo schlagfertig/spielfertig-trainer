@@ -5,6 +5,13 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-10-19",
+    items: [
+      { de: "NoClick: Einzählen - wähl Aus, 1 oder 2 Takte, bevor der Wechsel aus Click und Lücke startet. Beim Einzählen siehst du groß 1 – 2 – 3 – 4.",
+        en: "NoClick: Count-in - choose Off, 1 or 2 bars before the switch between click and gap starts. While counting in you see a big 1 – 2 – 3 – 4." },
+    ],
+  },
+  {
     date: "2026-10-18",
     items: [
       { de: "Neu im Click-Trainer: NoClick! Click an, Click aus, du hältst das Tempo. Stell ein, wie viele Takte mit und ohne Click laufen - zwei Balken und ein großer Countdown zeigen dir, wo du gerade bist.",

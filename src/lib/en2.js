@@ -13,4 +13,11 @@ export const EN2 = {
   "Dein Dankeschön ({num})": "Your thank-you ({num})",
   "Deine bisherigen Feedbacks löschen": "Delete your feedback so far",
   "Alles klar, ich lösche deine Feedbacks.": "Got it, I'm deleting your feedback.",
+  // NoClick: Einzählen
+  "Einzählen": "Count-in",
+  "Aus": "Off",
+  "1 Takt": "1 bar",
+  "2 Takte": "2 bars",
+  "Einzählen · Takt {n} von {m}": "Count-in · bar {n} of {m}",
+  "Wähl, ob du 1 oder 2 Takte eingezählt wirst. Dann hörst du nach dem Start erst den normalen Click und siehst groß 1 – 2 – 3 – 4, danach startet NoClick mit Takt 1.": "Choose whether you get counted in for 1 or 2 bars. After Start you first hear the normal click and see a big 1 – 2 – 3 – 4, then NoClick starts with bar 1.",
 };
