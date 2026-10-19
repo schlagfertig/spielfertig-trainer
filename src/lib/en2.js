@@ -56,4 +56,7 @@ export const EN2 = {
   "Hier landet automatisch, was du geübt hast - ab 30 Sekunden am Stück. Als Hausaufgabe Geübtes ist extra markiert.": "Everything you practice lands here automatically - from 30 seconds in a row. Homework you practiced is marked.",
   "Tipp in einer Übung oben auf ‚Zu Hausaufgaben‘ - die App merkt sich die Übung mit deinen Einstellungen. Hier tippst du drauf und legst direkt los. Läuft sie, hak sie mit ‚Sitzt‘ ab.": "In any exercise, tap ‘Add to homework’ at the top - the app remembers the exercise with your settings. Tap it here to get going right away. Once it works, check it off with ‘Nailed it’.",
   "Leg Rudiments rein, die du besser können willst - in den Rudiments mit ‚In den Karteikasten‘ oder oben im Tab. Jede Karte zeigt die Noten, wann du sie zuletzt geübt hast und deine Stufe: Neu, Übe ich, Sitzt.": "Put in rudiments you want to get better at - in Rudiments with ‘Add to card box’ or at the top of the tab. Every card shows the notes, when you last practiced it and your level: New, Practicing, Nailed it.",
+  // Clip: Kamera-Hinweis
+  "Kamera nicht freigegeben. Erlaube den Kamerazugriff in den Einstellungen.": "Camera not allowed. Allow camera access in your settings.",
+  "Keine Kamera gefunden.": "No camera found.",
 };
