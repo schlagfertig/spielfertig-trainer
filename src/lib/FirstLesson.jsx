@@ -4,6 +4,8 @@ import { playClick, unlockAudio } from "./audio.js";
 import { loadSession, saveSession } from "./session.js";
 import { getLang, t } from "./i18n.js";
 import { pickCheer } from "./cheers.js";
+import { useJournalCtx } from "./journalStore.js";
+import { recordFinished } from "./PracticeDiary.jsx";
 import { BEGINNER_KEY, STEPS, doneSet, markDone, nextIndex, planSeconds, stepIndex, stepMeta, tempoPlan, waveDir, waveLevels } from "./beginner.js";
 
 const DIM = "#8a969c";
@@ -160,6 +162,8 @@ export default function FirstLesson({ onHome, onOpen, preset }) {
   const [phase, setPhase] = useState(() => (!preset?.step && nextIndex(done) < 0 ? "list" : "intro"));
   const step = STEPS[idx];
   const plan = tempoPlan(step);
+  // Journal (nur Labs): Einstiegs-Übung als Hausaufgabe merken können
+  useJournalCtx(phase === "list" ? null : { ex: "first", item: step.id, label: step.title, bpm: step.bpm || 0 });
   const [left, setLeft] = useState(0);
   const [pos, setPos] = useState(-1);
   const [beat, setBeat] = useState(false);
@@ -190,6 +194,8 @@ export default function FirstLesson({ onHome, onOpen, preset }) {
   function finish() {
     halt();
     complete();
+    // nur Labs: fertige Einstiegs-Übung ins Tagebuch (ohne Labs tut das nichts)
+    recordFinished({ ex: "first", item: step.id, label: step.title, sec: Math.round(planSeconds(plan)), bpm: Math.max(0, ...plan), at: Date.now() });
     const c = pickCheer(getLang(), lastCheer.current);
     lastCheer.current = c.i;
     setCheer(c.text);

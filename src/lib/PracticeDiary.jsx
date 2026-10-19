@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { loadSession, saveSession } from "./session.js";
 import { getLang, t } from "./i18n.js";
 import { ASK_DELAY_MS, offerFeedback } from "./feedbackClient.js";
+import { journalOn, practiced, useJournalCtx } from "./journalStore.js";
 import { SLOTS, bumpBpm, createSession, dayKey, endSession, groupByDay, markToasted, minutes, monthKey, monthStats, needsToast, normalizeLog, record, removeEntry, restoreEntry, shiftMonth, weekStats } from "./practiceLog.js";
 
 // Übe-Tagebuch: speichert lokal (sf.v1.diary), Schalter in sf.v1.diaryPrefs (Standard: an).
@@ -9,7 +10,7 @@ const LOG_KEY = "diary";
 const PREF_KEY = "diaryPrefs";
 const TOAST_EVENT = "sf-diary-toast";
 
-export const EX_TITLE = { rudiments: "Rudiments", click: "Click-Trainer", pyramid: "Rhythmuspyramide", stick: "Hand Control", dice: "Rudiment-Würfel" };
+export const EX_TITLE = { rudiments: "Rudiments", click: "Click-Trainer", pyramid: "Rhythmuspyramide", stick: "Hand Control", dice: "Rudiment-Würfel", first: "Einstieg" };
 
 export function loadLog() { return normalizeLog(loadSession(LOG_KEY, { entries: [] })); }
 export function saveLog(log) { saveSession(LOG_KEY, log); }
@@ -21,6 +22,7 @@ const tracking = () => diaryOn();
 export function entryName(e) {
   const title = t(EX_TITLE[e.ex] || e.ex);
   if (e.ex === "rudiments" && e.label) return e.label;
+  if (e.ex === "first" && e.label) return t(e.label); // Einstieg (nur mit Labs im Tagebuch)
   if (e.ex === "stick" && e.item != null) return `${title} · ${t("Nr. {n}", { n: e.item })}`;
   return title;
 }
@@ -33,6 +35,8 @@ export function toastText(e) {
 // wird der bisherige Teil still eingetragen; der Hinweis kommt erst nach Stop.
 export function usePracticeTrack({ ex, item = null, label = "", playing, bpm }) {
   const sess = useRef(null);
+  // Journal (nur Labs): aktuelle Übung für „Zu Hausaufgaben“ melden. Ohne Labs passiert hier nichts.
+  const labs = useJournalCtx({ ex, item, label, bpm });
   const pending = useRef(null); // id des Eintrags, der nach Stop gemeldet werden soll
   const playingRef = useRef(playing);
   playingRef.current = playing;
@@ -54,8 +58,9 @@ export function usePracticeTrack({ ex, item = null, label = "", playing, bpm }) 
       const stopped = !playingRef.current || !alive.current;
       // Test-Feedback (nur Testversion, nur mit Einwilligung): nach Stop kurz fragen - unabhängig vom Tagebuch-Schalter.
       const asking = stopped && offerFeedback(seg);
+      const hw = labs && practiced(seg); // Hausaufgabe geübt (Labs): Eintrag markieren
       if (!track || !tracking()) return;
-      let { log, entry } = record(loadLog(), seg);
+      let { log, entry } = record(loadLog(), hw ? { ...seg, hw: true } : seg);
       if (entry) { saveLog(log); if (needsToast(log, entry.id)) pending.current = entry.id; }
       if (!stopped || !pending.current) return;
       const id = pending.current;
@@ -71,6 +76,23 @@ export function usePracticeTrack({ ex, item = null, label = "", playing, bpm }) 
     // label/bpm absichtlich nicht als Abhängigkeit: ändern die Session nicht
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playing, ex, item]);
+}
+
+// Einstieg (nur Labs): fertige Übung wie eine Übe-Session eintragen - Tagebuch-Schalter und 30 s gelten wie sonst,
+// als Hausaufgabe markiert, wenn sie eine ist. seg: { ex, item, label, sec, bpm, at }
+export function recordFinished(seg) {
+  if (!journalOn() || !seg) return;
+  const full = { start: seg.at - seg.sec * 1000, ...seg };
+  const hw = practiced(full);
+  if (!tracking()) return;
+  let { log, entry } = record(loadLog(), hw ? { ...full, hw: true } : full);
+  if (!entry) return;
+  saveLog(log);
+  if (!needsToast(log, entry.id)) return;
+  log = markToasted(log, entry.id);
+  saveLog(log);
+  const e = log.entries.find((x) => x.id === entry.id);
+  window.setTimeout(() => window.dispatchEvent(new CustomEvent(TOAST_EVENT, { detail: { text: toastText(e) } })), 250);
 }
 
 // Kleiner Glas-Hinweis oben (nie über dem SpinDial), verschwindet nach 2,6 s.
@@ -285,8 +307,8 @@ export default function PracticeDiary() {
                 {d.entries.map((e) => (
                   <li key={e.id} className="dy-glass dy-entry">
                     <div className="dy-entry-txt">
-                      <b>{entryName(e)}</b>
-                      <small>{`${minutes(e.sec)} min${e.bpm ? ` · ${e.bpm} BPM` : ""}${e.ex === "rudiments" || e.ex === "stick" ? ` · ${t(EX_TITLE[e.ex])}` : ""}`}</small>
+                      <b>{entryName(e)}{e.hw && journalOn() ? <span className="dy-hw">{t("Hausaufgabe")}</span> : null}</b>
+                      <small>{`${minutes(e.sec)} min${e.bpm ? ` · ${e.bpm} BPM` : ""}${e.ex === "rudiments" || e.ex === "stick" || e.ex === "first" ? ` · ${t(EX_TITLE[e.ex])}` : ""}`}</small>
                     </div>
                     <button type="button" className="dy-del" onClick={() => del(e.id)} aria-label={t("Eintrag löschen: {name}", { name: entryName(e) })} title={t("Löschen")}>
                       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" /></svg>
