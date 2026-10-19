@@ -15,3 +15,9 @@
 
 /* Rudiment-Würfel: Länge, Stufe, Takt */
 .ed-seg button { min-height: 44px; }
+
+/* Hand Control hochkant: Clip-Knopf in die Lücke zwischen ±5/±10 und „Einzählen“ heben, damit er das Wort nicht
+   verdeckt. Abstand wie das Tempo-Dock vom unteren Rand (inkl. Home-Leiste); Querformat bleibt wie es ist. */
+@media (orientation: portrait) {
+  .page.tool.view-stick .clip-fab { bottom: calc(138px + env(safe-area-inset-bottom, 0px)); }
+}

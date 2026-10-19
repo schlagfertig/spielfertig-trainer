@@ -9,6 +9,8 @@ export const CHANGELOG = [
     items: [
       { de: "NoClick: Einzählen - wähl Aus, 1 oder 2 Takte, bevor der Wechsel aus Click und Lücke startet. Beim Einzählen siehst du groß 1 – 2 – 3 – 4.",
         en: "NoClick: Count-in - choose Off, 1 or 2 bars before the switch between click and gap starts. While counting in you see a big 1 – 2 – 3 – 4." },
+      { de: "Eigene Grooves: Auf dem iPad siehst du beim Üben jetzt den ganzen Rhythmus - nichts verschwindet mehr hinter dem SpinDial.",
+        en: "My grooves: on iPad the practice view now shows the whole rhythm - nothing hides behind the SpinDial anymore." },
     ],
   },
   {
@@ -414,6 +416,12 @@ export const CHANGELOG_LATEST = CHANGELOG[0]?.date || "";
 // (nicht bei Patch, nicht beim allerersten Start). Für die nächste Version einfach einen Eintrag ergänzen.
 // action: Ansicht, die „Jetzt ausprobieren“ öffnet (wie in App.jsx open()).
 export const HIGHLIGHTS = {
+  "1.3": {
+    action: "click",
+    preset: { mode: "noclick" },
+    de: { title: "Neu in Schlagfertig 1.3 🥁", lines: ["🔇 NoClick: Jetzt mit Einzählen - wähl 1 oder 2 Takte und leg entspannt los.", "👀 Groß 1 – 2 – 3 – 4 vor Augen: So startest du sicher im Tempo."], go: "Jetzt ausprobieren", later: "Später" },
+    en: { title: "New in Schlagfertig 1.3 🥁", lines: ["🔇 NoClick: Now with count-in - pick 1 or 2 bars and ease right in.", "👀 A big 1 – 2 – 3 – 4 in front of you: start right in time."], go: "Try it now", later: "Later" },
+  },
   "1.2": {
     action: "click",
     preset: { mode: "noclick" },

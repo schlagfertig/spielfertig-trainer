@@ -630,11 +630,17 @@ export default function RhythmArchive() {
           .rhythm-steps button { min-height: 44px; }
           .rhythm-helps button { min-height: 28px; min-width: 28px; padding: 0 4px; }
           /* Üben quer: Noten links, Start-Rad rechts daneben - ohne Scrollen erreichbar. */
-          .rhythm-practice { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "staff hear" "staff dial" "edit dial"; column-gap: 16px; row-gap: 8px; align-items: start; }
+          .rhythm-practice { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "staff hear" "staff dial" "edit dial"; column-gap: 16px; row-gap: 8px; align-items: start; }
           .rhythm-practice .rp-staff { grid-area: staff; margin-bottom: 0; }
           .rp-hear { grid-area: hear; margin: 0; }
           .rp-edit { grid-area: edit; margin: 0; justify-content: flex-start; }
           .rp-dial { grid-area: dial; margin-top: 0; }
+        }
+        /* iPad hochkant: ganzes Notenbild über dem Start-Rad. */
+        @media (orientation: portrait) and (min-width: 700px) {
+          .rhythm-practice { grid-template-columns: minmax(0, 1fr); grid-template-areas: "staff" "hear" "dial" "edit"; justify-items: center; }
+          .rhythm-practice .rp-staff { justify-self: stretch; }
+          .rp-edit { margin-top: 18px; }
         }
         .rhythm-note { color: ${DIM}; font-size: 13px; line-height: 1.4; }
         .rhythm-item { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
