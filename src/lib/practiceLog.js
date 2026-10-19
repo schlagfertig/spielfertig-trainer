@@ -35,7 +35,7 @@ export function sessionSec(startAt, stopAt) {
 }
 
 // Session eintragen. Zählt erst ab MIN_SEC am Stück; gleiche Übung am gleichen Tag wird zusammengeführt.
-// seg: { ex, item?, label?, sec, bpm, at }  →  { log, entry, isNew } (entry = null, wenn nicht gezählt)
+// seg: { ex, item?, label?, sec, bpm, at, hw? }  (hw = als Hausaufgabe geübt, Journal/Labs)  →  { log, entry, isNew } (entry = null, wenn nicht gezählt)
 export function record(log, seg) {
   const base = normalizeLog(log);
   const sec = Math.min(Math.round(Number(seg?.sec) || 0), MAX_SESSION_SEC);
@@ -50,11 +50,11 @@ export function record(log, seg) {
   let entries;
   if (i >= 0) {
     const old = base.entries[i];
-    entry = { ...old, sec: old.sec + sec, bpm: Math.max(old.bpm || 0, bpm), runs: (old.runs || 1) + 1, label: seg.label || old.label || "", at, slots: addSlot(slotsOf(old), slot, sec) };
+    entry = { ...old, sec: old.sec + sec, bpm: Math.max(old.bpm || 0, bpm), runs: (old.runs || 1) + 1, label: seg.label || old.label || "", at, slots: addSlot(slotsOf(old), slot, sec), ...(seg.hw || old.hw ? { hw: true } : {}) };
     entries = base.entries.slice();
     entries[i] = entry;
   } else {
-    entry = { id, day, ex: seg.ex, item: seg.item ?? null, label: seg.label || "", sec, bpm, runs: 1, at, toast: false, slots: { [slot]: sec } };
+    entry = { id, day, ex: seg.ex, item: seg.item ?? null, label: seg.label || "", sec, bpm, runs: 1, at, toast: false, slots: { [slot]: sec }, ...(seg.hw ? { hw: true } : {}) };
     entries = [entry, ...base.entries];
   }
   if (entries.length > MAX_ENTRIES) entries = entries.slice().sort((a, b) => b.at - a.at).slice(0, MAX_ENTRIES);
