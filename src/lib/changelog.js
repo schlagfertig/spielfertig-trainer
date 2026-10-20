@@ -422,8 +422,8 @@ export const CHANGELOG_LATEST = CHANGELOG[0]?.date || "";
 export const HIGHLIGHTS = {
   "1.4": {
     action: "diary",
-    de: { title: "Neu in Schlagfertig 1.4 🥁", lines: ["📓 Journal: Tagebuch, Hausaufgaben und Karteikasten - alles für dein Üben an einem Ort.", "📌 Zu Hausaufgaben: Merk dir jede Übung mit deinen Einstellungen und leg später mit einem Tipp los.", "📲 Journal mitnehmen: Neues Handy? Exportier dein Journal und hol es dort wieder rein."], go: "Jetzt ausprobieren", later: "Später" },
-    en: { title: "New in Schlagfertig 1.4 🥁", lines: ["📓 Journal: diary, homework and card box - everything for your practice in one place.", "📌 Add to homework: save any exercise with your settings and get going later with one tap.", "📲 Take your Journal along: new phone? Export your Journal and bring it back in there."], go: "Try it now", later: "Later" },
+    de: { title: "Neu in Schlagfertig 1.4 🥁", lines: ["📓 Journal: Tagebuch, Hausaufgaben und Karteikasten - alles für dein Üben an einem Ort.", "📌 Zu Hausaufgaben: Merk dir jede Übung mit deinen Einstellungen und leg später mit einem Tipp los.", "📲 Journal mitnehmen: Neues Handy? Exportier dein Journal und hol es dort wieder rein."], go: "Zum Journal", later: "Später" },
+    en: { title: "New in Schlagfertig 1.4 🥁", lines: ["📓 Journal: diary, homework and card box - everything for your practice in one place.", "📌 Add to homework: save any exercise with your settings and get going later with one tap.", "📲 Take your Journal along: new phone? Export your Journal and bring it back in there."], go: "Go to Journal", later: "Later" },
   },
   "1.3": {
     action: "click",
