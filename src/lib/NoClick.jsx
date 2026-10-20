@@ -8,6 +8,7 @@ import { playClick, playClickLayer, unlockAudio } from "./audio.js";
 import { loadSession, saveSession } from "./session.js";
 import { t } from "./i18n.js";
 import { usePracticeTrack } from "./PracticeDiary.jsx";
+import { PracticeClip } from "./PracticeClip.jsx";
 import { COUNT_IN, LIMITS, RING_HIDE_MS, announceLevel, barInfo, clampSetting, playBeat, readSettings, ringStep } from "./noClick.js";
 
 const TEAL = "#5cc8b8";
@@ -436,7 +437,7 @@ export default function NoClick({ dialSize = 140 }) {
           <Nudge by={10} bpm={bpm} set={setDial} min={30} max={260} />
         </div>
         {/* gleiche Höhe unter dem Rad wie im Click-Trainer (Countdown + „Erweitert“) - das SpinDial steht in allen Modi gleich */}
-        <div className="ct-below" aria-hidden="true" />
+        <div className="ct-below"><div className="ct-clip"><PracticeClip inline title={t("Click-Trainer")} view="click" /></div></div>
       </div>
       {ringKind && typeof document !== "undefined" ? createPortal(
         <>
