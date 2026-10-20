@@ -22,7 +22,7 @@ export const LEXICON = [
     id: "auftakt",
     term: "Auftakt",
     text: "Ein Auftakt sind Schläge vor der 1, also vor dem ersten vollen Takt. Viele Melodien und Fills beginnen so. Der Auftakt gehört noch zur Vorbereitung, der Downbeat danach ist die 1.",
-    en: { term: "Pickup", text: "A pickup is strokes before the 1, before the first full bar. Many melodies and fills start this way. The pickup still belongs to the preparation; the downbeat after it is the 1." },
+    en: { term: "Pickup", text: "A pickup (British: upbeat) is strokes before the 1, before the first full bar. Many melodies and fills start this way. The pickup still belongs to the preparation; the downbeat after it is the 1." },
   },
   {
     id: "backbeat",

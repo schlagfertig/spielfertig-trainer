@@ -19,8 +19,8 @@ test("Version: package.json = APP_VERSION, Highlights für die aktuelle Minor-Ve
   assert.equal(h.en.title, "New in Schlagfertig 1.4 🥁");
   assert.equal(h.de.lines[0], "📓 Journal: Tagebuch, Hausaufgaben und Karteikasten - alles für dein Üben an einem Ort.");
   assert.equal(h.en.lines[0], "📓 Journal: diary, homework and card box - everything for your practice in one place.");
-  assert.equal(h.de.go, "Jetzt ausprobieren");
-  assert.equal(h.en.go, "Try it now");
+  assert.equal(h.de.go, "Zum Journal");
+  assert.equal(h.en.go, "Go to Journal");
   assert.equal(h.action, "diary");
   assert.equal(h.preset, undefined);
 });
