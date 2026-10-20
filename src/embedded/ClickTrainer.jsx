@@ -8,6 +8,7 @@ import { createMixClock, extrasOn, readMix, writeMix } from "../lib/clickMix.js"
 import { t } from "../lib/i18n.js";
 import { usePracticeTrack } from "../lib/PracticeDiary.jsx";
 import NoClick from "../lib/NoClick.jsx";
+import { PracticeClip } from "../lib/PracticeClip.jsx";
 
 const INK = "#161a1d";
 const LINE = "#2f383d";
@@ -287,6 +288,8 @@ export default function ClickTrainer({ preset = null } = {}) {
         </div>
         {/* Feste Höhe unter dem Rad (Countdown-Platz + „Erweitert“), damit das SpinDial in allen Modi still steht */}
         <div className="ct-below">
+        {/* Clip-Knopf links unter -10/-5 im Fluss der Seite, damit er beim Scrollen nie über den Knöpfen liegt */}
+        <div className="ct-clip"><PracticeClip inline title={t("Click-Trainer")} view="click" /></div>
         <div className="ct-count-slot">
         {playing && ramp ? (
           <div className="count">
@@ -352,7 +355,9 @@ export default function ClickTrainer({ preset = null } = {}) {
         }
         .ct-stage .dial-row { padding-bottom: 22px; }
         .ct-stage .count { margin-top: 2px; }
-        .ct-below { flex: none; height: 84px; display: flex; flex-direction: column; align-items: center; }
+        .ct-below { position: relative; align-self: stretch; flex: none; height: 84px; display: flex; flex-direction: column; align-items: center; }
+        .ct-clip { position: absolute; left: 0; top: 0; }
+        .ct-clip:empty { display: none; }
         .ct-count-slot { height: 48px; display: flex; flex-direction: column; justify-content: flex-start; }
         @media (max-width: 370px) { .ct-stage .dial-row { gap: 6px; } }
         .ct-adv-btn {
