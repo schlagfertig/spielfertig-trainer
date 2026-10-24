@@ -1,20 +1,24 @@
-# Vorhaben: Demo-Ausschnitt statt Katze im Sack
+# Vorhaben: Demo-Ausschnitt / Store-Freemium
 
-Stand: 2026-10-14. Gebaut. Sperre in src/lib/demo.js, localStorage sf-unlocked. Code in der Stunde: sf-stunde. Preis 12,99 € einmalig, Anzeige auf der Startseite ist ausgeblendet (false && in src/App.jsx), Text behalten.
+Stand: 2026-10-24. Sperre in `src/lib/demo.js`. Web und Test: `DEMO_ON` aus (volle App). Store-Build (`CAPACITOR=1` / `__SF_STORE__`) und native Hülle: `DEMO_ON` an. localStorage `sf-unlocked`. Code in der Stunde: `sf-stunde`. Preis `12,99 €` einmalig, kein Abo. Store-IAP ruft später `setUnlocked(true)` auf — noch nicht verdrahtet. Ob es live geht, entscheidet Tom.
 
-Frei, ohne Ablaufdatum:
-- Erste Übung
-- Click-Trainer komplett
-- ein Rudiment (Single Stroke), Pfeile/Wischen/Liste gesperrt
-- Lexikon, erste Begriffe
+Frei, wenn die Sperre an ist:
+- Start, Impressum, Datenschutz, Neuigkeiten
+- Erste Übung, No-Stick-Challenge
+- Click-Trainer: Tempo halten und Tempo steigern (NoClick = volle App)
+- Lexikon
+- Rudiments #1 Single Stroke Roll, #6 Double Stroke Open Roll, #16 Single Paradiddle, #20 Flam, #22 Flam Tap, #31 Drag
+- Rudiment-Würfel, nur aus diesen sechs (6/8 = volle App)
+- Hand Control 1 und 2 (3–24 = volle App)
+- Journal: Tagebuch ganz; Hausaufgaben und Karteikasten je die ersten zwei
+- Eigene Grooves ausprobieren; Speichern = volle App
+- Rhythmuspyramide: 4tel, 8tel und 16tel
+- Drucken der sechs freien Rudiments
 
-Zu, mit Hinweis 12,99 € statt Öffnen:
-- restliche Rudiments, Hand Control, Rhythmuspyramide, Meine Grooves, Drucken
+Zu, mit Hinweis und Freischalt-Blatt:
+- NoClick, übrige Rudiments, Hand Control ab 3, weitere Hausaufgaben und Karteikarten, Groove speichern
+- Schwerere Pyramiden-Stufen (Triole, Quintole, Sextole, Septole, 32tel)
+- Noten (Notenblätter)
+- Drucken anderer Rudiments und Notenblätter
 
-Technik:
-- localStorage sf-unlocked
-- open() in src/App.jsx lässt nur first, click, lexicon und das eine Rudiment durch
-- Freischalten zuerst per Code in der Stunde, später dieselbe Stelle nach Zahlung
-- kein Wochen-Trial
-
-Erinnerung: nicht von allein bauen, Tom fragen.
+Kacheln bleiben sichtbar. Tippen auf eine gesperrte Stelle öffnet das Blatt (Preis, was frei bleibt, Knopf Freischalten, Code für Tester).

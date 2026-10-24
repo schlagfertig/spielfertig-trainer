@@ -5,6 +5,7 @@ import { playClick, playOrnament, unlockAudio } from "./audio.js";
 import { loadSession, saveSession } from "./session.js";
 import { t } from "./i18n.js";
 import { BPM, BPM_MAX, BPM_MIN, LENGTHS, LEVELS, METERS, barOf, etudeEvents, rerollBar, rollEtude } from "./etudeDice.js";
+import { askUnlock, isUnlocked, FREE_RUDIMENTS } from "./demo.js";
 import { usePracticeTrack } from "./PracticeDiary.jsx";
 
 // Rudiment-Würfel: Länge + Schwierigkeit wählen, würfeln, Takt für Takt neu würfeln, üben.
@@ -83,12 +84,24 @@ function Seg({ value, options, onChange, label }) {
   );
 }
 
+function diceOnly() {
+  return isUnlocked() ? null : FREE_RUDIMENTS;
+}
+
 export default function EtudeDice() {
   const saved = loadSession("etudeDice", {});
   const [bars, setBars] = useState(saved.bars === 8 ? 8 : 4);
   const [level, setLevel] = useState(LEVELS.some((l) => l.id === saved.level) ? saved.level : "leicht");
-  const [meter, setMeter] = useState(METERS.includes(saved.meter) ? saved.meter : "4/4");
-  const [etude, setEtude] = useState(saved.etude?.ids?.length ? saved.etude : null);
+  const [meter, setMeter] = useState(() => {
+    const m = METERS.includes(saved.meter) ? saved.meter : "4/4";
+    return !isUnlocked() && m === "6/8" ? "4/4" : m;
+  });
+  const [etude, setEtude] = useState(() => {
+    const e = saved.etude?.ids?.length ? saved.etude : null;
+    if (!e || isUnlocked()) return e;
+    if (e.meter === "6/8" || e.ids.some((id) => !FREE_RUDIMENTS.includes(Number(id)))) return null;
+    return e;
+  });
   const [bpm, setBpmRaw] = useState(clampBpm(saved.bpm || BPM.leicht));
   const setBpm = (v) => setBpmRaw((b) => clampBpm(typeof v === "function" ? v(b) : v));
   const [click, setClick] = useState(saved.click !== false);
@@ -116,16 +129,25 @@ export default function EtudeDice() {
     window.setTimeout(() => setRolled(-2), 340);
   }
 
+  function pickMeter(next) {
+    if (next === "6/8" && !isUnlocked()) { askUnlock(); return; }
+    setMeter(next);
+  }
+
   function roll() {
     stop();
-    setEtude(rollEtude({ bars, level, meter }));
+    const only = diceOnly();
+    const meterNow = only && meter === "6/8" ? "4/4" : meter;
+    if (meterNow !== meter) setMeter(meterNow);
+    setEtude(rollEtude({ bars, level, meter: meterNow, only }));
     setBpm(BPM[level]);
     flash(-1);
   }
 
   function reroll(i) {
     stop();
-    setEtude((e) => rerollBar(e, i));
+    const only = diceOnly();
+    setEtude((e) => rerollBar(e, i, Math.random, only));
     flash(i);
   }
 
@@ -178,11 +200,13 @@ export default function EtudeDice() {
   return (
     <div className="ed-wrap">
       <p style={KICK}>{`${t("Neu")} · ${t("Rudiment-Würfel")}`}</p>
-      <p style={{ color: DIM, fontSize: 17, margin: "0 0 12px" }}>{t("Würfel dir aus den 40 Rudiments deine eigene Übung - jedes Mal neu, Takt für Takt.")}</p>
+      <p style={{ color: DIM, fontSize: 17, margin: "0 0 12px" }}>{isUnlocked()
+        ? t("Würfel dir aus den 40 Rudiments deine eigene Übung - jedes Mal neu, Takt für Takt.")
+        : t("Kostenlos würfelst du nur aus sechs Rudiments: Single Stroke Roll, Double Stroke Open Roll, Single Paradiddle, Flam, Flam Tap und Drag. 6/8 gehört zur vollen App.")}</p>
       <div className="panel ed-setup">
         <Seg label={t("Länge")} value={bars} onChange={setBars} options={LENGTHS.map((n) => ({ id: n, label: t("{n} Takte", { n }) }))} />
         <Seg label={t("Stufe")} value={level} onChange={setLevel} options={LEVELS.map((l) => ({ id: l.id, label: t(l.label) }))} />
-        <Seg label={t("Takt")} value={meter} onChange={setMeter} options={METERS.map((m) => ({ id: m, label: m }))} />
+        <Seg label={t("Takt")} value={meter} onChange={pickMeter} options={METERS.map((m) => ({ id: m, label: m }))} />
         <button type="button" className="card ed-roll" onClick={roll}>
           <span className="ed-die" aria-hidden="true">🎲</span>
           <span>{etude ? t("Nochmal würfeln") : t("Würfeln")}</span>

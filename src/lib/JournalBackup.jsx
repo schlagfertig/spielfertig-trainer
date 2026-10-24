@@ -6,6 +6,7 @@ import { t } from "./i18n.js";
 import { loadLog, saveLog } from "./PracticeDiary.jsx";
 import { loadCards, loadHw, saveCards, saveHw } from "./journalStore.js";
 import { backupFileName, buildBackup, hasJournalData, mergeBackup, parseBackup, replaceBackup } from "./journalBackup.js";
+import { askUnlock, isUnlocked, FREE_JOURNAL_N } from "./demo.js";
 import "./TesterFeedback.css";
 
 const current = () => ({ diary: loadLog(), homework: loadHw(), cards: loadCards() });
@@ -80,6 +81,15 @@ export default function JournalBackup({ onChanged }) {
 
   function apply(data, replace) {
     const r = replace ? replaceBackup(data) : mergeBackup(current(), data);
+    if (!isUnlocked()) {
+      const hw = r.homework?.items || [];
+      const cards = r.cards?.cards || [];
+      if (hw.length > FREE_JOURNAL_N || cards.length > FREE_JOURNAL_N) {
+        askUnlock();
+        if (hw.length > FREE_JOURNAL_N) r.homework = { ...r.homework, items: hw.slice(0, FREE_JOURNAL_N) };
+        if (cards.length > FREE_JOURNAL_N) r.cards = { ...r.cards, cards: cards.slice(0, FREE_JOURNAL_N) };
+      }
+    }
     saveLog(r.diary); saveHw(r.homework); saveCards(r.cards);
     setImp(null);
     setMsg(summary(r.added, replace));

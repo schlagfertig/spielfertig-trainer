@@ -551,16 +551,20 @@ export const EN = {
   "Bananen-Beat gemeistert - und alles bleibt heil.": "Banana beat mastered - and everything’s still in one piece.",
   "Zeig, was du draufhast! Tipp auf ‚Clip‘, richte die Kamera auf deine Hände und dein Pad und starte mit ‚Aufnahme‘. ‚Drehen‘ wechselt zwischen Front- und Rückkamera. Oben im Video stehen Logo und Noten auf einer Glas-Kachel, darunter siehst du dich spielen - Click und Drums sind zusammen im Ton. Mit ‚Teilen‘ schickst du dein Video direkt an Freunde oder auf Social Media; bis dahin bleibt es nur auf deinem Gerät. Tipp: Mit Kopfhörern hörst du den Click am besten.": "Show what you've got! Tap ‘Clip’, point the camera at your hands and pad and start with ‘Record’. ‘Flip’ switches between front and back camera. Logo and notation sit on a glass card at the top of the video, you're playing below - click and drums are together in the sound. Tap ‘Share’ to send your video straight to friends or social media; until then it stays on your device. Tip: with headphones you hear the click best.",
 
-  // Demo
+  // Demo / Store-Freemium
   "Demo": "Demo",
+  "Einmalig": "One-time",
   "volle App": "full app",
   "Volle App": "Full app",
-  "Einmalig. Danach alles offen: alle Rudiments, Hand Control, Rhythmuspyramide, Eigene Grooves und Drucken.": "One-time. Then everything is open: all rudiments, Hand Control, rhythm pyramid, your own grooves and printing.",
-  "In der Demo bleiben erste Übung, Click-Trainer, Single Stroke Roll und Lexikon offen.": "The demo keeps the first lesson, click trainer, Single Stroke Roll and the glossary open.",
+  "Einmalig, kein Abo. Danach ist alles offen: NoClick, alle Rudiments, Hand Control, die schwereren Pyramiden-Stufen, Noten, Drucken der übrigen Übungen, unbegrenzte Hausaufgaben und Karteikarten — und du speicherst deine eigenen Grooves.": "One-time, no subscription. Then everything is open: NoClick, all rudiments, Hand Control, the harder pyramid steps, sheet music, printing the other exercises, unlimited homework and cards — and you can save your own grooves.",
+  "Kostenlos bleiben Erste Übung, No-Stick-Challenge, Tempo halten und Tempo steigern, Lexikon und das Tagebuch. Dazu sechs Rudiments (Single Stroke Roll, Double Stroke Open Roll, Single Paradiddle, Flam, Flam Tap, Drag), die du auch drucken kannst, der Würfel aus diesen sechs, Hand Control 1 und 2, die Rhythmuspyramide in Vierteln, Achteln und 16teln, die ersten zwei Hausaufgaben, die ersten zwei Karteikarten und Grooves zum Ausprobieren.": "These stay free: the first lesson, the no-stick challenge, Hold tempo and Speed up, the glossary and the diary. Plus six rudiments (Single Stroke Roll, Double Stroke Open Roll, Single Paradiddle, Flam, Flam Tap, Drag), which you can print too, the dice from those six, Hand Control 1 and 2, the rhythm pyramid in quarters, eighths and 16ths, the first two homework tasks, the first two cards in the card box, and trying out grooves.",
+  "Für Tester": "For testers",
   "Code aus der Stunde": "Code from the lesson",
   "Code passt nicht.": "Code does not match.",
   "Freischalten": "Unlock",
   "Schließen": "Close",
+  "Die ersten zwei sind kostenlos. Für den Rest brauchst du die volle App.": "The first two are free. You need the full app for the rest.",
+  "Kostenlos würfelst du nur aus sechs Rudiments: Single Stroke Roll, Double Stroke Open Roll, Single Paradiddle, Flam, Flam Tap und Drag. 6/8 gehört zur vollen App.": "For free, you only roll from six rudiments: Single Stroke Roll, Double Stroke Open Roll, Single Paradiddle, Flam, Flam Tap and Drag. 6/8 is part of the full app.",
   // Rudiment-Würfel (Labs)
   "Rudiment-Würfel": "Rudiment Dice",
   "Würfel dir aus den 40 Rudiments deine eigene Etüde - jedes Mal neu, Takt für Takt.": "Roll your own etude from the 40 rudiments - fresh every time, bar by bar.",

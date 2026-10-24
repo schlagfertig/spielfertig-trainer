@@ -61,17 +61,28 @@ function pick(pool, rnd, avoid = []) {
   return from[Math.floor(rnd() * from.length) % from.length];
 }
 
+// only: bei der kostenlosen Version nur diese Rudiment-Nummern.
+// Schnittmenge leer (Mittel/Schwer, die sechs liegen alle in „leicht“): die vorgegebene Liste.
+// 6/8 enthält keine der sechs — der Aufrufer muss 6/8 dann gar nicht würfeln.
+function poolFor(meter, level, only) {
+  let pool = POOLS[meter]?.[level] || POOLS["4/4"].leicht;
+  if (!Array.isArray(only) || !only.length) return pool;
+  const allow = new Set(only.map(Number));
+  const filtered = pool.filter((id) => allow.has(id));
+  return filtered.length ? filtered : only.map(Number);
+}
+
 // Neue Etüde: keine zwei gleichen Takte direkt hintereinander (soweit der Pool das hergibt).
-export function rollEtude({ bars = 4, level = "leicht", meter = "4/4" } = {}, rnd = Math.random) {
-  const pool = POOLS[meter]?.[level] || POOLS["4/4"].leicht;
+export function rollEtude({ bars = 4, level = "leicht", meter = "4/4", only = null } = {}, rnd = Math.random) {
+  const pool = poolFor(meter, level, only);
   const ids = [];
   for (let i = 0; i < bars; i++) ids.push(pick(pool, rnd, i ? [ids[i - 1]] : []));
   return { bars, level, meter, ids };
 }
 
 // Einen Takt neu würfeln: anders als vorher und als die Nachbarn.
-export function rerollBar(etude, i, rnd = Math.random) {
-  const pool = POOLS[etude.meter]?.[etude.level] || POOLS["4/4"].leicht;
+export function rerollBar(etude, i, rnd = Math.random, only = null) {
+  const pool = poolFor(etude.meter, etude.level, only);
   const avoid = [etude.ids[i], etude.ids[i - 1], etude.ids[i + 1]].filter((x) => x != null);
   const ids = etude.ids.slice();
   ids[i] = pick(pool, rnd, avoid);

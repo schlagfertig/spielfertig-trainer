@@ -5,7 +5,7 @@ import { MetronomeDial, Nudge } from "../lib/metronome.jsx";
 import { playClick, playOrnament, unlockAudio } from "../lib/audio.js";
 import { loadSession, saveSession } from "../lib/session.js";
 import { NavScrub } from "../lib/NavScrub.jsx";
-import { isUnlocked, FREE_RUDIMENT } from "../lib/demo.js";
+import { askUnlock, isUnlocked, rudimentOpen, FREE_RUDIMENT, FREE_RUDIMENTS } from "../lib/demo.js";
 import { PrintDialog } from "./PrintDialog.jsx";
 import { rudimentInfo } from "../lib/rudimentInfo.js";
 import { t, getLang } from "../lib/i18n.js";
@@ -82,12 +82,11 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
   // Aus der „Heute“-Karte: Rudiment und Tempo vorgeben, Klang/Ziel bleiben wie zuletzt.
   const init = useRef((() => {
     const s = readRudimentSession();
-    if (!isUnlocked()) return { ...s, sel: FREE_RUDIMENT };
-    if (!preset) return s;
+    const want = preset && RUDIMENTS.some((r) => r.id === preset.rud) ? preset.rud : s.sel;
     return {
       ...s,
-      sel: RUDIMENTS.some((r) => r.id === preset.rud) ? preset.rud : s.sel,
-      bpm: preset.bpm ? clamp(preset.bpm, 30, 260) : s.bpm,
+      sel: rudimentOpen(want) ? want : FREE_RUDIMENT,
+      bpm: preset?.bpm ? clamp(preset.bpm, 30, 260) : s.bpm,
     };
   })()).current;
   const [sel, setSel] = useState(init.sel);
@@ -107,7 +106,6 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
   const hearRef = useRef(hear); hearRef.current = hear;
   const rud = RUDIMENTS.find((r) => r.id === sel) || RUDIMENTS[0];
   usePracticeTrack({ ex: "rudiments", item: rud.id, label: String(rud.label || "").replace(/^\d+\.\s*/, ""), playing, bpm });
-  const idx = Math.max(0, RUDIMENTS.findIndex((r) => r.id === rud.id));
   const meterNow = meterPulse(rud.time);
   const beatsInBar = Math.max(1, Math.round(meterNow.bar / meterNow.pulse));
   const beatN = playT < 0 ? -1 : Math.floor((playT + 1e-4) / meterNow.pulse) % beatsInBar;
@@ -119,6 +117,12 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
     saveSession("rudiments", { sel, bpm, hear, goalId });
   }, [sel, bpm, hear, goalId]);
   useEffect(() => () => stopRef.current?.(), []);
+  useEffect(() => {
+    if (printOpen && !rudimentOpen(sel)) {
+      askUnlock();
+      onPrintClose?.();
+    }
+  }, [printOpen, sel]);
   // Motivation blendet sich nach ein paar Sekunden selbst aus (Antippen schließt sofort)
   useEffect(() => {
     if (!cheer) return undefined;
@@ -137,16 +141,18 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
   }
 
   const demo = !isUnlocked();
+  const scrubItems = demo ? RUDIMENTS.filter((r) => FREE_RUDIMENTS.includes(r.id)) : RUDIMENTS;
 
   function randomRud() {
-    if (demo || RUDIMENTS.length < 2) return;
+    const pool = demo ? scrubItems : RUDIMENTS;
+    if (pool.length < 2) return;
     let next = rud.id;
-    while (next === rud.id) next = RUDIMENTS[Math.floor(Math.random() * RUDIMENTS.length)].id;
+    while (next === rud.id) next = pool[Math.floor(Math.random() * pool.length)].id;
     pickRud(next);
   }
 
   function pickRud(id) {
-    if (demo && id !== FREE_RUDIMENT) return;
+    if (!rudimentOpen(id)) { askUnlock(); return; }
     if (id !== sel) stop();
     setSel(id);
     setCheer(null);
@@ -388,17 +394,21 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
             <div className="rud-title-name">{rud.label}</div>
             <span className="rud-title-caret" aria-hidden="true">▾</span>
           </div>
-          <select className="rud-title-select" value={rud.id} disabled={demo} onChange={(e) => pickRud(Number(e.target.value))} aria-label={t("Rudiment wählen")}>
+          <select className="rud-title-select" value={rud.id} onChange={(e) => {
+            const id = Number(e.target.value);
+            if (!rudimentOpen(id)) { e.target.value = String(rud.id); askUnlock(); return; }
+            pickRud(id);
+          }} aria-label={t("Rudiment wählen")}>
             {CATS.map((c) => (
               <optgroup key={c.id} label={c.label}>
                 {RUDIMENTS.filter((r) => r.cat === c.id).map((r) => (
-                  <option key={r.id} value={r.id}>{r.label}</option>
+                  <option key={r.id} value={r.id}>{r.label}{demo && !rudimentOpen(r.id) ? ` · ${t("Volle App")}` : ""}</option>
                 ))}
               </optgroup>
             ))}
           </select>
         </div>
-        {demo ? <span className="rud-random" style={{ color: "#5cc8b8" }}>{t("Demo")}</span> : <button type="button" className="rud-random" onClick={randomRud}>{t("Zufall")}</button>}
+        <button type="button" className="rud-random" onClick={randomRud}>{t("Zufall")}</button>
         {info ? (
           <RudimentBack rud={rud} onBack={() => setInfo(false)} />
         ) : (
@@ -468,9 +478,9 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
         </div>
       </div>
       <NavScrub
-        items={RUDIMENTS.map((r) => ({ id: r.id, label: r.label, preview: r.label }))}
-        index={idx}
-        disabled={playing || demo}
+        items={scrubItems.map((r) => ({ id: r.id, label: r.label, preview: r.label }))}
+        index={Math.max(0, scrubItems.findIndex((r) => r.id === rud.id))}
+        disabled={playing}
         onPick={pickRud}
         renderPreview={(row) => (
           <div className="rud-scrub-pv">
@@ -478,7 +488,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           </div>
         )}
       />
-      {printOpen && !demo ? <PrintDialog sel={sel} onClose={onPrintClose} /> : null}
+      {printOpen && rudimentOpen(sel) ? <PrintDialog sel={sel} onClose={onPrintClose} /> : null}
     </div>
   );
 }

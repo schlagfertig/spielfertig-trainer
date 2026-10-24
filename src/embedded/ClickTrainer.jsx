@@ -9,6 +9,7 @@ import { t } from "../lib/i18n.js";
 import { usePracticeTrack } from "../lib/PracticeDiary.jsx";
 import NoClick from "../lib/NoClick.jsx";
 import { PracticeClip } from "../lib/PracticeClip.jsx";
+import { askUnlock, noClickOpen } from "../lib/demo.js";
 
 const INK = "#161a1d";
 const LINE = "#2f383d";
@@ -56,9 +57,19 @@ function useDialSize() {
   return size;
 }
 
+function readClickInit(preset) {
+  const base = preset?.mode === "noclick"
+    ? { ...readClickSession(), mode: "noclick" }
+    : preset?.bpm
+      ? { ...readClickSession(), mode: "hold", startBpm: clamp(preset.bpm, 30, 260) }
+      : readClickSession();
+  if (base.mode === "noclick" && !noClickOpen()) base.mode = "hold";
+  return base;
+}
+
 export default function ClickTrainer({ preset = null } = {}) {
-  // Aus der „Heute“-Karte: Tempo halten mit vorgegebenem Tempo.
-  const init = useRef(preset?.mode === "noclick" ? { ...readClickSession(), mode: "noclick" } : preset?.bpm ? { ...readClickSession(), mode: "hold", startBpm: clamp(preset.bpm, 30, 260) } : readClickSession()).current;
+  // Aus der „Heute“-Karte: Tempo halten mit vorgegebenem Tempo. NoClick ist die volle App.
+  const init = useRef(readClickInit(preset)).current;
   const [mode, setMode] = useState(init.mode);
   const [startBpm, setStartBpm] = useState(init.startBpm);
   const [bpm, setBpm] = useState(init.startBpm);
@@ -224,6 +235,7 @@ export default function ClickTrainer({ preset = null } = {}) {
   }
 
   function pickMode(next) {
+    if (next === "noclick" && !noClickOpen()) { askUnlock(); return; }
     if (playingRef.current) stop();
     setMode(next);
     setDone("");
@@ -242,7 +254,7 @@ export default function ClickTrainer({ preset = null } = {}) {
       <div className="seg" style={{ margin: "8px 0 12px", maxWidth: "100%" }}>
         <button type="button" className={mode === "hold" ? "on" : ""} onClick={() => pickMode("hold")}>{t("Tempo halten")}</button>
         <button type="button" className={ramp ? "on" : ""} onClick={() => pickMode("ramp")}>{t("Tempo steigern")}</button>
-        <button type="button" className={mode === "noclick" ? "on" : ""} onClick={() => pickMode("noclick")}>NoClick</button>
+        <button type="button" className={mode === "noclick" ? "on" : ""} onClick={() => pickMode("noclick")} title={noClickOpen() ? undefined : t("Volle App")}>NoClick</button>
       </div>
       {mode === "noclick" ? <NoClick dialSize={dialSize} /> : (<>
       <div className="panel">

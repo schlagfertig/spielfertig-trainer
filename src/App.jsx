@@ -30,7 +30,7 @@ import TesterFeedback, { FeedbackLink } from "./lib/TesterFeedback.jsx";
 import WhatsNew from "./lib/WhatsNew.jsx";
 import { startModal } from "./lib/startModal.js";
 import { APP_VERSION } from "./lib/version.js";
-import { canOpen, isUnlocked, setUnlocked, DEMO_PRICE, unlockCodeOk } from "./lib/demo.js";
+import { canOpen, isUnlocked, setUnlocked, DEMO_PRICE, unlockCodeOk, PAYWALL_EVENT } from "./lib/demo.js";
 
 const FLAG_EN = (
   <svg viewBox="0 0 60 30" width="30" height="30" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -89,6 +89,11 @@ export default function App() {
   const [stage, setStage] = useState(false);
   const [unlocked, setUnlockedState] = useState(isUnlocked);
   const [paywall, setPaywall] = useState(false);
+  useEffect(() => {
+    const onPay = () => setPaywall(true);
+    window.addEventListener(PAYWALL_EVENT, onPay);
+    return () => window.removeEventListener(PAYWALL_EVENT, onPay);
+  }, []);
   // Startwerte für ein Modul, wenn es aus der „Heute“-Karte geöffnet wird (sonst null = eigene Werte).
   const [preset, setPreset] = useState(null);
   // Hand Control startet immer in der Fokus-Ansicht (aktuelle Übung groß, nächste als Vorschau).
@@ -179,8 +184,7 @@ export default function App() {
   function open(next, nextPreset = null) {
     if (!canOpen(next)) { setPaywall(true); return; }
     rememberHomeScroll();
-    let preset = nextPreset && typeof nextPreset === "object" && !("nativeEvent" in nextPreset) ? nextPreset : null;
-    if (next === "rudiments" && !isUnlocked()) preset = { ...(preset || {}), rud: 1 };
+    const preset = nextPreset && typeof nextPreset === "object" && !("nativeEvent" in nextPreset) ? nextPreset : null;
     setPreset(preset);
     setPrintOpen(false);
     setStage(false);
@@ -444,7 +448,7 @@ export default function App() {
           )}
           <div className="top-right">
             {view === "rudiments" && !stage && !printOpen && (
-              <button className="ghost" onClick={() => (unlocked ? setPrintOpen(true) : setPaywall(true))}>{unlocked ? t("Drucken") : t("Volle App")}</button>
+              <button className="ghost" onClick={() => setPrintOpen(true)}>{t("Drucken")}</button>
             )}
             {/* Fokus-Mode (früher „Übepad“): gleicher Name in beiden Zuständen, an = türkis gefüllt + aria-pressed */}
             {view === "rudiments" && !printOpen && (
@@ -489,20 +493,24 @@ export default function App() {
 function DemoPaywall({ onClose, onUnlock }) {
   const [code, setCode] = useState("");
   const [bad, setBad] = useState(false);
+  const field = useRef(null);
   function tryCode() {
-    if (unlockCodeOk(code)) onUnlock();
-    else setBad(true);
+    // Store-IAP hängt sich später an setUnlocked(true) (siehe demo.js). Bis dahin gilt der Code.
+    if (unlockCodeOk(code)) { onUnlock(); return; }
+    if (!String(code).trim()) { field.current?.focus(); return; }
+    setBad(true);
   }
   return (
-    <div role="dialog" aria-modal="true" aria-label={t("Volle App")} style={{ position: "fixed", inset: 0, zIndex: 80, background: "rgba(8,10,12,.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-      <div style={{ width: "min(420px, 100%)", background: "rgba(22,26,29,.94)", border: "1px solid rgba(92,200,184,.45)", borderRadius: 22, padding: 22, color: "#f4f7f6" }}>
-        <div style={{ color: "#5cc8b8", fontWeight: 800, letterSpacing: "0.04em" }}>{t("Demo")}</div>
+    <div role="dialog" aria-modal="true" aria-label={t("Volle App")} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(8,10,12,.72)", display: "flex", alignItems: "flex-end", justifyContent: "center", padding: 12 }}>
+      <div style={{ width: "min(480px, 100%)", maxHeight: "min(92vh, 720px)", overflow: "auto", background: "rgba(22,26,29,.97)", border: "1px solid rgba(92,200,184,.45)", borderRadius: "22px 22px 16px 16px", padding: "20px 20px 18px", color: "#f4f7f6" }}>
+        <div style={{ color: "#5cc8b8", fontWeight: 800, letterSpacing: "0.04em" }}>{t("Einmalig")}</div>
         <h2 style={{ margin: "6px 0 8px", fontSize: 26 }}>{t("Volle App")} · {DEMO_PRICE}</h2>
-        <p style={{ margin: "0 0 10px", color: "#c5d0d2", lineHeight: 1.4 }}>{t("Einmalig. Danach alles offen: alle Rudiments, Hand Control, Rhythmuspyramide, Eigene Grooves und Drucken.")}</p>
-        <p style={{ margin: "0 0 14px", color: "#c5d0d2", lineHeight: 1.4 }}>{t("In der Demo bleiben erste Übung, Click-Trainer, Single Stroke Roll und Lexikon offen.")}</p>
+        <p style={{ margin: "0 0 10px", color: "#c5d0d2", lineHeight: 1.45 }}>{t("Einmalig, kein Abo. Danach ist alles offen: NoClick, alle Rudiments, Hand Control, die schwereren Pyramiden-Stufen, Noten, Drucken der übrigen Übungen, unbegrenzte Hausaufgaben und Karteikarten — und du speicherst deine eigenen Grooves.")}</p>
+        <p style={{ margin: "0 0 14px", color: "#c5d0d2", lineHeight: 1.45 }}>{t("Kostenlos bleiben Erste Übung, No-Stick-Challenge, Tempo halten und Tempo steigern, Lexikon und das Tagebuch. Dazu sechs Rudiments (Single Stroke Roll, Double Stroke Open Roll, Single Paradiddle, Flam, Flam Tap, Drag), die du auch drucken kannst, der Würfel aus diesen sechs, Hand Control 1 und 2, die Rhythmuspyramide in Vierteln, Achteln und 16teln, die ersten zwei Hausaufgaben, die ersten zwei Karteikarten und Grooves zum Ausprobieren.")}</p>
+        <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 6 }}>{t("Für Tester")}</div>
         <label style={{ display: "block", fontSize: 14, color: "#9aa6aa" }}>
           {t("Code aus der Stunde")}
-          <input value={code} onChange={(e) => { setCode(e.target.value); setBad(false); }} autoCapitalize="none" autoCorrect="off" style={{ display: "block", width: "100%", marginTop: 6, padding: "12px 14px", borderRadius: 12, border: "1px solid #3a4448", background: "#101416", color: "#f4f7f6", fontSize: 16 }} />
+          <input ref={field} value={code} onChange={(e) => { setCode(e.target.value); setBad(false); }} onKeyDown={(e) => { if (e.key === "Enter") tryCode(); }} autoCapitalize="none" autoCorrect="off" autoComplete="off" style={{ display: "block", width: "100%", marginTop: 6, padding: "12px 14px", borderRadius: 12, border: "1px solid #3a4448", background: "#101416", color: "#f4f7f6", fontSize: 16 }} />
         </label>
         {bad && <p style={{ color: "#e07a7a", margin: "8px 0 0" }}>{t("Code passt nicht.")}</p>}
         <div style={{ display: "flex", gap: 10, marginTop: 16 }}>

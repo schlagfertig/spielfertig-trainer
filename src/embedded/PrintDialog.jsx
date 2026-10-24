@@ -4,6 +4,7 @@ import { RudimentStaff } from "../lib/staff.jsx";
 import { deliverPng, printElement, sheetHtml, tilesToPng } from "../lib/print.js";
 import { PrintPreview } from "../lib/PrintPreview.jsx";
 import { t } from "../lib/i18n.js";
+import { askUnlock, rudimentOpen } from "../lib/demo.js";
 
 const DIM = "#8a969c";
 const SECTION = "Rudiments";
@@ -28,7 +29,7 @@ function Banner({ tone, text }) {
 }
 
 export function PrintDialog({ sel, onClose }) {
-  const [picked, setPicked] = useState(() => [sel]);
+  const [picked, setPicked] = useState(() => (rudimentOpen(sel) ? [sel] : []));
   const [perPage, setPerPage] = useState(6);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
@@ -62,7 +63,19 @@ export function PrintDialog({ sel, onClose }) {
     return result;
   }
 
+  function pickAll() {
+    const ids = RUDIMENTS.map((r) => r.id);
+    if (ids.some((id) => !rudimentOpen(id))) { askUnlock(); return; }
+    setPicked(ids);
+  }
+
+  function togglePick(id) {
+    if (!picked.includes(id) && !rudimentOpen(id)) { askUnlock(); return; }
+    setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
+  }
+
   async function doPrint(mode) {
+    if (picked.some((id) => !rudimentOpen(id))) { askUnlock(); return; }
     setBusy(true);
     status(mode === "print" ? "Blatt wird erzeugt…" : mode === "share" ? "Teilen wird vorbereitet…" : "PNG wird erzeugt…");
     const host = document.getElementById("print-host");
@@ -121,7 +134,7 @@ export function PrintDialog({ sel, onClose }) {
           ))}
         </div>
         <div style={{ display: "flex", gap: 8, margin: "0 0 8px" }}>
-          <button type="button" className="ghost" onClick={() => setPicked(RUDIMENTS.map((r) => r.id))}>{t("Alle", null, "print")}</button>
+          <button type="button" className="ghost" onClick={pickAll}>{t("Alle", null, "print")}</button>
           <button type="button" className={onlyCurrent ? "ghost on" : "ghost"} onClick={() => setPicked([sel])}>{t("Nur aktuelles Blatt")}</button>
         </div>
         <div style={{ maxHeight: "22dvh", overflow: "auto", display: "flex", flexDirection: "column", gap: 4 }}>
@@ -130,9 +143,9 @@ export function PrintDialog({ sel, onClose }) {
               <input
                 type="checkbox"
                 checked={picked.includes(r.id)}
-                onChange={() => setPicked((p) => p.includes(r.id) ? p.filter((x) => x !== r.id) : [...p, r.id])}
+                onChange={() => togglePick(r.id)}
               />
-              {r.label}{r.id === sel ? ` · ${t("jetzt")}` : ""}
+              {r.label}{r.id === sel ? ` · ${t("jetzt")}` : ""}{!rudimentOpen(r.id) ? ` · ${t("Volle App")}` : ""}
             </label>
           ))}
         </div>

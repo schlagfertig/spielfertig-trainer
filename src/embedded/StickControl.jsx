@@ -5,6 +5,7 @@ import { NavScrub } from "../lib/NavScrub.jsx";
 import { t } from "../lib/i18n.js";
 import { TERNARY_ENABLED, TRI_LEN, triHands, triNotes } from "../lib/handTernary.js";
 import { usePracticeTrack } from "../lib/PracticeDiary.jsx";
+import { askUnlock, stickOpen } from "../lib/demo.js";
 
 const DIM = "#8a969c";
 const TEAL = "#5cc8b8";
@@ -241,7 +242,10 @@ export default function StickControl({ preset = null } = {}) {
   const lowWide = useMq("(orientation: landscape) and (max-height: 560px)");
   const dialSize = lowWide ? 92 : 124;
   // „Heute“-Karte: Startübung und Tempo vorgeben
-  const [exId, setExId] = useState(() => (EXERCISES.some((e) => e.id === preset?.ex) ? preset.ex : 1));
+  const [exId, setExId] = useState(() => {
+    const want = EXERCISES.some((e) => e.id === preset?.ex) ? preset.ex : 1;
+    return stickOpen(want) ? want : 1;
+  });
   const [bpm, setBpm] = useState(preset?.bpm || 80);
   const [mode, setMode] = useState("practice");
   const [ternaryPick, setTernary] = useState(false);
@@ -321,6 +325,7 @@ export default function StickControl({ preset = null } = {}) {
 
   function pick(id) {
     if (playing) return;
+    if (!stickOpen(id)) { askUnlock(); return; }
     setExId(id);
     setDone("");
   }
@@ -335,6 +340,7 @@ export default function StickControl({ preset = null } = {}) {
   }
 
   function start() {
+    if (!stickOpen(exId)) { askUnlock(); return; }
     stop();
     setDone("");
     const ctx = unlockAudio();
@@ -429,10 +435,14 @@ export default function StickControl({ preset = null } = {}) {
           cycleStart += cellSteps * stepSec();
           if (isCh && repsInEx >= per) {
             const nextI = exIdx + 1;
-            if (nextI >= EXERCISES.length) {
+            const nextLocked = nextI < EXERCISES.length && !stickOpen(EXERCISES[nextI].id);
+            if (nextI >= EXERCISES.length || nextLocked) {
               // Ende erst melden, wenn der letzte Durchgang zu Ende gespielt ist.
+              // Übung 3–24 ist die volle App: dort anhalten und das Freischalten zeigen.
               ended = true;
-              window.setTimeout(finishOk, Math.max(0, (cycleStart - ctx.currentTime) * 1000));
+              const doneAt = Math.max(0, (cycleStart - ctx.currentTime) * 1000);
+              if (nextLocked) window.setTimeout(() => { if (!cancelled) askUnlock(); }, doneAt);
+              window.setTimeout(finishOk, doneAt);
               return;
             }
             exIdx = nextI;
