@@ -5,6 +5,7 @@ import { loadSession, saveSession } from "../lib/session.js";
 import { t } from "../lib/i18n.js";
 import { PracticeClip } from "../lib/PracticeClip.jsx";
 import { beatLayout } from "../lib/grooveNotation.js";
+import { askUnlock, grooveSaveOpen } from "../lib/demo.js";
 
 const TEAL = "#5cc8b8";
 const DIM = "#8a969c";
@@ -343,8 +344,16 @@ export default function RhythmArchive() {
     return id;
   }
 
+  function saveBlocked() {
+    if (grooveSaveOpen()) return false;
+    askUnlock();
+    return true;
+  }
+
   // „Speichern als…“ legt immer einen neuen Groove an (neue id) - nie überschreiben.
+  // Speichern ist die volle App; Ausprobieren und das Archiv bleiben kostenlos.
   function saveAs(title) {
+    if (saveBlocked()) return;
     const item = { id: newId(), name: title, bpm, bars, grid, at: Date.now() };
     const next = [item, ...list];
     setList(next);
@@ -358,6 +367,7 @@ export default function RhythmArchive() {
 
   // „Speichern“ aktualisiert nur den gerade bearbeiteten Groove.
   function saveCurrent() {
+    if (saveBlocked()) return;
     const old = list.find((g) => g.id === currentId);
     if (!old) return;
     const item = { ...old, bpm, bars, grid, at: Date.now() };
@@ -500,7 +510,7 @@ export default function RhythmArchive() {
             {currentId && editing ? (
               <button type="button" className="play" onClick={saveCurrent}>{t("Speichern")}</button>
             ) : null}
-            <button type="button" className="play" onClick={() => { setDraftName(name); setAskName(true); }}>{t("Speichern als…")}</button>
+            <button type="button" className="play" onClick={() => { if (saveBlocked()) return; setDraftName(name); setAskName(true); }}>{t("Speichern als…")}</button>
           </div>
           {askName ? (
             <div className="rhythm-save">

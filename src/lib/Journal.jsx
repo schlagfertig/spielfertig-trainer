@@ -9,6 +9,7 @@ import { CARD_LEVELS, addCard, hasCard, removeCard, removeHw, setCardLevel, setH
 import { JOURNAL_EVENT, buildEntry, getCtx, journalOn, loadCards, loadHw, restoreSessions, saveCards, saveHw } from "./journalStore.js";
 import { dayKey } from "./practiceLog.js";
 import JournalBackup from "./JournalBackup.jsx";
+import { askUnlock, isUnlocked, rudimentOpen, stickOpen, withinFreeCount, FREE_JOURNAL_N } from "./demo.js";
 import "../styles-journal.css";
 
 const TABS = [
@@ -80,11 +81,21 @@ export function JournalBar({ view }) {
   const inBox = rud != null && hasCard(loadCards(), rud);
   return (
     <div className="jr-bar">
-      <button type="button" className={added ? "jr-pill on" : "jr-pill"} aria-pressed={added} onClick={() => saveHw(toggleHw(loadHw(), buildEntry(getCtx() || ctx)).list)}>
+      <button type="button" className={added ? "jr-pill on" : "jr-pill"} aria-pressed={added} onClick={() => {
+        const list = loadHw();
+        const entry = buildEntry(getCtx() || ctx);
+        const exists = list.items.some((x) => x.key === entry.key);
+        if (!exists && !withinFreeCount(list.items.length)) { askUnlock(); return; }
+        saveHw(toggleHw(list, entry).list);
+      }}>
         <span aria-hidden="true">{added ? "✓" : "+"}</span>{t(added ? "In deinen Hausaufgaben" : "Zu Hausaufgaben")}
       </button>
       {rud != null ? (
-        <button type="button" className={inBox ? "jr-pill on" : "jr-pill"} aria-pressed={inBox} onClick={() => saveCards(toggleCard(loadCards(), rud).list)}>
+        <button type="button" className={inBox ? "jr-pill on" : "jr-pill"} aria-pressed={inBox} onClick={() => {
+          const list = loadCards();
+          if (!inBox && !withinFreeCount(list.cards.length)) { askUnlock(); return; }
+          saveCards(toggleCard(list, rud).list);
+        }}>
           <span aria-hidden="true">{inBox ? "✓" : "+"}</span>{t(inBox ? "Im Karteikasten" : "In den Karteikasten")}
         </button>
       ) : null}
@@ -92,9 +103,37 @@ export function JournalBar({ view }) {
   );
 }
 
+function targetLocked(x) {
+  if (isUnlocked()) return false;
+  if (x.ex === "pyramid" || x.view === "pyramid" || x.view === "archive") return true;
+  if (x.ex === "click" && (x.info?.mode === "noclick" || x.sessions?.click?.mode === "noclick")) return true;
+  if (x.ex === "stick" && !stickOpen(x.item ?? x.preset?.ex)) return true;
+  if (x.ex === "rudiments") {
+    const id = x.item ?? x.preset?.rud;
+    if (id != null && !rudimentOpen(id)) return true;
+  }
+  return false;
+}
+
 function openHw(x, onOpen) {
+  if (targetLocked(x)) { askUnlock(); return; }
   restoreSessions(x);
   onOpen?.(x.view, x.preset || null);
+}
+
+function capSlice(list) {
+  if (isUnlocked()) return { items: list, more: 0 };
+  return { items: list.slice(0, FREE_JOURNAL_N), more: Math.max(0, list.length - FREE_JOURNAL_N) };
+}
+
+function FreeLimit({ more }) {
+  if (!more) return null;
+  return (
+    <div className="dy-glass dy-empty">
+      <p>{t("Die ersten zwei sind kostenlos. Für den Rest brauchst du die volle App.")}</p>
+      <button type="button" className="jr-go" style={{ marginTop: 10 }} onClick={() => askUnlock()}>{t("Freischalten")}</button>
+    </div>
+  );
 }
 
 function HwItem({ x, onOpen }) {
@@ -120,6 +159,10 @@ function HwItem({ x, onOpen }) {
 
 function Homework({ onOpen }) {
   const { open, done } = splitHw(loadHw());
+  const capped = capSlice([...open, ...done]);
+  const keys = new Set(capped.items.map((x) => x.key));
+  const openVis = open.filter((x) => keys.has(x.key));
+  const doneVis = done.filter((x) => keys.has(x.key));
   return (
     <div className="jr-pane">
       <p className="dy-lead">{t("Deine Hausaufgaben für diese Woche - tipp drauf und leg direkt los, mit genau deinen Einstellungen.")}</p>
@@ -129,23 +172,33 @@ function Homework({ onOpen }) {
           <p>{t("Noch keine Hausaufgaben. Öffne eine Übung und tipp oben auf „Zu Hausaufgaben“ - dann wartet sie hier auf dich.")}</p>
         </div>
       ) : null}
-      {open.length ? <ul className="jr-list">{open.map((x) => <HwItem key={x.key} x={x} onOpen={onOpen} />)}</ul> : null}
-      {open.length === 0 && done.length ? <p className="jr-allgood">{t("Alles erledigt - stark! Such dir die nächste Hausaufgabe aus.")}</p> : null}
-      {done.length ? (
+      {openVis.length ? <ul className="jr-list">{openVis.map((x) => <HwItem key={x.key} x={x} onOpen={onOpen} />)}</ul> : null}
+      {openVis.length === 0 && doneVis.length ? <p className="jr-allgood">{t("Alles erledigt - stark! Such dir die nächste Hausaufgabe aus.")}</p> : null}
+      {doneVis.length ? (
         <section className="jr-done" aria-label={t("Sitzt schon")}>
           <h3>{t("Sitzt schon")} <span aria-hidden="true">🎉</span></h3>
-          <ul className="jr-list">{done.map((x) => <HwItem key={x.key} x={x} onOpen={onOpen} />)}</ul>
+          <ul className="jr-list">{doneVis.map((x) => <HwItem key={x.key} x={x} onOpen={onOpen} />)}</ul>
         </section>
       ) : null}
+      <FreeLimit more={capped.more} />
     </div>
   );
 }
 
 function Cards({ onOpen }) {
-  const cards = sortCards(loadCards());
-  const free = RUDIMENTS.filter((r) => !cards.some((c) => c.rud === r.id));
+  const all = sortCards(loadCards());
+  const capped = capSlice(all);
+  const cards = capped.items;
+  const free = RUDIMENTS.filter((r) => !all.some((c) => c.rud === r.id));
   const [pick, setPick] = useState("");
-  const add = () => { const id = Number(pick || free[0]?.id); if (id) { saveCards(addCard(loadCards(), id)); setPick(""); } };
+  const add = () => {
+    const id = Number(pick || free[0]?.id);
+    if (!id) return;
+    const list = loadCards();
+    if (!withinFreeCount(list.cards.length)) { askUnlock(); return; }
+    saveCards(addCard(list, id));
+    setPick("");
+  };
   return (
     <div className="jr-pane">
       <p className="dy-lead">{t("Deine Rudiments zum Dranbleiben - wie Karteikarten. Leg rein, was du besser können willst, und arbeite dich von „Neu“ bis „Sitzt“.")}</p>
@@ -171,7 +224,7 @@ function Cards({ onOpen }) {
             const name = rudName(c.rud);
             return (
               <li key={c.rud} className={`dy-glass jr-card lv-${c.level}`}>
-                <button type="button" className="jr-card-main" onClick={() => onOpen?.("rudiments", { rud: c.rud })} aria-label={t("{name} üben", { name })}>
+                <button type="button" className="jr-card-main" onClick={() => { if (!rudimentOpen(c.rud)) { askUnlock(); return; } onOpen?.("rudiments", { rud: c.rud }); }} aria-label={t("{name} üben", { name })}>
                   <span className="jr-card-head"><span className="jr-no">{c.rud}</span><b>{name}</b></span>
                   <span className="jr-thumb" aria-hidden="true"><RudimentStaff rud={r} /></span>
                   <span className={c.lastAt ? "jr-when" : "jr-when is-new"}>{whenText(c.lastAt)}</span>
@@ -189,6 +242,7 @@ function Cards({ onOpen }) {
           })}
         </ul>
       )}
+      <FreeLimit more={capped.more} />
     </div>
   );
 }
@@ -197,7 +251,8 @@ export default function Journal({ onOpen }) {
   useJournal();
   const [tab, setTabRaw] = useState(() => (TABS.some((x) => x.id === loadSession("journal", {}).tab) ? loadSession("journal", {}).tab : "diary"));
   const setTab = (id) => { setTabRaw(id); saveSession("journal", { tab: id }); };
-  const hwOpen = splitHw(loadHw()).open.length;
+  const hwSplit = splitHw(loadHw());
+  const hwOpen = capSlice([...hwSplit.open, ...hwSplit.done]).items.filter((x) => !x.done).length;
   const [gen, setGen] = useState(0); // nach einem Import neu laden
   return (
     <div className="jr-wrap">

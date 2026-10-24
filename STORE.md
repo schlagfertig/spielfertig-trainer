@@ -6,6 +6,16 @@ App-Name: **Schlagfertig‽** (`appName` in `capacitor.config.json`; Manifest `n
 Live im Browser: https://spielfertig-trainer.vercel.app  
 Die Vercel-Zugangssperre gilt **nicht** im Store-Build (kein Middleware, gebündeltes `dist`).
 
+## Freemium
+
+`DEMO_ON` in `src/lib/demo.js` geht im Store von allein an: `npm run build:cap` setzt `__SF_STORE__` (`CAPACITOR=1`), die native Hülle zählt mit. Web und Test (`npm run dev`, Vercel) bleiben offen.
+
+Frei: Start, Impressum, Datenschutz, Neuigkeiten, Erste Übung, No-Stick-Challenge, Click-Trainer nur „Tempo halten“ und „Tempo steigern“, Lexikon, Rudiments #1 #6 #16 #20 #22 #31, Rudiment-Würfel nur aus diesen sechs, Hand Control 1–2, Journal-Tagebuch, je die ersten zwei Hausaufgaben und Karteikarten, Eigene Grooves zum Ausprobieren (Speichern nicht).
+
+Volle App einmalig, Anzeige `12,99 €`: NoClick, übrige Rudiments, Hand Control 3–24, unbegrenzte Hausaufgaben und Karteikarten, Grooves speichern, Rhythmuspyramide, Noten, Drucken. Freischalten jetzt per Code `sf-stunde` (`localStorage` `sf-unlocked`). Store-IAP (Apple/Google) ruft später `setUnlocked(true)` auf — noch nicht angebunden.
+
+Sperren im Browser ansehen: `CAPACITOR=1 npm run dev`.
+
 ## Einmalig auf Deinem Rechner
 
 ```bash
