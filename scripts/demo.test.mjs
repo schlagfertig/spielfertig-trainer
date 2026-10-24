@@ -1,10 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  DEMO_ON, DEMO_PRICE, FREE_JOURNAL_N, FREE_PYRAMID_STAGES, FREE_RUDIMENT, FREE_RUDIMENTS, FREE_STICK_MAX,
-  canPrintRudiment, freeView, grooveSaveOpen, noClickOpen, pyramidStageOpen, rudimentOpen, stickOpen, unlockCodeOk, viewOpen, withinFreeCount,
+  DEMO_ON, DEMO_PRICE, FREE_GROOVE_BARS, FREE_JOURNAL_N, FREE_PYRAMID_STAGES, FREE_RUDIMENT, FREE_RUDIMENTS, FREE_STICK_MAX,
+  canPrintRudiment, freeView, grooveBarsOpen, grooveSaveOpen, noClickOpen, pyramidStageOpen, rudimentOpen, stickOpen, unlockCodeOk, viewOpen, withinFreeCount,
 } from "../src/lib/demo.js";
 import { rerollBar, rollEtude } from "../src/lib/etudeDice.js";
+import { EN } from "../src/lib/en.js";
 
 const FREE_IDS = [1, 6, 16, 20, 22, 31];
 
@@ -13,6 +14,8 @@ test("Web/Test ohne Store-Flag: keine Sperre", () => {
   assert.equal(DEMO_PRICE, "12,99 €");
   assert.equal(noClickOpen(), true);
   assert.equal(grooveSaveOpen(), true);
+  assert.equal(grooveBarsOpen(1), true);
+  assert.equal(grooveBarsOpen(4), true);
   assert.equal(viewOpen("pyramid", true), true);
 });
 
@@ -57,6 +60,24 @@ test("sechs freie Rudiments, Hand Control 1–2, zwei Journal-Einträge", () => 
   assert.equal(withinFreeCount(1, false), true);
   assert.equal(withinFreeCount(2, false), false);
   assert.equal(withinFreeCount(9, true), true);
+});
+
+test("Eigene Grooves: 1 Takt frei, mehr Takte und Speichern volle App", () => {
+  assert.equal(FREE_GROOVE_BARS, 1);
+  assert.equal(grooveBarsOpen(1, false), true);
+  assert.equal(grooveBarsOpen(1, true), true);
+  for (const n of [2, 3, 4]) {
+    assert.equal(grooveBarsOpen(n, false), false, String(n));
+    assert.equal(grooveBarsOpen(n, true), true, String(n));
+  }
+  assert.equal(grooveSaveOpen(false), false);
+  assert.equal(grooveSaveOpen(true), true);
+  const free = "Kostenlos bleiben Erste Übung, No-Stick-Challenge, Tempo halten und Tempo steigern, Lexikon und das Tagebuch. Dazu sechs Rudiments (Single Stroke Roll, Double Stroke Open Roll, Single Paradiddle, Flam, Flam Tap, Drag), die du auch drucken kannst, der Würfel aus diesen sechs, Hand Control 1 und 2, die Rhythmuspyramide in Vierteln, Achteln und 16teln, die ersten zwei Hausaufgaben, die ersten zwei Karteikarten und eigene Grooves mit genau einem Takt zum Ausprobieren.";
+  const paid = "Einmalig, kein Abo. Danach ist alles offen: NoClick, alle Rudiments, Hand Control, die schwereren Pyramiden-Stufen, Noten, Drucken der übrigen Übungen, unbegrenzte Hausaufgaben und Karteikarten — eigene Grooves mit mehr als einem Takt, und du speicherst sie.";
+  assert.match(EN[free], /exactly one bar/);
+  assert.match(EN[paid], /more than one bar/);
+  assert.match(EN[paid], /save them/);
+  assert.doesNotMatch(`${EN[free]} ${EN[paid]}`, /\bpractice\b/i);
 });
 
 test("Code aus der Stunde", () => {

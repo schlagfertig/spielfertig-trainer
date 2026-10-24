@@ -5,7 +5,7 @@ import { loadSession, saveSession } from "../lib/session.js";
 import { t } from "../lib/i18n.js";
 import { PracticeClip } from "../lib/PracticeClip.jsx";
 import { beatLayout } from "../lib/grooveNotation.js";
-import { askUnlock, grooveSaveOpen } from "../lib/demo.js";
+import { askUnlock, grooveBarsOpen, grooveSaveOpen } from "../lib/demo.js";
 
 const TEAL = "#5cc8b8";
 const DIM = "#8a969c";
@@ -227,6 +227,8 @@ export default function RhythmArchive() {
 
   function setBarsCount(n) {
     const next = clamp(n, 1, 4);
+    // Mehr als 1 Takt: volle App. Das Blatt öffnen, die Taktzahl bleibt.
+    if (!grooveBarsOpen(next)) { askUnlock(); return; }
     setGrid((prev) => {
       const out = emptyGrid(next);
       VOICES.forEach((v) => {
@@ -294,6 +296,7 @@ export default function RhythmArchive() {
   }
 
   function start() {
+    if (!grooveBarsOpen(bars)) { askUnlock(); return; }
     stop();
     const ctx = unlockAudio();
     const steps = bars * STEPS;
@@ -351,7 +354,7 @@ export default function RhythmArchive() {
   }
 
   // „Speichern als…“ legt immer einen neuen Groove an (neue id) - nie überschreiben.
-  // Speichern ist die volle App; Ausprobieren und das Archiv bleiben kostenlos.
+  // Genau 1 Takt erstellen und üben ist frei. Speichern (auch 1 Takt) ist die volle App.
   function saveAs(title) {
     if (saveBlocked()) return;
     const item = { id: newId(), name: title, bpm, bars, grid, at: Date.now() };
@@ -402,6 +405,7 @@ export default function RhythmArchive() {
   }
 
   function editCurrent() {
+    if (!grooveBarsOpen(bars)) { askUnlock(); return; }
     stop();
     setEditing(true);
     setBar(0);
@@ -409,14 +413,16 @@ export default function RhythmArchive() {
   }
 
   function openGroove(g) {
+    const n = clamp(Number(g.bars) || 1, 1, 4);
+    if (!grooveBarsOpen(n)) { askUnlock(); return; }
     stop();
     setCurrentId(g.id);
     setEditing(false);
     setName(g.name);
     setBpm(g.bpm || 90);
-    setBars(g.bars || 1);
+    setBars(n);
     setBar(0);
-    setGrid(g.grid || emptyGrid(g.bars || 1));
+    setGrid(g.grid || emptyGrid(n));
     setScreen("practice");
   }
 
@@ -433,7 +439,7 @@ export default function RhythmArchive() {
       <div className={screen === "build" ? "rhythm-top build" : "rhythm-top"}>
         <div className="seg" style={{ width: "fit-content" }}>
           <button type="button" className={screen === "build" ? "on" : ""} onClick={openBuild}>{t("Erstellen")}</button>
-          <button type="button" className={screen === "practice" ? "on" : ""} onClick={() => setScreen("practice")}>{t("Üben")}</button>
+          <button type="button" className={screen === "practice" ? "on" : ""} onClick={() => { if (!grooveBarsOpen(bars)) { askUnlock(); return; } setScreen("practice"); }}>{t("Üben")}</button>
           <button type="button" className={screen === "archive" ? "on" : ""} onClick={() => { stop(); setScreen("archive"); }}>{t("Archiv")}</button>
         </div>
         {screen === "build" ? (

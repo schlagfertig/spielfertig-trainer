@@ -33,9 +33,12 @@ export const FREE_STICK_MAX = 2; // Hand Control 1 und 2; 3–24 volle App
 export const FREE_JOURNAL_N = 2; // Hausaufgaben und Karteikasten: die ersten zwei
 // Pyramide: 4tel, 8tel, 16tel. Triole, Quintole, Sextole, Septole, 32tel = volle App.
 export const FREE_PYRAMID_STAGES = ["q", "e", "s16"];
+// Eigene Grooves: genau 1 Takt erstellen und üben. Mehr Takte und Speichern = volle App.
+export const FREE_GROOVE_BARS = 1;
 
 // Ansichten, die sich öffnen lassen. Innen kann trotzdem etwas gesperrt sein
-// (NoClick, Rudiments außerhalb der sechs, schwerere Pyramiden-Stufen, Hand Control ab 3, Speichern, …).
+// (NoClick, Rudiments außerhalb der sechs, schwerere Pyramiden-Stufen, Hand Control ab 3,
+// Groove über 1 Takt, Speichern, …).
 // Noten (archive) bleibt zu.
 const FREE = new Set([
   "home", "first", "nostick", "click", "lexicon", "impressum", "datenschutz", "news",
@@ -95,8 +98,15 @@ export function noClickOpen() {
   return isUnlocked();
 }
 
-export function grooveSaveOpen() {
-  return isUnlocked();
+// Genau ein Takt ist frei. 2–4 Takte gehören zur vollen App (Freischalt-Blatt, nicht still verwerfen).
+export function grooveBarsOpen(n, unlocked = isUnlocked()) {
+  const count = Number(n);
+  return !!unlocked || (Number.isFinite(count) && count >= 1 && count <= FREE_GROOVE_BARS);
+}
+
+// Speichern, auch bei einem Takt, gehört zur vollen App.
+export function grooveSaveOpen(unlocked = isUnlocked()) {
+  return !!unlocked;
 }
 
 export function withinFreeCount(n, unlocked = isUnlocked()) {
