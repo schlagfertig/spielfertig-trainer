@@ -12,8 +12,13 @@ Frei, wenn die Sperre an ist:
 - Hand Control 1 und 2 (3–24 = volle App)
 - Journal: Tagebuch ganz; Hausaufgaben und Karteikasten je die ersten zwei
 - Eigene Grooves ausprobieren; Speichern = volle App
+- Rhythmuspyramide: 4tel, 8tel und 16tel
+- Drucken der sechs freien Rudiments
 
 Zu, mit Hinweis und Freischalt-Blatt:
-- NoClick, übrige Rudiments, Hand Control ab 3, weitere Hausaufgaben und Karteikarten, Groove speichern, Rhythmuspyramide, Noten, Drucken
+- NoClick, übrige Rudiments, Hand Control ab 3, weitere Hausaufgaben und Karteikarten, Groove speichern
+- Schwerere Pyramiden-Stufen (Triole, Quintole, Sextole, Septole, 32tel)
+- Noten (Notenblätter)
+- Drucken anderer Rudiments und Notenblätter
 
 Kacheln bleiben sichtbar. Tippen auf eine gesperrte Stelle öffnet das Blatt (Preis, was frei bleibt, Knopf Freischalten, Code für Tester).

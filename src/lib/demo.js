@@ -31,12 +31,15 @@ export const FREE_RUDIMENTS = [1, 6, 16, 20, 22, 31];
 export const FREE_RUDIMENT = FREE_RUDIMENTS[0];
 export const FREE_STICK_MAX = 2; // Hand Control 1 und 2; 3–24 volle App
 export const FREE_JOURNAL_N = 2; // Hausaufgaben und Karteikasten: die ersten zwei
+// Pyramide: 4tel, 8tel, 16tel. Triole, Quintole, Sextole, Septole, 32tel = volle App.
+export const FREE_PYRAMID_STAGES = ["q", "e", "s16"];
 
 // Ansichten, die sich öffnen lassen. Innen kann trotzdem etwas gesperrt sein
-// (NoClick, Rudiments außerhalb der sechs, Hand Control ab 3, Speichern, …).
+// (NoClick, Rudiments außerhalb der sechs, schwerere Pyramiden-Stufen, Hand Control ab 3, Speichern, …).
+// Noten (archive) bleibt zu.
 const FREE = new Set([
   "home", "first", "nostick", "click", "lexicon", "impressum", "datenschutz", "news",
-  "rudiments", "dice", "stick", "diary", "rhythm",
+  "rudiments", "dice", "stick", "diary", "rhythm", "pyramid",
 ]);
 
 export function isUnlocked() {
@@ -72,6 +75,15 @@ export function unlockCodeOk(code) {
 
 export function rudimentOpen(id, unlocked = isUnlocked()) {
   return !!unlocked || FREE_RUDIMENTS.includes(Number(id));
+}
+
+// Drucken nur für die sechs freien Rudiments. Andere Übungen und Notenblätter: volle App.
+export function canPrintRudiment(id, unlocked = isUnlocked()) {
+  return rudimentOpen(id, unlocked);
+}
+
+export function pyramidStageOpen(id, unlocked = isUnlocked()) {
+  return !!unlocked || FREE_PYRAMID_STAGES.includes(id);
 }
 
 export function stickOpen(id, unlocked = isUnlocked()) {

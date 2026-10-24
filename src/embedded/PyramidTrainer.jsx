@@ -5,6 +5,7 @@ import { BeatGlyph } from "../lib/BeatGlyph.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
 import { t } from "../lib/i18n.js";
 import { usePracticeTrack } from "../lib/PracticeDiary.jsx";
+import { askUnlock, pyramidStageOpen } from "../lib/demo.js";
 
 const DIM = "#8a969c";
 const TEAL = "#5cc8b8";
@@ -101,7 +102,7 @@ export default function PyramidTrainer({ preset = null } = {}) {
   const [bpm, setBpm] = useState(startBpm);
   const [bars, setBars] = useState(2);
   const [dir, setDir] = useState("updown");
-  const [enabled, setEnabled] = useState(() => new Set(STAGES.map((s) => s.id)));
+  const [enabled, setEnabled] = useState(() => new Set(STAGES.filter((s) => pyramidStageOpen(s.id)).map((s) => s.id)));
   const [playing, setPlaying] = useState(false);
   // Pyramide: ein Start → Stop (bzw. Ende) = ein Durchgang, auch über alle Stufen hinweg.
   usePracticeTrack({ ex: "pyramid", playing, bpm });
@@ -123,8 +124,9 @@ export default function PyramidTrainer({ preset = null } = {}) {
   const barsRef = useRef(2);
   bpmRef.current = bpm;
   barsRef.current = bars;
-  const active = STAGES.filter((s) => enabled.has(s.id));
-  const steps = plan(dir, active.length ? active : STAGES);
+  const openStages = STAGES.filter((s) => pyramidStageOpen(s.id));
+  const active = openStages.filter((s) => enabled.has(s.id));
+  const steps = plan(dir, active.length ? active : openStages);
   const cur = steps[idx] || steps[0];
   const nextStage = idx + 1 < steps.length ? steps[idx + 1] : null;
   const live = playing && !counting;
@@ -143,6 +145,7 @@ export default function PyramidTrainer({ preset = null } = {}) {
 
   function toggleStage(id) {
     if (playing) return;
+    if (!pyramidStageOpen(id)) { askUnlock(); return; }
     setEnabled((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
@@ -178,8 +181,9 @@ export default function PyramidTrainer({ preset = null } = {}) {
     setDone("");
     wrapRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
     const ctx = unlockAudio();
-    const selected = STAGES.filter((s) => enabled.has(s.id));
-    const run = plan(dir, selected.length ? selected : STAGES);
+    const pool = STAGES.filter((s) => pyramidStageOpen(s.id));
+    const selected = pool.filter((s) => enabled.has(s.id));
+    const run = plan(dir, selected.length ? selected : pool);
     const holdBars = barsRef.current;
     let cancelled = false;
     let timer = 0;
@@ -358,9 +362,11 @@ export default function PyramidTrainer({ preset = null } = {}) {
         <div className="panel" style={{ padding: "10px 12px 12px", marginBottom: 8 }}>
           <div className="pyr-steps">
             {STAGES.map((s) => {
-              const on = enabled.has(s.id);
+              const locked = !pyramidStageOpen(s.id);
+              const on = !locked && enabled.has(s.id);
+              const name = locked ? `${t(s.label)} · ${t("Volle App")}` : t(s.label);
               return (
-                <button key={s.id} type="button" className={on ? "chip on" : "chip"} aria-pressed={on} aria-label={t(s.label)} title={t(s.label)} onClick={() => toggleStage(s.id)}>
+                <button key={s.id} type="button" className={on ? "chip on" : locked ? "chip pyr-locked" : "chip"} aria-pressed={on} aria-label={name} title={name} onClick={() => toggleStage(s.id)}>
                   <BeatGlyph per={s.perBeat} tuplet={s.tuplet} on={on} />
                 </button>
               );
@@ -414,6 +420,7 @@ export default function PyramidTrainer({ preset = null } = {}) {
       <style>{`
         .pyr-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
         .pyr-steps .chip { min-height: 52px; padding: 6px 4px; display: flex; align-items: center; justify-content: center; }
+        .pyr-steps .chip.pyr-locked { opacity: 0.45; }
         .pyr-steps svg { width: 100%; max-width: 64px; height: auto; }
         .pyr-opt { margin-top: 10px; }
         .pyr-opt-l { font: 800 12px/1.3 Figtree, sans-serif; letter-spacing: 0.06em; color: #5cc8b8; margin: 0 2px 6px; }

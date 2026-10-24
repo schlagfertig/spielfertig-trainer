@@ -117,6 +117,12 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
     saveSession("rudiments", { sel, bpm, hear, goalId });
   }, [sel, bpm, hear, goalId]);
   useEffect(() => () => stopRef.current?.(), []);
+  useEffect(() => {
+    if (printOpen && !rudimentOpen(sel)) {
+      askUnlock();
+      onPrintClose?.();
+    }
+  }, [printOpen, sel]);
   // Motivation blendet sich nach ein paar Sekunden selbst aus (Antippen schließt sofort)
   useEffect(() => {
     if (!cheer) return undefined;
@@ -482,7 +488,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           </div>
         )}
       />
-      {printOpen && !demo ? <PrintDialog sel={sel} onClose={onPrintClose} /> : null}
+      {printOpen && rudimentOpen(sel) ? <PrintDialog sel={sel} onClose={onPrintClose} /> : null}
     </div>
   );
 }

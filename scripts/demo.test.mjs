@@ -1,8 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  DEMO_ON, DEMO_PRICE, FREE_JOURNAL_N, FREE_RUDIMENT, FREE_RUDIMENTS, FREE_STICK_MAX,
-  freeView, grooveSaveOpen, noClickOpen, rudimentOpen, stickOpen, unlockCodeOk, viewOpen, withinFreeCount,
+  DEMO_ON, DEMO_PRICE, FREE_JOURNAL_N, FREE_PYRAMID_STAGES, FREE_RUDIMENT, FREE_RUDIMENTS, FREE_STICK_MAX,
+  canPrintRudiment, freeView, grooveSaveOpen, noClickOpen, pyramidStageOpen, rudimentOpen, stickOpen, unlockCodeOk, viewOpen, withinFreeCount,
 } from "../src/lib/demo.js";
 import { rerollBar, rollEtude } from "../src/lib/etudeDice.js";
 
@@ -17,15 +17,27 @@ test("Web/Test ohne Store-Flag: keine Sperre", () => {
 });
 
 test("freie Ansichten und volle Kacheln", () => {
-  for (const view of ["home", "first", "nostick", "click", "lexicon", "impressum", "datenschutz", "news", "rudiments", "dice", "stick", "diary", "rhythm"]) {
+  for (const view of ["home", "first", "nostick", "click", "lexicon", "impressum", "datenschutz", "news", "rudiments", "dice", "stick", "diary", "rhythm", "pyramid"]) {
     assert.equal(freeView(view), true, view);
     assert.equal(viewOpen(view, false), true, view);
   }
-  for (const view of ["pyramid", "archive"]) {
-    assert.equal(freeView(view), false, view);
-    assert.equal(viewOpen(view, false), false, view);
-    assert.equal(viewOpen(view, true), true, view);
-  }
+  assert.equal(freeView("archive"), false);
+  assert.equal(viewOpen("archive", false), false);
+  assert.equal(viewOpen("archive", true), true);
+});
+
+test("Pyramide: 4tel, 8tel und 16tel frei, schwerere Stufen zu", () => {
+  assert.deepEqual(FREE_PYRAMID_STAGES, ["q", "e", "s16"]);
+  for (const id of ["q", "e", "s16"]) assert.equal(pyramidStageOpen(id, false), true, id);
+  for (const id of ["et", "q5", "sx", "s7", "s32"]) assert.equal(pyramidStageOpen(id, false), false, id);
+  assert.equal(pyramidStageOpen("et", true), true);
+  assert.equal(pyramidStageOpen("s32", true), true);
+});
+
+test("Drucken nur die sechs freien Rudiments", () => {
+  for (const id of FREE_IDS) assert.equal(canPrintRudiment(id, false), true, String(id));
+  for (const id of [2, 5, 17, 19, 33, 40]) assert.equal(canPrintRudiment(id, false), false, String(id));
+  assert.equal(canPrintRudiment(2, true), true);
 });
 
 test("sechs freie Rudiments, Hand Control 1–2, zwei Journal-Einträge", () => {

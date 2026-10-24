@@ -448,7 +448,7 @@ export default function App() {
           )}
           <div className="top-right">
             {view === "rudiments" && !stage && !printOpen && (
-              <button className="ghost" onClick={() => (unlocked ? setPrintOpen(true) : setPaywall(true))}>{unlocked ? t("Drucken") : t("Volle App")}</button>
+              <button className="ghost" onClick={() => setPrintOpen(true)}>{t("Drucken")}</button>
             )}
             {/* Fokus-Mode (früher „Übepad“): gleicher Name in beiden Zuständen, an = türkis gefüllt + aria-pressed */}
             {view === "rudiments" && !printOpen && (
@@ -505,8 +505,8 @@ function DemoPaywall({ onClose, onUnlock }) {
       <div style={{ width: "min(480px, 100%)", maxHeight: "min(92vh, 720px)", overflow: "auto", background: "rgba(22,26,29,.97)", border: "1px solid rgba(92,200,184,.45)", borderRadius: "22px 22px 16px 16px", padding: "20px 20px 18px", color: "#f4f7f6" }}>
         <div style={{ color: "#5cc8b8", fontWeight: 800, letterSpacing: "0.04em" }}>{t("Einmalig")}</div>
         <h2 style={{ margin: "6px 0 8px", fontSize: 26 }}>{t("Volle App")} · {DEMO_PRICE}</h2>
-        <p style={{ margin: "0 0 10px", color: "#c5d0d2", lineHeight: 1.45 }}>{t("Einmalig, kein Abo. Danach ist alles offen: NoClick, alle Rudiments, Hand Control, Rhythmuspyramide, Noten, Drucken, unbegrenzte Hausaufgaben und Karteikarten — und du speicherst deine eigenen Grooves.")}</p>
-        <p style={{ margin: "0 0 14px", color: "#c5d0d2", lineHeight: 1.45 }}>{t("Kostenlos bleiben Erste Übung, No-Stick-Challenge, Tempo halten und Tempo steigern, Lexikon und das Tagebuch. Dazu sechs Rudiments (Single Stroke Roll, Double Stroke Open Roll, Single Paradiddle, Flam, Flam Tap, Drag), der Würfel aus diesen sechs, Hand Control 1 und 2, die ersten zwei Hausaufgaben, die ersten zwei Karteikarten und Grooves zum Ausprobieren.")}</p>
+        <p style={{ margin: "0 0 10px", color: "#c5d0d2", lineHeight: 1.45 }}>{t("Einmalig, kein Abo. Danach ist alles offen: NoClick, alle Rudiments, Hand Control, die schwereren Pyramiden-Stufen, Noten, Drucken der übrigen Übungen, unbegrenzte Hausaufgaben und Karteikarten — und du speicherst deine eigenen Grooves.")}</p>
+        <p style={{ margin: "0 0 14px", color: "#c5d0d2", lineHeight: 1.45 }}>{t("Kostenlos bleiben Erste Übung, No-Stick-Challenge, Tempo halten und Tempo steigern, Lexikon und das Tagebuch. Dazu sechs Rudiments (Single Stroke Roll, Double Stroke Open Roll, Single Paradiddle, Flam, Flam Tap, Drag), die du auch drucken kannst, der Würfel aus diesen sechs, Hand Control 1 und 2, die Rhythmuspyramide in Vierteln, Achteln und 16teln, die ersten zwei Hausaufgaben, die ersten zwei Karteikarten und Grooves zum Ausprobieren.")}</p>
         <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 6 }}>{t("Für Tester")}</div>
         <label style={{ display: "block", fontSize: 14, color: "#9aa6aa" }}>
           {t("Code aus der Stunde")}

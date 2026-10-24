@@ -105,7 +105,7 @@ export function JournalBar({ view }) {
 
 function targetLocked(x) {
   if (isUnlocked()) return false;
-  if (x.ex === "pyramid" || x.view === "pyramid" || x.view === "archive") return true;
+  if (x.view === "archive") return true;
   if (x.ex === "click" && (x.info?.mode === "noclick" || x.sessions?.click?.mode === "noclick")) return true;
   if (x.ex === "stick" && !stickOpen(x.item ?? x.preset?.ex)) return true;
   if (x.ex === "rudiments") {
