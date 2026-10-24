@@ -35,16 +35,20 @@ function useMixNow(mix, flipped) {
 }
 
 // Kreisgröße nach verfügbarer Höhe: groß auf normalen Phones, kleiner auf kurzen Screens / Querformat.
-function dialSizeFor(h) {
-  if (h <= 480) return 112;
-  if (h <= 720) return 128;
-  return 140; // Platz für ±5 und ±10 neben dem Rad
+function dialSizeFor(h, w = 9999) {
+  const byH = h <= 480 ? 112 : h <= 720 ? 128 : 140;
+  return Math.max(96, Math.min(byH, w - 252));
 }
 
 function useDialSize() {
-  const [size, setSize] = useState(() => dialSizeFor(typeof window !== "undefined" ? window.innerHeight : 844));
+  const [size, setSize] = useState(() =>
+    dialSizeFor(
+      typeof window !== "undefined" ? window.innerHeight : 844,
+      typeof window !== "undefined" ? window.innerWidth : 9999,
+    ),
+  );
   useEffect(() => {
-    const on = () => setSize(dialSizeFor(window.innerHeight));
+    const on = () => setSize(dialSizeFor(window.innerHeight, window.innerWidth));
     on();
     window.addEventListener("resize", on);
     return () => window.removeEventListener("resize", on);
@@ -359,7 +363,8 @@ export default function ClickTrainer({ preset = null } = {}) {
         .ct-clip { position: absolute; left: 0; top: 0; }
         .ct-clip:empty { display: none; }
         .ct-count-slot { height: 48px; display: flex; flex-direction: column; justify-content: flex-start; }
-        @media (max-width: 370px) { .ct-stage .dial-row { gap: 6px; } }
+        .page .ct-stage .dial-row .nudge-lg.nudge-10 { width: 44px; height: 44px; font-size: 15px; }
+        @media (max-width: 400px) and (orientation: portrait) { .ct-stage .dial-row:has(.nudge-10) { gap: 3px; } }
         .ct-adv-btn {
           margin-top: 0;
           display: inline-flex;
