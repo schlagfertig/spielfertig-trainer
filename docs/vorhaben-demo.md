@@ -11,12 +11,12 @@ Frei, wenn die Sperre an ist:
 - Rudiment-Würfel, nur aus diesen sechs (6/8 = volle App)
 - Hand Control 1 und 2 (3–24 = volle App)
 - Journal: Tagebuch ganz; Hausaufgaben und Karteikasten je die ersten zwei
-- Eigene Grooves ausprobieren; Speichern = volle App
+- Eigene Grooves: genau 1 Takt erstellen und üben; mehr als 1 Takt und Speichern (auch bei 1 Takt) = volle App
 - Rhythmuspyramide: 4tel, 8tel und 16tel
 - Drucken der sechs freien Rudiments
 
 Zu, mit Hinweis und Freischalt-Blatt:
-- NoClick, übrige Rudiments, Hand Control ab 3, weitere Hausaufgaben und Karteikarten, Groove speichern
+- NoClick, übrige Rudiments, Hand Control ab 3, weitere Hausaufgaben und Karteikarten, Groove mit mehr als einem Takt, Groove speichern (auch 1 Takt)
 - Schwerere Pyramiden-Stufen (Triole, Quintole, Sextole, Septole, 32tel)
 - Noten (Notenblätter)
 - Drucken anderer Rudiments und Notenblätter

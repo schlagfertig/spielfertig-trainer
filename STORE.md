@@ -10,9 +10,9 @@ Die Vercel-Zugangssperre gilt **nicht** im Store-Build (kein Middleware, gebünd
 
 `DEMO_ON` in `src/lib/demo.js` geht im Store von allein an: `npm run build:cap` setzt `__SF_STORE__` (`CAPACITOR=1`), die native Hülle zählt mit. Web und Test (`npm run dev`, Vercel) bleiben offen.
 
-Frei: Start, Impressum, Datenschutz, Neuigkeiten, Erste Übung, No-Stick-Challenge, Click-Trainer nur „Tempo halten“ und „Tempo steigern“, Lexikon, Rudiments #1 #6 #16 #20 #22 #31, Rudiment-Würfel nur aus diesen sechs, Hand Control 1–2, Journal-Tagebuch, je die ersten zwei Hausaufgaben und Karteikarten, Eigene Grooves zum Ausprobieren (Speichern nicht), Rhythmuspyramide in 4tel, 8tel und 16tel, Drucken nur dieser sechs Rudiments.
+Frei: Start, Impressum, Datenschutz, Neuigkeiten, Erste Übung, No-Stick-Challenge, Click-Trainer nur „Tempo halten“ und „Tempo steigern“, Lexikon, Rudiments #1 #6 #16 #20 #22 #31, Rudiment-Würfel nur aus diesen sechs, Hand Control 1–2, Journal-Tagebuch, je die ersten zwei Hausaufgaben und Karteikarten, Eigene Grooves mit genau 1 Takt erstellen und üben (Speichern nicht), Rhythmuspyramide in 4tel, 8tel und 16tel, Drucken nur dieser sechs Rudiments.
 
-Volle App einmalig, Anzeige `12,99 €`: NoClick, übrige Rudiments, Hand Control 3–24, unbegrenzte Hausaufgaben und Karteikarten, Grooves speichern, schwerere Pyramiden-Stufen (Triole, Quintole, Sextole, Septole, 32tel), Noten, Drucken anderer Rudiments und Notenblätter. Freischalten jetzt per Code `sf-stunde` (`localStorage` `sf-unlocked`). Store-IAP (Apple/Google) ruft später `setUnlocked(true)` auf — noch nicht angebunden.
+Volle App einmalig, Anzeige `12,99 €`: NoClick, übrige Rudiments, Hand Control 3–24, unbegrenzte Hausaufgaben und Karteikarten, Grooves mit mehr als einem Takt, Grooves speichern (auch bei 1 Takt), schwerere Pyramiden-Stufen (Triole, Quintole, Sextole, Septole, 32tel), Noten, Drucken anderer Rudiments und Notenblätter. Freischalten jetzt per Code `sf-stunde` (`localStorage` `sf-unlocked`). Store-IAP (Apple/Google) ruft später `setUnlocked(true)` auf — noch nicht angebunden. Tippen auf einen zweiten Takt oder auf Speichern öffnet das Freischalt-Blatt.
 
 Sperren im Browser ansehen: `CAPACITOR=1 npm run dev`.
 
