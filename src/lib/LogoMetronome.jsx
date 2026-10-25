@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MetronomeDial } from "./metronome.jsx";
 import { playClick, unlockAudio } from "./audio.js";
+import { beatDelayMs } from "./audioOffset.js";
 import { loadSession } from "./session.js";
 import { t } from "./i18n.js";
 
@@ -37,7 +38,7 @@ export function LogoMetronome({ locked = false }) {
       if (cancelled) return;
       while (next < ctx.currentTime + 0.16) {
         playClick(ctx, next, n % 4 === 0);
-        const delay = Math.max(0, (next - ctx.currentTime) * 1000);
+        const delay = beatDelayMs(ctx, next);
         window.setTimeout(() => {
           if (cancelled) return;
           setBeat(true);

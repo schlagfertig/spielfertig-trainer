@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { MetronomeDial, Nudge } from "../lib/metronome.jsx";
 import { playClick, playClickLayer, unlockAudio } from "../lib/audio.js";
+import { beatDelayMs } from "../lib/audioOffset.js";
 import { NavScrub } from "../lib/NavScrub.jsx";
 import { t } from "../lib/i18n.js";
 import { TERNARY_ENABLED, TRI_LEN, triHands, triNotes } from "../lib/handTernary.js";
@@ -372,14 +373,13 @@ export default function StickControl({ preset = null } = {}) {
       // Neuer Durchgang: Highlight zurücksetzen - sonst bliebe playT kurz auf dem letzten Buchstaben
       // und würde in der letzten Wiederholung fälschlich schon Gruppen morphen.
       if (n > 1) setPlayT(-1);
-    }, Math.max(0, (when - ctx.currentTime) * 1000));
+    }, beatDelayMs(ctx, when));
     const pulseAt = (when) => {
-      const delay = Math.max(0, (when - ctx.currentTime) * 1000);
       window.setTimeout(() => {
         if (cancelled) return;
         setBeat(true);
         window.setTimeout(() => setBeat(false), 80);
-      }, delay);
+      }, beatDelayMs(ctx, when));
     };
     if (clicks > 0) {
       setCounting(true);
@@ -389,7 +389,7 @@ export default function StickControl({ preset = null } = {}) {
         pulseAt(cycleStart + i * q);
       }
       cycleStart += clicks * q;
-      window.setTimeout(() => { if (!cancelled) setCounting(false); }, Math.max(0, (cycleStart - ctx.currentTime) * 1000));
+      window.setTimeout(() => { if (!cancelled) setCounting(false); }, beatDelayMs(ctx, cycleStart));
     }
     if (isCh) repAt(1, cycleStart);
     const finishOk = () => {
@@ -425,7 +425,7 @@ export default function StickControl({ preset = null } = {}) {
             playClick(ctx, when, nt.t % 16 < 0.08);
             pulseAt(when);
           }
-          const delay = Math.max(0, (when - now) * 1000);
+          const delay = beatDelayMs(ctx, when);
           window.setTimeout(() => { if (!cancelled) setPlayT(nt.t); }, delay);
         }
         evIndex += 1;
@@ -440,7 +440,7 @@ export default function StickControl({ preset = null } = {}) {
               // Ende erst melden, wenn der letzte Durchgang zu Ende gespielt ist.
               // Übung 3–24 ist die volle App: dort anhalten und das Freischalten zeigen.
               ended = true;
-              const doneAt = Math.max(0, (cycleStart - ctx.currentTime) * 1000);
+              const doneAt = beatDelayMs(ctx, cycleStart);
               if (nextLocked) window.setTimeout(() => { if (!cancelled) askUnlock(); }, doneAt);
               window.setTimeout(finishOk, doneAt);
               return;
@@ -450,7 +450,7 @@ export default function StickControl({ preset = null } = {}) {
             repsInEx = 0;
             // Anzeige erst wechseln, wenn die neue Übung hörbar beginnt (Scheduler plant ~180 ms voraus).
             const nextId = EXERCISES[exIdx].id;
-            window.setTimeout(() => { if (!cancelled) { setExId(nextId); setPlayT(-1); } }, Math.max(0, (cycleStart - ctx.currentTime) * 1000));
+            window.setTimeout(() => { if (!cancelled) { setExId(nextId); setPlayT(-1); } }, beatDelayMs(ctx, cycleStart));
             repAt(1, cycleStart);
           } else if (isCh) {
             repAt(repsInEx + 1, cycleStart);

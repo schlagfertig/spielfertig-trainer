@@ -4,6 +4,10 @@ Alle für Nutzer sichtbaren Änderungen, nach Datum gruppiert (neueste zuerst).
 Kleine Fix-Commits sind dem jeweiligen Feature zugeordnet; reine Technik (Build-Fixes,
 Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SHA).
 
+## 25.10.2026
+
+- Latenz: Regler 0–200 ms (Schritte 5) auf der Startseite und im Click-Mixer. Der gehörte Click bleibt auf der Audio-Uhr, der weiße Puls und die Zählzeit warten um diesen Offset, damit Bild und Kopfhörer zusammenfallen. Startwert aus `baseLatency` + `outputLatency`, wenn der Browser ihn nennt. Gilt für Click und Metronom in allen Übungen (`src/lib/audioOffset.js`).
+
 ## 18.10.2026
 
 - NoClick (neu, Untermodus im Click-Trainer): X Takte mit Click, Y Takte ohne Click, Beats pro Takt einstellbar (Zahl antippen, Ring ums SpinDial drehen; Tempo solange gesperrt). Beim Üben zwei Balken mit Countdown, Akzent auf der ersten 1 nach der Lücke, Schalter „Blinken auf der 1“, Vorankündigung im letzten Takt einer Phase. Logik `src/lib/noClick.js`, Ansicht `src/lib/NoClick.jsx`, Test `scripts/noClick.test.mjs`. Hilfe mit Easter Egg.

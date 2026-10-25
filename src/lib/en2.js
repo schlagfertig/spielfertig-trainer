@@ -100,4 +100,12 @@ export const EN2 = {
   "{n} Einträge aktualisiert, sonst war schon alles da.": "{n} entries updated, everything else was already there.",
   "Alles schon da - nichts Neues in der Datei.": "All there already - nothing new in the file.",
   "Ersetzt: {list}.": "Replaced: {list}.",
+  // Latenz: Click und Puls für Bluetooth-Kopfhörer
+  "Latenz": "Latency",
+  "5 ms weniger": "5 ms less",
+  "5 ms mehr": "5 ms more",
+  "Latenz in Millisekunden": "Latency in milliseconds",
+  "Schieb, bis der Click mit dem weißen Puls zusammenfällt. Das merkt sich Schlagfertig für jede Übung.": "Move it until the click lines up with the white pulse. Schlagfertig remembers it for every exercise.",
+  "Unter den Übungen schiebst du den Regler, bis der Click mit dem weißen Puls zusammenfällt. Das gilt überall, auch mit Bluetooth-Kopfhörern.": "Under the exercises you move the slider until the click lines up with the white pulse. It applies everywhere, including with Bluetooth headphones.",
+  "Im Click-Mixer ganz unten. Schieb, bis der Click mit dem weißen Puls zusammenfällt. Das gilt in jeder Übung.": "At the bottom of the click mixer. Move it until the click lines up with the white pulse. It applies in every exercise.",
 };

@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { TempoControl } from "../lib/tempo.jsx";
 import { MetronomeDial, Nudge } from "../lib/metronome.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
+import { beatDelayMs } from "../lib/audioOffset.js";
+import { AudioOffsetControl } from "../lib/AudioOffsetControl.jsx";
 import { loadSession, saveSession } from "../lib/session.js";
 import { ClickAdvanced } from "../lib/ClickAdvanced.jsx";
 import { createMixClock, extrasOn, readMix, writeMix } from "../lib/clickMix.js";
@@ -163,12 +165,11 @@ export default function ClickTrainer({ preset = null } = {}) {
     setPlaying(true);
 
     const pulse = (when) => {
-      const delay = Math.max(0, (when - ctx.currentTime) * 1000);
       window.setTimeout(() => {
         if (cancelled) return;
         setBeat(true);
         window.setTimeout(() => setBeat(false), 90);
-      }, delay);
+      }, beatDelayMs(ctx, when));
     };
 
     const schedule = () => {
@@ -352,6 +353,7 @@ export default function ClickTrainer({ preset = null } = {}) {
           <button type="button" className="ct-sheet-x" onClick={() => flip(false)} aria-label={t("Schließen")}>×</button>
         </div>
         <ClickAdvanced mix={mix} setMix={setMix} slidersOnly />
+        <AudioOffsetControl where="sheet" />
       </div>
       </>)}
       <style>{`

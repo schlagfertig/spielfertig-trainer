@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MetronomeDial } from "./metronome.jsx";
 import { playClick, unlockAudio } from "./audio.js";
+import { beatDelayMs } from "./audioOffset.js";
 import { loadSession, saveSession } from "./session.js";
 import { getLang, t } from "./i18n.js";
 import { pickCheer } from "./cheers.js";
@@ -37,7 +38,7 @@ export function runPlan(plan, { onPulse, onLeft, onEnd }) {
   onLeft?.(Math.ceil(endAt - ctx.currentTime));
 
   const pulse = (when, n) => {
-    const delay = Math.max(0, (when - ctx.currentTime) * 1000);
+    const delay = beatDelayMs(ctx, when);
     window.setTimeout(() => { if (!cancelled) onPulse?.(n); }, delay);
   };
 

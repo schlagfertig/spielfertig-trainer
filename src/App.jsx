@@ -31,6 +31,7 @@ import WhatsNew from "./lib/WhatsNew.jsx";
 import { startModal } from "./lib/startModal.js";
 import { APP_VERSION } from "./lib/version.js";
 import { canOpen, isUnlocked, setUnlocked, DEMO_PRICE, unlockCodeOk, PAYWALL_EVENT } from "./lib/demo.js";
+import { AudioOffsetControl } from "./lib/AudioOffsetControl.jsx";
 
 const FLAG_EN = (
   <svg viewBox="0 0 60 30" width="30" height="30" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -412,6 +413,7 @@ export default function App() {
             <div className="card-go">{cta("archive")}</div>
           </button>
         </div>
+        <AudioOffsetControl />
         <footer className="foot">
           <div className="foot-copy">Copyright by Thomas Schuster</div>
           <div className="foot-copy">Version {APP_VERSION}</div>

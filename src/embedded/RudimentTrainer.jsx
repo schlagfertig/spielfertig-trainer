@@ -3,6 +3,7 @@ import { CATS, RUDIMENTS, meterPulse, rudimentDuration } from "../lib/rudiments.
 import { RudimentStaff } from "../lib/staff.jsx";
 import { MetronomeDial, Nudge } from "../lib/metronome.jsx";
 import { playClick, playOrnament, unlockAudio } from "../lib/audio.js";
+import { beatDelayMs } from "../lib/audioOffset.js";
 import { loadSession, saveSession } from "../lib/session.js";
 import { NavScrub } from "../lib/NavScrub.jsx";
 import { askUnlock, isUnlocked, rudimentOpen, FREE_RUDIMENT, FREE_RUDIMENTS } from "../lib/demo.js";
@@ -159,12 +160,12 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
     setInfo(false);
   }
 
-  function pulse(when, ctx) {
-    const delay = Math.max(0, (when - ctx.currentTime) * 1000);
+  function pulse(when, ctx, stillOn) {
     window.setTimeout(() => {
+      if (stillOn && !stillOn()) return;
       setBeat(true);
       window.setTimeout(() => setBeat(false), 80);
-    }, delay);
+    }, beatDelayMs(ctx, when));
   }
 
   function startLoop() {
@@ -229,9 +230,9 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
         if (when >= now - 0.02) {
           if (ev.kind === "click") playClick(ctx, when, ev.down);
           else playOrnament(ctx, ev.nt, when, ev.kind === "stick" ? "stick" : "snare", stepSec());
-          const delay = Math.max(0, (when - now) * 1000);
+          const delay = beatDelayMs(ctx, when);
           window.setTimeout(() => { if (!cancelled) setPlayT(ev.t); }, delay);
-          if (ev.kind === "click" || Math.abs((ev.t || 0) % meter.pulse) < 0.08) pulse(when, ctx);
+          if (ev.kind === "click" || Math.abs((ev.t || 0) % meter.pulse) < 0.08) pulse(when, ctx, () => !cancelled);
         }
         evIndex += 1;
         if (evIndex >= listEv.length) {

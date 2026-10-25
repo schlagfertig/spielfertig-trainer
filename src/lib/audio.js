@@ -1,10 +1,19 @@
+import { beatDelayMs, seedAudioOffset } from "./audioOffset.js";
+
 let ctx;
 let noiseBuf;
 
 export function unlockAudio() {
   const c = getCtx();
   // iOS meldet nach dem Mikrofon-Start auch "interrupted".
-  if (c.state === "suspended" || c.state === "interrupted") c.resume()?.catch?.(() => {});
+  const needsResume = c.state === "suspended" || c.state === "interrupted";
+  if (needsResume) {
+    const pending = c.resume?.();
+    if (pending && typeof pending.then === "function") pending.then(() => seedAudioOffset(c)).catch(() => {});
+    else seedAudioOffset(c);
+  } else {
+    seedAudioOffset(c);
+  }
   warmNoise(c);
   return c;
 }
@@ -280,7 +289,7 @@ export function startCountIn({ ctx, bpm, beats = 4, onBeat, onDone }) {
   const timers = [];
   for (let i = 0; i < beats; i++) {
     playClick(ctx, t0 + i * beatSec, i === 0);
-    timers.push(window.setTimeout(() => { if (!cancelled) onBeat?.(i); }, Math.max(0, (t0 + i * beatSec - ctx.currentTime) * 1000)));
+    timers.push(window.setTimeout(() => { if (!cancelled) onBeat?.(i); }, beatDelayMs(ctx, t0 + i * beatSec)));
   }
   timers.push(window.setTimeout(() => { if (!cancelled) onDone?.(); }, Math.max(0, (t0 + beats * beatSec - ctx.currentTime) * 1000)));
   return () => {
