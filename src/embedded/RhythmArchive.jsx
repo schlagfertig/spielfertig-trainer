@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MetronomeDial, Nudge } from "../lib/metronome.jsx";
 import { playClick, playKit, unlockAudio } from "../lib/audio.js";
+import { beatDelayMs } from "../lib/audioOffset.js";
 import { loadSession, saveSession } from "../lib/session.js";
 import { t } from "../lib/i18n.js";
 import { PracticeClip } from "../lib/PracticeClip.jsx";
@@ -331,7 +332,7 @@ export default function RhythmArchive() {
             setBeat(true);
             window.setTimeout(() => setBeat(false), 70);
           }
-        }, Math.max(0, (when - ctx.currentTime) * 1000));
+        }, beatDelayMs(ctx, when));
         next += q();
         step += 1;
       }

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { GrooveStaff } from "../lib/staff.jsx";
 import { TempoControl } from "../lib/tempo.jsx";
 import { playKit, playMetronome, startCountIn, unlockAudio } from "../lib/audio.js";
+import { getAudioOffsetMs } from "../lib/audioOffset.js";
 import { deliverPng, printElement, svgToPng } from "../lib/print.js";
 
 const DIM = "#8a969c";
@@ -150,7 +151,7 @@ export default function DrumEditor({ handwritten, printNonce }) {
       ev.forEach((e) => playKit(ctx, e.voice, t0 + e.t * (stepMs / 1000)));
       for (let s = 0; s < steps; s++) {
         if (s % subdiv === 0) playMetronome(ctx, s === 0, t0 + s * (stepMs / 1000));
-        window.setTimeout(() => { if (!cancelled) setPlayT(s); }, 60 + s * stepMs);
+        window.setTimeout(() => { if (!cancelled) setPlayT(s); }, 60 + s * stepMs + getAudioOffsetMs());
       }
       const loop = window.setTimeout(() => { if (!cancelled) run(); }, 60 + steps * stepMs);
       stopRef.current = () => { cancelled = true; window.clearTimeout(loop); };

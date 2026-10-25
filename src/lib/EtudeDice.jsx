@@ -2,6 +2,7 @@ import { useLayoutEffect, useEffect, useRef, useState } from "react";
 import { RudimentStaff } from "./staff.jsx";
 import { MetronomeDial, Nudge } from "./metronome.jsx";
 import { playClick, playOrnament, unlockAudio } from "./audio.js";
+import { beatDelayMs } from "./audioOffset.js";
 import { loadSession, saveSession } from "./session.js";
 import { t } from "./i18n.js";
 import { BPM, BPM_MAX, BPM_MIN, LENGTHS, LEVELS, METERS, barOf, etudeEvents, rerollBar, rollEtude } from "./etudeDice.js";
@@ -172,7 +173,7 @@ export default function EtudeDice() {
       while (!cancelled && when < horizon) {
         const e = ev[i];
         const step = stepSec();
-        const d = Math.max(0, (when - now) * 1000);
+        const d = beatDelayMs(ctx, when);
         if (e.kind === "click") {
           playClick(ctx, when, e.down);
           window.setTimeout(() => { if (cancelled) return; setBeat(true); window.setTimeout(() => setBeat(false), 80); }, d);

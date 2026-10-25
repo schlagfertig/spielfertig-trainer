@@ -10,6 +10,7 @@ export const HELP = {
     ["Noten", "Eigene Fotos/PDFs, nur auf diesem Gerät. Antippen = Vorschau, ‚Auswählen‘ = Vollbild mit Zoom."],
     ["Eigene Grooves", "Eigenen Groove bauen und üben. Eintippen nur quer, hochkant siehst du den Rhythmus."],
     ["SpinDial", "Tippen = Start/Stop. Halten + drehen = Tempo."],
+    ["Latenz", "Unter den Übungen schiebst du den Regler, bis der Click mit dem weißen Puls zusammenfällt. Das gilt überall, auch mit Bluetooth-Kopfhörern."],
   ],
   rudiments: [
     ["Metronom unten", "Tippen = Start/Stop. Halten + drehen: rechtsrum schneller."],
@@ -23,6 +24,7 @@ export const HELP = {
     ["SpinDial", "Tippen = Start/Stop. Am Ring drehen: rechtsrum schneller."],
     ["Tasten", "−5/+5 und −10/+10 neben dem SpinDial springen in Schritten."],
     ["Erweitert", "‚Erweitert‘ unter dem SpinDial öffnet den Click-Mixer von unten. Mixer für Viertel, Offbeat, 16tel, Triolen, Beat und Master. Der Click läuft dabei weiter."],
+    ["Latenz", "Im Click-Mixer ganz unten. Schieb, bis der Click mit dem weißen Puls zusammenfällt. Das gilt in jeder Übung."],
     ["Modi", "Tempo halten oder steigern (alle X Sekunden +Y BPM)."],
     ["Clip", "Zeig, was du draufhast! Tipp auf ‚Clip‘, richte die Kamera auf deine Hände und dein Pad und starte mit ‚Aufnahme‘. ‚Drehen‘ wechselt zwischen Front- und Rückkamera. Oben im Video stehen Logo und Noten auf einer Glas-Kachel, darunter siehst du dich spielen - Click und Drums sind zusammen im Ton. Mit ‚Teilen‘ schickst du dein Video direkt an Freunde oder auf Social Media; bis dahin bleibt es nur auf deinem Gerät. Tipp: Mit Kopfhörern hörst du den Click am besten."],
     ["NoClick", "Click an, Click aus, du hältst das Tempo. Stell oben ein, wie viele Takte mit Click und ohne Click laufen und wie viele Beats ein Takt hat: Zahl antippen, am Ring drehen. Solange der Ring offen ist, ist das Tempo gesperrt."],

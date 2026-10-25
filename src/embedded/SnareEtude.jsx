@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MetronomeDial } from "../lib/metronome.jsx";
 import { playClick, playSnare, unlockAudio } from "../lib/audio.js";
+import { beatDelayMs } from "../lib/audioOffset.js";
 import { loadSession, saveSession } from "../lib/session.js";
 import { t } from "../lib/i18n.js";
 
@@ -85,7 +86,7 @@ export default function SnareEtude() {
         if (flat[i]) playSnare(ctx, next, down);
         const when = next;
         const at = i;
-        window.setTimeout(() => { if (!cancelled) setStep(at); }, Math.max(0, (when - ctx.currentTime) * 1000));
+        window.setTimeout(() => { if (!cancelled) setStep(at); }, beatDelayMs(ctx, when));
         next += (60 / bpm) * stepBeats;
         n += 1;
       }

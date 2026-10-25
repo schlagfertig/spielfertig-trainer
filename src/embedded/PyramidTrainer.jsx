@@ -3,6 +3,7 @@ import { MetronomeDial, Nudge } from "../lib/metronome.jsx";
 import { RudimentStaff } from "../lib/staff.jsx";
 import { BeatGlyph } from "../lib/BeatGlyph.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
+import { beatDelayMs } from "../lib/audioOffset.js";
 import { t } from "../lib/i18n.js";
 import { usePracticeTrack } from "../lib/PracticeDiary.jsx";
 import { askUnlock, pyramidStageOpen } from "../lib/demo.js";
@@ -199,13 +200,12 @@ export default function PyramidTrainer({ preset = null } = {}) {
     setPlayT(-1);
 
     const pulse = (when) => {
-      const delay = Math.max(0, (when - ctx.currentTime) * 1000);
       window.setTimeout(() => {
         if (!cancelled) {
           setBeat(true);
           window.setTimeout(() => setBeat(false), 80);
         }
-      }, delay);
+      }, beatDelayMs(ctx, when));
     };
 
     const q = 60 / Math.max(30, bpmRef.current);
@@ -214,10 +214,10 @@ export default function PyramidTrainer({ preset = null } = {}) {
       const when = next + i * q;
       playClick(ctx, when, i === 0);
       pulse(when);
-      window.setTimeout(() => { if (!cancelled) setCountN(i + 1); }, Math.max(0, (when - ctx.currentTime) * 1000));
+      window.setTimeout(() => { if (!cancelled) setCountN(i + 1); }, beatDelayMs(ctx, when));
     }
     next += 4 * q;
-    window.setTimeout(() => { if (!cancelled) { setCounting(false); setCountN(0); } }, Math.max(0, (next - ctx.currentTime) * 1000));
+    window.setTimeout(() => { if (!cancelled) { setCounting(false); setCountN(0); } }, beatDelayMs(ctx, next));
 
     const finish = () => {
       if (cancelled) return;
@@ -251,7 +251,7 @@ export default function PyramidTrainer({ preset = null } = {}) {
         const down = sub % curPer === 0;
         playClick(ctx, next, down);
         const t16 = (sub % (curPer * 4)) * (4 / curPer);
-        const delay = Math.max(0, (next - ctx.currentTime) * 1000);
+        const delay = beatDelayMs(ctx, next);
         window.setTimeout(() => { if (!cancelled) setPlayT(t16); }, delay);
         if (down) pulse(next);
         // Letzter Takt dieser Stufe (und es folgt noch eine): zu Beginn jedes Schlags die schon
@@ -264,7 +264,7 @@ export default function PyramidTrainer({ preset = null } = {}) {
         sub += 1;
         if (sub % (curPer * 4) === 0) {
           barsDone += 1;
-          const barDelay = Math.max(0, (next - ctx.currentTime) * 1000);
+          const barDelay = beatDelayMs(ctx, next);
           if (barsDone >= holdBars) {
             if (si + 1 >= run.length) {
               ended = true;

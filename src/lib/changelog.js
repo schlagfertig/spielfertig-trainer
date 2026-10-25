@@ -5,6 +5,13 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-10-25",
+    items: [
+      { de: "Latenz: auf der Startseite und im Click-Mixer schiebst du den Regler, bis der Click mit dem weißen Puls zusammenfällt. Das hilft vor allem mit Bluetooth-Kopfhörern und gilt in jeder Übung.",
+        en: "Latency: on Home and in the click mixer, move the slider until the click lines up with the white pulse. It helps most with Bluetooth headphones and applies in every exercise." },
+    ],
+  },
+  {
     date: "2026-10-19",
     items: [
       { de: "Neu für alle: dein Journal! Auf der Startseite findest du jetzt Tagebuch, Hausaufgaben und Karteikasten unter einer Kachel. Tipp in einer Übung oben auf ‚Zu Hausaufgaben‘ - die App merkt sich die Übung mit deinen Einstellungen, und du legst später mit einem Tipp direkt los. Im Karteikasten sammelst du Rudiments, die du besser können willst. Dein Übe-Tagebuch ist mit allen Einträgen dabei. Schau rein!",

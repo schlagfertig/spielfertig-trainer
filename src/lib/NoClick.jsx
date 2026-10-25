@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { MetronomeDial, Nudge } from "./metronome.jsx";
 import { playClick, playClickLayer, unlockAudio } from "./audio.js";
+import { beatDelayMs, visualAudioNow } from "./audioOffset.js";
 import { loadSession, saveSession } from "./session.js";
 import { t } from "./i18n.js";
 import { usePracticeTrack } from "./PracticeDiary.jsx";
@@ -269,7 +270,7 @@ export default function NoClick({ dialSize = 140 }) {
         if (cancelled) return;
         setBeat(true);
         window.setTimeout(() => setBeat(false), 90);
-      }, Math.max(0, (when - ctx.currentTime) * 1000));
+      }, beatDelayMs(ctx, when));
     };
     const schedule = () => {
       if (cancelled) return;
@@ -314,7 +315,7 @@ export default function NoClick({ dialSize = 140 }) {
     const set = { ...cfgRef.current };
     const frame = () => {
       const ctx = ctxRef.current;
-      const now = ctx ? ctx.currentTime : 0;
+      const now = visualAudioNow(ctx);
       if (now < countEnd.current) {
         // Einzählen: große Zahl folgt der Audio-Uhr, Balken kommen erst danach
         const cl = countLine.current;
