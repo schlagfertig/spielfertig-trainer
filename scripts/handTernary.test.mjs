@@ -25,6 +25,16 @@ test("Hand Control ternär: genau ein 4/4-Takt = 12 Triolen-Achtel", () => {
   }
 });
 
+test("Hand Control: Klang Click oder Tom / Snare über playStick", () => {
+  assert.match(SRC, /playStick\(ctx, nt\.hand, when, !!nt\.acc\)/);
+  assert.match(SRC, /hearRef\.current === "hands"/);
+  assert.match(SRC, /t\("Tom \/ Snare"\)/);
+  assert.match(SRC, /t\("Click"\)/);
+  assert.match(SRC, /saveSession\("stickHear"/);
+  // sf.v1.stick löscht die App beim Start (alter Fokus-Schalter) - den Klang woanders merken
+  assert.doesNotMatch(SRC, /(?:load|save)Session\("stick"/);
+});
+
 test("Hand Control: Start verwendet is3 erst nach der Deklaration", () => {
   const body = SRC.slice(SRC.indexOf("function start()"));
   const decl = body.indexOf("const is3 =");

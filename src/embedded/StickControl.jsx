@@ -1,9 +1,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { MetronomeDial, Nudge } from "../lib/metronome.jsx";
-import { playClick, playClickLayer, unlockAudio } from "../lib/audio.js";
+import { playClick, playClickLayer, playStick, unlockAudio } from "../lib/audio.js";
 import { beatDelayMs } from "../lib/audioOffset.js";
 import { NavScrub } from "../lib/NavScrub.jsx";
 import { t } from "../lib/i18n.js";
+import { loadSession, saveSession } from "../lib/session.js";
 import { TERNARY_ENABLED, TRI_LEN, triHands, triNotes } from "../lib/handTernary.js";
 import { usePracticeTrack } from "../lib/PracticeDiary.jsx";
 import { askUnlock, stickOpen } from "../lib/demo.js";
@@ -21,6 +22,13 @@ const INNER = 13;
 const GAP = 20;
 const LINE_L = 30;
 const Q_PER_BAR = 4;
+// Klang wie in den Rudiments: Click, oder Tom / Snare (rechts Floortom, links Snare) über playStick.
+// Eigener Session-Key: sf.v1.stick wird beim Start absichtlich gelöscht (alter Fokus-Schalter).
+const HEAR_OK = ["click", "hands"];
+function readHear() {
+  const saved = loadSession("stickHear", {}).hear;
+  return HEAR_OK.includes(saved) ? saved : "click";
+}
 
 const n = (t, dur, hand, extra = {}) => ({ t, dur, hand, acc: false, ...extra });
 const run8ths = (hands) =>
@@ -254,6 +262,7 @@ export default function StickControl({ preset = null } = {}) {
   const ternary = TERNARY_ENABLED && ternaryPick;
   const [reps, setReps] = useState(4);
   const [countBars, setCountBars] = useState(1);
+  const [hear, setHear] = useState(readHear);
   const [playing, setPlaying] = useState(false);
   const [counting, setCounting] = useState(false);
   const [beat, setBeat] = useState(false);
@@ -268,6 +277,9 @@ export default function StickControl({ preset = null } = {}) {
   bpmRef.current = bpm;
   const ternaryRef = useRef(false);
   ternaryRef.current = ternary;
+  const hearRef = useRef(hear);
+  hearRef.current = hear;
+  useEffect(() => { saveSession("stickHear", { hear }); }, [hear]);
   const idx = Math.max(0, EXERCISES.findIndex((e) => e.id === exId));
   const ex = EXERCISES[idx] || EXERCISES[0];
   usePracticeTrack({ ex: "stick", item: ex.id, playing, bpm });
@@ -414,15 +426,18 @@ export default function StickControl({ preset = null } = {}) {
         const when = cycleStart + nt.t * stepSec();
         if (when >= horizon) break;
         if (when >= now - 0.02) {
+          // Tom / Snare: jeder Buchstabe, derselbe Klang wie Rudiments (R Floortom, L Snare). Click bleibt der andere Klang.
+          const handsOn = hearRef.current === "hands";
+          if (handsOn && (nt.hand === "R" || nt.hand === "L")) playStick(ctx, nt.hand, when, !!nt.acc);
           if (is3) {
             if (nt.t % 3 === 0) {
-              playClick(ctx, when, nt.t % 12 === 0);
+              if (!handsOn) playClick(ctx, when, nt.t % 12 === 0);
               pulseAt(when);
-            } else {
+            } else if (!handsOn) {
               playClickLayer(ctx, when, "triplet", 0.7);
             }
           } else if (nt.t % 4 < 0.08) {
-            playClick(ctx, when, nt.t % 16 < 0.08);
+            if (!handsOn) playClick(ctx, when, nt.t % 16 < 0.08);
             pulseAt(when);
           }
           const delay = beatDelayMs(ctx, when);
@@ -468,7 +483,7 @@ export default function StickControl({ preset = null } = {}) {
       <style>{`
         .stick-wrap {
           --rud-foot: calc(84px + env(safe-area-inset-bottom, 0px));
-          --rud-dock: 220px;
+          --rud-dock: 272px;
         }
         body:has(.stick-wrap), #root:has(.stick-wrap), .page:has(.stick-wrap) { overflow-x: clip; }
         /* Kopfzeile ist hier angeheftet - in der Home-Bildschirm-App unterhalb der Statusleiste (im Browser 0) */
@@ -623,6 +638,9 @@ export default function StickControl({ preset = null } = {}) {
           .stick-next-body, .stick-next-end { animation: stickNextIn .28s ease-out; }
           @keyframes stickNextIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 0.9; transform: none; } }
         }
+        .stick-count { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 10px; }
+        .stick-hear, .stick-countin { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .stick-hear-label, .stick-countin-label { color: ${DIM}; font-weight: 700; font-size: 14px; }
         /* Querformat (Paket C): aufgeräumt in zwei Spalten - links Modus, aktuelle Übung und Vorschau,
            rechts Tempo (Rad mit ±5/±10) und Einzählen. Kopf in einer Zeile, nichts liegt übereinander. */
         @media (orientation: landscape) {
@@ -693,7 +711,7 @@ export default function StickControl({ preset = null } = {}) {
           .page.tool .stick-wrap .rud-metro .dial-row .nudge-lg { width: 42px; height: 42px; font-size: 16px; }
           .page.tool .stick-wrap .rud-metro .dial-row .nudge-lg.nudge-10 { width: 38px; height: 38px; font-size: 14px; }
           .page.tool .stick-wrap .metro-face .seg { display: inline-flex; }
-          .page.tool .stick-wrap .stick-count { margin-top: 20px !important; }
+          .page.tool .stick-wrap .stick-count { margin-top: 8px !important; gap: 6px; }
           .stick-wrap .rud-half {
             min-height: 44px;
             padding: 4px 12px calc(4px + env(safe-area-inset-bottom, 0px));
@@ -792,12 +810,21 @@ export default function StickControl({ preset = null } = {}) {
               <Nudge by={5} bpm={bpm} set={setBpm} min={30} max={200} />
               <Nudge by={10} bpm={bpm} set={setBpm} min={30} max={200} />
             </div>
-            <div className="stick-count" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-              <span style={{ color: DIM, fontWeight: 700, fontSize: 14 }}>{t("Einzählen")}</span>
-              <div className="seg" style={{ width: "fit-content" }}>
-                <button type="button" className={countBars === 0 ? "on" : ""} onClick={() => setCountBars(0)}>{t("Aus")}</button>
-                <button type="button" className={countBars === 1 ? "on" : ""} onClick={() => setCountBars(1)}>{t("1 Takt")}</button>
-                <button type="button" className={countBars === 2 ? "on" : ""} onClick={() => setCountBars(2)}>{t("2 Takte")}</button>
+            <div className="stick-count">
+              <div className="stick-hear">
+                <span className="stick-hear-label">{t("Klang")}</span>
+                <div className="seg" style={{ width: "fit-content" }} role="group" aria-label={t("Klang")}>
+                  <button type="button" className={hear === "click" ? "on" : ""} onClick={() => setHear("click")}>{t("Click")}</button>
+                  <button type="button" className={hear === "hands" ? "on" : ""} onClick={() => setHear("hands")} title={t("rechts Floortom, links 14er Snare")}>{t("Tom / Snare")}</button>
+                </div>
+              </div>
+              <div className="stick-countin">
+                <span className="stick-countin-label">{t("Einzählen")}</span>
+                <div className="seg" style={{ width: "fit-content" }}>
+                  <button type="button" className={countBars === 0 ? "on" : ""} onClick={() => setCountBars(0)}>{t("Aus")}</button>
+                  <button type="button" className={countBars === 1 ? "on" : ""} onClick={() => setCountBars(1)}>{t("1 Takt")}</button>
+                  <button type="button" className={countBars === 2 ? "on" : ""} onClick={() => setCountBars(2)}>{t("2 Takte")}</button>
+                </div>
               </div>
             </div>
           </div>

@@ -108,4 +108,6 @@ export const EN2 = {
   "Schieb, bis der Click mit dem weißen Puls zusammenfällt. Das merkt sich Schlagfertig für jede Übung.": "Move it until the click lines up with the white pulse. Schlagfertig remembers it for every exercise.",
   "Unter den Übungen schiebst du den Regler, bis der Click mit dem weißen Puls zusammenfällt. Das gilt überall, auch mit Bluetooth-Kopfhörern.": "Under the exercises you move the slider until the click lines up with the white pulse. It applies everywhere, including with Bluetooth headphones.",
   "Im Click-Mixer ganz unten. Schieb, bis der Click mit dem weißen Puls zusammenfällt. Das gilt in jeder Übung.": "At the bottom of the click mixer. Move it until the click lines up with the white pulse. It applies in every exercise.",
+  // Hand Control: Tom / Snare
+  "Unter dem Tempo-Rad, beim Einzählen: Click oder Tom / Snare. Bei Tom / Snare hörst du rechts den Floortom und links die Snare - derselbe Klang wie in den Rudiments.": "Under the tempo dial, by the count-in: click or tom / snare. With tom / snare you hear a floor tom on the right and a snare on the left - the same sound as in Rudiments.",
 };

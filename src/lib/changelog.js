@@ -5,6 +5,13 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-10-26",
+    items: [
+      { de: "Hand Control: neuer Klang „Tom / Snare“. Rechts hörst du den Floortom, links die Snare - derselbe Klang wie bei den Rudiments. Du stellst ihn unter dem Tempo-Rad ein, direkt beim Einzählen. Der Click bleibt der andere Klang.",
+        en: "Hand Control: new sound “Tom / snare”. You hear a floor tom on the right and a snare on the left - the same sound as in Rudiments. You set it under the tempo dial, right by the count-in. Click stays as the other sound." },
+    ],
+  },
+  {
     date: "2026-10-25",
     items: [
       { de: "Latenz: auf der Startseite und im Click-Mixer schiebst du den Regler, bis der Click mit dem weißen Puls zusammenfällt. Das hilft vor allem mit Bluetooth-Kopfhörern und gilt in jeder Übung.",
