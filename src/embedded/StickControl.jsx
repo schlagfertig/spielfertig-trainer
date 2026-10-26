@@ -8,6 +8,7 @@ import { loadSession, saveSession } from "../lib/session.js";
 import { TERNARY_ENABLED, TRI_LEN, triHands, triNotes } from "../lib/handTernary.js";
 import { usePracticeTrack } from "../lib/PracticeDiary.jsx";
 import { askUnlock, stickOpen } from "../lib/demo.js";
+import { formatDuration, fokusRun, quartersPerRep, remainingSec, secPerQuarter } from "../lib/stickDuration.js";
 
 const DIM = "#8a969c";
 const TEAL = "#5cc8b8";
@@ -233,6 +234,15 @@ function ListRow({ row, onPick, playing, label, near, className, ternary }) {
   );
 }
 
+function runHint(run) {
+  const range = run.from === run.to
+    ? t("Nr. {n} · {reps}×", { n: run.from, reps: run.reps })
+    : t("Nr. {from}–{to} · {n}× je Übung", { from: run.from, to: run.to, n: run.reps });
+  if (run.countBars === 1) return `${range} · ${t("plus 1 Takt Einzählen")}`;
+  if (run.countBars >= 2) return `${range} · ${t("plus 2 Takte Einzählen")}`;
+  return range;
+}
+
 function useMq(q) {
   const [m, setM] = useState(() => !!window.matchMedia?.(q).matches);
   useEffect(() => {
@@ -269,7 +279,10 @@ export default function StickControl({ preset = null } = {}) {
   const [playT, setPlayT] = useState(-1);
   const [done, setDone] = useState("");
   const [repNow, setRepNow] = useState(0); // Fokus-Mode: laufende Wiederholung der aktuellen Übung (1…reps), 0 = aus
+  const [leftSec, setLeftSec] = useState(null); // Fokus: gerundete Restsekunden, null = steht
   const stopRef = useRef(null);
+  const clockRef = useRef(null); // Scheduler-Stand für die Restzeit (Audio-Uhr)
+  const planRef = useRef(null); // Zahlen der Übersicht, eingefroren solange der Lauf läuft
   const pinRef = useRef(null);
   const prevRef = useRef(null);
   const wrapRef = useRef(null);
@@ -289,6 +302,22 @@ export default function StickControl({ preset = null } = {}) {
   const later = EXERCISES.slice(idx + 2);
   const challenge = mode === "challenge";
   const lastRep = challenge && playing && repNow > 0 && repNow >= reps;
+  const run = fokusRun({
+    startId: ex.id,
+    total: EXERCISES.length,
+    isOpen: (id) => stickOpen(id),
+    reps,
+    countBars,
+    bpm,
+    ternary,
+  });
+  // Während des Laufs die Erklärung von vor dem Start behalten (Nr. 1–24 bleibt 1–24, auch wenn die Anzeige weiterblättert).
+  if (!(playing && challenge)) {
+    planRef.current = { from: run.from, to: run.to, reps: run.reps, countBars: run.countBars };
+  }
+  const shownSec = playing && challenge && leftSec != null ? leftSec : run.totalSec;
+  const durFmt = formatDuration(shownSec);
+  const durHint = runHint(playing && challenge && planRef.current ? planRef.current : run);
 
   useEffect(() => () => stopRef.current?.(), []);
   // Während der Click läuft: Liste fest (kein Wischen/Scrollen); Auto-Weiter scrollt weiter per scrollTo.
@@ -335,6 +364,27 @@ export default function StickControl({ preset = null } = {}) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => { window.removeEventListener("scroll", onScroll); window.clearTimeout(t); };
   }, []);
+  // Restzeit an der Audio-Uhr, nicht an einem runterzählenden Timer (der auf dem iPhone im Hintergrund stehen bleibt).
+  useEffect(() => {
+    if (!playing || mode !== "challenge") return undefined;
+    const tick = () => {
+      const c = clockRef.current;
+      if (!c) return;
+      const repSec = quartersPerRep(c.ternary) * secPerQuarter(bpmRef.current);
+      const left = remainingSec({
+        cycleStart: c.cycleStart,
+        now: c.ctx.currentTime,
+        cyclesDone: c.cyclesDone,
+        cyclesTotal: c.cyclesTotal,
+        repSec,
+      });
+      const whole = Math.max(0, Math.round(left));
+      setLeftSec((prev) => (prev === whole ? prev : whole));
+    };
+    tick();
+    const id = window.setInterval(tick, 200);
+    return () => window.clearInterval(id);
+  }, [playing, mode]);
 
   function pick(id) {
     if (playing) return;
@@ -345,11 +395,13 @@ export default function StickControl({ preset = null } = {}) {
   function stop() {
     stopRef.current?.();
     stopRef.current = null;
+    clockRef.current = null;
     setPlaying(false);
     setCounting(false);
     setBeat(false);
     setPlayT(-1);
     setRepNow(0);
+    setLeftSec(null);
   }
 
   function start() {
@@ -377,6 +429,28 @@ export default function StickControl({ preset = null } = {}) {
       return is3 ? q / 3 : q / 4;
     };
     let cycleStart = ctx.currentTime + 0.03;
+    const startIdx = exIdx;
+    // Dieselbe Rechnung wie die Übersicht: Wiederholungen × offene Nummern ab hier, Einzählen einmal.
+    const plan = isCh
+      ? fokusRun({
+        startId: EXERCISES[startIdx].id,
+        total: EXERCISES.length,
+        isOpen: (id) => stickOpen(id),
+        reps: per,
+        countBars: barsIn,
+        bpm: bpmRef.current,
+        ternary: is3,
+      })
+      : null;
+    const clock = plan && plan.exercises > 0
+      ? { ctx, cycleStart, cyclesDone: 0, cyclesTotal: plan.exercises * plan.reps, ternary: is3 }
+      : null;
+    clockRef.current = clock;
+    const publish = () => {
+      if (!clock) return;
+      clock.cycleStart = cycleStart;
+      clock.cyclesDone = (exIdx - startIdx) * per + repsInEx;
+    };
     setPlaying(true);
     // Zähler erst umschalten, wenn die Wiederholung hörbar beginnt.
     const repAt = (n, when) => window.setTimeout(() => {
@@ -403,17 +477,20 @@ export default function StickControl({ preset = null } = {}) {
       cycleStart += clicks * q;
       window.setTimeout(() => { if (!cancelled) setCounting(false); }, beatDelayMs(ctx, cycleStart));
     }
+    publish();
     if (isCh) repAt(1, cycleStart);
     const finishOk = () => {
       if (cancelled) return;
       cancelled = true;
       window.clearTimeout(timer);
       stopRef.current = null;
+      clockRef.current = null;
       setPlaying(false);
       setCounting(false);
       setBeat(false);
       setPlayT(-1);
       setRepNow(0);
+      setLeftSec(null);
       setDone(isCh ? String(startId) : "");
     };
     const schedule = () => {
@@ -455,6 +532,7 @@ export default function StickControl({ preset = null } = {}) {
               // Ende erst melden, wenn der letzte Durchgang zu Ende gespielt ist.
               // Übung 3–24 ist die volle App: dort anhalten und das Freischalten zeigen.
               ended = true;
+              publish();
               const doneAt = beatDelayMs(ctx, cycleStart);
               if (nextLocked) window.setTimeout(() => { if (!cancelled) askUnlock(); }, doneAt);
               window.setTimeout(finishOk, doneAt);
@@ -470,8 +548,10 @@ export default function StickControl({ preset = null } = {}) {
           } else if (isCh) {
             repAt(repsInEx + 1, cycleStart);
           }
+          publish();
         }
       }
+      publish();
       timer = window.setTimeout(schedule, 25);
     };
     schedule();
@@ -638,6 +718,21 @@ export default function StickControl({ preset = null } = {}) {
           .stick-next-body, .stick-next-end { animation: stickNextIn .28s ease-out; }
           @keyframes stickNextIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 0.9; transform: none; } }
         }
+        /* Fokus: wie lange der Lauf dauert, bzw. was noch übrig ist. Türkis auf Anthrazit.
+           Schriftgröße bleibt beim Start gleich, die Zeile darunter auch - die Übung springt nicht. */
+        .stick-dur {
+          margin: 0 2px 8px;
+          padding: 8px 12px 7px;
+          background: #14191c;
+          border: 1px solid rgba(92,200,184,.45);
+          border-radius: 12px;
+        }
+        .stick-dur-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+        .stick-dur-lab { color: #c5d0d2; font: 700 15px/1.2 Figtree, sans-serif; min-width: 0; }
+        .stick-dur-val { display: inline-flex; align-items: baseline; gap: 6px; flex: 0 0 auto; }
+        .stick-dur-time { color: ${TEAL}; font: 700 34px/1 Oswald, sans-serif; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+        .stick-dur-unit { color: ${DIM}; font: 700 12px/1 Figtree, sans-serif; letter-spacing: 0.04em; }
+        .stick-dur-sub { margin: 3px 0 0; color: ${DIM}; font: 600 13px/1.35 Figtree, sans-serif; }
         .stick-count { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 10px; }
         .stick-hear, .stick-countin { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
         .stick-hear-label, .stick-countin-label { color: ${DIM}; font-weight: 700; font-size: 14px; }
@@ -672,6 +767,8 @@ export default function StickControl({ preset = null } = {}) {
             background: transparent;
           }
           .stick-tools { flex: 0 0 auto; margin: 0 0 8px !important; }
+          .stick-dur { flex: 0 0 auto; margin: 0 0 6px; padding: 5px 10px 4px; }
+          .stick-dur-time { font-size: 26px; }
           .stick-now { flex: 0 0 auto; margin: 0 2px 4px; }
           .page.tool .stick-wrap .stick-card {
             flex: 0 1 auto;
@@ -725,6 +822,11 @@ export default function StickControl({ preset = null } = {}) {
           /* Tablet quer: Wiederholungs-Zähler oben im Tempo-Bereich statt über dem Dock */
           .page.tool .stick-wrap .stick-reps { position: static; margin-bottom: 10px; }
         }
+        @media (orientation: landscape) and (max-height: 560px) {
+          .stick-dur { padding: 4px 8px; }
+          .stick-dur-sub { display: none; }
+          .stick-dur-time, .stick-dur.run .stick-dur-time { font-size: 22px; }
+        }
       `}</style>
       <div className="stick-list" ref={prevRef}>
         {previous.map((row, i) => {
@@ -752,6 +854,18 @@ export default function StickControl({ preset = null } = {}) {
             </span>
           ) : null}
         </div>
+        {challenge && run.exercises > 0 ? (
+          <div className={playing ? "stick-dur run" : "stick-dur"} role="timer">
+            <div className="stick-dur-row">
+              <span className="stick-dur-lab">{playing ? t("noch") : t("du brauchst etwa")}</span>
+              <span className="stick-dur-val">
+                <span className="stick-dur-time">{durFmt.clock}</span>
+                <span className="stick-dur-unit">{durFmt.unit === "s" ? t(durFmt.clock === "1" ? "Sekunde" : "Sekunden") : t("Min")}</span>
+              </span>
+            </div>
+            <p className="stick-dur-sub">{durHint}</p>
+          </div>
+        ) : null}
         <div className="stick-now">
           <span className="stick-now-kick">{t("Jetzt")}<span className="stick-now-pos">{`${ex.id}/${EXERCISES.length}`}</span></span>
           {counting ? <span className="stick-now-count">COUNT-IN</span> : null}

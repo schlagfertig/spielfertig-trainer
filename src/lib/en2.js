@@ -110,4 +110,13 @@ export const EN2 = {
   "Im Click-Mixer ganz unten. Schieb, bis der Click mit dem weißen Puls zusammenfällt. Das gilt in jeder Übung.": "At the bottom of the click mixer. Move it until the click lines up with the white pulse. It applies in every exercise.",
   // Hand Control: Tom / Snare
   "Unter dem Tempo-Rad, beim Einzählen: Click oder Tom / Snare. Bei Tom / Snare hörst du rechts den Floortom und links die Snare - derselbe Klang wie in den Rudiments.": "Under the tempo dial, by the count-in: click or tom / snare. With tom / snare you hear a floor tom on the right and a snare on the left - the same sound as in Rudiments.",
+  // Hand Control, Fokus: Dauer und Countdown
+  "du brauchst etwa": "You'll need about",
+  "noch": "Time left",
+  "Sekunde": "second",
+  "Nr. {n} · {reps}×": "No. {n} · {reps}×",
+  "Nr. {from}–{to} · {n}× je Übung": "No. {from}–{to} · {n}× each",
+  "plus 1 Takt Einzählen": "plus a 1-bar count-in",
+  "plus 2 Takte Einzählen": "plus a 2-bar count-in",
+  "1-24 durchspielen. Wiederholungen = komplette Übung (beide Takte). Einzählen nur am Start, nicht zwischen den Nummern. Oben siehst du, wie lange du brauchst - und beim Spielen, was noch übrig ist.": "Play through 1-24. Repeats = the whole exercise (both bars). Count-in only at the start, not between exercises. At the top you see how long you'll need - and while you play, what's left.",
 };

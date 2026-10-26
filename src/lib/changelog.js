@@ -9,6 +9,8 @@ export const CHANGELOG = [
     items: [
       { de: "Hand Control: neuer Klang „Tom / Snare“. Rechts hörst du den Floortom, links die Snare - derselbe Klang wie bei den Rudiments. Du stellst ihn unter dem Tempo-Rad ein, direkt beim Einzählen. Der Click bleibt der andere Klang.",
         en: "Hand Control: new sound “Tom / snare”. You hear a floor tom on the right and a snare on the left - the same sound as in Rudiments. You set it under the tempo dial, right by the count-in. Click stays as the other sound." },
+      { de: "Hand Control, Fokus-Mode: Oben siehst du, wie lange du brauchst - aus Tempo, Wiederholungen und Einzählen, über alle Nummern bis zum Ende. Beim Spielen zählt die Zeit runter.",
+        en: "Hand Control, Focus mode: at the top you see how long you'll need - from the tempo, the repeats and the count-in, across every number through to the end. While you play, the time counts down." },
     ],
   },
   {
