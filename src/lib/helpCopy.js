@@ -71,7 +71,7 @@ export const HELP = {
     ["Metronom unten", "Tippen = Start/Stop. Drehen = Tempo. −5/+5 und −10/+10 daneben."],
     ["Nav unten", "‹ › oder wischen. Halten öffnet das Rad, Vorschau = erste 8 Achtel."],
     ["Liste", "Die aktuelle Nummer groß, darunter die nächste als Vorschau - antippen = weiter. Nach oben scrollen zeigt frühere Nummern, leicht unscharf."],
-    ["Fokus-Mode", "1-24 durchspielen. Wiederholungen = komplette Übung (beide Takte). Einzählen nur am Start, nicht zwischen den Nummern."],
+    ["Fokus-Mode", "1-24 durchspielen. Wiederholungen = komplette Übung (beide Takte). Einzählen nur am Start, nicht zwischen den Nummern. Oben siehst du, wie lange du brauchst - und beim Spielen, was noch übrig ist."],
     ["Klang", "Unter dem Tempo-Rad, beim Einzählen: Click oder Tom / Snare. Bei Tom / Snare hörst du rechts den Floortom und links die Snare - derselbe Klang wie in den Rudiments."],
     ["Clip", "Zeig, was du draufhast! Tipp auf ‚Clip‘, richte die Kamera auf deine Hände und dein Pad und starte mit ‚Aufnahme‘. ‚Drehen‘ wechselt zwischen Front- und Rückkamera. Oben im Video stehen Logo und Noten auf einer Glas-Kachel, darunter siehst du dich spielen - Click und Drums sind zusammen im Ton. Mit ‚Teilen‘ schickst du dein Video direkt an Freunde oder auf Social Media; bis dahin bleibt es nur auf deinem Gerät. Tipp: Mit Kopfhörern hörst du den Click am besten."],
   ],
