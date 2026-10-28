@@ -2,7 +2,9 @@
 // Web und Test: DEMO_ON aus, volle App. Store-Build (CAPACITOR=1 → __SF_STORE__, wie feedbackClient.js)
 // und native Hülle: DEMO_ON an, Sperren unten.
 // Freischalten jetzt: localStorage sf-unlocked, Code sf-stunde.
-// Store-IAP (Apple/Google, einmalig) ist noch nicht verdrahtet — es ruft später setUnlocked(true) auf.
+// Store-IAP (Apple/Google, einmalig) hängt sich an purchaseFullVersion — noch nicht verdrahtet.
+// Produkt-ID: de.schlagfertig.app.full (Paket-ID de.schlagfertig.app).
+// App Store Connect (Lotse) hat noch die ältere ID de.schlagfertig.control.full notiert.
 
 /* global __SF_STORE__ */
 function storeBuild() {
@@ -24,6 +26,9 @@ export const DEMO_ON = storeBuild() || nativeShell();
 const KEY = "sf-unlocked";
 export const DEMO_PRICE = "12,99 €";
 export const PAYWALL_EVENT = "sf-paywall";
+// Einmal-Kauf der vollen App. An diese ID gehen StoreKit und Play Billing.
+// de.schlagfertig.control.full bleibt nur die alte Connect-Notiz, nicht die Paket-ID.
+export const FULL_PRODUCT_ID = "de.schlagfertig.app.full";
 
 // Frei bei Sperre: #1 Single Stroke Roll, #6 Double Stroke Open Roll,
 // #16 Single Paradiddle, #20 Flam, #22 Flam Tap, #31 Drag.
@@ -50,7 +55,7 @@ export function isUnlocked() {
   try { return localStorage.getItem(KEY) === "1"; } catch { return false; }
 }
 
-// Store-IAP (Apple/Google) setzt später hier setUnlocked(true) — noch nicht angebunden.
+// Store-IAP (Apple/Google) setzt bei echtem Kauf hier setUnlocked(true) — noch nicht angebunden.
 // Bis dahin schreibt der Code aus der Stunde (sf-stunde) sf-unlocked.
 export function setUnlocked(on) {
   try {
@@ -74,6 +79,16 @@ export function canOpen(view) {
 
 export function unlockCodeOk(code) {
   return String(code || "").trim().toLowerCase() === "sf-stunde";
+}
+
+// Haken für StoreKit (iOS) und Play Billing (Android). Noch kein Plugin, kein System-Kaufdialog.
+// Wenn der Kauf später klappt: setUnlocked(true) und { ok: true, productId: FULL_PRODUCT_ID }.
+export function purchaseFullVersion() {
+  return Promise.resolve({
+    ok: false,
+    reason: "not-wired",
+    productId: FULL_PRODUCT_ID,
+  });
 }
 
 export function rudimentOpen(id, unlocked = isUnlocked()) {

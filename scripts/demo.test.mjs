@@ -1,11 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
-  DEMO_ON, DEMO_PRICE, FREE_GROOVE_BARS, FREE_JOURNAL_N, FREE_PYRAMID_STAGES, FREE_RUDIMENT, FREE_RUDIMENTS, FREE_STICK_MAX,
-  canPrintRudiment, freeView, grooveBarsOpen, grooveSaveOpen, noClickOpen, pyramidStageOpen, rudimentOpen, stickOpen, unlockCodeOk, viewOpen, withinFreeCount,
+  DEMO_ON, DEMO_PRICE, FULL_PRODUCT_ID, FREE_GROOVE_BARS, FREE_JOURNAL_N, FREE_PYRAMID_STAGES, FREE_RUDIMENT, FREE_RUDIMENTS, FREE_STICK_MAX,
+  canPrintRudiment, freeView, grooveBarsOpen, grooveSaveOpen, noClickOpen, purchaseFullVersion, pyramidStageOpen, rudimentOpen, stickOpen, unlockCodeOk, viewOpen, withinFreeCount,
 } from "../src/lib/demo.js";
 import { rerollBar, rollEtude } from "../src/lib/etudeDice.js";
 import { EN } from "../src/lib/en.js";
+import { EN2 } from "../src/lib/en2.js";
 
 const FREE_IDS = [1, 6, 16, 20, 22, 31];
 
@@ -73,11 +75,24 @@ test("Eigene Grooves: 1 Takt frei, mehr Takte und Speichern volle App", () => {
   assert.equal(grooveSaveOpen(false), false);
   assert.equal(grooveSaveOpen(true), true);
   const free = "Kostenlos bleiben Erste Übung, No-Stick-Challenge, Tempo halten und Tempo steigern, Lexikon und das Tagebuch. Dazu sechs Rudiments (Single Stroke Roll, Double Stroke Open Roll, Single Paradiddle, Flam, Flam Tap, Drag), die du auch drucken kannst, der Würfel aus diesen sechs, Hand Control 1 und 2, die Rhythmuspyramide in Vierteln, Achteln und 16teln, die ersten zwei Hausaufgaben, die ersten zwei Karteikarten und eigene Grooves mit genau einem Takt zum Ausprobieren.";
-  const paid = "Einmalig, kein Abo. Danach ist alles offen: NoClick, alle Rudiments, Hand Control, die schwereren Pyramiden-Stufen, Noten, Drucken der übrigen Übungen, unbegrenzte Hausaufgaben und Karteikarten — eigene Grooves mit mehr als einem Takt, und du speicherst sie.";
+  const paid = "Danach ist alles offen: NoClick, alle Rudiments, Hand Control, die schwereren Pyramiden-Stufen, Noten, Drucken der übrigen Übungen, unbegrenzte Hausaufgaben und Karteikarten — eigene Grooves mit mehr als einem Takt, und du speicherst sie.";
   assert.match(EN[free], /exactly one bar/);
-  assert.match(EN[paid], /more than one bar/);
-  assert.match(EN[paid], /save them/);
-  assert.doesNotMatch(`${EN[free]} ${EN[paid]}`, /\bpractice\b/i);
+  assert.match(EN2[paid], /more than one bar/);
+  assert.match(EN2[paid], /save them/);
+  assert.doesNotMatch(`${EN[free]} ${EN2[paid]}`, /\bpractice\b/i);
+});
+
+test("Vollversion: Produkt-ID folgt der Paket-ID, Kauf noch ohne Store", async () => {
+  assert.equal(FULL_PRODUCT_ID, "de.schlagfertig.app.full");
+  const src = readFileSync(new URL("../src/lib/demo.js", import.meta.url), "utf8");
+  assert.match(src, /de\.schlagfertig\.control\.full/);
+  const res = await purchaseFullVersion();
+  assert.deepEqual(res, { ok: false, reason: "not-wired", productId: "de.schlagfertig.app.full" });
+  assert.equal(EN2["Vollversion"], "Full version");
+  assert.equal(EN2["Kaufen"], "Buy");
+  assert.equal(EN2["Einmalig, kein Abo."], "One-off, no subscription.");
+  assert.equal(EN2["Kauf geht nur in der Store-App."], "Buying only works in the store app.");
+  assert.doesNotMatch(`${EN2["Kaufen"]} ${EN2["Kauf geht nur in der Store-App."]} ${EN2["Einmalig, kein Abo."]}`, /\bpractice\b/i);
 });
 
 test("Code aus der Stunde", () => {

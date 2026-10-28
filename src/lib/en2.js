@@ -110,4 +110,10 @@ export const EN2 = {
   "Im Click-Mixer ganz unten. Schieb, bis der Click mit dem weißen Puls zusammenfällt. Das gilt in jeder Übung.": "At the bottom of the click mixer. Move it until the click lines up with the white pulse. It applies in every exercise.",
   // Hand Control: Tom / Snare
   "Unter dem Tempo-Rad, beim Einzählen: Click oder Tom / Snare. Bei Tom / Snare hörst du rechts den Floortom und links die Snare - derselbe Klang wie in den Rudiments.": "Under the tempo dial, by the count-in: click or tom / snare. With tom / snare you hear a floor tom on the right and a snare on the left - the same sound as in Rudiments.",
+  // Kauf-Blatt (Vollversion). Britisches Englisch.
+  "Vollversion": "Full version",
+  "Kaufen": "Buy",
+  "Einmalig, kein Abo.": "One-off, no subscription.",
+  "Kauf geht nur in der Store-App.": "Buying only works in the store app.",
+  "Danach ist alles offen: NoClick, alle Rudiments, Hand Control, die schwereren Pyramiden-Stufen, Noten, Drucken der übrigen Übungen, unbegrenzte Hausaufgaben und Karteikarten — eigene Grooves mit mehr als einem Takt, und du speicherst sie.": "Then everything is open: NoClick, all rudiments, Hand Control, the harder pyramid steps, sheet music, printing the other exercises, unlimited homework and cards — your own grooves with more than one bar, and you can save them.",
 };
