@@ -1,12 +1,13 @@
 // Store-Freemium (Tom, 2026-10-24). Einmalig, kein Abo. Anzeige: DEMO_PRICE.
 // Web und Test: DEMO_ON aus, volle App. Store-Build (CAPACITOR=1 → __SF_STORE__, wie feedbackClient.js)
 // und native Hülle: DEMO_ON an, Sperren unten.
-// Freischalten jetzt: localStorage sf-unlocked, Code sf-stunde.
 // Store-IAP (Apple/Google, einmalig) hängt sich an purchaseFullVersion — noch nicht verdrahtet.
 // Produkt-ID: de.schlagfertig.app.full (Paket-ID de.schlagfertig.app).
 // App Store Connect (Lotse) hat noch die ältere ID de.schlagfertig.control.full notiert.
+// Code aus der Stunde nur im Tester-Build (VITE_SF_TESTER_BUILD=1 → __SF_TESTER__).
+// Im echten Store-Build gibt es den Code nicht (Apple Guideline 3.1.1).
 
-/* global __SF_STORE__ */
+/* global __SF_STORE__, __SF_TESTER__ */
 function storeBuild() {
   try {
     return typeof __SF_STORE__ !== "undefined" && __SF_STORE__ === true;
@@ -29,6 +30,9 @@ export const PAYWALL_EVENT = "sf-paywall";
 // Einmal-Kauf der vollen App. An diese ID gehen StoreKit und Play Billing.
 // de.schlagfertig.control.full bleibt nur die alte Connect-Notiz, nicht die Paket-ID.
 export const FULL_PRODUCT_ID = "de.schlagfertig.app.full";
+// Literal, damit der Store-Build das Code-Feld wegoptimiert (Guideline 3.1.1).
+// true nur bei VITE_SF_TESTER_BUILD=1. Ohne das Flag (auch in node-Tests): false.
+export const TESTER_UNLOCK = typeof __SF_TESTER__ !== "undefined" && __SF_TESTER__ === true;
 
 // Frei bei Sperre: #1 Single Stroke Roll, #6 Double Stroke Open Roll,
 // #16 Single Paradiddle, #20 Flam, #22 Flam Tap, #31 Drag.
@@ -56,7 +60,7 @@ export function isUnlocked() {
 }
 
 // Store-IAP (Apple/Google) setzt bei echtem Kauf hier setUnlocked(true) — noch nicht angebunden.
-// Bis dahin schreibt der Code aus der Stunde (sf-stunde) sf-unlocked.
+// Der Code aus der Stunde schreibt das nur im Tester-Build.
 export function setUnlocked(on) {
   try {
     if (on) localStorage.setItem(KEY, "1");
@@ -77,8 +81,13 @@ export function canOpen(view) {
   return viewOpen(view, isUnlocked());
 }
 
-export function unlockCodeOk(code) {
+export function hourCodeMatches(code) {
   return String(code || "").trim().toLowerCase() === "sf-stunde";
+}
+
+// Im Store-Build immer false, auch wenn der Code stimmt (Guideline 3.1.1).
+export function unlockCodeOk(code) {
+  return TESTER_UNLOCK && hourCodeMatches(code);
 }
 
 // Haken für StoreKit (iOS) und Play Billing (Android). Noch kein Plugin, kein System-Kaufdialog.

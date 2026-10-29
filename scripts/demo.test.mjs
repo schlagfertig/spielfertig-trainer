@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   DEMO_ON, DEMO_PRICE, FULL_PRODUCT_ID, FREE_GROOVE_BARS, FREE_JOURNAL_N, FREE_PYRAMID_STAGES, FREE_RUDIMENT, FREE_RUDIMENTS, FREE_STICK_MAX,
-  canPrintRudiment, freeView, grooveBarsOpen, grooveSaveOpen, noClickOpen, purchaseFullVersion, pyramidStageOpen, rudimentOpen, stickOpen, unlockCodeOk, viewOpen, withinFreeCount,
+  TESTER_UNLOCK, canPrintRudiment, freeView, grooveBarsOpen, grooveSaveOpen, hourCodeMatches, noClickOpen, purchaseFullVersion, pyramidStageOpen, rudimentOpen, stickOpen, unlockCodeOk, viewOpen, withinFreeCount,
 } from "../src/lib/demo.js";
 import { rerollBar, rollEtude } from "../src/lib/etudeDice.js";
 import { EN } from "../src/lib/en.js";
@@ -75,11 +75,16 @@ test("Eigene Grooves: 1 Takt frei, mehr Takte und Speichern volle App", () => {
   assert.equal(grooveSaveOpen(false), false);
   assert.equal(grooveSaveOpen(true), true);
   const free = "Kostenlos bleiben Erste Übung, No-Stick-Challenge, Tempo halten und Tempo steigern, Lexikon und das Tagebuch. Dazu sechs Rudiments (Single Stroke Roll, Double Stroke Open Roll, Single Paradiddle, Flam, Flam Tap, Drag), die du auch drucken kannst, der Würfel aus diesen sechs, Hand Control 1 und 2, die Rhythmuspyramide in Vierteln, Achteln und 16teln, die ersten zwei Hausaufgaben, die ersten zwei Karteikarten und eigene Grooves mit genau einem Takt zum Ausprobieren.";
-  const paid = "Danach ist alles offen: NoClick, alle Rudiments, Hand Control, die schwereren Pyramiden-Stufen, Noten, Drucken der übrigen Übungen, unbegrenzte Hausaufgaben und Karteikarten — eigene Grooves mit mehr als einem Takt, und du speicherst sie.";
+  const paid = "Danach ist alles offen: Takte ohne Click, alle Rudiments, Hand Control, die schwereren Pyramiden-Stufen, Noten, Drucken der übrigen Übungen, unbegrenzte Hausaufgaben und Karteikarten — eigene Grooves mit mehr als einem Takt, und du speicherst sie.";
   assert.match(EN[free], /exactly one bar/);
+  assert.match(EN2[paid], /bars without click/);
   assert.match(EN2[paid], /more than one bar/);
   assert.match(EN2[paid], /save them/);
+  assert.doesNotMatch(EN2[paid], /NoClick/);
   assert.doesNotMatch(`${EN[free]} ${EN2[paid]}`, /\bpractice\b/i);
+  const sheet = readFileSync(new URL("../src/lib/Paywall.jsx", import.meta.url), "utf8");
+  assert.match(sheet, /Takte ohne Click/);
+  assert.doesNotMatch(sheet, /NoClick/);
 });
 
 test("Vollversion: Produkt-ID folgt der Paket-ID, Kauf noch ohne Store", async () => {
@@ -95,11 +100,18 @@ test("Vollversion: Produkt-ID folgt der Paket-ID, Kauf noch ohne Store", async (
   assert.doesNotMatch(`${EN2["Kaufen"]} ${EN2["Kauf geht nur in der Store-App."]} ${EN2["Einmalig, kein Abo."]}`, /\bpractice\b/i);
 });
 
-test("Code aus der Stunde", () => {
-  assert.equal(unlockCodeOk("sf-stunde"), true);
-  assert.equal(unlockCodeOk("  SF-Stunde "), true);
+test("Store-Build: Code schaltet nicht frei", () => {
+  assert.equal(TESTER_UNLOCK, false);
+  assert.equal(hourCodeMatches("sf-stunde"), true);
+  assert.equal(hourCodeMatches("  SF-Stunde "), true);
+  assert.equal(hourCodeMatches("nope"), false);
+  assert.equal(hourCodeMatches(""), false);
+  assert.equal(unlockCodeOk("sf-stunde"), false);
+  assert.equal(unlockCodeOk("  SF-Stunde "), false);
   assert.equal(unlockCodeOk("nope"), false);
-  assert.equal(unlockCodeOk(""), false);
+  const vite = readFileSync(new URL("../vite.config.js", import.meta.url), "utf8");
+  assert.match(vite, /VITE_SF_TESTER_BUILD/);
+  assert.match(vite, /__SF_TESTER__/);
 });
 
 test("Würfel bei Sperre nur aus den sechs, auch auf Mittel/Schwer", () => {
