@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { t } from "./i18n.js";
-import { DEMO_ON, DEMO_PRICE, TESTER_UNLOCK, purchaseFullVersion, unlockCodeOk } from "./demo.js";
+import { getLang, t } from "./i18n.js";
+import { DEMO_ON, TESTER_UNLOCK, fallbackPrice, purchaseFullVersion, unlockCodeOk } from "./demo.js";
 import { restoreFullVersion } from "./iap.js";
 
 // Kauf-Blatt für die Vollversion. Kaufen ruft purchaseFullVersion (in der nativen
-// Hülle das Apple- bzw. Play-Kaufblatt). Preis kommt von außen, sonst DEMO_PRICE.
+// Hülle das Apple- bzw. Play-Kaufblatt). Preis ist der Store-String, sonst fallbackPrice.
 export function DemoPaywall({ onClose, onUnlock, price }) {
   const [code, setCode] = useState("");
   const [bad, setBad] = useState(false);
@@ -13,7 +13,7 @@ export function DemoPaywall({ onClose, onUnlock, price }) {
   const field = useRef(null);
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
-  const shownPrice = price || DEMO_PRICE;
+  const shownPrice = price || fallbackPrice(getLang());
 
   useEffect(() => {
     const prev = document.body.style.overflow;
