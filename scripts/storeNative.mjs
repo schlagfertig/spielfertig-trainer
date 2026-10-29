@@ -40,8 +40,7 @@ export function ensureIos15(text) {
 function patchFile(path, transform) {
   if (!existsSync(path)) {
     console.error(`Datei fehlt: ${path}`);
-    process.exitCode = 1;
-    return;
+    return null;
   }
   const prev = readFileSync(path, "utf8");
   const next = transform(prev);
@@ -49,34 +48,40 @@ function patchFile(path, transform) {
   return next;
 }
 
-// argv-Vergleich über Datei-URLs schlägt auf dem macOS-Runner fehl und lässt das Skript still aus.
-function invokedDirectly() {
-  return /(?:^|\/)storeNative\.mjs$/.test(String(process.argv[1] || "").replaceAll("\\", "/"));
-}
-
-const cmd = process.argv[2];
-if (invokedDirectly() && cmd === "android") {
-  patchFile("android/app/src/main/AndroidManifest.xml", ensureBillingPermission);
-} else if (invokedDirectly() && cmd === "ios") {
+export function applyIosDeploymentTarget() {
   const podspecPath = "node_modules/@capgo/native-purchases/CapgoNativePurchases.podspec";
   if (!existsSync(podspecPath)) {
     console.error(`Datei fehlt: ${podspecPath}`);
-    process.exitCode = 1;
-  } else {
-    const minimum = deploymentTargetFromPodspec(readFileSync(podspecPath, "utf8"));
-    console.log(`iOS deployment target aus Podspec: ${minimum}`);
-    const bump = (text) => ensureIosVersion(text, minimum);
-    const podfile = patchFile("ios/App/Podfile", bump);
-    const line = String(podfile || "").split("\n").find((l) => l.includes("platform :ios"));
-    console.log(line || "Podfile ohne platform :ios");
-    const platform = line && line.match(/(\d+(?:\.\d+)?)/);
-    if (!platform || Number.parseFloat(platform[1]) < Number.parseFloat(minimum)) process.exitCode = 1;
-    const project = "ios/App/App.xcodeproj/project.pbxproj";
-    if (existsSync(project)) {
-      const patched = patchFile(project, bump);
-      const low = [...String(patched || "").matchAll(/IPHONEOS_DEPLOYMENT_TARGET = (\d+(?:\.\d+)?);/g)]
-        .some((m) => Number.parseFloat(m[1]) < Number.parseFloat(minimum));
-      if (low) process.exitCode = 1;
-    }
+    return 1;
   }
+  const minimum = deploymentTargetFromPodspec(readFileSync(podspecPath, "utf8"));
+  console.log(`iOS deployment target aus Podspec: ${minimum}`);
+  const bump = (text) => ensureIosVersion(text, minimum);
+  const podfile = patchFile("ios/App/Podfile", bump);
+  const line = String(podfile || "").split("\n").find((l) => l.includes("platform :ios"));
+  console.log(line || "Podfile ohne platform :ios");
+  const platform = line && line.match(/(\d+(?:\.\d+)?)/);
+  if (!platform || Number.parseFloat(platform[1]) < Number.parseFloat(minimum)) return 1;
+  const project = "ios/App/App.xcodeproj/project.pbxproj";
+  const patched = patchFile(project, bump);
+  if (patched == null) return 1;
+  const low = [...patched.matchAll(/IPHONEOS_DEPLOYMENT_TARGET = (\d+(?:\.\d+)?);/g)]
+    .some((m) => Number.parseFloat(m[1]) < Number.parseFloat(minimum));
+  return low ? 1 : 0;
+}
+
+function cliCommand() {
+  const args = process.argv.slice(1).map((a) => String(a).replaceAll("\\", "/"));
+  const script = args.some((a) => /(?:^|\/)storeNative\.mjs$/.test(a));
+  if (!script) return "";
+  if (args.includes("ios")) return "ios";
+  if (args.includes("android")) return "android";
+  return "";
+}
+
+const cmd = cliCommand();
+if (cmd === "android") {
+  if (patchFile("android/app/src/main/AndroidManifest.xml", ensureBillingPermission) == null) process.exitCode = 1;
+} else if (cmd === "ios") {
+  process.exitCode = applyIosDeploymentTarget();
 }

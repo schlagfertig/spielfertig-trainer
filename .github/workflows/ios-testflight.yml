@@ -49,7 +49,7 @@ jobs:
       - name: iOS-Projekt erzeugen
         run: |
           test -d ios || npx cap add ios
-          node scripts/storeNative.mjs ios
+          node --input-type=module -e 'import { applyIosDeploymentTarget } from "./scripts/storeNative.mjs"; const code = applyIosDeploymentTarget(); if (code) process.exit(code);'
           npx cap sync ios
 
       - name: Icons und Splash (assets/)
