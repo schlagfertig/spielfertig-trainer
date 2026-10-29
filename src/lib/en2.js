@@ -3,6 +3,7 @@
 export const EN2 = {
   // Rudiment-Würfel: „Übung“ statt „Etüde“
   "Würfel dir aus den 40 Rudiments deine eigene Übung - jedes Mal neu, Takt für Takt.": "Roll your own exercise from the 40 rudiments - fresh every time, bar by bar.",
+  "6 gratis · 40 in der Vollversion": "6 free · 40 in the full version",
   "Würfel dir aus den 40 Rudiments eine eigene Übung und spiel sie zum Click.": "Roll your own exercise from the 40 rudiments and play it to the click.",
   "Wähl 4 oder 8 Takte, eine Stufe und den Takt (4/4 oder 6/8), dann tipp auf den Würfel-Button 🎲. Die App setzt passende Rudiments zu deiner Übung zusammen - 2/4-Rudiments spielst du zweimal pro Takt. Jeder weitere Tipp würfelt dir eine neue Übung.":
     "Pick 4 or 8 bars, a level and the metre (4/4 or 6/8), then tap the dice button 🎲. The app builds your exercise from matching rudiments - 2/4 rudiments are played twice per bar. Every further tap rolls you a new exercise.",
@@ -110,4 +111,15 @@ export const EN2 = {
   "Im Click-Mixer ganz unten. Schieb, bis der Click mit dem weißen Puls zusammenfällt. Das gilt in jeder Übung.": "At the bottom of the click mixer. Move it until the click lines up with the white pulse. It applies in every exercise.",
   // Hand Control: Tom / Snare
   "Unter dem Tempo-Rad, beim Einzählen: Click oder Tom / Snare. Bei Tom / Snare hörst du rechts den Floortom und links die Snare - derselbe Klang wie in den Rudiments.": "Under the tempo dial, by the count-in: click or tom / snare. With tom / snare you hear a floor tom on the right and a snare on the left - the same sound as in Rudiments.",
+  // Kauf-Blatt (Vollversion). Britisches Englisch.
+  "Vollversion": "Full version",
+  "Kaufen": "Buy",
+  "Einmalig, kein Abo.": "One-off, no subscription.",
+  "Kauf geht nur in der Store-App.": "Buying only works in the store app.",
+  "Kauf wiederherstellen": "Restore purchase",
+  "Kauf abgebrochen.": "Purchase cancelled.",
+  "Kauf hat nicht geklappt. Bitte nochmal versuchen.": "The purchase didn't go through. Please try again.",
+  "Kein Kauf zum Wiederherstellen.": "No purchase to restore.",
+  "Wiederherstellen hat nicht geklappt. Bitte nochmal versuchen.": "Restore didn't work. Please try again.",
+  "Danach ist alles offen: Takte ohne Click, alle Rudiments, Hand Control, die schwereren Pyramiden-Stufen, Noten, Drucken der übrigen Übungen, unbegrenzte Hausaufgaben und Karteikarten — eigene Grooves mit mehr als einem Takt, und du speicherst sie.": "Then everything is open: bars without click, all rudiments, Hand Control, the harder pyramid steps, sheet music, printing the other exercises, unlimited homework and cards — your own grooves with more than one bar, and you can save them.",
 };

@@ -30,7 +30,9 @@ import TesterFeedback, { FeedbackLink } from "./lib/TesterFeedback.jsx";
 import WhatsNew from "./lib/WhatsNew.jsx";
 import { startModal } from "./lib/startModal.js";
 import { APP_VERSION } from "./lib/version.js";
-import { canOpen, isUnlocked, setUnlocked, DEMO_PRICE, unlockCodeOk, PAYWALL_EVENT } from "./lib/demo.js";
+import { canOpen, isUnlocked, setUnlocked, DEMO_PRICE, PAYWALL_EVENT } from "./lib/demo.js";
+import { loadStorePrice, refreshEntitlement } from "./lib/iap.js";
+import { DemoPaywall } from "./lib/Paywall.jsx";
 import { AudioOffsetControl } from "./lib/AudioOffsetControl.jsx";
 
 const FLAG_EN = (
@@ -90,10 +92,18 @@ export default function App() {
   const [stage, setStage] = useState(false);
   const [unlocked, setUnlockedState] = useState(isUnlocked);
   const [paywall, setPaywall] = useState(false);
+  const [storePrice, setStorePrice] = useState(DEMO_PRICE);
   useEffect(() => {
     const onPay = () => setPaywall(true);
     window.addEventListener(PAYWALL_EVENT, onPay);
     return () => window.removeEventListener(PAYWALL_EVENT, onPay);
+  }, []);
+  // Native Hülle: Kauf beim Start prüfen, Preis aus dem Store (sonst DEMO_PRICE).
+  useEffect(() => {
+    let stop = false;
+    refreshEntitlement().then(() => { if (!stop) setUnlockedState(isUnlocked()); });
+    loadStorePrice().then((price) => { if (!stop && price) setStorePrice(price); });
+    return () => { stop = true; };
   }, []);
   // Startwerte für ein Modul, wenn es aus der „Heute“-Karte geöffnet wird (sonst null = eigene Werte).
   const [preset, setPreset] = useState(null);
@@ -303,6 +313,7 @@ export default function App() {
       <div className={scrolled ? "page home is-scrolled" : "page home"}>
       {paywall && (
         <DemoPaywall
+          price={storePrice}
           onClose={() => setPaywall(false)}
           onUnlock={() => { setUnlocked(true); setUnlockedState(true); setPaywall(false); }}
         />
@@ -320,7 +331,7 @@ export default function App() {
           <h1 className="app-logo" aria-label={`Schlagfertig‽ - ${t("Drums lernen - Schlag für Schlag")}`}>
             <span className="app-logo-sub" aria-hidden="true">{t("Drums lernen - Schlag für Schlag")}</span>
           </h1>
-          {!unlocked && <p className="app-price" style={{ margin: "6px 0 0", color: "#5cc8b8", font: "800 15px Figtree, sans-serif", letterSpacing: "0.02em" }}>{t("Demo")} · {t("volle App")} {DEMO_PRICE}</p>}
+          {!unlocked && <p className="app-price" style={{ margin: "6px 0 0", color: "#5cc8b8", font: "800 15px Figtree, sans-serif", letterSpacing: "0.02em" }}>{t("Demo")} · {t("volle App")} {storePrice}</p>}
         </header>
         {firstHidden ? null : (
           <div className={firstLeaving ? "first-wrap leaving" : "first-wrap"}>
@@ -353,14 +364,18 @@ export default function App() {
             <TileIcon name="rudiments" />
             <div className="card-kicker">{t("Üben")}</div>
             <div className="card-title">Rudiments</div>
-            <div className="card-lead">{t("Hier die 40 berühmten International Drum Rudiments, die von der Percussive Arts Society seit 42 Jahren kuratiert werden.")}</div>
+            <div className="card-lead">{unlocked
+              ? t("Hier die 40 berühmten International Drum Rudiments, die von der Percussive Arts Society seit 42 Jahren kuratiert werden.")
+              : t("6 gratis · 40 in der Vollversion")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card has-icon" onClick={() => go("dice")}>
             <TileIcon name="dice" />
             <div className="card-kicker">{`${t("Neu")} · Rudiment`}</div>
             <div className="card-title">{t("Rudiment-Würfel")}</div>
-            <div className="card-lead">{t("Würfel dir aus den 40 Rudiments deine eigene Übung - jedes Mal neu, Takt für Takt.")}</div>
+            <div className="card-lead">{unlocked
+              ? t("Würfel dir aus den 40 Rudiments deine eigene Übung - jedes Mal neu, Takt für Takt.")
+              : t("6 gratis · 40 in der Vollversion")}</div>
             <div className="card-go">{cta("dice")}</div>
           </button>
           <button className="card has-icon" onClick={() => open("click")}>
@@ -437,6 +452,7 @@ export default function App() {
     <div className={`page tool view-${view}${stage ? " stage" : ""}`}>
       {paywall && (
         <DemoPaywall
+          price={storePrice}
           onClose={() => setPaywall(false)}
           onUnlock={() => { setUnlocked(true); setUnlockedState(true); setPaywall(false); }}
         />
@@ -488,38 +504,6 @@ export default function App() {
       {/* Eigene Grooves: Clip-Knopf sitzt dort im Layout unter dem Notenbild (RhythmArchive). */}
       {["rudiments", "pyramid", "stick"].includes(view) && !printOpen ? <PracticeClip title={t(meta.title)} view={view} /> : null}
       </main>
-    </div>
-  );
-}
-
-function DemoPaywall({ onClose, onUnlock }) {
-  const [code, setCode] = useState("");
-  const [bad, setBad] = useState(false);
-  const field = useRef(null);
-  function tryCode() {
-    // Store-IAP hängt sich später an setUnlocked(true) (siehe demo.js). Bis dahin gilt der Code.
-    if (unlockCodeOk(code)) { onUnlock(); return; }
-    if (!String(code).trim()) { field.current?.focus(); return; }
-    setBad(true);
-  }
-  return (
-    <div role="dialog" aria-modal="true" aria-label={t("Volle App")} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(8,10,12,.72)", display: "flex", alignItems: "flex-end", justifyContent: "center", padding: 12 }}>
-      <div style={{ width: "min(480px, 100%)", maxHeight: "min(92vh, 720px)", overflow: "auto", background: "rgba(22,26,29,.97)", border: "1px solid rgba(92,200,184,.45)", borderRadius: "22px 22px 16px 16px", padding: "20px 20px 18px", color: "#f4f7f6" }}>
-        <div style={{ color: "#5cc8b8", fontWeight: 800, letterSpacing: "0.04em" }}>{t("Einmalig")}</div>
-        <h2 style={{ margin: "6px 0 8px", fontSize: 26 }}>{t("Volle App")} · {DEMO_PRICE}</h2>
-        <p style={{ margin: "0 0 10px", color: "#c5d0d2", lineHeight: 1.45 }}>{t("Einmalig, kein Abo. Danach ist alles offen: NoClick, alle Rudiments, Hand Control, die schwereren Pyramiden-Stufen, Noten, Drucken der übrigen Übungen, unbegrenzte Hausaufgaben und Karteikarten — eigene Grooves mit mehr als einem Takt, und du speicherst sie.")}</p>
-        <p style={{ margin: "0 0 14px", color: "#c5d0d2", lineHeight: 1.45 }}>{t("Kostenlos bleiben Erste Übung, No-Stick-Challenge, Tempo halten und Tempo steigern, Lexikon und das Tagebuch. Dazu sechs Rudiments (Single Stroke Roll, Double Stroke Open Roll, Single Paradiddle, Flam, Flam Tap, Drag), die du auch drucken kannst, der Würfel aus diesen sechs, Hand Control 1 und 2, die Rhythmuspyramide in Vierteln, Achteln und 16teln, die ersten zwei Hausaufgaben, die ersten zwei Karteikarten und eigene Grooves mit genau einem Takt zum Ausprobieren.")}</p>
-        <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 6 }}>{t("Für Tester")}</div>
-        <label style={{ display: "block", fontSize: 14, color: "#9aa6aa" }}>
-          {t("Code aus der Stunde")}
-          <input ref={field} value={code} onChange={(e) => { setCode(e.target.value); setBad(false); }} onKeyDown={(e) => { if (e.key === "Enter") tryCode(); }} autoCapitalize="none" autoCorrect="off" autoComplete="off" style={{ display: "block", width: "100%", marginTop: 6, padding: "12px 14px", borderRadius: 12, border: "1px solid #3a4448", background: "#101416", color: "#f4f7f6", fontSize: 16 }} />
-        </label>
-        {bad && <p style={{ color: "#e07a7a", margin: "8px 0 0" }}>{t("Code passt nicht.")}</p>}
-        <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
-          <button type="button" onClick={tryCode} style={{ flex: 1, padding: "12px 14px", borderRadius: 14, border: 0, background: "#5cc8b8", color: "#10201c", fontWeight: 800 }}>{t("Freischalten")}</button>
-          <button type="button" onClick={onClose} style={{ flex: 1, padding: "12px 14px", borderRadius: 14, border: "1px solid #3a4448", background: "transparent", color: "#f4f7f6" }}>{t("Schließen")}</button>
-        </div>
-      </div>
     </div>
   );
 }

@@ -12,9 +12,9 @@ Die Vercel-Zugangssperre gilt **nicht** im Store-Build (kein Middleware, gebünd
 
 Frei: Start, Impressum, Datenschutz, Neuigkeiten, Erste Übung, No-Stick-Challenge, Click-Trainer nur „Tempo halten“ und „Tempo steigern“, Lexikon, Rudiments #1 #6 #16 #20 #22 #31, Rudiment-Würfel nur aus diesen sechs, Hand Control 1–2, Journal-Tagebuch, je die ersten zwei Hausaufgaben und Karteikarten, Eigene Grooves mit genau 1 Takt erstellen und üben (Speichern nicht), Rhythmuspyramide in 4tel, 8tel und 16tel, Drucken nur dieser sechs Rudiments.
 
-Volle App einmalig, Anzeige `12,99 €`: NoClick, übrige Rudiments, Hand Control 3–24, unbegrenzte Hausaufgaben und Karteikarten, Grooves mit mehr als einem Takt, Grooves speichern (auch bei 1 Takt), schwerere Pyramiden-Stufen (Triole, Quintole, Sextole, Septole, 32tel), Noten, Drucken anderer Rudiments und Notenblätter. Freischalten jetzt per Code `sf-stunde` (`localStorage` `sf-unlocked`). Store-IAP (Apple/Google) ruft später `setUnlocked(true)` auf — noch nicht angebunden. Tippen auf einen zweiten Takt oder auf Speichern öffnet das Freischalt-Blatt.
+Volle App einmalig: NoClick, übrige Rudiments, Hand Control 3–24, unbegrenzte Hausaufgaben und Karteikarten, Grooves mit mehr als einem Takt, Grooves speichern (auch bei 1 Takt), schwerere Pyramiden-Stufen (Triole, Quintole, Sextole, Septole, 32tel), Noten, Drucken anderer Rudiments und Notenblätter. Das Blatt zeigt Produktname Vollversion, den Preis und den Knopf **Kaufen**. In der nativen Hülle öffnet Kaufen den System-Kaufdialog (`purchaseFullVersion` → `@capgo/native-purchases`, Produkt-ID `de.schlagfertig.control.full`, nicht verbrauchbar, dieselbe ID für StoreKit 2 und Play Billing). Der Preis kommt vom Store (`priceString`, z. B. `12,99 €` / `€12.99`); lädt das Produkt nicht, bleibt die Anzeige `12,99 €`. Erfolg schreibt `sf-unlocked`. Beim Start der nativen App wird der Kauf geprüft. Auf dem Blatt im Store-Build steht **Kauf wiederherstellen**. Im Browser (auch `CAPACITOR=1 npm run dev`) gibt es keinen Dialog: der Hinweis „Kauf geht nur in der Store-App.“ kommt erst nach dem Tippen. Die Paket-ID bleibt `de.schlagfertig.app`. Die Produkt-ID in App Store Connect ist `de.schlagfertig.control.full` und lässt sich nicht mehr ändern; im Code steht sie nur in `FULL_PRODUCT_ID`. Im Store-Build gibt es kein Code-Feld (Apple Guideline 3.1.1). Der Code `sf-stunde` gilt nur in einem Tester-Build: `VITE_SF_TESTER_BUILD=1` setzt `__SF_TESTER__`. Tippen auf einen zweiten Takt, auf Speichern oder auf Hand Control ab 3 öffnet das Blatt.
 
-Sperren im Browser ansehen: `CAPACITOR=1 npm run dev`.
+Sperren im Browser ansehen: `CAPACITOR=1 npm run dev`. Tester-Blatt: `CAPACITOR=1 VITE_SF_TESTER_BUILD=1 npm run dev`.
 
 ## Einmalig auf Deinem Rechner
 
@@ -83,6 +83,9 @@ Konfiguration liegt in `capacitor.config.json` (JSON statt TS, damit die Capacit
 - `@capacitor/status-bar` — dunkle Leiste, startet in `src/lib/native.js`
 - `@capacitor/haptics` — `tapHaptic()` z. B. am Metronom-Tick
 - `@capacitor/app` — App-Lifecycle
+- `@capgo/native-purchases` `7.19.x` — Einmal-Kauf. Die 8.x-Linie des Plugins verlangt Capacitor 8; diese App bleibt bei Capacitor 7. Kein extra Konto (StoreKit 2 und Play Billing direkt).
+
+Nach `npx cap add ios`: `node scripts/storeNative.mjs ios` (Podfile und Xcode-Ziel auf iOS 15, StoreKit 2). Nach `npx cap add android`: `node scripts/storeNative.mjs android` (Recht `com.android.vending.BILLING`). Der Android-Workflow macht den Android-Schritt selbst.
 
 ## Icons und Splash im Cloud-Build
 

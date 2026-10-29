@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { t } from "./i18n.js";
+import { PaidMark } from "./PaidMark.jsx";
 
 const TEAL = "#5cc8b8";
 
@@ -98,8 +100,10 @@ export function NavScrub({ items, index, disabled, onPick, renderPreview }) {
       .rud-nav.rudiment-wheel { display: block; grid-template-columns: 1fr; width: 100%; }
       .rud-wheel { display: flex; gap: 8px; width: 100%; overflow-x: auto; padding: 10px 16px 12px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; box-sizing: border-box; }
       .rud-wheel::-webkit-scrollbar { display: none; }
-      .rud-wheel button { flex: none; scroll-snap-align: center; min-width: 42px; height: 42px; border-radius: 999px; border: 1px solid #2f383d; background: #14191c; color: #8a969c; font: 800 16px Oswald, sans-serif; }
+      .rud-wheel button { position: relative; flex: none; scroll-snap-align: center; min-width: 42px; height: 42px; border-radius: 999px; border: 1px solid #2f383d; background: #14191c; color: #8a969c; font: 800 16px Oswald, sans-serif; }
       .rud-wheel button.on { min-width: 52px; height: 52px; background: ${TEAL}; color: #06120f; border-color: ${TEAL}; }
+      .rud-wheel button.is-locked .sf-paid-icon { position: absolute; top: 1px; right: 1px; color: ${TEAL}; line-height: 0; }
+      .rud-wheel button.on .sf-paid-icon { color: #06120f; }
       .rud-wheel button:disabled { opacity: 0.4; }
     `}</style>
     <div
@@ -123,8 +127,8 @@ export function NavScrub({ items, index, disabled, onPick, renderPreview }) {
           boxShadow: "0 -10px 28px rgba(0,0,0,.45)",
           pointerEvents: "none",
         }}>
-          <div style={{ textAlign: "center", color: TEAL, font: "800 13px Figtree, sans-serif", letterSpacing: "0.12em" }}>
-            {shown.id}.
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, color: TEAL, font: "800 13px Figtree, sans-serif", letterSpacing: "0.12em" }}>
+            {shown.id}.{shown.locked ? <PaidMark icon size={13} /> : null}
           </div>
           {letters.length ? (
             <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 6 }}>
@@ -164,7 +168,14 @@ export function NavScrub({ items, index, disabled, onPick, renderPreview }) {
       ) : null}
       <div className="rud-wheel" ref={scroller}>
         {list.map((row, i) => (
-          <button key={row.id} type="button" className={i === idx ? "on" : ""} disabled={disabled} onClick={() => go(i)}>{row.id}</button>
+          <button
+            key={row.id}
+            type="button"
+            className={[i === idx ? "on" : "", row.locked ? "is-locked" : ""].filter(Boolean).join(" ")}
+            disabled={disabled}
+            aria-label={row.locked ? `${row.label} · ${t("Volle App")}` : undefined}
+            onClick={() => go(i)}
+          >{row.locked ? <PaidMark icon size={11} /> : null}{row.id}</button>
         ))}
       </div>
     </div>

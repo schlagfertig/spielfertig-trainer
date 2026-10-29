@@ -1,13 +1,27 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
-  DEMO_ON, DEMO_PRICE, FREE_GROOVE_BARS, FREE_JOURNAL_N, FREE_PYRAMID_STAGES, FREE_RUDIMENT, FREE_RUDIMENTS, FREE_STICK_MAX,
-  canPrintRudiment, freeView, grooveBarsOpen, grooveSaveOpen, noClickOpen, pyramidStageOpen, rudimentOpen, stickOpen, unlockCodeOk, viewOpen, withinFreeCount,
+  DEMO_ON, DEMO_PRICE, FULL_PRODUCT_ID, FREE_GROOVE_BARS, FREE_JOURNAL_N, FREE_PYRAMID_STAGES, FREE_RUDIMENT, FREE_RUDIMENTS, FREE_STICK_MAX,
+  TESTER_UNLOCK, canPrintRudiment, freeView, grooveBarsOpen, grooveSaveOpen, hourCodeMatches, noClickOpen, purchaseFullVersion, pyramidStageOpen, rudimentOpen, stickOpen, unlockCodeOk, viewOpen, withinFreeCount,
 } from "../src/lib/demo.js";
 import { rerollBar, rollEtude } from "../src/lib/etudeDice.js";
 import { EN } from "../src/lib/en.js";
+import { EN2 } from "../src/lib/en2.js";
 
 const FREE_IDS = [1, 6, 16, 20, 22, 31];
+
+function countLiteral(dir, literal) {
+  let n = 0;
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) n += countLiteral(path, literal);
+    else if (/\.(js|jsx)$/.test(entry.name)) n += readFileSync(path, "utf8").split(literal).length - 1;
+  }
+  return n;
+}
 
 test("Web/Test ohne Store-Flag: keine Sperre", () => {
   assert.equal(DEMO_ON, false);
@@ -73,18 +87,67 @@ test("Eigene Grooves: 1 Takt frei, mehr Takte und Speichern volle App", () => {
   assert.equal(grooveSaveOpen(false), false);
   assert.equal(grooveSaveOpen(true), true);
   const free = "Kostenlos bleiben Erste Übung, No-Stick-Challenge, Tempo halten und Tempo steigern, Lexikon und das Tagebuch. Dazu sechs Rudiments (Single Stroke Roll, Double Stroke Open Roll, Single Paradiddle, Flam, Flam Tap, Drag), die du auch drucken kannst, der Würfel aus diesen sechs, Hand Control 1 und 2, die Rhythmuspyramide in Vierteln, Achteln und 16teln, die ersten zwei Hausaufgaben, die ersten zwei Karteikarten und eigene Grooves mit genau einem Takt zum Ausprobieren.";
-  const paid = "Einmalig, kein Abo. Danach ist alles offen: NoClick, alle Rudiments, Hand Control, die schwereren Pyramiden-Stufen, Noten, Drucken der übrigen Übungen, unbegrenzte Hausaufgaben und Karteikarten — eigene Grooves mit mehr als einem Takt, und du speicherst sie.";
+  const paid = "Danach ist alles offen: Takte ohne Click, alle Rudiments, Hand Control, die schwereren Pyramiden-Stufen, Noten, Drucken der übrigen Übungen, unbegrenzte Hausaufgaben und Karteikarten — eigene Grooves mit mehr als einem Takt, und du speicherst sie.";
   assert.match(EN[free], /exactly one bar/);
-  assert.match(EN[paid], /more than one bar/);
-  assert.match(EN[paid], /save them/);
-  assert.doesNotMatch(`${EN[free]} ${EN[paid]}`, /\bpractice\b/i);
+  assert.match(EN2[paid], /bars without click/);
+  assert.match(EN2[paid], /more than one bar/);
+  assert.match(EN2[paid], /save them/);
+  assert.doesNotMatch(EN2[paid], /NoClick/);
+  assert.doesNotMatch(`${EN[free]} ${EN2[paid]}`, /\bpractice\b/i);
+  const sheet = readFileSync(new URL("../src/lib/Paywall.jsx", import.meta.url), "utf8");
+  assert.match(sheet, /Takte ohne Click/);
+  assert.doesNotMatch(sheet, /NoClick/);
 });
 
-test("Code aus der Stunde", () => {
-  assert.equal(unlockCodeOk("sf-stunde"), true);
-  assert.equal(unlockCodeOk("  SF-Stunde "), true);
+test("Vollversion: Produkt-ID aus App Store Connect, Kauf nur in der nativen Hülle", async () => {
+  assert.equal(FULL_PRODUCT_ID, "de.schlagfertig.control.full");
+  const cap = JSON.parse(readFileSync(new URL("../capacitor.config.json", import.meta.url), "utf8"));
+  assert.equal(cap.appId, "de.schlagfertig.app");
+  assert.notEqual(FULL_PRODUCT_ID, cap.appId);
+  const src = readFileSync(new URL("../src/lib/demo.js", import.meta.url), "utf8");
+  assert.equal(countLiteral(fileURLToPath(new URL("../src", import.meta.url)), FULL_PRODUCT_ID), 1);
+  assert.match(src, /import\("\.\/iap\.js"\)/);
+  const res = await purchaseFullVersion();
+  assert.deepEqual(res, { ok: false, reason: "not-native", productId: FULL_PRODUCT_ID });
+  assert.equal(EN2["Vollversion"], "Full version");
+  assert.equal(EN2["Kaufen"], "Buy");
+  assert.equal(EN2["Einmalig, kein Abo."], "One-off, no subscription.");
+  assert.equal(EN2["Kauf geht nur in der Store-App."], "Buying only works in the store app.");
+  assert.doesNotMatch(`${EN2["Kaufen"]} ${EN2["Kauf geht nur in der Store-App."]} ${EN2["Einmalig, kein Abo."]}`, /\bpractice\b/i);
+});
+
+test("Store-Build: Code schaltet nicht frei", () => {
+  assert.equal(TESTER_UNLOCK, false);
+  assert.equal(hourCodeMatches("sf-stunde"), true);
+  assert.equal(hourCodeMatches("  SF-Stunde "), true);
+  assert.equal(hourCodeMatches("nope"), false);
+  assert.equal(hourCodeMatches(""), false);
+  assert.equal(unlockCodeOk("sf-stunde"), false);
+  assert.equal(unlockCodeOk("  SF-Stunde "), false);
   assert.equal(unlockCodeOk("nope"), false);
-  assert.equal(unlockCodeOk(""), false);
+  const vite = readFileSync(new URL("../vite.config.js", import.meta.url), "utf8");
+  assert.match(vite, /VITE_SF_TESTER_BUILD/);
+  assert.match(vite, /__SF_TESTER__/);
+});
+
+test("Gratis-Kacheln nennen sechs, gesperrte Rudiments und NoClick tragen die Schloss-Marke", () => {
+  const app = readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
+  const journal = readFileSync(new URL("../src/lib/Journal.jsx", import.meta.url), "utf8");
+  const click = readFileSync(new URL("../src/embedded/ClickTrainer.jsx", import.meta.url), "utf8");
+  const stick = readFileSync(new URL("../src/embedded/StickControl.jsx", import.meta.url), "utf8");
+  const lead = "6 gratis · 40 in der Vollversion";
+  assert.equal(EN2[lead], "6 free · 40 in the full version");
+  assert.doesNotMatch(EN2[lead], /\bpractice\b/i);
+  assert.equal(app.split(`t("${lead}")`).length - 1, 2);
+  assert.match(app, /unlocked[\s\S]{0,240}40 berühmten/);
+  assert.match(app, /unlocked[\s\S]{0,200}40 Rudiments deine eigene Übung/);
+  assert.match(journal, /if \(!rudimentOpen\(id\)\) \{ askUnlock\(\); return; \}/);
+  assert.match(journal, /if \(!inBox && !rudimentOpen\(rud\)\) \{ askUnlock\(\); return; \}/);
+  assert.match(journal, /locked \? <PaidMark \/> : null/);
+  assert.match(click, /noClickOpen\(\) \? null : <PaidMark icon \/>/);
+  assert.match(stick, /locked: !stickOpen\(e\.id\)/);
+  assert.match(stick, /nextEx && !stickOpen\(nextEx\.id\) \? <PaidMark icon \/> : null/);
+  assert.match(stick, /locked \? <PaidMark \/> : null/);
 });
 
 test("Würfel bei Sperre nur aus den sechs, auch auf Mittel/Schwer", () => {

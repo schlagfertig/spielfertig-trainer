@@ -1,10 +1,14 @@
-// Store-Freemium (Tom, 2026-10-24). Einmalig, kein Abo. Anzeige: DEMO_PRICE.
+// Store-Freemium (Tom, 2026-10-24). Einmalig, kein Abo. Anzeige: DEMO_PRICE, im nativen
+// Build der lokalisierte Store-Preis, sobald das Produkt lädt.
 // Web und Test: DEMO_ON aus, volle App. Store-Build (CAPACITOR=1 → __SF_STORE__, wie feedbackClient.js)
 // und native Hülle: DEMO_ON an, Sperren unten.
-// Freischalten jetzt: localStorage sf-unlocked, Code sf-stunde.
-// Store-IAP (Apple/Google, einmalig) ist noch nicht verdrahtet — es ruft später setUnlocked(true) auf.
+// Store-IAP hängt an purchaseFullVersion (@capgo/native-purchases, src/lib/iap.js).
+// Einmal-Kauf, nicht verbrauchbar. Die Produkt-ID steht nur in FULL_PRODUCT_ID.
+// Paket-ID bleibt de.schlagfertig.app. Dieselbe Produkt-ID für StoreKit 2 und Play Billing.
+// Code aus der Stunde nur im Tester-Build (VITE_SF_TESTER_BUILD=1 → __SF_TESTER__).
+// Im echten Store-Build gibt es den Code nicht (Apple Guideline 3.1.1).
 
-/* global __SF_STORE__ */
+/* global __SF_STORE__, __SF_TESTER__ */
 function storeBuild() {
   try {
     return typeof __SF_STORE__ !== "undefined" && __SF_STORE__ === true;
@@ -19,11 +23,19 @@ function nativeShell() {
     return false;
   }
 }
+export function nativeApp() {
+  return nativeShell();
+}
 
 export const DEMO_ON = storeBuild() || nativeShell();
 const KEY = "sf-unlocked";
 export const DEMO_PRICE = "12,99 €";
 export const PAYWALL_EVENT = "sf-paywall";
+// Einmal-Kauf der vollen App (App Store Connect, nicht verbrauchbar). Nur diese eine Stelle.
+export const FULL_PRODUCT_ID = "de.schlagfertig.control.full";
+// Literal, damit der Store-Build das Code-Feld wegoptimiert (Guideline 3.1.1).
+// true nur bei VITE_SF_TESTER_BUILD=1. Ohne das Flag (auch in node-Tests): false.
+export const TESTER_UNLOCK = typeof __SF_TESTER__ !== "undefined" && __SF_TESTER__ === true;
 
 // Frei bei Sperre: #1 Single Stroke Roll, #6 Double Stroke Open Roll,
 // #16 Single Paradiddle, #20 Flam, #22 Flam Tap, #31 Drag.
@@ -50,8 +62,8 @@ export function isUnlocked() {
   try { return localStorage.getItem(KEY) === "1"; } catch { return false; }
 }
 
-// Store-IAP (Apple/Google) setzt später hier setUnlocked(true) — noch nicht angebunden.
-// Bis dahin schreibt der Code aus der Stunde (sf-stunde) sf-unlocked.
+// Echter Kauf und Wiederherstellen schreiben hierher (src/lib/iap.js).
+// Der Code aus der Stunde schreibt das nur im Tester-Build.
 export function setUnlocked(on) {
   try {
     if (on) localStorage.setItem(KEY, "1");
@@ -72,8 +84,23 @@ export function canOpen(view) {
   return viewOpen(view, isUnlocked());
 }
 
-export function unlockCodeOk(code) {
+export function hourCodeMatches(code) {
   return String(code || "").trim().toLowerCase() === "sf-stunde";
+}
+
+// Im Store-Build immer false, auch wenn der Code stimmt (Guideline 3.1.1).
+export function unlockCodeOk(code) {
+  return TESTER_UNLOCK && hourCodeMatches(code);
+}
+
+// Haken für StoreKit (iOS) und Play Billing (Android). In der nativen Hülle öffnet das
+// den System-Kaufdialog. Sonst kein Dialog und keine Freischaltung.
+export async function purchaseFullVersion() {
+  if (!nativeShell()) {
+    return { ok: false, reason: "not-native", productId: FULL_PRODUCT_ID };
+  }
+  const { buyFullVersion } = await import("./iap.js");
+  return buyFullVersion();
 }
 
 export function rudimentOpen(id, unlocked = isUnlocked()) {

@@ -1,6 +1,6 @@
 # Vorhaben: Demo-Ausschnitt / Store-Freemium
 
-Stand: 2026-10-24. Sperre in `src/lib/demo.js`. Web und Test: `DEMO_ON` aus (volle App). Store-Build (`CAPACITOR=1` / `__SF_STORE__`) und native Hülle: `DEMO_ON` an. localStorage `sf-unlocked`. Code in der Stunde: `sf-stunde`. Preis `12,99 €` einmalig, kein Abo. Store-IAP ruft später `setUnlocked(true)` auf — noch nicht verdrahtet. Ob es live geht, entscheidet Tom.
+Stand: 2026-10-29. Sperre in `src/lib/demo.js`. Web und Test: `DEMO_ON` aus (volle App). Store-Build (`CAPACITOR=1` / `__SF_STORE__`) und native Hülle: `DEMO_ON` an. Preis `12,99 €` einmalig, kein Abo. Das Blatt zeigt Vollversion, Volle App, den Preis und **Kaufen**, ohne Code-Feld (Guideline 3.1.1). Der Code `sf-stunde` gilt nur mit `VITE_SF_TESTER_BUILD=1` (`__SF_TESTER__`). `purchaseFullVersion` kauft in der nativen Hülle das nicht verbrauchbare Produkt `de.schlagfertig.control.full` (nur die Konstante `FULL_PRODUCT_ID`; Paket-ID bleibt `de.schlagfertig.app`) über StoreKit 2 bzw. Play Billing. Ob es live geht, entscheidet Tom.
 
 Frei, wenn die Sperre an ist:
 - Start, Impressum, Datenschutz, Neuigkeiten
@@ -21,4 +21,4 @@ Zu, mit Hinweis und Freischalt-Blatt:
 - Noten (Notenblätter)
 - Drucken anderer Rudiments und Notenblätter
 
-Kacheln bleiben sichtbar. Tippen auf eine gesperrte Stelle öffnet das Blatt (Preis, was frei bleibt, Knopf Freischalten, Code für Tester).
+Kacheln bleiben sichtbar. Tippen auf eine gesperrte Stelle öffnet das Blatt (Vollversion, Preis, Knopf Kaufen, was frei bleibt). Der Code für Tester sitzt nur im Tester-Build.

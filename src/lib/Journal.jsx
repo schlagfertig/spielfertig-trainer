@@ -10,6 +10,7 @@ import { JOURNAL_EVENT, buildEntry, getCtx, journalOn, loadCards, loadHw, restor
 import { dayKey } from "./practiceLog.js";
 import JournalBackup from "./JournalBackup.jsx";
 import { askUnlock, isUnlocked, rudimentOpen, stickOpen, withinFreeCount, FREE_JOURNAL_N } from "./demo.js";
+import { PaidMark } from "./PaidMark.jsx";
 import "../styles-journal.css";
 
 const TABS = [
@@ -79,6 +80,7 @@ export function JournalBar({ view }) {
   const added = loadHw().items.some((x) => x.key === ctx.key);
   const rud = ctx.ex === "rudiments" && ctx.item != null ? ctx.item : null;
   const inBox = rud != null && hasCard(loadCards(), rud);
+  const cardLocked = rud != null && !inBox && !rudimentOpen(rud);
   return (
     <div className="jr-bar">
       <button type="button" className={added ? "jr-pill on" : "jr-pill"} aria-pressed={added} onClick={() => {
@@ -93,10 +95,11 @@ export function JournalBar({ view }) {
       {rud != null ? (
         <button type="button" className={inBox ? "jr-pill on" : "jr-pill"} aria-pressed={inBox} onClick={() => {
           const list = loadCards();
+          if (!inBox && !rudimentOpen(rud)) { askUnlock(); return; }
           if (!inBox && !withinFreeCount(list.cards.length)) { askUnlock(); return; }
           saveCards(toggleCard(list, rud).list);
         }}>
-          <span aria-hidden="true">{inBox ? "✓" : "+"}</span>{t(inBox ? "Im Karteikasten" : "In den Karteikasten")}
+          <span aria-hidden="true">{inBox ? "✓" : cardLocked ? null : "+"}</span>{cardLocked ? <PaidMark icon /> : null}{t(inBox ? "Im Karteikasten" : "In den Karteikasten")}
         </button>
       ) : null}
     </div>
@@ -191,9 +194,11 @@ function Cards({ onOpen }) {
   const cards = capped.items;
   const free = RUDIMENTS.filter((r) => !all.some((c) => c.rud === r.id));
   const [pick, setPick] = useState("");
+  const lockedTier = !isUnlocked();
   const add = () => {
     const id = Number(pick || free[0]?.id);
     if (!id) return;
+    if (!rudimentOpen(id)) { askUnlock(); return; }
     const list = loadCards();
     if (!withinFreeCount(list.cards.length)) { askUnlock(); return; }
     saveCards(addCard(list, id));
@@ -203,11 +208,37 @@ function Cards({ onOpen }) {
     <div className="jr-pane">
       <p className="dy-lead">{t("Deine Rudiments zum Dranbleiben - wie Karteikarten. Leg rein, was du besser können willst, und arbeite dich von „Neu“ bis „Sitzt“.")}</p>
       {free.length ? (
-        <div className="dy-glass jr-add">
-          <select value={pick} onChange={(e) => setPick(e.target.value)} aria-label={t("Rudiment auswählen")}>
-            <option value="">{t("Rudiment auswählen …")}</option>
-            {free.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
-          </select>
+        <div className={lockedTier ? "dy-glass jr-add jr-add-list" : "dy-glass jr-add"}>
+          {lockedTier ? (
+            <div className="jr-pick" role="listbox" aria-label={t("Rudiment auswählen")}>
+              {free.map((r) => {
+                const locked = !rudimentOpen(r.id);
+                const on = !locked && String(pick) === String(r.id);
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    role="option"
+                    aria-selected={on}
+                    className={locked ? "jr-pick-row is-locked" : on ? "jr-pick-row on" : "jr-pick-row"}
+                    onClick={() => {
+                      if (locked) { askUnlock(); return; }
+                      setPick(String(r.id));
+                    }}
+                  >
+                    <span className="jr-no">{r.id}</span>
+                    <span className="jr-pick-name">{rudName(r.id)}</span>
+                    {locked ? <PaidMark /> : null}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <select value={pick} onChange={(e) => setPick(e.target.value)} aria-label={t("Rudiment auswählen")}>
+              <option value="">{t("Rudiment auswählen …")}</option>
+              {free.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
+            </select>
+          )}
           <button type="button" className="jr-go" onClick={add} disabled={!pick}>+ {t("Karte")}</button>
         </div>
       ) : null}

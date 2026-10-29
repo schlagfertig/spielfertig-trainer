@@ -42,6 +42,14 @@
 .jr-add { display: flex; gap: 10px; align-items: center; padding: 10px 10px 10px 12px; margin: 0 0 14px; }
 .jr-add select { flex: 1; min-width: 0; min-height: 44px; border-radius: 12px; padding: 0 10px; font: 600 15px Figtree, sans-serif; color: #eeeeee;
   background: rgba(22, 26, 29, 0.7); border: 1px solid rgba(255, 255, 255, 0.18); }
+.jr-add-list { flex-direction: column; align-items: stretch; }
+.jr-pick { display: flex; flex-direction: column; gap: 4px; max-height: 280px; overflow: auto; overscroll-behavior: contain; }
+.jr-pick-row { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding: 6px 8px; border-radius: 12px; border: 1px solid transparent;
+  background: transparent; color: #eeeeee; font: 600 15px/1.2 Figtree, sans-serif; text-align: left; cursor: pointer; }
+.jr-pick-row.on { border-color: rgba(92, 200, 184, 0.7); background: rgba(92, 200, 184, 0.12); }
+.jr-pick-row.is-locked { color: #c9d3d6; }
+.jr-pick-name { flex: 1; min-width: 0; }
+.jr-add-list .jr-go { align-self: flex-end; }
 .jr-cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .jr-card { padding: 0; }
 .jr-card::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 4px; border-radius: 0 4px 4px 0; background: #868686; }
