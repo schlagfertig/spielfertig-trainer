@@ -5,7 +5,8 @@
 import { FULL_PRODUCT_ID, TESTER_UNLOCK, nativeApp, setUnlocked } from "./demo.js";
 
 let pluginPromise = null;
-let pricePromise = null;
+let priceInflight = null;
+let lastStorePrice = null;
 
 function loadPlugin() {
   if (!pluginPromise) pluginPromise = import("@capgo/native-purchases");
@@ -42,11 +43,45 @@ export function transactionGrantsFull(tx) {
   return true;
 }
 
-export function priceFromProducts(products) {
+function storePriceTexts(product) {
+  if (!product || typeof product !== "object") return [];
+  const out = [];
+  for (const key of ["priceString", "localizedPrice"]) {
+    const value = product[key];
+    if (typeof value === "string" && value.trim()) out.push(value.trim());
+  }
+  return out;
+}
+
+function storefrontCountry(storefront) {
+  if (!storefront || typeof storefront !== "object") return "";
+  return String(storefront.countryCode || "").trim().toUpperCase();
+}
+
+function unitedStates(code) {
+  return code === "US" || code === "USA";
+}
+
+// "$11.99" / "US$11.99" / "11.99 USD". Kein Umbau einer nackten Zahl.
+export function isDollarPrice(text) {
+  const s = String(text || "").trim();
+  return s.startsWith("$") || /^US\$/i.test(s) || /\bUSD\b/.test(s);
+}
+
+// Der Text vom Store, unverändert. priceString, sonst localizedPrice.
+// Eine Zahl (price) wird nicht mit einer angenommenen Währung formatiert.
+// TestFlight: displayPrice ist oft der US-Preis "$11.99", das Kaufblatt aber
+// der Storefront-Preis (DE: "12,99 €"). Dollar außerhalb der USA zählt dann nicht.
+export function priceFromProducts(products, storefront) {
   const list = Array.isArray(products) ? products : [];
   const hit = list.find((p) => p && p.identifier === FULL_PRODUCT_ID) || list[0];
-  const raw = hit && typeof hit.priceString === "string" ? hit.priceString.trim() : "";
-  return raw || null;
+  const options = storePriceTexts(hit);
+  if (!options.length) return null;
+  const country = storefrontCountry(storefront);
+  if (country && !unitedStates(country)) {
+    return options.find((text) => !isDollarPrice(text)) || null;
+  }
+  return options[0];
 }
 
 async function fetchPurchases() {
@@ -61,26 +96,31 @@ async function readStorePrice() {
   const { NativePurchases, PURCHASE_TYPE } = await loadPlugin();
   const support = await NativePurchases.isBillingSupported();
   if (!support?.isBillingSupported) return null;
+  let storefront = null;
+  if (typeof NativePurchases.getStorefront === "function") {
+    try { storefront = await NativePurchases.getStorefront(); } catch { storefront = null; }
+  }
   const { products } = await NativePurchases.getProducts({
     productIdentifiers: [FULL_PRODUCT_ID],
     productType: PURCHASE_TYPE.INAPP,
   });
-  return priceFromProducts(products);
+  return priceFromProducts(products, storefront);
 }
 
-// Lokalisierter Preis aus dem Store, z. B. "12,99 €" oder "€12.99". null = Fallback.
+// Lokalisierter Preis aus dem Store, z. B. "12,99 €" oder "€12.99".
+// null = kein brauchbarer Store-String (Web, offline, Dollar auf fremdem Storefront).
+// Der erste Treffer wird nicht festgehalten: das Kauf-Blatt fragt neu.
 export function loadStorePrice() {
   if (!nativeApp()) return Promise.resolve(null);
-  if (!pricePromise) {
-    pricePromise = readStorePrice().then((price) => {
-      if (!price) pricePromise = null;
+  if (!priceInflight) {
+    priceInflight = readStorePrice().then((price) => {
+      lastStorePrice = price;
       return price;
-    }, () => {
-      pricePromise = null;
-      return null;
+    }, () => lastStorePrice).finally(() => {
+      priceInflight = null;
     });
   }
-  return pricePromise;
+  return priceInflight;
 }
 
 // Beim Start der nativen App. Fehlschlag (offline, Produkt fehlt) lässt die

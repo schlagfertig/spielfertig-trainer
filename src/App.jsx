@@ -30,7 +30,7 @@ import TesterFeedback, { FeedbackLink } from "./lib/TesterFeedback.jsx";
 import WhatsNew from "./lib/WhatsNew.jsx";
 import { startModal } from "./lib/startModal.js";
 import { APP_VERSION } from "./lib/version.js";
-import { canOpen, isUnlocked, setUnlocked, DEMO_PRICE, PAYWALL_EVENT } from "./lib/demo.js";
+import { canOpen, isUnlocked, setUnlocked, fallbackPrice, PAYWALL_EVENT } from "./lib/demo.js";
 import { loadStorePrice, refreshEntitlement } from "./lib/iap.js";
 import { DemoPaywall } from "./lib/Paywall.jsx";
 import { AudioOffsetControl } from "./lib/AudioOffsetControl.jsx";
@@ -92,19 +92,23 @@ export default function App() {
   const [stage, setStage] = useState(false);
   const [unlocked, setUnlockedState] = useState(isUnlocked);
   const [paywall, setPaywall] = useState(false);
-  const [storePrice, setStorePrice] = useState(DEMO_PRICE);
+  const [storePrice, setStorePrice] = useState(null);
   useEffect(() => {
     const onPay = () => setPaywall(true);
     window.addEventListener(PAYWALL_EVENT, onPay);
     return () => window.removeEventListener(PAYWALL_EVENT, onPay);
   }, []);
-  // Native Hülle: Kauf beim Start prüfen, Preis aus dem Store (sonst DEMO_PRICE).
+  // Native Hülle: Kauf beim Start prüfen. Preis neu, wenn das Kauf-Blatt aufgeht.
   useEffect(() => {
     let stop = false;
     refreshEntitlement().then(() => { if (!stop) setUnlockedState(isUnlocked()); });
-    loadStorePrice().then((price) => { if (!stop && price) setStorePrice(price); });
     return () => { stop = true; };
   }, []);
+  useEffect(() => {
+    let stop = false;
+    loadStorePrice().then((price) => { if (!stop) setStorePrice(price || null); });
+    return () => { stop = true; };
+  }, [paywall]);
   // Startwerte für ein Modul, wenn es aus der „Heute“-Karte geöffnet wird (sonst null = eigene Werte).
   const [preset, setPreset] = useState(null);
   // Hand Control startet immer in der Fokus-Ansicht (aktuelle Übung groß, nächste als Vorschau).
@@ -331,7 +335,7 @@ export default function App() {
           <h1 className="app-logo" aria-label={`Schlagfertig‽ - ${t("Drums lernen - Schlag für Schlag")}`}>
             <span className="app-logo-sub" aria-hidden="true">{t("Drums lernen - Schlag für Schlag")}</span>
           </h1>
-          {!unlocked && <p className="app-price" style={{ margin: "6px 0 0", color: "#5cc8b8", font: "800 15px Figtree, sans-serif", letterSpacing: "0.02em" }}>{t("Demo")} · {t("volle App")} {storePrice}</p>}
+          {!unlocked && <p className="app-price" style={{ margin: "6px 0 0", color: "#5cc8b8", font: "800 15px Figtree, sans-serif", letterSpacing: "0.02em" }}>{t("Demo")} · {t("volle App")} {storePrice || fallbackPrice(lang)}</p>}
         </header>
         {firstHidden ? null : (
           <div className={firstLeaving ? "first-wrap leaving" : "first-wrap"}>
