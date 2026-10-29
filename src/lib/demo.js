@@ -1,5 +1,5 @@
-// Store-Freemium (Tom, 2026-10-24). Einmalig, kein Abo. Anzeige: DEMO_PRICE, im nativen
-// Build der lokalisierte Store-Preis, sobald das Produkt lädt.
+// Store-Freemium (Tom, 2026-10-24). Einmalig, kein Abo. Anzeige: der lokalisierte
+// Store-String (priceString / localizedPrice). Ohne Produkt: fallbackPrice.
 // Web und Test: DEMO_ON aus, volle App. Store-Build (CAPACITOR=1 → __SF_STORE__, wie feedbackClient.js)
 // und native Hülle: DEMO_ON an, Sperren unten.
 // Store-IAP hängt an purchaseFullVersion (@capgo/native-purchases, src/lib/iap.js).
@@ -30,6 +30,10 @@ export function nativeApp() {
 export const DEMO_ON = storeBuild() || nativeShell();
 const KEY = "sf-unlocked";
 export const DEMO_PRICE = "12,99 €";
+// Web, offline, oder der Store liefert keinen brauchbaren Preis für dieses Storefront.
+export function fallbackPrice(lang) {
+  return lang === "en" ? "€12.99" : DEMO_PRICE;
+}
 export const PAYWALL_EVENT = "sf-paywall";
 // Einmal-Kauf der vollen App (App Store Connect, nicht verbrauchbar). Nur diese eine Stelle.
 export const FULL_PRODUCT_ID = "de.schlagfertig.control.full";

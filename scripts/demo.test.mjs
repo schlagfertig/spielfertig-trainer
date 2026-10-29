@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   DEMO_ON, DEMO_PRICE, FULL_PRODUCT_ID, FREE_GROOVE_BARS, FREE_JOURNAL_N, FREE_PYRAMID_STAGES, FREE_RUDIMENT, FREE_RUDIMENTS, FREE_STICK_MAX,
+  fallbackPrice,
   TESTER_UNLOCK, canPrintRudiment, freeView, grooveBarsOpen, grooveSaveOpen, hourCodeMatches, noClickOpen, purchaseFullVersion, pyramidStageOpen, rudimentOpen, stickOpen, unlockCodeOk, viewOpen, withinFreeCount,
 } from "../src/lib/demo.js";
 import { rerollBar, rollEtude } from "../src/lib/etudeDice.js";
@@ -26,6 +27,9 @@ function countLiteral(dir, literal) {
 test("Web/Test ohne Store-Flag: keine Sperre", () => {
   assert.equal(DEMO_ON, false);
   assert.equal(DEMO_PRICE, "12,99 €");
+  assert.equal(fallbackPrice("de"), "12,99 €");
+  assert.equal(fallbackPrice("en"), "€12.99");
+  assert.equal(fallbackPrice(), "12,99 €");
   assert.equal(noClickOpen(), true);
   assert.equal(grooveSaveOpen(), true);
   assert.equal(grooveBarsOpen(1), true);

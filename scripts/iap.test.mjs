@@ -17,6 +17,19 @@ test("Preis aus dem Store, sonst kein Text", () => {
   assert.equal(priceFromProducts([]), null);
   assert.equal(priceFromProducts([{ identifier: id, priceString: "  " }]), null);
   assert.equal(priceFromProducts(null), null);
+  // Zahl nicht als Dollar formatieren. localizedPrice gilt, wenn priceString fehlt.
+  assert.equal(priceFromProducts([{ identifier: id, price: 11.99, currencyCode: "USD" }]), null);
+  assert.equal(priceFromProducts([{ identifier: id, price: 12.99, currencyCode: "EUR", localizedPrice: "12,99 €" }]), "12,99 €");
+  assert.equal(priceFromProducts([{ identifier: id, priceString: "12,99 €", price: 11.99, currencyCode: "USD" }]), "12,99 €");
+  // TestFlight: US-String bei deutschem Storefront verwerfen, echten Store-String behalten.
+  const usd = { identifier: id, priceString: "$11.99", price: 11.99, currencyCode: "USD" };
+  assert.equal(priceFromProducts([usd], { countryCode: "DEU" }), null);
+  assert.equal(priceFromProducts([usd], { countryCode: "DE" }), null);
+  assert.equal(priceFromProducts([usd], { countryCode: "USA" }), "$11.99");
+  assert.equal(priceFromProducts([usd], { countryCode: "US" }), "$11.99");
+  assert.equal(priceFromProducts([usd]), "$11.99");
+  assert.equal(priceFromProducts([{ ...usd, localizedPrice: "12,99 €" }], { countryCode: "DEU" }), "12,99 €");
+  assert.equal(priceFromProducts([{ identifier: id, priceString: "12,99 €", currencyCode: "EUR" }], { countryCode: "DEU" }), "12,99 €");
 });
 
 test("Vollversion nur bei passender, nicht widerrufener Transaktion", () => {
@@ -51,6 +64,8 @@ test("Ohne native Hülle kein Kauf und kein Store-Preis", async () => {
 test("Kauf-Blatt: Wiederherstellen nur im Store, Texte DE/EN", () => {
   const sheet = readFileSync(new URL("../src/lib/Paywall.jsx", import.meta.url), "utf8");
   assert.match(sheet, /DEMO_ON \? \(/);
+  assert.match(sheet, /fallbackPrice\(getLang\(\)\)/);
+  assert.doesNotMatch(sheet, /\$11\.99/);
   assert.match(sheet, /Kauf wiederherstellen/);
   assert.equal(sheet.split("Kauf geht nur in der Store-App.").length - 1, 1);
   assert.match(sheet, /reason === "not-native"\) return "Wiederherstellen geht nur in der Store-App\."/);
