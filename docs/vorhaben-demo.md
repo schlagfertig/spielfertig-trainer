@@ -1,6 +1,6 @@
 # Vorhaben: Demo-Ausschnitt / Store-Freemium
 
-Stand: 2026-10-29. Sperre in `src/lib/demo.js`. Web und Test: `DEMO_ON` aus (volle App). Store-Build (`CAPACITOR=1` / `__SF_STORE__`) und native Hülle: `DEMO_ON` an. Preis `12,99 €` einmalig, kein Abo. Das Blatt zeigt Vollversion, Volle App, den Preis und **Kaufen**, ohne Code-Feld (Guideline 3.1.1). Der Code `sf-stunde` gilt nur mit `VITE_SF_TESTER_BUILD=1` (`__SF_TESTER__`). `purchaseFullVersion` (Produkt-ID `de.schlagfertig.app.full`; alte Connect-Notiz `de.schlagfertig.control.full`) ist noch nicht an StoreKit/Play Billing verdrahtet. Ob es live geht, entscheidet Tom.
+Stand: 2026-10-29. Sperre in `src/lib/demo.js`. Web und Test: `DEMO_ON` aus (volle App). Store-Build (`CAPACITOR=1` / `__SF_STORE__`) und native Hülle: `DEMO_ON` an. Preis `12,99 €` einmalig, kein Abo. Das Blatt zeigt Vollversion, Volle App, den Preis und **Kaufen**, ohne Code-Feld (Guideline 3.1.1). Der Code `sf-stunde` gilt nur mit `VITE_SF_TESTER_BUILD=1` (`__SF_TESTER__`). `purchaseFullVersion` kauft in der nativen Hülle das nicht verbrauchbare Produkt `de.schlagfertig.control.full` (nur die Konstante `FULL_PRODUCT_ID`; Paket-ID bleibt `de.schlagfertig.app`) über StoreKit 2 bzw. Play Billing. Ob es live geht, entscheidet Tom.
 
 Frei, wenn die Sperre an ist:
 - Start, Impressum, Datenschutz, Neuigkeiten

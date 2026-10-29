@@ -1,9 +1,10 @@
-// Store-Freemium (Tom, 2026-10-24). Einmalig, kein Abo. Anzeige: DEMO_PRICE.
+// Store-Freemium (Tom, 2026-10-24). Einmalig, kein Abo. Anzeige: DEMO_PRICE, im nativen
+// Build der lokalisierte Store-Preis, sobald das Produkt lädt.
 // Web und Test: DEMO_ON aus, volle App. Store-Build (CAPACITOR=1 → __SF_STORE__, wie feedbackClient.js)
 // und native Hülle: DEMO_ON an, Sperren unten.
-// Store-IAP (Apple/Google, einmalig) hängt sich an purchaseFullVersion — noch nicht verdrahtet.
-// Produkt-ID: de.schlagfertig.app.full (Paket-ID de.schlagfertig.app).
-// App Store Connect (Lotse) hat noch die ältere ID de.schlagfertig.control.full notiert.
+// Store-IAP hängt an purchaseFullVersion (@capgo/native-purchases, src/lib/iap.js).
+// Einmal-Kauf, nicht verbrauchbar. Die Produkt-ID steht nur in FULL_PRODUCT_ID.
+// Paket-ID bleibt de.schlagfertig.app. Dieselbe Produkt-ID für StoreKit 2 und Play Billing.
 // Code aus der Stunde nur im Tester-Build (VITE_SF_TESTER_BUILD=1 → __SF_TESTER__).
 // Im echten Store-Build gibt es den Code nicht (Apple Guideline 3.1.1).
 
@@ -22,14 +23,16 @@ function nativeShell() {
     return false;
   }
 }
+export function nativeApp() {
+  return nativeShell();
+}
 
 export const DEMO_ON = storeBuild() || nativeShell();
 const KEY = "sf-unlocked";
 export const DEMO_PRICE = "12,99 €";
 export const PAYWALL_EVENT = "sf-paywall";
-// Einmal-Kauf der vollen App. An diese ID gehen StoreKit und Play Billing.
-// de.schlagfertig.control.full bleibt nur die alte Connect-Notiz, nicht die Paket-ID.
-export const FULL_PRODUCT_ID = "de.schlagfertig.app.full";
+// Einmal-Kauf der vollen App (App Store Connect, nicht verbrauchbar). Nur diese eine Stelle.
+export const FULL_PRODUCT_ID = "de.schlagfertig.control.full";
 // Literal, damit der Store-Build das Code-Feld wegoptimiert (Guideline 3.1.1).
 // true nur bei VITE_SF_TESTER_BUILD=1. Ohne das Flag (auch in node-Tests): false.
 export const TESTER_UNLOCK = typeof __SF_TESTER__ !== "undefined" && __SF_TESTER__ === true;
@@ -59,7 +62,7 @@ export function isUnlocked() {
   try { return localStorage.getItem(KEY) === "1"; } catch { return false; }
 }
 
-// Store-IAP (Apple/Google) setzt bei echtem Kauf hier setUnlocked(true) — noch nicht angebunden.
+// Echter Kauf und Wiederherstellen schreiben hierher (src/lib/iap.js).
 // Der Code aus der Stunde schreibt das nur im Tester-Build.
 export function setUnlocked(on) {
   try {
@@ -90,14 +93,14 @@ export function unlockCodeOk(code) {
   return TESTER_UNLOCK && hourCodeMatches(code);
 }
 
-// Haken für StoreKit (iOS) und Play Billing (Android). Noch kein Plugin, kein System-Kaufdialog.
-// Wenn der Kauf später klappt: setUnlocked(true) und { ok: true, productId: FULL_PRODUCT_ID }.
-export function purchaseFullVersion() {
-  return Promise.resolve({
-    ok: false,
-    reason: "not-wired",
-    productId: FULL_PRODUCT_ID,
-  });
+// Haken für StoreKit (iOS) und Play Billing (Android). In der nativen Hülle öffnet das
+// den System-Kaufdialog. Sonst kein Dialog und keine Freischaltung.
+export async function purchaseFullVersion() {
+  if (!nativeShell()) {
+    return { ok: false, reason: "not-native", productId: FULL_PRODUCT_ID };
+  }
+  const { buyFullVersion } = await import("./iap.js");
+  return buyFullVersion();
 }
 
 export function rudimentOpen(id, unlocked = isUnlocked()) {

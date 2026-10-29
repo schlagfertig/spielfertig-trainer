@@ -115,5 +115,10 @@ export const EN2 = {
   "Kaufen": "Buy",
   "Einmalig, kein Abo.": "One-off, no subscription.",
   "Kauf geht nur in der Store-App.": "Buying only works in the store app.",
+  "Kauf wiederherstellen": "Restore purchase",
+  "Kauf abgebrochen.": "Purchase cancelled.",
+  "Kauf hat nicht geklappt. Bitte nochmal versuchen.": "The purchase didn't go through. Please try again.",
+  "Kein Kauf zum Wiederherstellen.": "No purchase to restore.",
+  "Wiederherstellen hat nicht geklappt. Bitte nochmal versuchen.": "Restore didn't work. Please try again.",
   "Danach ist alles offen: Takte ohne Click, alle Rudiments, Hand Control, die schwereren Pyramiden-Stufen, Noten, Drucken der übrigen Übungen, unbegrenzte Hausaufgaben und Karteikarten — eigene Grooves mit mehr als einem Takt, und du speicherst sie.": "Then everything is open: bars without click, all rudiments, Hand Control, the harder pyramid steps, sheet music, printing the other exercises, unlimited homework and cards — your own grooves with more than one bar, and you can save them.",
 };

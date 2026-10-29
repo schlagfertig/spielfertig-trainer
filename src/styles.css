@@ -1095,7 +1095,23 @@ body:has(.page.view-lexicon), body:has(.page.view-lexicon) #root, .page.tool.vie
 }
 .paywall-buy:active { transform: translateY(1px); }
 .paywall-buy:focus-visible { outline: 2px solid #f4f7f6; outline-offset: 3px; }
+.paywall-buy:disabled,
+.paywall-restore:disabled { opacity: 0.55; cursor: default; }
 .paywall-sub { margin: 10px 0 0; color: #9aa6aa; font-size: 15px; }
+.paywall-restore {
+  display: block;
+  width: 100%;
+  margin: 2px 0 0;
+  min-height: 44px;
+  padding: 8px;
+  border: 0;
+  background: transparent;
+  color: #5cc8b8;
+  font: 700 16px Figtree, sans-serif;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
 .paywall-note { margin: 8px 0 0; color: #e8b84b; font-size: 15px; font-weight: 700; }
 .paywall-copy { margin: 12px 0 0; color: #c5d0d2; font-size: 15px; line-height: 1.4; }
 .paywall-tester { margin-top: 16px; padding-top: 12px; border-top: 1px solid #2f383d; }
@@ -1144,6 +1160,7 @@ body:has(.page.view-lexicon), body:has(.page.view-lexicon) #root, .page.tool.vie
   cursor: pointer;
 }
 .paywall-x:focus-visible,
+.paywall-restore:focus-visible,
 .paywall-unlock:focus-visible,
 .paywall-close:focus-visible,
 .paywall-code input:focus-visible {

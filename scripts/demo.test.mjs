@@ -1,6 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   DEMO_ON, DEMO_PRICE, FULL_PRODUCT_ID, FREE_GROOVE_BARS, FREE_JOURNAL_N, FREE_PYRAMID_STAGES, FREE_RUDIMENT, FREE_RUDIMENTS, FREE_STICK_MAX,
   TESTER_UNLOCK, canPrintRudiment, freeView, grooveBarsOpen, grooveSaveOpen, hourCodeMatches, noClickOpen, purchaseFullVersion, pyramidStageOpen, rudimentOpen, stickOpen, unlockCodeOk, viewOpen, withinFreeCount,
@@ -10,6 +12,16 @@ import { EN } from "../src/lib/en.js";
 import { EN2 } from "../src/lib/en2.js";
 
 const FREE_IDS = [1, 6, 16, 20, 22, 31];
+
+function countLiteral(dir, literal) {
+  let n = 0;
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) n += countLiteral(path, literal);
+    else if (/\.(js|jsx)$/.test(entry.name)) n += readFileSync(path, "utf8").split(literal).length - 1;
+  }
+  return n;
+}
 
 test("Web/Test ohne Store-Flag: keine Sperre", () => {
   assert.equal(DEMO_ON, false);
@@ -87,12 +99,16 @@ test("Eigene Grooves: 1 Takt frei, mehr Takte und Speichern volle App", () => {
   assert.doesNotMatch(sheet, /NoClick/);
 });
 
-test("Vollversion: Produkt-ID folgt der Paket-ID, Kauf noch ohne Store", async () => {
-  assert.equal(FULL_PRODUCT_ID, "de.schlagfertig.app.full");
+test("Vollversion: Produkt-ID aus App Store Connect, Kauf nur in der nativen Hülle", async () => {
+  assert.equal(FULL_PRODUCT_ID, "de.schlagfertig.control.full");
+  const cap = JSON.parse(readFileSync(new URL("../capacitor.config.json", import.meta.url), "utf8"));
+  assert.equal(cap.appId, "de.schlagfertig.app");
+  assert.notEqual(FULL_PRODUCT_ID, cap.appId);
   const src = readFileSync(new URL("../src/lib/demo.js", import.meta.url), "utf8");
-  assert.match(src, /de\.schlagfertig\.control\.full/);
+  assert.equal(countLiteral(fileURLToPath(new URL("../src", import.meta.url)), FULL_PRODUCT_ID), 1);
+  assert.match(src, /import\("\.\/iap\.js"\)/);
   const res = await purchaseFullVersion();
-  assert.deepEqual(res, { ok: false, reason: "not-wired", productId: "de.schlagfertig.app.full" });
+  assert.deepEqual(res, { ok: false, reason: "not-native", productId: FULL_PRODUCT_ID });
   assert.equal(EN2["Vollversion"], "Full version");
   assert.equal(EN2["Kaufen"], "Buy");
   assert.equal(EN2["Einmalig, kein Abo."], "One-off, no subscription.");
