@@ -382,7 +382,9 @@ export default function App() {
             <TileIcon name="click" />
             <div className="card-kicker">Tempo</div>
             <div className="card-title">{t("Click-Trainer")}</div>
-            <div className="card-lead">{getLang() === "en" ? "Hold your tempo, get rock-solid … now even without a click." : "Halte dein Tempo, werde „clickfest“ … jetzt auch ohne Click."}</div>
+            <div className="card-lead">{unlocked
+              ? (getLang() === "en" ? "Hold your tempo, get rock-solid … now even without a click." : "Halte dein Tempo, werde „clickfest“ … jetzt auch ohne Click.")
+              : t("Takte ohne Click: Vollversion")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card has-icon" onClick={() => go("pyramid")}>

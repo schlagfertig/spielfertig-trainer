@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { PLANS, dayKey, pickPlanId, planMinutes } from "./today.js";
+import { PLANS, dayKey, pickPlanId, planMinutes, stepDetail } from "./today.js";
+import { isUnlocked } from "./demo.js";
 import { TODAY_SKIP_KEY, hideFirstToday, isFirstHidden } from "./firstSkip.js";
 import { loadSession, saveSession } from "./session.js";
 import { QuestFlag } from "./HomeIcons.jsx";
@@ -68,7 +69,7 @@ export default function Today({ onOpen }) {
               <span className="today-min"><b>{s.min}</b>{t("Min")}</span>
               <span className="today-txt">
                 <span className="today-label">{t(s.label)}</span>
-                <span className="today-detail">{t(s.detail)}</span>
+                <span className="today-detail">{t(stepDetail(s, isUnlocked()))}</span>
               </span>
               <span className="today-go" aria-hidden="true">›</span>
             </button>

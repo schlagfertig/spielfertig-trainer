@@ -52,10 +52,13 @@ test("Kauf-Blatt: Wiederherstellen nur im Store, Texte DE/EN", () => {
   const sheet = readFileSync(new URL("../src/lib/Paywall.jsx", import.meta.url), "utf8");
   assert.match(sheet, /DEMO_ON \? \(/);
   assert.match(sheet, /Kauf wiederherstellen/);
+  assert.equal(sheet.split("Kauf geht nur in der Store-App.").length - 1, 1);
+  assert.match(sheet, /reason === "not-native"\) return "Wiederherstellen geht nur in der Store-App\."/);
   assert.match(sheet, /Kauf abgebrochen\./);
   assert.match(sheet, /Kauf hat nicht geklappt\. Bitte nochmal versuchen\./);
   assert.match(sheet, /Kein Kauf zum Wiederherstellen\./);
   assert.match(sheet, /Wiederherstellen hat nicht geklappt\. Bitte nochmal versuchen\./);
+  assert.equal(EN2["Wiederherstellen geht nur in der Store-App."], "Restore only works in the store app.");
   assert.equal(EN2["Kauf wiederherstellen"], "Restore purchase");
   assert.equal(EN2["Kauf abgebrochen."], "Purchase cancelled.");
   assert.equal(EN2["Kauf hat nicht geklappt. Bitte nochmal versuchen."], "The purchase didn't go through. Please try again.");
@@ -63,6 +66,7 @@ test("Kauf-Blatt: Wiederherstellen nur im Store, Texte DE/EN", () => {
   assert.equal(EN2["Wiederherstellen hat nicht geklappt. Bitte nochmal versuchen."], "Restore didn't work. Please try again.");
   const joined = [
     EN2["Kauf wiederherstellen"],
+    EN2["Wiederherstellen geht nur in der Store-App."],
     EN2["Kauf abgebrochen."],
     EN2["Kauf hat nicht geklappt. Bitte nochmal versuchen."],
     EN2["Kein Kauf zum Wiederherstellen."],
