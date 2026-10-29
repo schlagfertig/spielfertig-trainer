@@ -138,6 +138,11 @@ test("Gratis-Kacheln nennen sechs, gesperrte Rudiments und NoClick tragen die Sc
   const lead = "6 gratis · 40 in der Vollversion";
   assert.equal(EN2[lead], "6 free · 40 in the full version");
   assert.doesNotMatch(EN2[lead], /\bpractice\b/i);
+  const clickLead = "Takte ohne Click: Vollversion";
+  assert.equal(EN2[clickLead], "Without click: Full version");
+  assert.doesNotMatch(EN2[clickLead], /\bpractice\b/i);
+  assert.match(app, /: t\("Takte ohne Click: Vollversion"\)/);
+  assert.match(app, /clickfest/);
   assert.equal(app.split(`t("${lead}")`).length - 1, 2);
   assert.match(app, /unlocked[\s\S]{0,240}40 berühmten/);
   assert.match(app, /unlocked[\s\S]{0,200}40 Rudiments deine eigene Übung/);

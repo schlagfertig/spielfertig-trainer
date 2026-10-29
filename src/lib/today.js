@@ -3,13 +3,18 @@
 // Reines Datenmodul ohne DOM-Import, damit der Test es direkt mit node laden kann.
 // Texte sind deutsch; die Karte übersetzt sie mit t() (Schlüssel in en.js).
 
+// Gratis: die Pyramide in der Tagesquest bleibt bei 4tel, 8tel und 16tel.
+// Feinere Stufen (Triole, Quintole, Sextole, Septole, 32tel) nur in der Vollversion.
+export const FREE_PYRAMID_QUEST = "4tel bis 16tel · 60 BPM";
+const PAST_SIXTEENTH = /32tel|Septole|Quintole|Sextole|Triole/;
+
 export const PLANS = [
   {
     id: "A",
     title: "Grundlagen",
     steps: [
       { min: 5, label: "Puls halten", detail: "Click-Trainer · 80 BPM", view: "click", preset: { bpm: 80 } },
-      { min: 5, label: "Pyramide", detail: "4tel bis 32tel · 60 BPM", view: "pyramid", preset: { bpm: 60 } },
+      { min: 5, label: "Pyramide", detail: "4tel bis 32tel · 60 BPM", freeDetail: FREE_PYRAMID_QUEST, view: "pyramid", preset: { bpm: 60 } },
       { min: 10, label: "Hand Control", detail: "ab Übung 1 · 70 BPM", view: "stick", preset: { bpm: 70, ex: 1 } },
     ],
   },
@@ -44,4 +49,13 @@ export function pickPlanId(d = new Date(), saved = {}) {
   if (saved && saved.day === dayKey(d) && PLANS.some((p) => p.id === saved.plan)) return saved.plan;
   const monFirst = (new Date(d).getDay() + 6) % 7;
   return PLANS[monFirst % PLANS.length].id;
+}
+
+// Vollversion: der hinterlegte Text. Gratis: bei der Pyramide nie über 16tel hinaus.
+export function stepDetail(step, unlocked) {
+  if (!step) return "";
+  if (unlocked || step.view !== "pyramid") return step.detail;
+  const offered = step.freeDetail || step.detail || "";
+  if (PAST_SIXTEENTH.test(offered)) return FREE_PYRAMID_QUEST;
+  return offered;
 }
