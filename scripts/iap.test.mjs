@@ -79,6 +79,7 @@ test("Play Billing und iOS 15 für das erzeugte native Projekt", () => {
   assert.equal(ensureBillingPermission(withPerm), withPerm);
   assert.equal(ensureIos15("platform :ios, '14.0'\n"), "platform :ios, '15.0'\n");
   assert.equal(ensureIos15("platform :ios, '15.0'\n"), "platform :ios, '15.0'\n");
+  assert.equal(ensureIos15('platform :ios, "14.0"\n'), "platform :ios, '15.0'\n");
   assert.equal(
     ensureIos15("IPHONEOS_DEPLOYMENT_TARGET = 14.0;\nIPHONEOS_DEPLOYMENT_TARGET = 15.0;\n"),
     "IPHONEOS_DEPLOYMENT_TARGET = 15.0;\nIPHONEOS_DEPLOYMENT_TARGET = 15.0;\n",

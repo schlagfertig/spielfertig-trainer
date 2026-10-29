@@ -1,9 +1,9 @@
 // Nach `npx cap add`: iOS 15 für StoreKit 2, Play-Billing-Recht für Android.
 // ios/ und android/ liegen nicht im Repo; der Android-Workflow ruft `android` auf.
 
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, realpathSync } from "node:fs";
 import { resolve } from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 
 export function ensureBillingPermission(xml) {
   const text = String(xml || "");
@@ -15,7 +15,7 @@ export function ensureBillingPermission(xml) {
 
 export function ensureIos15(text) {
   return String(text || "")
-    .replace(/platform :ios, '(\d+(?:\.\d+)?)'/g, (line, version) => (
+    .replace(/platform :ios,\s*['"](\d+(?:\.\d+)?)['"]/g, (line, version) => (
       Number.parseFloat(version) >= 15 ? line : "platform :ios, '15.0'"
     ))
     .replace(/IPHONEOS_DEPLOYMENT_TARGET = (\d+(?:\.\d+)?);/g, (line, version) => (
@@ -32,14 +32,29 @@ function patchFile(path, transform) {
   const prev = readFileSync(path, "utf8");
   const next = transform(prev);
   if (next !== prev) writeFileSync(path, next);
+  return next;
 }
 
-const isMain = process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
+// import.meta.url und argv können sich auf dem macOS-Runner unterscheiden (Symlink).
+function invokedDirectly() {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  try {
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve(entry));
+  } catch {
+    return false;
+  }
+}
+
 const cmd = process.argv[2];
-if (isMain && cmd === "android") {
+if (invokedDirectly() && cmd === "android") {
   patchFile("android/app/src/main/AndroidManifest.xml", ensureBillingPermission);
-} else if (isMain && cmd === "ios") {
-  patchFile("ios/App/Podfile", ensureIos15);
+} else if (invokedDirectly() && cmd === "ios") {
+  const podfile = patchFile("ios/App/Podfile", ensureIos15);
+  const line = String(podfile || "").split("\n").find((l) => l.includes("platform :ios"));
+  console.log(line || "Podfile ohne platform :ios");
+  const version = line && line.match(/(\d+(?:\.\d+)?)/);
+  if (!version || Number.parseFloat(version[1]) < 15) process.exitCode = 1;
   if (existsSync("ios/App/App.xcodeproj/project.pbxproj")) {
     patchFile("ios/App/App.xcodeproj/project.pbxproj", ensureIos15);
   }
