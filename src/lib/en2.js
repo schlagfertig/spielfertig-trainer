@@ -116,6 +116,7 @@ export const EN2 = {
   "Kaufen": "Buy",
   "Einmalig, kein Abo.": "One-off, no subscription.",
   "Kauf geht nur in der Store-App.": "Buying only works in the store app.",
+  "Wiederherstellen geht nur in der Store-App.": "Restore only works in the store app.",
   "Kauf wiederherstellen": "Restore purchase",
   "Kauf abgebrochen.": "Purchase cancelled.",
   "Kauf hat nicht geklappt. Bitte nochmal versuchen.": "The purchase didn't go through. Please try again.",

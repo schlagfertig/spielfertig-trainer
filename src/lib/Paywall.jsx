@@ -122,7 +122,7 @@ function buyNote(res) {
 }
 
 function restoreNote(res) {
-  if (res?.reason === "not-native") return "Kauf geht nur in der Store-App.";
+  if (res?.reason === "not-native") return "Wiederherstellen geht nur in der Store-App.";
   if (res?.reason === "cancel") return "Kauf abgebrochen.";
   if (res?.reason === "none") return "Kein Kauf zum Wiederherstellen.";
   return "Wiederherstellen hat nicht geklappt. Bitte nochmal versuchen.";
