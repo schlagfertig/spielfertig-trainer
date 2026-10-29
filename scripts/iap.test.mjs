@@ -96,6 +96,7 @@ test("Play Billing und iOS 15 für das erzeugte native Projekt", () => {
   const iosWorkflow = readFileSync(new URL("../.github/workflows/ios-testflight.yml", import.meta.url), "utf8");
   assert.doesNotMatch(iosWorkflow, /--no-package-lock/);
   assert.match(iosWorkflow, /applyIosDeploymentTarget/);
+  assert.match(iosWorkflow, /mv dist dist\.keep/);
   const pkg = readFileSync(new URL("../package.json", import.meta.url), "utf8");
   assert.match(pkg, /"@capgo\/native-purchases": "7\.19\.3"/);
 });
