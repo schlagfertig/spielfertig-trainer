@@ -8,6 +8,7 @@ import { loadSession, saveSession } from "../lib/session.js";
 import { TERNARY_ENABLED, TRI_LEN, triHands, triNotes } from "../lib/handTernary.js";
 import { usePracticeTrack } from "../lib/PracticeDiary.jsx";
 import { askUnlock, stickOpen } from "../lib/demo.js";
+import { PaidMark } from "../lib/PaidMark.jsx";
 
 const DIM = "#8a969c";
 const TEAL = "#5cc8b8";
@@ -225,10 +226,22 @@ function RepsDrum({ value, min = 1, max = 20, onChange, disabled, label }) {
 }
 
 function ListRow({ row, onPick, playing, label, near, className, ternary }) {
+  const locked = !stickOpen(row.id);
+  const name = t("Nummer {n}", { n: row.id });
   return (
-    <button type="button" className={className} onClick={() => onPick(row.id)} disabled={playing} style={{ width: "100%", marginTop: 4, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: near ? "8px 8px 6px" : "6px 8px", color: "inherit", textAlign: "left", opacity: near ? 1 : 0.7 }}>
-      {label ? <div style={{ color: TEAL, font: "400 14px Figtree, sans-serif", letterSpacing: "0.08em", padding: "0 4px 4px" }}>{label}</div> : null}
-      <StickRow id={row.id} hands={row.hands} ternary={ternary} />
+    <button
+      type="button"
+      className={`${className || ""}${locked ? " stick-locked" : ""}`}
+      onClick={() => onPick(row.id)}
+      disabled={playing}
+      aria-label={locked ? `${name} · ${t("Volle App")}` : undefined}
+      style={{ display: locked ? "flex" : undefined, alignItems: "center", gap: locked ? 8 : undefined, width: "100%", marginTop: 4, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: near ? "8px 8px 6px" : "6px 8px", color: "inherit", textAlign: "left", opacity: near ? 1 : 0.7 }}
+    >
+      <span style={locked ? { flex: "1 1 auto", minWidth: 0 } : undefined}>
+        {label ? <div style={{ color: TEAL, font: "400 14px Figtree, sans-serif", letterSpacing: "0.08em", padding: "0 4px 4px" }}>{label}</div> : null}
+        <StickRow id={row.id} hands={row.hands} ternary={ternary} />
+      </span>
+      {locked ? <PaidMark /> : null}
     </button>
   );
 }
@@ -489,6 +502,7 @@ export default function StickControl({ preset = null } = {}) {
         /* Kopfzeile ist hier angeheftet - in der Home-Bildschirm-App unterhalb der Statusleiste (im Browser 0) */
         .page:has(.stick-wrap) .top { top: env(safe-area-inset-top, 0px); }
         .stick-far { filter: blur(1.8px); opacity: 0.45 !important; transition: filter 0.3s, opacity 0.3s; }
+        .stick-far.stick-locked, .stick-prev.stick-locked { filter: none; opacity: 0.95 !important; }
         /* Frühere (schon gespielte) Übungen: wie die fernen kommenden unscharf und gedämpft - die direkt davor etwas weniger, damit sie lesbar bleibt */
         .stick-prev { filter: blur(1.1px); opacity: 0.55 !important; transition: filter 0.3s, opacity 0.3s; }
         .stick-scrolling :is(.stick-far, .stick-prev) { filter: none; opacity: 0.7 !important; }
@@ -582,7 +596,7 @@ export default function StickControl({ preset = null } = {}) {
           background: #14191c; border: 1px solid #2f383d; border-radius: 12px;
         }
         .stick-next-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-        .stick-next-kick { color: ${TEAL}; font: 800 12px Figtree, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; }
+        .stick-next-kick { display: inline-flex; align-items: center; gap: 6px; color: ${TEAL}; font: 800 12px Figtree, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; }
         .stick-next-body {
           display: block; width: 100%; margin: 0; padding: 0; border: 0; background: none; color: inherit; opacity: 0.9;
         }
@@ -774,7 +788,7 @@ export default function StickControl({ preset = null } = {}) {
         </div>
       <div className={lastRep ? "stick-next soon" : "stick-next"} data-next={nextEx ? nextEx.id : "end"} role="status" aria-live="polite" aria-atomic="true">
         <div className="stick-next-head">
-          <span className="stick-next-kick">{nextEx ? t("Als Nächstes") : t("Letzte Übung")}</span>
+          <span className="stick-next-kick">{nextEx ? t("Als Nächstes") : t("Letzte Übung")}{nextEx && !stickOpen(nextEx.id) ? <PaidMark icon /> : null}</span>
           {challenge && playing && repNow > 0 ? <span className="stick-next-reps" aria-hidden="true">{repNow}<span className="of"> / {reps}</span></span> : null}
         </div>
         {nextEx ? (
@@ -830,7 +844,7 @@ export default function StickControl({ preset = null } = {}) {
           </div>
         </div>
         <NavScrub
-          items={EXERCISES.map((e) => ({ id: e.id, label: t("Nr. {n}", { n: e.id }), preview: e.hands.slice(0, 8) }))}
+          items={EXERCISES.map((e) => ({ id: e.id, label: t("Nr. {n}", { n: e.id }), preview: e.hands.slice(0, 8), locked: !stickOpen(e.id) }))}
           index={idx}
           disabled={playing}
           onPick={pick}

@@ -130,6 +130,26 @@ test("Store-Build: Code schaltet nicht frei", () => {
   assert.match(vite, /__SF_TESTER__/);
 });
 
+test("Gratis-Kacheln nennen sechs, gesperrte Rudiments und NoClick tragen die Schloss-Marke", () => {
+  const app = readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
+  const journal = readFileSync(new URL("../src/lib/Journal.jsx", import.meta.url), "utf8");
+  const click = readFileSync(new URL("../src/embedded/ClickTrainer.jsx", import.meta.url), "utf8");
+  const stick = readFileSync(new URL("../src/embedded/StickControl.jsx", import.meta.url), "utf8");
+  const lead = "6 gratis · 40 in der Vollversion";
+  assert.equal(EN2[lead], "6 free · 40 in the full version");
+  assert.doesNotMatch(EN2[lead], /\bpractice\b/i);
+  assert.equal(app.split(`t("${lead}")`).length - 1, 2);
+  assert.match(app, /unlocked[\s\S]{0,240}40 berühmten/);
+  assert.match(app, /unlocked[\s\S]{0,200}40 Rudiments deine eigene Übung/);
+  assert.match(journal, /if \(!rudimentOpen\(id\)\) \{ askUnlock\(\); return; \}/);
+  assert.match(journal, /if \(!inBox && !rudimentOpen\(rud\)\) \{ askUnlock\(\); return; \}/);
+  assert.match(journal, /locked \? <PaidMark \/> : null/);
+  assert.match(click, /noClickOpen\(\) \? null : <PaidMark icon \/>/);
+  assert.match(stick, /locked: !stickOpen\(e\.id\)/);
+  assert.match(stick, /nextEx && !stickOpen\(nextEx\.id\) \? <PaidMark icon \/> : null/);
+  assert.match(stick, /locked \? <PaidMark \/> : null/);
+});
+
 test("Würfel bei Sperre nur aus den sechs, auch auf Mittel/Schwer", () => {
   for (const level of ["leicht", "mittel", "schwer"]) {
     for (let k = 0; k < 20; k++) {

@@ -364,14 +364,18 @@ export default function App() {
             <TileIcon name="rudiments" />
             <div className="card-kicker">{t("Üben")}</div>
             <div className="card-title">Rudiments</div>
-            <div className="card-lead">{t("Hier die 40 berühmten International Drum Rudiments, die von der Percussive Arts Society seit 42 Jahren kuratiert werden.")}</div>
+            <div className="card-lead">{unlocked
+              ? t("Hier die 40 berühmten International Drum Rudiments, die von der Percussive Arts Society seit 42 Jahren kuratiert werden.")
+              : t("6 gratis · 40 in der Vollversion")}</div>
             <div className="card-go">{t("Öffnen")}</div>
           </button>
           <button className="card has-icon" onClick={() => go("dice")}>
             <TileIcon name="dice" />
             <div className="card-kicker">{`${t("Neu")} · Rudiment`}</div>
             <div className="card-title">{t("Rudiment-Würfel")}</div>
-            <div className="card-lead">{t("Würfel dir aus den 40 Rudiments deine eigene Übung - jedes Mal neu, Takt für Takt.")}</div>
+            <div className="card-lead">{unlocked
+              ? t("Würfel dir aus den 40 Rudiments deine eigene Übung - jedes Mal neu, Takt für Takt.")
+              : t("6 gratis · 40 in der Vollversion")}</div>
             <div className="card-go">{cta("dice")}</div>
           </button>
           <button className="card has-icon" onClick={() => open("click")}>

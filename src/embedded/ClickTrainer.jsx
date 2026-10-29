@@ -12,6 +12,7 @@ import { usePracticeTrack } from "../lib/PracticeDiary.jsx";
 import NoClick from "../lib/NoClick.jsx";
 import { PracticeClip } from "../lib/PracticeClip.jsx";
 import { askUnlock, noClickOpen } from "../lib/demo.js";
+import { PaidMark } from "../lib/PaidMark.jsx";
 
 const INK = "#161a1d";
 const LINE = "#2f383d";
@@ -255,7 +256,13 @@ export default function ClickTrainer({ preset = null } = {}) {
       <div className="seg" style={{ margin: "8px 0 12px", maxWidth: "100%" }}>
         <button type="button" className={mode === "hold" ? "on" : ""} onClick={() => pickMode("hold")}>{t("Tempo halten")}</button>
         <button type="button" className={ramp ? "on" : ""} onClick={() => pickMode("ramp")}>{t("Tempo steigern")}</button>
-        <button type="button" className={mode === "noclick" ? "on" : ""} onClick={() => pickMode("noclick")} title={noClickOpen() ? undefined : t("Volle App")}>NoClick</button>
+        <button
+          type="button"
+          className={`${mode === "noclick" ? "on" : ""}${noClickOpen() ? "" : " has-lock"}`}
+          onClick={() => pickMode("noclick")}
+          title={noClickOpen() ? undefined : t("Volle App")}
+          aria-label={noClickOpen() ? "NoClick" : `NoClick · ${t("Volle App")}`}
+        >{noClickOpen() ? null : <PaidMark icon />}NoClick</button>
       </div>
       {mode === "noclick" ? <NoClick dialSize={dialSize} /> : (<>
       <div className="panel">
