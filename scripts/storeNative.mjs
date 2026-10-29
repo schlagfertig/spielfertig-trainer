@@ -1,9 +1,7 @@
-// Nach `npx cap add`: iOS 15 für StoreKit 2, Play-Billing-Recht für Android.
+// Nach `npx cap add`: iOS-Deployment-Target aus dem Capgo-Podspec, Play-Billing-Recht für Android.
 // ios/ und android/ liegen nicht im Repo; der Android-Workflow ruft `android` auf.
 
-import { readFileSync, writeFileSync, existsSync, realpathSync } from "node:fs";
-import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 
 export function ensureBillingPermission(xml) {
   const text = String(xml || "");
@@ -13,14 +11,30 @@ export function ensureBillingPermission(xml) {
   return text.replace(/<manifest\b[^>]*>/, (tag) => `${tag}\n${line}`);
 }
 
-export function ensureIos15(text) {
+export function deploymentTargetFromPodspec(text) {
+  const found = [...String(text || "").matchAll(/\.ios\.deployment_target\s*=\s*['"](\d+(?:\.\d+)?)['"]/g)]
+    .map((m) => Number.parseFloat(m[1]))
+    .filter((n) => Number.isFinite(n));
+  if (!found.length) throw new Error("ios.deployment_target fehlt im Podspec");
+  const highest = Math.max(...found);
+  return Number.isInteger(highest) ? `${highest}.0` : String(highest);
+}
+
+export function ensureIosVersion(text, minimum) {
+  const floor = Number.parseFloat(minimum);
+  if (!Number.isFinite(floor)) throw new Error(`iOS-Version ungültig: ${minimum}`);
+  const label = Number.isInteger(floor) ? `${floor}.0` : String(floor);
   return String(text || "")
     .replace(/platform :ios,\s*['"](\d+(?:\.\d+)?)['"]/g, (line, version) => (
-      Number.parseFloat(version) >= 15 ? line : "platform :ios, '15.0'"
+      Number.parseFloat(version) >= floor ? line : `platform :ios, '${label}'`
     ))
     .replace(/IPHONEOS_DEPLOYMENT_TARGET = (\d+(?:\.\d+)?);/g, (line, version) => (
-      Number.parseFloat(version) >= 15 ? line : "IPHONEOS_DEPLOYMENT_TARGET = 15.0;"
+      Number.parseFloat(version) >= floor ? line : `IPHONEOS_DEPLOYMENT_TARGET = ${label};`
     ));
+}
+
+export function ensureIos15(text) {
+  return ensureIosVersion(text, "15.0");
 }
 
 function patchFile(path, transform) {
@@ -35,27 +49,34 @@ function patchFile(path, transform) {
   return next;
 }
 
-// import.meta.url und argv können sich auf dem macOS-Runner unterscheiden (Symlink).
+// argv-Vergleich über Datei-URLs schlägt auf dem macOS-Runner fehl und lässt das Skript still aus.
 function invokedDirectly() {
-  const entry = process.argv[1];
-  if (!entry) return false;
-  try {
-    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve(entry));
-  } catch {
-    return false;
-  }
+  return /(?:^|\/)storeNative\.mjs$/.test(String(process.argv[1] || "").replaceAll("\\", "/"));
 }
 
 const cmd = process.argv[2];
 if (invokedDirectly() && cmd === "android") {
   patchFile("android/app/src/main/AndroidManifest.xml", ensureBillingPermission);
 } else if (invokedDirectly() && cmd === "ios") {
-  const podfile = patchFile("ios/App/Podfile", ensureIos15);
-  const line = String(podfile || "").split("\n").find((l) => l.includes("platform :ios"));
-  console.log(line || "Podfile ohne platform :ios");
-  const version = line && line.match(/(\d+(?:\.\d+)?)/);
-  if (!version || Number.parseFloat(version[1]) < 15) process.exitCode = 1;
-  if (existsSync("ios/App/App.xcodeproj/project.pbxproj")) {
-    patchFile("ios/App/App.xcodeproj/project.pbxproj", ensureIos15);
+  const podspecPath = "node_modules/@capgo/native-purchases/CapgoNativePurchases.podspec";
+  if (!existsSync(podspecPath)) {
+    console.error(`Datei fehlt: ${podspecPath}`);
+    process.exitCode = 1;
+  } else {
+    const minimum = deploymentTargetFromPodspec(readFileSync(podspecPath, "utf8"));
+    console.log(`iOS deployment target aus Podspec: ${minimum}`);
+    const bump = (text) => ensureIosVersion(text, minimum);
+    const podfile = patchFile("ios/App/Podfile", bump);
+    const line = String(podfile || "").split("\n").find((l) => l.includes("platform :ios"));
+    console.log(line || "Podfile ohne platform :ios");
+    const platform = line && line.match(/(\d+(?:\.\d+)?)/);
+    if (!platform || Number.parseFloat(platform[1]) < Number.parseFloat(minimum)) process.exitCode = 1;
+    const project = "ios/App/App.xcodeproj/project.pbxproj";
+    if (existsSync(project)) {
+      const patched = patchFile(project, bump);
+      const low = [...String(patched || "").matchAll(/IPHONEOS_DEPLOYMENT_TARGET = (\d+(?:\.\d+)?);/g)]
+        .some((m) => Number.parseFloat(m[1]) < Number.parseFloat(minimum));
+      if (low) process.exitCode = 1;
+    }
   }
 }

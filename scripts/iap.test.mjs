@@ -6,7 +6,7 @@ import {
   buyFullVersion, loadStorePrice, ownsFullProduct, priceFromProducts, purchaseFailureKind, restoreFullVersion, transactionGrantsFull,
 } from "../src/lib/iap.js";
 import { EN2 } from "../src/lib/en2.js";
-import { ensureBillingPermission, ensureIos15 } from "./storeNative.mjs";
+import { deploymentTargetFromPodspec, ensureBillingPermission, ensureIos15, ensureIosVersion } from "./storeNative.mjs";
 
 const id = FULL_PRODUCT_ID;
 
@@ -86,4 +86,16 @@ test("Play Billing und iOS 15 für das erzeugte native Projekt", () => {
   );
   const workflow = readFileSync(new URL("../.github/workflows/android-aab.yml", import.meta.url), "utf8");
   assert.match(workflow, /storeNative\.mjs android/);
+  const spec = "s.ios.deployment_target = '15.0'\n";
+  assert.equal(deploymentTargetFromPodspec(spec), "15.0");
+  assert.equal(ensureIosVersion("platform :ios, '14.0'\n", "15.0"), "platform :ios, '15.0'\n");
+  assert.equal(
+    ensureIosVersion("IPHONEOS_DEPLOYMENT_TARGET = 13.0;\nIPHONEOS_DEPLOYMENT_TARGET = 16.0;\n", "15.0"),
+    "IPHONEOS_DEPLOYMENT_TARGET = 15.0;\nIPHONEOS_DEPLOYMENT_TARGET = 16.0;\n",
+  );
+  const iosWorkflow = readFileSync(new URL("../.github/workflows/ios-testflight.yml", import.meta.url), "utf8");
+  assert.doesNotMatch(iosWorkflow, /--no-package-lock/);
+  assert.match(iosWorkflow, /storeNative\.mjs ios/);
+  const pkg = readFileSync(new URL("../package.json", import.meta.url), "utf8");
+  assert.match(pkg, /"@capgo\/native-purchases": "7\.19\.3"/);
 });
