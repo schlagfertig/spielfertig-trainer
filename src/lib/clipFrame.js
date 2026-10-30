@@ -115,7 +115,7 @@ function fitFont(ctx, text, weight, size, family, maxW) {
 /** Einmalig: Siegel-Logo (rund, ohne Zusatz-Schriftzug) mit dunkler Unterlage, Rudiments-Logo. */
 export async function prepareClipAssets(view, style = CLIP_CARD_STYLE) {
   const [seal, rud] = await Promise.all([
-    loadImg("/logo.svg"),
+    loadImg("/logo-kit.png"),
     view === "rudiments" ? loadImg("/clip/rudiments-logo.png") : Promise.resolve(null),
   ]);
   const out = { seal: null, rud: null };
@@ -130,7 +130,7 @@ export async function prepareClipAssets(view, style = CLIP_CARD_STYLE) {
     g.lineWidth = 4;
     g.strokeStyle = "rgba(92,200,184,0.55)";
     g.stroke();
-    // logo.svg: 1280x1024, Siegel mittig; Quadrat 0.7*Breite um die Mitte enthaelt Ringe + Namenszug.
+    // logo-kit.png: 1280x1024, Siegel mittig; Quadrat 0.7*Breite um die Mitte enthaelt Ringe + Namenszug.
     const sw = seal.width || 1280;
     const sh = seal.height || 1024;
     const side = sw * 0.7;

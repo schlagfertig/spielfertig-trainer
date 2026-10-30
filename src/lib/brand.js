@@ -11,7 +11,7 @@ export const BRAND = {
   addressLine2: "86916 Kaufering",
   web: "spielfertig-trainer.vercel.app",
   tag: "Zeit für guten Sound",
-  logo: "/logo.svg",
+  logo: "/logo-kit.png",
 };
 
 export function brandLine() {
