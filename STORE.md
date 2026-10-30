@@ -52,7 +52,7 @@ Apple lehnt oft „nur eine Website“ ab. Dagegen: Offline (gebündeltes `dist`
 - Cloud-Build: GitHub → Actions → „Android App Bundle (.aab)“ → Run workflow (`.github/workflows/android-aab.yml`). Ergebnis: Artefakt `schlagfertig-control-aab` (`app-release.aab`), versionCode = Run-Nummer, versionName `1.0.<Run>`.
 - Target SDK 36 (Play-Pflicht seit 31.08.2026): der Workflow setzt compile/targetSdk 36 und AGP 8.9.1 (Capacitor 7 bringt nur 35 mit).
 - Signatur: Upload-Key (Play App Signing), Secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`. Keystore sicher aufbewahren (Verlust → Upload-Key-Reset bei Google nötig).
-- Adaptive Icons: `assets/icon-foreground.png` (icon-only auf 90 %) + `assets/icon-background.png` (`#161a1d`).
+- Adaptive Icons: `assets/icon-foreground.png` (App-Icon V2, Ring = 60 % der Fläche, in der Safe Zone) + `assets/icon-background.png` (`#161a1d`).
 - Play Console, Altersfreigabe 13+
 
 Schnellere Alternative ohne Android Studio: [pwabuilder.com](https://www.pwabuilder.com) mit der Live-URL — erzeugt ein TWA-.aab. Dann gilt wieder die Web-Zugangssperre (Einladungslink).
@@ -91,7 +91,7 @@ Nach `npx cap add ios`: `node scripts/storeNative.mjs ios` (Podfile und Xcode-Zi
 
 Quellen liegen in `assets/`: Logo (`public/logo.svg`) mit „CONTROL“ darunter in Teal `#5cc8b8`, Schrift wie auf dem Startbildschirm (Bebas Neue aus `src/fonts/`, Sperrung .22em):
 
-- `assets/icon-only.png` – 1024×1024, ohne Alphakanal, sRGB, Hintergrund `#161a1d`, ~95 px Rand (iOS rundet die Ecken selbst ab)
+- `assets/icon-only.png` – App-Icon V2 (Ring mit Drumset, ohne Text), 1024×1024, ohne Alphakanal, sRGB, Hintergrund `#161a1d`, 112 px Rand (iOS rundet die Ecken selbst ab)
 - `assets/splash.png`, `assets/splash-dark.png` – 2732×2732, Logo + CONTROL mittig (1100×1148 px, innerhalb der 1200-px-Safe-Area), Hintergrund `#161a1d`
 
 Im Workflow nach `npx cap add ios` / `npx cap sync ios`:
