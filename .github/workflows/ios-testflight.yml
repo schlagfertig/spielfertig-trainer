@@ -3,7 +3,8 @@ name: iOS TestFlight
 # Baut die Store-App für iPhone/iPad und lädt sie zu TestFlight hoch.
 # Start: Push auf diesen Branch oder GitHub → Actions → "iOS TestFlight" → Run workflow.
 # Secrets: ASC_KEY_P8 (Inhalt von AuthKey_<ID>.p8, Zeilenumbrüche egal), ASC_KEY_ID, ASC_ISSUER_ID.
-# Signatur: pro Lauf neues Verteilungs-Zertifikat + Profil über die API, am Ende wieder gelöscht.
+# Signatur: pro Lauf neues Verteilungs-Zertifikat + Profil über die API.
+# Das Zertifikat bleibt, bis der nächste Lauf ältere CI-Zertifikate widerruft (sonst ITMS-90721).
 on:
   workflow_dispatch:
   push:
@@ -74,6 +75,8 @@ jobs:
           SIGN_DIR: ${{ runner.temp }}/signing
         run: |
           mkdir -p "$SIGN_DIR"
+          # Vor dem neuen Zertifikat: nur ältere CI-Zertifikate (CN „Schlagfertig CI“). Dieses Lauf hat noch keins.
+          node scripts/iosSigning.mjs revoke-old "$SIGN_DIR"
           /usr/bin/openssl req -new -newkey rsa:2048 -nodes -keyout "$SIGN_DIR/dist.key" -out "$SIGN_DIR/dist.csr" -subj "/CN=Schlagfertig CI/O=Schlagfertig/C=DE" 2>/dev/null
           node scripts/iosSigning.mjs create "$SIGN_DIR/dist.csr" "$SIGN_DIR" "$BUNDLE_ID"
           /usr/bin/openssl x509 -inform der -in "$SIGN_DIR/dist.cer" -out "$SIGN_DIR/dist.pem"
@@ -148,11 +151,12 @@ jobs:
           path: ${{ runner.temp }}/export/*.ipa
           if-no-files-found: ignore
 
-      - name: Aufräumen (Zertifikat, Profil, Schlüsselbund)
+      - name: Aufräumen (Profil, Schlüsselbund)
         if: always()
         env:
           SIGN_DIR: ${{ runner.temp }}/signing
         run: |
+          # Profil löschen. Das Signatur-Zertifikat nicht widerrufen, solange Apple den Build verarbeitet.
           node scripts/iosSigning.mjs cleanup "$SIGN_DIR" || true
           security delete-keychain "$RUNNER_TEMP/ci.keychain-db" || true
           rm -rf "$SIGN_DIR" "$RUNNER_TEMP/private_keys"

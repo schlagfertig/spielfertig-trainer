@@ -109,6 +109,6 @@ Wichtig: Die Datei muss `icon-only.png` heißen. Ein `assets/icon.png` oder `ass
 GitHub → Actions → „iOS TestFlight“ (`.github/workflows/ios-testflight.yml`, macOS-26-Runner, Xcode 26). Läuft bei Push auf `cursor/ios-testflight-build` oder per Run workflow.
 
 - Secrets: `ASC_KEY_P8` (Inhalt der Datei `AuthKey_<ID>.p8`, Zeilenumbrüche egal), `ASC_KEY_ID`, `ASC_ISSUER_ID`. App-Store-Connect-API-Schlüssel (Team-Schlüssel, Rolle App-Manager).
-- Signatur: `scripts/iosSigning.mjs` legt pro Lauf ein Verteilungs-Zertifikat und ein App-Store-Profil an und löscht beides am Ende wieder (kein Zertifikat als Secret nötig, kein Gerät nötig).
+- Signatur: `scripts/iosSigning.mjs` legt pro Lauf ein Verteilungs-Zertifikat und ein App-Store-Profil an (kein Zertifikat als Secret nötig, kein Gerät nötig). Am Ende des Laufs wird nur das Profil gelöscht. Das Zertifikat bleibt, bis der nächste Lauf ältere CI-Zertifikate (Name „Schlagfertig CI“) widerruft — sonst lehnt Apple den Build während der Verarbeitung ab (ITMS-90721).
 - Version `1.4`, Build-Nummer = Run-Nummer. `ITSAppUsesNonExemptEncryption = false` (keine Export-Frage in TestFlight).
 - Ergebnis: Build in App Store Connect → TestFlight, dazu Artefakt `schlagfertig-ios-ipa`.
