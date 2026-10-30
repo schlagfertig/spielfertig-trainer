@@ -94,6 +94,7 @@ test("middleware", async (t) => {
 
   await t.test("/logo.svg und /favicon.svg frei", async () => {
     assert.equal(await middleware(req("/logo.svg")), undefined);
+    assert.equal(await middleware(req("/logo-kit.png")), undefined);
     assert.equal(await middleware(req("/favicon.svg")), undefined);
   });
 

@@ -9,7 +9,7 @@ const COOKIE = "sf_zugang";
 // Ohne Zugang abrufbar: Icons und Manifest (Browser/iOS laden sie ohne Cookies)
 // sowie die statische Datenschutzseite (App-Store-Link). Die SPA-Route /datenschutz bleibt gesperrt.
 const FREI = new Set([
-  "/logo.svg", "/favicon.svg", "/app-icon.svg", "/manifest.webmanifest",
+  "/logo.svg", "/logo-kit.png", "/favicon.svg", "/app-icon.svg", "/manifest.webmanifest",
   "/datenschutz.html", "/privacy.html",
 ]);
 
