@@ -50,7 +50,7 @@ a{color:#5cc8b8;text-underline-offset:3px;word-break:break-word}
 <body>
 <main>
 <header>
-<img src="/logo.svg" alt="schlagfertig‽">
+<img src="/logo-kit.png" alt="schlagfertig‽">
 <nav aria-label="Sprache / Language"><a href="#de" lang="de">Deutsch</a><a href="#en" lang="en">English</a></nav>
 </header>
 ${order.map(langSection).join("\n")}

@@ -106,7 +106,7 @@ footer details{margin:8px auto 0;max-width:460px;text-align:left;white-space:nor
 </head>
 <body>
 <main>
-<img class="logo" src="/logo.svg" alt="schlagfertig‽">
+<img class="logo" src="/logo-kit.png" alt="schlagfertig‽">
 <section class="card">
 ${head}
 <div class="btns">
