@@ -137,6 +137,12 @@ export function olderCiTargets({ profiles = [], certificates = [], keepCertIds =
   return { certIds: [...certIds], profileIds };
 }
 
+export function isAlreadyRevoked(status, message) {
+  if (status === 404) return true;
+  // Zweiter Versuch, nachdem der erste Lauf das Zertifikat schon widerrufen hat.
+  return status === 409 && /not in an/i.test(String(message || "")) && /issued/i.test(String(message || ""));
+}
+
 export function cleanupTargets() {
   // Weder Zertifikat noch Profil: das Profil heißt „Schlagfertig CI <Lauf>“ und ist der Marker
   // für den nächsten Lauf. Beides am Ende zu löschen widerruft die Signatur zu früh (ITMS-90721)
@@ -221,7 +227,7 @@ async function revokeOlderCiCerts(outDir) {
       await api("DELETE", `/v1/certificates/${certId}`);
       console.log(`älteres CI-Zertifikat widerrufen: ${certId}`);
     } catch (e) {
-      if (e.status !== 404) throw e;
+      if (!isAlreadyRevoked(e.status, e.message)) throw e;
       console.log(`Zertifikat bereits weg: ${certId}`);
     }
   }

@@ -10,6 +10,7 @@ import {
   certsToRevoke,
   cleanupTargets,
   olderCiTargets,
+  isAlreadyRevoked,
   subjectCn,
   withTransientRetries,
   isTransientHttpStatus,
@@ -82,6 +83,10 @@ test("revoke-old: CI-Profile und deren Zertifikate, nie das aktuelle und nie fre
   assert.equal(targets.certIds.includes("HUMAN"), false);
   assert.equal(targets.certIds.includes("KEEP"), false);
   assert.equal(certsToRevoke(certificates, { keepIds: ["KEEP"] }).some((c) => c.id === "HUMAN"), false);
+  assert.equal(isAlreadyRevoked(404, "gone"), true);
+  assert.equal(isAlreadyRevoked(409, 'This certificate cannot be revoked because it is not in an &quot;issued&quot; state.'), true);
+  assert.equal(isAlreadyRevoked(409, "still in use"), false);
+  assert.equal(isAlreadyRevoked(500, "issued"), false);
 });
 
 test("Warten: HTTP 5xx ein paar Mal wiederholen, 4xx nicht", async () => {
