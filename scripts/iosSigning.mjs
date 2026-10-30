@@ -20,6 +20,9 @@ import { pathToFileURL } from "node:url";
 export const CI_CERT_MARK = "Schlagfertig CI";
 // Ein kurzer Apple-5xx beim Warten soll den Lauf nicht beenden. Danach bleibt es ein Fehler.
 export const WAIT_5XX_RETRIES = 4;
+// Build 11: Apple setzt den Zertifikatsnamen auf den Team-Namen, und das Profil wurde am Ende
+// schon gelöscht. Diese eine ID ist das dabei liegen gebliebene CI-Zertifikat.
+export const ORPHAN_CI_CERT_IDS = ["RMQ8P8T398"];
 
 export function keyPem(raw) {
   const body = String(raw || "")
@@ -109,20 +112,50 @@ export function certsToRevoke(certificates, { keepIds = [] } = {}) {
   return (certificates || []).filter((c) => c?.id && !keep.has(c.id) && isCiDistributionCert(c));
 }
 
-export function cleanupTargets(ids) {
-  if (!ids?.profileId) return [];
-  return [{ kind: "profiles", id: ids.profileId }];
+export function isCiProfileName(name) {
+  const n = String(name || "");
+  return n === CI_CERT_MARK || n.startsWith(`${CI_CERT_MARK} `);
 }
 
-function keptCertIds(outDir) {
-  if (!outDir) return [];
+// Apple benennt das Zertifikat um („Apple Distribution: …“). Der CI-Marker steht im Profilnamen.
+// keepCertIds/keepProfileIds: das Zertifikat, mit dem dieser Lauf signiert (darf nicht weg).
+export function olderCiTargets({ profiles = [], certificates = [], keepCertIds = [], keepProfileIds = [] } = {}) {
+  const keepCert = new Set(keepCertIds.filter(Boolean));
+  const keepProf = new Set(keepProfileIds.filter(Boolean));
+  const certIds = new Set(certsToRevoke(certificates, { keepIds: [...keepCert] }).map((c) => c.id));
+  const profileIds = [];
+  for (const profile of profiles) {
+    if (!profile?.id || keepProf.has(profile.id) || !isCiProfileName(profile.attributes?.name)) continue;
+    profileIds.push(profile.id);
+    for (const cert of profile.relationships?.certificates?.data || []) {
+      if (cert?.id && !keepCert.has(cert.id)) certIds.add(cert.id);
+    }
+  }
+  for (const id of ORPHAN_CI_CERT_IDS) {
+    if (!keepCert.has(id)) certIds.add(id);
+  }
+  return { certIds: [...certIds], profileIds };
+}
+
+export function cleanupTargets() {
+  // Weder Zertifikat noch Profil: das Profil heißt „Schlagfertig CI <Lauf>“ und ist der Marker
+  // für den nächsten Lauf. Beides am Ende zu löschen widerruft die Signatur zu früh (ITMS-90721)
+  // bzw. macht das Zertifikat danach unauffindbar.
+  return [];
+}
+
+function keptFromRun(outDir) {
+  if (!outDir) return { certIds: [], profileIds: [] };
   const file = join(outDir, "ids.json");
-  if (!existsSync(file)) return [];
+  if (!existsSync(file)) return { certIds: [], profileIds: [] };
   try {
     const ids = JSON.parse(readFileSync(file, "utf8"));
-    return ids.certId ? [ids.certId] : [];
+    return {
+      certIds: ids.certId ? [ids.certId] : [],
+      profileIds: ids.profileId ? [ids.profileId] : [],
+    };
   } catch {
-    return [];
+    return { certIds: [], profileIds: [] };
   }
 }
 
@@ -140,25 +173,56 @@ async function listAll(path) {
   return all;
 }
 
+async function profileCertificates(profile) {
+  const inline = profile.relationships?.certificates?.data || [];
+  if (inline.length) return inline;
+  const listed = await api("GET", `/v1/profiles/${profile.id}/certificates`);
+  return (listed.data || []).map((cert) => ({ type: cert.type, id: cert.id }));
+}
+
 async function revokeOlderCiCerts(outDir) {
-  const keepIds = keptCertIds(outDir);
-  const listed = await listAll("/v1/certificates?filter[certificateType]=DISTRIBUTION&limit=200");
-  const victims = certsToRevoke(listed, { keepIds });
-  if (!victims.length) {
-    console.log(keepIds.length ? "keine älteren CI-Zertifikate (aktuelles bleibt)" : "keine älteren CI-Zertifikate");
+  const keep = keptFromRun(outDir);
+  const [profiles, certificates] = await Promise.all([
+    listAll("/v1/profiles?limit=200"),
+    listAll("/v1/certificates?filter[certificateType]=DISTRIBUTION&limit=200"),
+  ]);
+  const withCerts = [];
+  for (const profile of profiles) {
+    if (!isCiProfileName(profile.attributes?.name)) {
+      withCerts.push(profile);
+      continue;
+    }
+    withCerts.push({
+      ...profile,
+      relationships: { ...profile.relationships, certificates: { data: await profileCertificates(profile) } },
+    });
+  }
+  const targets = olderCiTargets({
+    profiles: withCerts,
+    certificates,
+    keepCertIds: keep.certIds,
+    keepProfileIds: keep.profileIds,
+  });
+  if (!targets.certIds.length && !targets.profileIds.length) {
+    console.log(keep.certIds.length ? "keine älteren CI-Zertifikate (aktuelles bleibt)" : "keine älteren CI-Zertifikate");
     return;
   }
-  for (const cert of victims) {
-    const label = cert.attributes?.name || subjectCn(cert.attributes?.certificateContent) || cert.id;
+  for (const profileId of targets.profileIds) {
     try {
-      await api("DELETE", `/v1/certificates/${cert.id}`);
-      console.log(`älteres CI-Zertifikat widerrufen: ${cert.id} (${label})`);
+      await api("DELETE", `/v1/profiles/${profileId}`);
+      console.log(`älteres CI-Profil gelöscht: ${profileId}`);
     } catch (e) {
-      if (e.status === 404) {
-        console.log(`bereits weg: ${cert.id}`);
-        continue;
-      }
-      throw e;
+      if (e.status !== 404) throw e;
+      console.log(`Profil bereits weg: ${profileId}`);
+    }
+  }
+  for (const certId of targets.certIds) {
+    try {
+      await api("DELETE", `/v1/certificates/${certId}`);
+      console.log(`älteres CI-Zertifikat widerrufen: ${certId}`);
+    } catch (e) {
+      if (e.status !== 404) throw e;
+      console.log(`Zertifikat bereits weg: ${certId}`);
     }
   }
 }
@@ -197,19 +261,21 @@ async function create(csrPath, outDir, identifier) {
   writeFileSync(join(outDir, `${uuid}.mobileprovision`), Buffer.from(profileContent, "base64"));
   const ids = { certId, profileId: prof.data.id, profileName: name, uuid, teamId: bundle.attributes.seedId };
   writeFileSync(join(outDir, "ids.json"), JSON.stringify(ids));
-  console.log(`Zertifikat ${certId}, Profil "${name}" (${uuid}), Team ${ids.teamId}`);
+  const issuedName = cert.data.attributes?.name || "?";
+  const issuedCn = subjectCn(cert.data.attributes?.certificateContent);
+  console.log(`Zertifikat ${certId} (${issuedName}, CN ${issuedCn || "?"}), Profil "${name}" (${uuid}), Team ${ids.teamId}`);
 }
 
 async function cleanup(outDir) {
   const file = join(outDir, "ids.json");
   if (!existsSync(file)) return console.log("nichts aufzuräumen");
   const ids = JSON.parse(readFileSync(file, "utf8"));
-  // Profil darf weg. Das Signatur-Zertifikat nicht: Apple verarbeitet den Build noch (ITMS-90721).
   for (const target of cleanupTargets(ids)) {
     try { await api("DELETE", `/v1/${target.kind}/${target.id}`); console.log(`gelöscht: ${target.kind}/${target.id}`); }
     catch (e) { console.log(`Aufräumen ${target.kind}/${target.id}: ${e.message}`); }
   }
   if (ids.certId) console.log(`Zertifikat bleibt bis zum nächsten Lauf: ${ids.certId}`);
+  if (ids.profileId) console.log(`Profil bleibt bis zum nächsten Lauf: ${ids.profileId} (${ids.profileName || ""})`);
 }
 
 // Nur das App-Ziel (Blöcke mit der Bundle-ID) auf manuelle Signatur stellen; Pods bleiben unberührt.

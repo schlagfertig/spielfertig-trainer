@@ -9,6 +9,7 @@ import {
   patchProject,
   certsToRevoke,
   cleanupTargets,
+  olderCiTargets,
   subjectCn,
   withTransientRetries,
   isTransientHttpStatus,
@@ -49,25 +50,38 @@ test("patchProject ändert nur das App-Ziel", () => {
   assert.throws(() => patchProject(other, { team: "T", profile: "P", version: "1", build: "1" }));
 });
 
-test("Aufräumen löscht nur das Profil, nicht das Signatur-Zertifikat", () => {
-  assert.deepEqual(cleanupTargets({ certId: "CERT", profileId: "PROF" }), [{ kind: "profiles", id: "PROF" }]);
-  assert.deepEqual(cleanupTargets({ certId: "CERT" }), []);
+test("Aufräumen löscht weder Profil noch Signatur-Zertifikat", () => {
+  assert.deepEqual(cleanupTargets({ certId: "CERT", profileId: "PROF" }), []);
 });
 
-test("revoke-old: nur ältere CI-Distribution-Zertifikate, nie das aktuelle", () => {
+test("revoke-old: CI-Profile und deren Zertifikate, nie das aktuelle und nie fremde", () => {
   const ciDer = derBase64("Schlagfertig CI");
-  const humanDer = derBase64("Apple Distribution: Schlagfertig");
+  const humanDer = derBase64("Apple Distribution: Thomas Schuster (C88F8KZZJU)");
   assert.equal(subjectCn(ciDer), "Schlagfertig CI");
-  assert.equal(subjectCn(humanDer), "Apple Distribution: Schlagfertig");
-  const certs = [
-    { id: "OLD", attributes: { certificateType: "DISTRIBUTION", name: "Schlagfertig CI" } },
+  assert.equal(subjectCn(humanDer), "Apple Distribution: Thomas Schuster (C88F8KZZJU)");
+  const certificates = [
+    { id: "OLD_NAME", attributes: { certificateType: "DISTRIBUTION", name: "Schlagfertig CI" } },
     { id: "BY_SUBJECT", attributes: { certificateType: "DISTRIBUTION", name: "Apple Distribution", certificateContent: ciDer } },
-    { id: "KEEP", attributes: { certificateType: "DISTRIBUTION", name: "Schlagfertig CI", serialNumber: "45461991478646459404326450668137136" } },
-    { id: "HUMAN", attributes: { certificateType: "DISTRIBUTION", name: "Apple Distribution: Schlagfertig", certificateContent: humanDer, serialNumber: "45461991478646459404326450668137136" } },
+    { id: "KEEP", attributes: { certificateType: "DISTRIBUTION", name: "Apple Distribution: Thomas Schuster (C88F8KZZJU)", certificateContent: humanDer } },
+    { id: "HUMAN", attributes: { certificateType: "DISTRIBUTION", name: "Apple Distribution: Thomas Schuster (C88F8KZZJU)", certificateContent: humanDer, serialNumber: "45461991478646459404326450668137136" } },
     { id: "DEV", attributes: { certificateType: "DEVELOPMENT", name: "Schlagfertig CI" } },
-    { id: "IOS_DEV", attributes: { certificateType: "IOS_DEVELOPMENT", displayName: "Schlagfertig CI" } },
   ];
-  assert.deepEqual(certsToRevoke(certs, { keepIds: ["KEEP"] }).map((c) => c.id), ["OLD", "BY_SUBJECT"]);
+  const profiles = [
+    { id: "P_OLD", attributes: { name: "Schlagfertig CI 41037019675" }, relationships: { certificates: { data: [{ id: "FROM_PROFILE" }] } } },
+    { id: "P_KEEP", attributes: { name: "Schlagfertig CI 999" }, relationships: { certificates: { data: [{ id: "KEEP" }] } } },
+    { id: "P_HUMAN", attributes: { name: "App Store" }, relationships: { certificates: { data: [{ id: "HUMAN" }] } } },
+  ];
+  const targets = olderCiTargets({
+    profiles,
+    certificates,
+    keepCertIds: ["KEEP"],
+    keepProfileIds: ["P_KEEP"],
+  });
+  assert.deepEqual(targets.profileIds, ["P_OLD"]);
+  assert.deepEqual(targets.certIds.sort(), ["BY_SUBJECT", "FROM_PROFILE", "OLD_NAME", "RMQ8P8T398"].sort());
+  assert.equal(targets.certIds.includes("HUMAN"), false);
+  assert.equal(targets.certIds.includes("KEEP"), false);
+  assert.equal(certsToRevoke(certificates, { keepIds: ["KEEP"] }).some((c) => c.id === "HUMAN"), false);
 });
 
 test("Warten: HTTP 5xx ein paar Mal wiederholen, 4xx nicht", async () => {

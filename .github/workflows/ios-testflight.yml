@@ -151,12 +151,12 @@ jobs:
           path: ${{ runner.temp }}/export/*.ipa
           if-no-files-found: ignore
 
-      - name: Aufräumen (Profil, Schlüsselbund)
+      - name: Aufräumen (Schlüsselbund)
         if: always()
         env:
           SIGN_DIR: ${{ runner.temp }}/signing
         run: |
-          # Profil löschen. Das Signatur-Zertifikat nicht widerrufen, solange Apple den Build verarbeitet.
+          # Zertifikat und Profil nicht löschen. Der nächste Lauf erkennt alte CI-Profile am Namen.
           node scripts/iosSigning.mjs cleanup "$SIGN_DIR" || true
           security delete-keychain "$RUNNER_TEMP/ci.keychain-db" || true
           rm -rf "$SIGN_DIR" "$RUNNER_TEMP/private_keys"
