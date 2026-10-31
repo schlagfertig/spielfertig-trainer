@@ -185,3 +185,7 @@ test("Vollversion-Logo: Datei klein genug, Alt-Text und Credit auf Deutsch und E
   }
   assert.match({ ...EN, ...EN2 }["Logo: Thomas Schuster (mit KI erstellt)"], /made with AI/);
 });
+
+test("Kaufseite: Status „Bereits freigeschaltet“ hat britisches Englisch", () => {
+  assert.equal(EN2["Bereits freigeschaltet"], "Already unlocked");
+});
