@@ -680,6 +680,14 @@ export default function StickControl({ preset = null } = {}) {
         .stick-count { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 10px; }
         .stick-hear, .stick-countin { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
         .stick-hear-label, .stick-countin-label { color: ${DIM}; font-weight: 700; font-size: 14px; }
+        /* Während die Übung läuft: nur das große Tempo-Rad (Stop) bleibt - Klang, Einzählen, ±5/±10, Dreh-Hinweis und Clip-Knopf
+           sind unsichtbar (Platz bleibt, damit Stop genau dort liegt, wo Start war). Nach Stop ist alles wieder da. */
+        .stick-wrap:has(.stick-run) :is(.stick-count, .dial-row .nudge-lg, .cw-hint),
+        body:has(.stick-wrap .stick-run) .clip-fab { visibility: hidden; pointer-events: none; }
+        /* Clip-Knopf (links unten, schwebend) deckt sonst „Klang“ ab: Zeile rechts daneben zentrieren */
+        @media (orientation: portrait) and (min-width: 360px) {
+          .page.tool.view-stick .stick-hear { padding-left: 100px; }
+        }
         /* Querformat (Paket C): aufgeräumt in zwei Spalten - links Modus, aktuelle Übung und Vorschau,
            rechts Tempo (Rad mit ±5/±10) und Einzählen. Kopf in einer Zeile, nichts liegt übereinander. */
         @media (orientation: landscape) {
