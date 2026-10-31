@@ -193,7 +193,7 @@ export const EN = {
   "Tippen = Start/Stop. Drehen = Tempo. −5/+5 und −10/+10 daneben.": "Tap = start/stop. Turn = tempo. −5/+5 and −10/+10 next to it.",
   "‹ › oder wischen. Halten öffnet das Rad, Vorschau = erste 8 Achtel.": "‹ › or swipe. Hold to open the wheel; preview = first 8 eighths.",
   "Liste": "List",
-  "Die aktuelle Nummer groß, darunter die nächste als Vorschau - antippen = weiter. Nach oben scrollen zeigt frühere Nummern, leicht unscharf.": "The current exercise large, the next one below as a preview - tap it to move on. Scroll up for earlier exercises, slightly blurred.",
+  "Die aktuelle Nummer groß, darunter die nächste als Vorschau - antippen = weiter. Andere Nummern wählst du unten in der Leiste.": "The current exercise large, the next one below as a preview - tap it to move on. Pick other exercises in the bar at the bottom.",
   "1-24 durchspielen. Wiederholungen = komplette Übung (beide Takte). Einzählen nur am Start, nicht zwischen den Nummern.": "Play through 1-24. Repeats = the whole exercise (both bars). Count-in only at the start, not between exercises.",
   "Lokal": "Local",
   "Dateien bleiben im Browser dieses Geräts. Kein Upload in die Cloud.": "Files stay in this device’s browser. Nothing is uploaded to the cloud.",

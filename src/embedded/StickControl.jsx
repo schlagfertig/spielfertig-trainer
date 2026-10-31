@@ -155,10 +155,6 @@ function NextRow(props) {
   return <Hands {...props} size={18} light={false} />;
 }
 
-function StickRow(props) {
-  return <Hands {...props} size={15} light={false} />;
-}
-
 /* Drehrädchen (iOS-artiger Walzen-Picker) für die Wiederholungen: senkrecht wischen/scrollen rastet ein,
    Antippen einer Zahl wählt sie, Tastatur: ↑/↓, Bild↑/↓ (±5), Pos1/Ende. Für Screenreader ein spinbutton. */
 const DRUM_ITEM = 20; // drei Zeilen sichtbar: davor · Auswahl · danach
@@ -226,27 +222,6 @@ function RepsDrum({ value, min = 1, max = 20, onChange, disabled, label }) {
   );
 }
 
-function ListRow({ row, onPick, playing, label, near, className, ternary }) {
-  const locked = !stickOpen(row.id);
-  const name = t("Nummer {n}", { n: row.id });
-  return (
-    <button
-      type="button"
-      className={`${className || ""}${locked ? " stick-locked" : ""}`}
-      onClick={() => onPick(row.id)}
-      disabled={playing}
-      aria-label={locked ? `${name} · ${t("Volle App")}` : undefined}
-      style={{ display: locked ? "flex" : undefined, alignItems: "center", gap: locked ? 8 : undefined, width: "100%", marginTop: 4, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: near ? "8px 8px 6px" : "6px 8px", color: "inherit", textAlign: "left", opacity: near ? 1 : 0.7 }}
-    >
-      <span style={locked ? { flex: "1 1 auto", minWidth: 0 } : undefined}>
-        {label ? <div style={{ color: TEAL, font: "400 14px Figtree, sans-serif", letterSpacing: "0.08em", padding: "0 4px 4px" }}>{label}</div> : null}
-        <StickRow id={row.id} hands={row.hands} ternary={ternary} />
-      </span>
-      {locked ? <PaidMark /> : null}
-    </button>
-  );
-}
-
 function runHint(run) {
   const range = run.from === run.to
     ? t("Nr. {n} · {reps}×", { n: run.from, reps: run.reps })
@@ -297,7 +272,6 @@ export default function StickControl({ preset = null } = {}) {
   const clockRef = useRef(null); // Scheduler-Stand für die Restzeit (Audio-Uhr)
   const planRef = useRef(null); // Zahlen der Übersicht, eingefroren solange der Lauf läuft
   const pinRef = useRef(null);
-  const prevRef = useRef(null);
   const wrapRef = useRef(null);
   const bpmRef = useRef(preset?.bpm || 80);
   bpmRef.current = bpm;
@@ -309,10 +283,7 @@ export default function StickControl({ preset = null } = {}) {
   const idx = Math.max(0, EXERCISES.findIndex((e) => e.id === exId));
   const ex = EXERCISES[idx] || EXERCISES[0];
   usePracticeTrack({ ex: "stick", item: ex.id, playing, bpm });
-  const previous = EXERCISES.slice(0, idx);
   const nextEx = EXERCISES[idx + 1] || null;
-  // Alle weiteren Übungen nach „Als Nächstes“ (idx+2 … 24) - bleiben erreichbar, gedämpft/unscharf wie die früheren
-  const later = EXERCISES.slice(idx + 2);
   const challenge = mode === "challenge";
   const lastRep = challenge && playing && repNow > 0 && repNow >= reps;
   const run = fokusRun({
@@ -342,41 +313,12 @@ export default function StickControl({ preset = null } = {}) {
     window.addEventListener("wheel", block, { passive: false });
     return () => { de.classList.remove("sf-scroll-lock"); window.removeEventListener("wheel", block); };
   }, [playing]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Kopfzeile ist angeheftet (in der Home-Bildschirm-App unterhalb der Statusleiste): Höhe + Abstand oben
     const topEl = document.querySelector(".top");
     const head = topEl ? topEl.offsetHeight + (parseFloat(getComputedStyle(topEl).top) || 0) : 0;
     wrapRef.current?.style.setProperty("--stick-top", `${head}px`);
-    const before = prevRef.current;
-    if (before) window.scrollTo({ top: before.getBoundingClientRect().bottom + window.scrollY - head, behavior: "instant" });
   }, [exId]);
-  useEffect(() => {
-    // Frühere Übungen unter der Kopfzeile (Zurück, Titel) ausblenden; beim Hochscrollen erscheinen sie darunter wieder
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const list = prevRef.current;
-      if (!list) return;
-      const topEl = document.querySelector(".top");
-      const limit = topEl ? topEl.getBoundingClientRect().bottom : 0;
-      for (const el of list.children) el.classList.toggle("stick-under", el.getBoundingClientRect().top < limit - 1);
-    };
-    const onMove = () => { if (!raf) raf = window.requestAnimationFrame(update); };
-    update();
-    window.addEventListener("scroll", onMove, { passive: true });
-    window.addEventListener("resize", onMove);
-    return () => { window.removeEventListener("scroll", onMove); window.removeEventListener("resize", onMove); window.cancelAnimationFrame(raf); };
-  }, [exId]);
-  useEffect(() => {
-    let t = 0;
-    const onScroll = () => {
-      wrapRef.current?.classList.add("stick-scrolling");
-      window.clearTimeout(t);
-      t = window.setTimeout(() => wrapRef.current?.classList.remove("stick-scrolling"), 1000);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => { window.removeEventListener("scroll", onScroll); window.clearTimeout(t); };
-  }, []);
   // Restzeit an der Audio-Uhr, nicht an einem runterzählenden Timer (der auf dem iPhone im Hintergrund stehen bleibt).
   useEffect(() => {
     if (!playing || mode !== "challenge") return undefined;
@@ -581,22 +523,10 @@ export default function StickControl({ preset = null } = {}) {
         body:has(.stick-wrap), #root:has(.stick-wrap), .page:has(.stick-wrap) { overflow-x: clip; }
         /* Kopfzeile ist hier angeheftet - in der Home-Bildschirm-App unterhalb der Statusleiste (im Browser 0) */
         .page:has(.stick-wrap) .top { top: env(safe-area-inset-top, 0px); }
-        .stick-far { filter: blur(1.8px); opacity: 0.45 !important; transition: filter 0.3s, opacity 0.3s; }
-        .stick-far.stick-locked, .stick-prev.stick-locked { filter: none; opacity: 0.95 !important; }
-        /* Frühere (schon gespielte) Übungen: wie die fernen kommenden unscharf und gedämpft - die direkt davor etwas weniger, damit sie lesbar bleibt */
-        .stick-prev { filter: blur(1.1px); opacity: 0.55 !important; transition: filter 0.3s, opacity 0.3s; }
-        .stick-scrolling :is(.stick-far, .stick-prev) { filter: none; opacity: 0.7 !important; }
-        /* Frühere Übungen, die unter die (durchsichtige) Kopfzeile geraten, ausblenden - sonst scheinen sie hinter „HAND CONTROL“ durch */
-        .stick-wrap .stick-list > .stick-under { opacity: 0 !important; pointer-events: none; }
-        .stick-wrap .stick-list > button { transition: filter 0.3s, opacity 0.2s; }
-        /* Kommende Übungen nach der Vorschau: unter der angehefteten Bühne durchscrollen; Reserve (nur auf hohen Screens), damit #24 ganz unten zwischen Bühne und Dock sichtbar landet */
-        .stick-later { position: relative; z-index: 1; margin-top: 4px; padding-bottom: clamp(0px, calc(100dvh - 700px), 88px); }
-        .stick-later-kick { color: ${DIM}; font: 700 12px Figtree, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; padding: 10px 4px 0; }
         @media (prefers-reduced-motion: reduce) {
-          .stick-far, .stick-prev { transition: none; }
           .stick-card text { transition: none !important; }
         }
-        /* Bühne = angeheftete aktuelle Übung + Vorschau; so hoch, dass die frühere Liste darüber immer wegscrollen kann */
+        /* Bühne = angeheftete aktuelle Übung + Vorschau (füllt die Höhe bis zum Dock) */
         .stick-stage { min-height: calc(100dvh - var(--stick-top, 0px) - var(--rud-foot) - var(--rud-dock) + 16px); }
         .stick-fade {
           pointer-events: none;
@@ -688,28 +618,13 @@ export default function StickControl({ preset = null } = {}) {
         .stick-next.soon .stick-next-kick { font-size: 14px; }
         .stick-next.soon .stick-next-body { opacity: 1; }
         .stick-next.soon .stick-next-end { color: ${LIST}; }
-        /* Wiederholungs-Zähler: groß und mittig direkt über dem Kreis (sitzt über dem festen Dock, der Kreis bewegt sich nicht) */
-        .stick-reps { position: absolute; left: 0; right: 0; bottom: 100%; display: flex; flex-direction: column; align-items: center; pointer-events: none; padding-bottom: 2px; }
-        .stick-reps-kick { color: ${DIM}; font: 800 11px Figtree, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; }
-        .stick-reps-num { color: ${TEAL}; font: 700 34px/1 Oswald, sans-serif; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
-        .stick-reps-num .of { color: ${DIM}; font-size: 24px; }
-        /* Letzte Wiederholung: Ziffer hell mit türkisem Schein (passend zur türkisen Vorschau) - vorher dunkel auf dunkel, unsichtbar */
-        .stick-reps.last .stick-reps-num { color: ${LIST}; text-shadow: 0 0 14px rgba(92,200,184,.75); }
-        /* Clickwheel offen: Zähler rückt etwas nach oben, damit der Ring ihn nicht überdeckt */
-        .stick-reps { transition: transform .24s cubic-bezier(.2,.8,.2,1); }
-        body.metro-gesturing .stick-reps { transform: translateY(-16px); }
-        @media (prefers-reduced-motion: reduce) { .stick-reps { transition: none; } }
-        .stick-next-reps { display: none; color: ${TEAL}; font: 700 20px/1 Oswald, sans-serif; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
-        .stick-next-reps .of { color: ${DIM}; font-size: 15px; }
-        .stick-next.soon .stick-next-reps { color: ${LIST}; }
-        @media (max-height: 720px) {
-          /* wenig Höhe: Zähler wandert in den Kopf der Vorschau (sonst läge er über der Karte) */
-          .stick-reps { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-          .stick-next-reps { display: inline; font-size: 18px; }
-          .stick-next-reps .of { font-size: 14px; }
-          /* Zähler mittig zur Kopfzeile statt an der Grundlinie - sonst stößt die große Ziffer an den oberen Kartenrand */
-          .stick-next-head { align-items: center; min-height: 20px; }
-        }
+        /* Wiederholungs-Zähler: kompakt rechts in der „Jetzt“-Zeile über der aktuellen Übung (feste Zeilenhöhe, nichts springt) */
+        .stick-now-reps { display: inline-flex; align-items: baseline; gap: 6px; height: 18px; white-space: nowrap; }
+        .stick-now-reps-kick { color: ${DIM}; font: 800 11px/18px Figtree, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; }
+        .stick-now-reps-num { color: ${TEAL}; font: 700 20px/18px Oswald, sans-serif; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
+        .stick-now-reps-num .of { color: ${DIM}; font-size: 15px; }
+        /* Letzte Wiederholung: Ziffer hell mit türkisem Schein (passend zur türkisen Vorschau) */
+        .stick-now-reps.last .stick-now-reps-num { color: ${LIST}; text-shadow: 0 0 10px rgba(92,200,184,.75); }
         /* Drehrädchen */
         .reps-field { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
         .reps-drum-wrap { position: relative; width: 52px; height: ${DRUM_ITEM * 3}px; flex: 0 0 auto; }
@@ -750,6 +665,14 @@ export default function StickControl({ preset = null } = {}) {
         .stick-count { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 10px; }
         .stick-hear, .stick-countin { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
         .stick-hear-label, .stick-countin-label { color: ${DIM}; font-weight: 700; font-size: 14px; }
+        /* Während die Übung läuft: nur das große Tempo-Rad (Stop) bleibt - Klang, Einzählen, ±5/±10, Dreh-Hinweis und Clip-Knopf
+           sind unsichtbar (Platz bleibt, damit Stop genau dort liegt, wo Start war). Nach Stop ist alles wieder da. */
+        .stick-wrap:has(.stick-run) :is(.stick-count, .dial-row .nudge-lg, .cw-hint),
+        body:has(.stick-wrap .stick-run) .clip-fab { visibility: hidden; pointer-events: none; }
+        /* Clip-Knopf (links unten, schwebend) deckt sonst „Klang“ ab: Zeile rechts daneben zentrieren */
+        @media (orientation: portrait) and (min-width: 360px) {
+          .page.tool.view-stick .stick-hear { padding-left: 100px; }
+        }
         /* Querformat (Paket C): aufgeräumt in zwei Spalten - links Modus, aktuelle Übung und Vorschau,
            rechts Tempo (Rad mit ±5/±10) und Einzählen. Kopf in einer Zeile, nichts liegt übereinander. */
         @media (orientation: landscape) {
@@ -768,7 +691,7 @@ export default function StickControl({ preset = null } = {}) {
             overflow: hidden;
           }
           .stick-stage { display: contents; }
-          .stick-list, .stick-done, .stick-fade { display: none !important; }
+          .stick-done, .stick-fade { display: none !important; }
           .page.tool .stick-wrap .stick-pin {
             grid-column: 1;
             grid-row: 1;
@@ -832,22 +755,12 @@ export default function StickControl({ preset = null } = {}) {
         @media (orientation: landscape) and (min-height: 561px) {
           .page.tool .stick-wrap.rud-wrap { --hc-side: 390px; }
         }
-        @media (orientation: landscape) and (min-height: 721px) {
-          /* Tablet quer: Wiederholungs-Zähler oben im Tempo-Bereich statt über dem Dock */
-          .page.tool .stick-wrap .stick-reps { position: static; margin-bottom: 10px; }
-        }
         @media (orientation: landscape) and (max-height: 560px) {
           .stick-dur { padding: 4px 8px; }
           .stick-dur-sub { display: none; }
           .stick-dur-time, .stick-dur.run .stick-dur-time { font-size: 22px; }
         }
       `}</style>
-      <div className="stick-list" ref={prevRef}>
-        {previous.map((row, i) => {
-          const last = i === previous.length - 1;
-          return <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={last} className={last ? "stick-prev" : "stick-far"} label={last ? t("DAVOR") : ""} ternary={ternary} />;
-        })}
-      </div>
       <div className="stick-stage">
       <div className="stick-pin" ref={pinRef}>
         <div className="stick-tools" style={{ display: "flex", gap: 8, alignItems: "center", margin: "0 0 10px", flexWrap: "wrap" }}>
@@ -882,7 +795,12 @@ export default function StickControl({ preset = null } = {}) {
         ) : null}
         <div className="stick-now">
           <span className="stick-now-kick">{t("Jetzt")}<span className="stick-now-pos">{`${ex.id}/${EXERCISES.length}`}</span></span>
-          {counting ? <span className="stick-now-count">COUNT-IN</span> : null}
+          {counting ? <span className="stick-now-count">COUNT-IN</span> : challenge && playing && repNow > 0 ? (
+            <span className={lastRep ? "stick-now-reps last" : "stick-now-reps"} role="status" aria-label={t("Wiederholung {n} von {m}", { n: repNow, m: reps })}>
+              <span className="stick-now-reps-kick" aria-hidden="true">{t("Wiederholung")}</span>
+              <span className="stick-now-reps-num" aria-hidden="true">{repNow}<span className="of"> / {reps}</span></span>
+            </span>
+          ) : null}
         </div>
         <div className={playing ? "stick-card stick-run staff-card" : "stick-card staff-card"} >
           <Phrase
@@ -903,7 +821,6 @@ export default function StickControl({ preset = null } = {}) {
       <div className={lastRep ? "stick-next soon" : "stick-next"} data-next={nextEx ? nextEx.id : "end"} role="status" aria-live="polite" aria-atomic="true">
         <div className="stick-next-head">
           <span className="stick-next-kick">{nextEx ? t("Als Nächstes") : t("Letzte Übung")}{nextEx && !stickOpen(nextEx.id) ? <PaidMark icon /> : null}</span>
-          {challenge && playing && repNow > 0 ? <span className="stick-next-reps" aria-hidden="true">{repNow}<span className="of"> / {reps}</span></span> : null}
         </div>
         {nextEx ? (
           <button type="button" key={nextEx.id} className="stick-next-body" onClick={() => pick(nextEx.id)} disabled={playing} aria-label={t("Nummer {n}", { n: nextEx.id })}>
@@ -914,22 +831,10 @@ export default function StickControl({ preset = null } = {}) {
         )}
       </div>
       </div>
-      {later.length ? (
-        <div className="stick-list stick-later" role="group" aria-label={t("Danach")}>
-          <div className="stick-later-kick" aria-hidden="true">{t("Danach")}</div>
-          {later.map((row) => <ListRow key={row.id} row={row} onPick={pick} playing={playing} className="stick-far" ternary={ternary} />)}
-        </div>
-      ) : null}
       </div>
       {done ? <p className="stick-done" style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{t("Bis Nr. 24 gehalten (ab Nr. {n}).", { n: done })}</p> : null}
       <div className="stick-fade" aria-hidden="true" />
         <div className="metro-shell rud-metro">
-          {challenge && playing && repNow > 0 ? (
-            <div className={lastRep ? "stick-reps last" : "stick-reps"} role="status" aria-label={t("Wiederholung {n} von {m}", { n: repNow, m: reps })}>
-              <span className="stick-reps-kick" aria-hidden="true">{t("Wiederholung")}</span>
-              <span className="stick-reps-num" aria-hidden="true">{repNow}<span className="of"> / {reps}</span></span>
-            </div>
-          ) : null}
           <div className="dock metro-face">
             <div className="dial-row">
               <Nudge by={-10} bpm={bpm} set={setBpm} min={30} max={200} />
