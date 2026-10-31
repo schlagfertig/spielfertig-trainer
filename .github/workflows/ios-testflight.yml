@@ -1,0 +1,162 @@
+name: iOS TestFlight
+
+# Baut die Store-App für iPhone/iPad und lädt sie zu TestFlight hoch.
+# Start: Push auf diesen Branch oder GitHub → Actions → "iOS TestFlight" → Run workflow.
+# Secrets: ASC_KEY_P8 (Inhalt von AuthKey_<ID>.p8, Zeilenumbrüche egal), ASC_KEY_ID, ASC_ISSUER_ID.
+# Signatur: pro Lauf neues Verteilungs-Zertifikat + Profil über die API.
+# Das Zertifikat bleibt, bis der nächste Lauf ältere CI-Zertifikate widerruft (sonst ITMS-90721).
+on:
+  workflow_dispatch:
+  push:
+    branches: [cursor/ios-testflight-build]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-testflight
+  cancel-in-progress: false
+
+jobs:
+  testflight:
+    runs-on: macos-26
+    timeout-minutes: 60
+    env:
+      BUNDLE_ID: de.schlagfertig.app
+      MARKETING_VERSION: "1.4"
+      BUILD_NUMBER: ${{ github.run_number }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Secrets da?
+        run: |
+          for s in ASC_KEY_P8 ASC_KEY_ID ASC_ISSUER_ID; do
+            test -n "${!s}" || { echo "Secret $s fehlt"; exit 1; }
+          done
+          xcodebuild -version
+
+      - name: Web-Build für die App
+        run: |
+          npm install --no-audit --no-fund
+          npm run build:cap
+
+      - name: iOS-Projekt erzeugen
+        run: |
+          if [ ! -d ios ]; then
+            # cap add synct sofort, wenn dist/ da ist, und scheitert dann am Deployment Target.
+            mv dist dist.keep
+            npx cap add ios
+            mv dist.keep dist
+          fi
+          node --input-type=module -e 'import { applyIosDeploymentTarget } from "./scripts/storeNative.mjs"; const code = applyIosDeploymentTarget(); if (code) process.exit(code);'
+          npx cap sync ios
+
+      - name: Icons und Splash (assets/)
+        run: >
+          npx -y @capacitor/assets@3 generate --ios
+          --iconBackgroundColor '#161a1d' --iconBackgroundColorDark '#161a1d'
+          --splashBackgroundColor '#161a1d' --splashBackgroundColorDark '#161a1d'
+
+      - name: Info.plist (Export-Angabe, keine eigene Verschlüsselung)
+        run: |
+          /usr/libexec/PlistBuddy -c "Delete :ITSAppUsesNonExemptEncryption" ios/App/App/Info.plist || true
+          /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" ios/App/App/Info.plist
+
+      - name: Zertifikat + Profil (App Store Connect API)
+        env:
+          # runner ist im Job-env nicht erlaubt, nur in Steps.
+          SIGN_DIR: ${{ runner.temp }}/signing
+        run: |
+          mkdir -p "$SIGN_DIR"
+          # Vor dem neuen Zertifikat: nur ältere CI-Zertifikate (CN „Schlagfertig CI“). Dieses Lauf hat noch keins.
+          node scripts/iosSigning.mjs revoke-old "$SIGN_DIR"
+          /usr/bin/openssl req -new -newkey rsa:2048 -nodes -keyout "$SIGN_DIR/dist.key" -out "$SIGN_DIR/dist.csr" -subj "/CN=Schlagfertig CI/O=Schlagfertig/C=DE" 2>/dev/null
+          node scripts/iosSigning.mjs create "$SIGN_DIR/dist.csr" "$SIGN_DIR" "$BUNDLE_ID"
+          /usr/bin/openssl x509 -inform der -in "$SIGN_DIR/dist.cer" -out "$SIGN_DIR/dist.pem"
+          P12_PASS=$(uuidgen)
+          /usr/bin/openssl pkcs12 -export -inkey "$SIGN_DIR/dist.key" -in "$SIGN_DIR/dist.pem" -out "$SIGN_DIR/dist.p12" -passout pass:"$P12_PASS"
+          KC="$RUNNER_TEMP/ci.keychain-db"; KC_PASS=$(uuidgen)
+          security create-keychain -p "$KC_PASS" "$KC"
+          security set-keychain-settings -lut 21600 "$KC"
+          security unlock-keychain -p "$KC_PASS" "$KC"
+          curl -fsSL https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer -o "$SIGN_DIR/wwdr.cer"
+          security import "$SIGN_DIR/wwdr.cer" -k "$KC" -T /usr/bin/codesign || true
+          security import "$SIGN_DIR/dist.p12" -k "$KC" -P "$P12_PASS" -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KC_PASS" "$KC" > /dev/null
+          security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
+          security find-identity -v -p codesigning "$KC"
+          rm -f "$SIGN_DIR/dist.key" "$SIGN_DIR/dist.p12"
+          UUID=$(node -p "require('$SIGN_DIR/ids.json').uuid")
+          for d in "$HOME/Library/MobileDevice/Provisioning Profiles" "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"; do
+            mkdir -p "$d"; cp "$SIGN_DIR/$UUID.mobileprovision" "$d/"
+          done
+          echo "TEAM_ID=$(node -p "require('$SIGN_DIR/ids.json').teamId")" >> "$GITHUB_ENV"
+          echo "PROFILE_NAME=$(node -p "require('$SIGN_DIR/ids.json').profileName")" >> "$GITHUB_ENV"
+
+      - name: Xcode-Projekt (Signatur, Version)
+        run: |
+          node scripts/iosSigning.mjs project ios/App/App.xcodeproj/project.pbxproj "$TEAM_ID" "$PROFILE_NAME" "$MARKETING_VERSION" "$BUILD_NUMBER"
+          grep -n "CODE_SIGN_STYLE\|PROVISIONING_PROFILE_SPECIFIER\|MARKETING_VERSION\|CURRENT_PROJECT_VERSION\|IPHONEOS_DEPLOYMENT_TARGET" ios/App/App.xcodeproj/project.pbxproj
+
+      - name: Archiv bauen
+        run: |
+          set -o pipefail
+          xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            archive | tail -n 80
+
+      - name: IPA exportieren
+        run: |
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>export</string>
+            <key>teamID</key><string>${TEAM_ID}</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>signingCertificate</key><string>Apple Distribution</string>
+            <key>provisioningProfiles</key><dict><key>${BUNDLE_ID}</key><string>${PROFILE_NAME}</string></dict>
+            <key>uploadSymbols</key><true/>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict></plist>
+          PLIST
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/export"
+          ls -la "$RUNNER_TEMP/export"
+
+      - name: Upload zu TestFlight
+        run: |
+          mkdir -p "$RUNNER_TEMP/private_keys"
+          node scripts/iosSigning.mjs pem "$RUNNER_TEMP/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+          export API_PRIVATE_KEYS_DIR="$RUNNER_TEMP/private_keys"
+          IPA=$(ls "$RUNNER_TEMP"/export/*.ipa | head -1)
+          xcrun altool --upload-app -f "$IPA" -t ios --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+          rm -rf "$RUNNER_TEMP/private_keys"
+
+      - name: Auf Apple warten (Verarbeitung)
+        run: node scripts/iosSigning.mjs wait "$BUNDLE_ID" "$BUILD_NUMBER" 30
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: schlagfertig-ios-ipa
+          path: ${{ runner.temp }}/export/*.ipa
+          if-no-files-found: ignore
+
+      - name: Aufräumen (Schlüsselbund)
+        if: always()
+        env:
+          SIGN_DIR: ${{ runner.temp }}/signing
+        run: |
+          # Zertifikat und Profil nicht löschen. Der nächste Lauf erkennt alte CI-Profile am Namen.
+          node scripts/iosSigning.mjs cleanup "$SIGN_DIR" || true
+          security delete-keychain "$RUNNER_TEMP/ci.keychain-db" || true
+          rm -rf "$SIGN_DIR" "$RUNNER_TEMP/private_keys"
