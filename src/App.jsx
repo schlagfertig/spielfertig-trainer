@@ -440,6 +440,8 @@ export default function App() {
           <div className="foot-copy">Version {APP_VERSION}</div>
           <SocialLinks />
           <div className="foot-links">
+            {/* Fester Weg zur Kaufseite, auch wenn schon freigeschaltet (Kauf wiederherstellen, App Review). */}
+            <button type="button" className="foot-link" onClick={() => setPaywall(true)}>{t("Vollversion")}</button>
             <button type="button" className="foot-link" onClick={() => open("impressum")}>{t("Impressum")}</button>
             <button type="button" className="foot-link" onClick={() => open("datenschutz")}>{t("Datenschutz")}</button>
             <FeedbackLink />

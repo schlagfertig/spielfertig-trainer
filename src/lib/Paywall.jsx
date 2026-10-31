@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { getLang, t } from "./i18n.js";
-import { DEMO_ON, TESTER_UNLOCK, fallbackPrice, purchaseFullVersion, unlockCodeOk } from "./demo.js";
+import { DEMO_ON, TESTER_UNLOCK, fallbackPrice, isUnlocked, purchaseFullVersion, unlockCodeOk } from "./demo.js";
 import { restoreFullVersion } from "./iap.js";
 
 // Kauf-Blatt für die Vollversion. Kaufen ruft purchaseFullVersion (in der nativen
@@ -14,6 +14,8 @@ export function DemoPaywall({ onClose, onUnlock, price }) {
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
   const shownPrice = price || fallbackPrice(getLang());
+  // Schon freigeschaltet (Kauf oder Wiederherstellen): Status statt Kaufen, damit niemand doppelt zahlt.
+  const owned = isUnlocked();
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -78,11 +80,19 @@ export function DemoPaywall({ onClose, onUnlock, price }) {
         </div>
         <h2 id="paywall-title" className="paywall-title">{t("Volle App")}</h2>
         <img className="paywall-logo" src="/logo-vollversion.png" width="512" height="509" alt={t("Logo Schlagfertig Vollversion")} />
-        <div className="paywall-offer">
-          <p className="paywall-price">{shownPrice}</p>
-          <button type="button" className="paywall-buy" onClick={buy} disabled={busy}>{t("Kaufen")}</button>
-        </div>
-        <p className="paywall-sub">{t("Einmalig, kein Abo.")}</p>
+        {owned ? (
+          <div className="paywall-offer paywall-owned">
+            <p className="paywall-status" role="status"><span aria-hidden="true">✓</span> {t("Bereits freigeschaltet")}</p>
+          </div>
+        ) : (
+          <>
+            <div className="paywall-offer">
+              <p className="paywall-price">{shownPrice}</p>
+              <button type="button" className="paywall-buy" onClick={buy} disabled={busy}>{t("Kaufen")}</button>
+            </div>
+            <p className="paywall-sub">{t("Einmalig, kein Abo.")}</p>
+          </>
+        )}
         {DEMO_ON ? (
           <button type="button" className="paywall-restore" onClick={restore} disabled={busy}>{t("Kauf wiederherstellen")}</button>
         ) : null}

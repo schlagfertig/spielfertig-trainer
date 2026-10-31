@@ -120,6 +120,7 @@ export const EN2 = {
   "Kauf geht nur in der Store-App.": "Buying only works in the store app.",
   "Wiederherstellen geht nur in der Store-App.": "Restore only works in the store app.",
   "Kauf wiederherstellen": "Restore purchase",
+  "Bereits freigeschaltet": "Already unlocked",
   "Kauf abgebrochen.": "Purchase cancelled.",
   "Kauf hat nicht geklappt. Bitte nochmal versuchen.": "The purchase didn't go through. Please try again.",
   "Kein Kauf zum Wiederherstellen.": "No purchase to restore.",
