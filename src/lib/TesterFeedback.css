@@ -73,6 +73,9 @@
 .fb-sec .fb-actions { grid-template-columns: 1fr auto; }
 .fb-sec .fb-actions .fb-btn:only-child { grid-column: 1 / -1; }
 .fb-ok { color: #5cc8b8 !important; margin: 10px 0 0 !important; }
+.fb-credit { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+.fb-credit img { width: 44px; height: auto; flex: none; }
+.fb-credit small { color: #8a969c; font: 600 12px/1.35 Figtree, sans-serif; }
 .fb-settings .dy-set { margin: 6px 0 0; }
 @media (prefers-reduced-motion: no-preference) { .fb-card { animation: fbIn .22s ease-out; } }
 @keyframes fbIn { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: none; } }

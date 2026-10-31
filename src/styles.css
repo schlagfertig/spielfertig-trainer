@@ -1085,6 +1085,7 @@ body:has(.page.view-lexicon), body:has(.page.view-lexicon) #root, .page.tool.vie
   line-height: 1.05;
   color: #f4f7f6;
 }
+.paywall-logo { display: block; width: 140px; height: auto; margin: -4px auto 12px; }
 .paywall-offer {
   display: flex;
   align-items: center;

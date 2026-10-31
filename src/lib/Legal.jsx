@@ -62,6 +62,10 @@ function LegalEn({ isPrivacy }) {
           No user account and no ads. Questions, ideas or feedback? Just send me an email.
         </p>
       </section>
+      <section className="legal-block">
+        <h2>Logo</h2>
+        <p>Logo: Thomas Schuster (made with AI)</p>
+      </section>
     </>
   );
 }
@@ -113,6 +117,10 @@ export default function Legal({ topic = "impressum", onOpen }) {
               {BRAND.product} ist ein Übungs-Tool von einem Drummer für Drummer: Rudiments, Grooves und Timing - Schlag für Schlag.
               Ohne Nutzerkonto und ohne Werbung. Fragen, Ideen oder Feedback? Schreib mir einfach eine E-Mail.
             </p>
+          </section>
+          <section className="legal-block">
+            <h2>Logo</h2>
+            <p>Logo: Thomas Schuster (mit KI erstellt)</p>
           </section>
         </>
       )}
