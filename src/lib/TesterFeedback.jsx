@@ -207,6 +207,10 @@ function Settings({ onClose, onThanks, focus }) {
             {fb.special ? <button type="button" className="fb-btn" onClick={() => { removeSpecial(); setName(""); setContact(""); }}>{t("Austragen")}</button> : null}
           </div>
           {fb.special ? <p className="fb-ok">✓ {t("Eingetragen als „{name}“.", { name: fb.special.name })}</p> : null}
+          <div className="fb-credit">
+            <img src="/logo-vollversion.png" width="512" height="509" alt={t("Logo Schlagfertig Vollversion")} />
+            <small>{t("Logo: Thomas Schuster (mit KI erstellt)")}</small>
+          </div>
         </section>
         {fb.thanks ? (
           <button type="button" className="fb-btn fb-gold-btn fb-wide" onClick={() => { onClose(); onThanks(); }}>🏆 {t("Dein Dankeschön ({num})", { num: fb.thanks.num })}</button>
