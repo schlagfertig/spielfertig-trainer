@@ -1128,6 +1128,14 @@ body:has(.page.view-lexicon), body:has(.page.view-lexicon) #root, .page.tool.vie
 .paywall-buy:disabled,
 .paywall-restore:disabled { opacity: 0.55; cursor: default; }
 .paywall-sub { margin: 10px 0 0; color: #9aa6aa; font-size: 15px; }
+.paywall-owned { justify-content: center; min-height: 72px; padding: 10px 16px; }
+.paywall-status {
+  margin: 0;
+  color: #5cc8b8;
+  font: 800 20px Figtree, sans-serif;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
 .paywall-restore {
   display: block;
   width: 100%;
