@@ -124,6 +124,8 @@ export const EN2 = {
   "Kauf hat nicht geklappt. Bitte nochmal versuchen.": "The purchase didn't go through. Please try again.",
   "Kein Kauf zum Wiederherstellen.": "No purchase to restore.",
   "Wiederherstellen hat nicht geklappt. Bitte nochmal versuchen.": "Restore didn't work. Please try again.",
+  "Logo Schlagfertig Vollversion": "Schlagfertig full version logo",
+  "Logo: Thomas Schuster (mit KI erstellt)": "Logo: Thomas Schuster (made with AI)",
   "Danach ist alles offen: Takte ohne Click, alle Rudiments, Hand Control, die schwereren Pyramiden-Stufen, Noten, Drucken der übrigen Übungen, unbegrenzte Hausaufgaben und Karteikarten — eigene Grooves mit mehr als einem Takt, und du speicherst sie.": "Then everything is open: bars without click, all rudiments, Hand Control, the harder pyramid steps, sheet music, printing the other exercises, unlimited homework and cards — your own grooves with more than one bar, and you can save them.",
   // Hand Control, Fokus: Dauer und Countdown
   "du brauchst etwa": "You'll need about",

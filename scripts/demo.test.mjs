@@ -172,3 +172,17 @@ test("Würfel bei Sperre nur aus den sechs, auch auf Mittel/Schwer", () => {
     }
   }
 });
+
+test("Vollversion-Logo: Datei klein genug, Alt-Text und Credit auf Deutsch und Englisch", () => {
+  const root = join(fileURLToPath(new URL(".", import.meta.url)), "..");
+  const png = readFileSync(join(root, "public/logo-vollversion.png"));
+  assert.ok(png.length < 80 * 1024, `logo-vollversion.png ist ${png.length} Bytes`);
+  const pay = readFileSync(join(root, "src/lib/Paywall.jsx"), "utf8");
+  assert.match(pay, /src="\/logo-vollversion\.png"[^>]*alt=\{t\("Logo Schlagfertig Vollversion"\)\}/);
+  // Logo im Kauf-Blatt über dem Preis
+  assert.ok(pay.indexOf("paywall-logo") < pay.indexOf("paywall-price"));
+  for (const k of ["Logo Schlagfertig Vollversion", "Logo: Thomas Schuster (mit KI erstellt)"]) {
+    assert.ok({ ...EN, ...EN2 }[k], `EN fehlt: ${k}`);
+  }
+  assert.match({ ...EN, ...EN2 }["Logo: Thomas Schuster (mit KI erstellt)"], /made with AI/);
+});

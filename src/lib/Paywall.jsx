@@ -77,6 +77,7 @@ export function DemoPaywall({ onClose, onUnlock, price }) {
           <button type="button" className="paywall-x" onClick={onClose} aria-label={t("Schließen")}>×</button>
         </div>
         <h2 id="paywall-title" className="paywall-title">{t("Volle App")}</h2>
+        <img className="paywall-logo" src="/logo-vollversion.png" width="512" height="509" alt={t("Logo Schlagfertig Vollversion")} />
         <div className="paywall-offer">
           <p className="paywall-price">{shownPrice}</p>
           <button type="button" className="paywall-buy" onClick={buy} disabled={busy}>{t("Kaufen")}</button>
