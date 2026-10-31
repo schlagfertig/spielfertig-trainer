@@ -342,7 +342,9 @@ export default function StickControl({ preset = null } = {}) {
     window.addEventListener("wheel", block, { passive: false });
     return () => { de.classList.remove("sf-scroll-lock"); window.removeEventListener("wheel", block); };
   }, [playing]);
-  useEffect(() => {
+  // Layout-Effekt: Scrollen + Ausblenden passieren vor dem nächsten Bild - sonst blitzt beim Übungswechsel
+  // ein Frame lang die alte Lage auf (Geisterzeile oben neben dem „?“).
+  useLayoutEffect(() => {
     // Kopfzeile ist angeheftet (in der Home-Bildschirm-App unterhalb der Statusleiste): Höhe + Abstand oben
     const topEl = document.querySelector(".top");
     const head = topEl ? topEl.offsetHeight + (parseFloat(getComputedStyle(topEl).top) || 0) : 0;
@@ -350,7 +352,7 @@ export default function StickControl({ preset = null } = {}) {
     const before = prevRef.current;
     if (before) window.scrollTo({ top: before.getBoundingClientRect().bottom + window.scrollY - head, behavior: "instant" });
   }, [exId]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Frühere Übungen unter der Kopfzeile (Zurück, Titel) ausblenden; beim Hochscrollen erscheinen sie darunter wieder
     let raf = 0;
     const update = () => {
@@ -587,8 +589,11 @@ export default function StickControl({ preset = null } = {}) {
         .stick-prev { filter: blur(1.1px); opacity: 0.55 !important; transition: filter 0.3s, opacity 0.3s; }
         .stick-scrolling :is(.stick-far, .stick-prev) { filter: none; opacity: 0.7 !important; }
         /* Frühere Übungen, die unter die (durchsichtige) Kopfzeile geraten, ausblenden - sonst scheinen sie hinter „HAND CONTROL“ durch */
-        .stick-wrap .stick-list > .stick-under { opacity: 0 !important; pointer-events: none; }
         .stick-wrap .stick-list > button { transition: filter 0.3s, opacity 0.2s; }
+        /* … und zwar sofort, ohne Ausblenden: sonst schimmert beim Übungswechsel die Zeile „davor“ kurz oben in der Kopfzeile (Geisterzeile) */
+        .stick-wrap .stick-list > .stick-under { opacity: 0 !important; visibility: hidden; transition: none !important; pointer-events: none; }
+        /* Während die Übung läuft, liegt die ganze frühere Liste unter der Kopfzeile: komplett weg, damit beim Weiterscrollen nichts durchscheint */
+        .stick-wrap:has(.stick-run) > .stick-list:not(.stick-later) { visibility: hidden; }
         /* Kommende Übungen nach der Vorschau: unter der angehefteten Bühne durchscrollen; Reserve (nur auf hohen Screens), damit #24 ganz unten zwischen Bühne und Dock sichtbar landet */
         .stick-later { position: relative; z-index: 1; margin-top: 4px; padding-bottom: clamp(0px, calc(100dvh - 700px), 88px); }
         .stick-later-kick { color: ${DIM}; font: 700 12px Figtree, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; padding: 10px 4px 0; }
