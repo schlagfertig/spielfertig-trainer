@@ -618,28 +618,13 @@ export default function StickControl({ preset = null } = {}) {
         .stick-next.soon .stick-next-kick { font-size: 14px; }
         .stick-next.soon .stick-next-body { opacity: 1; }
         .stick-next.soon .stick-next-end { color: ${LIST}; }
-        /* Wiederholungs-Zähler: groß und mittig direkt über dem Kreis (sitzt über dem festen Dock, der Kreis bewegt sich nicht) */
-        .stick-reps { position: absolute; left: 0; right: 0; bottom: 100%; display: flex; flex-direction: column; align-items: center; pointer-events: none; padding-bottom: 2px; }
-        .stick-reps-kick { color: ${DIM}; font: 800 11px Figtree, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; }
-        .stick-reps-num { color: ${TEAL}; font: 700 34px/1 Oswald, sans-serif; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
-        .stick-reps-num .of { color: ${DIM}; font-size: 24px; }
-        /* Letzte Wiederholung: Ziffer hell mit türkisem Schein (passend zur türkisen Vorschau) - vorher dunkel auf dunkel, unsichtbar */
-        .stick-reps.last .stick-reps-num { color: ${LIST}; text-shadow: 0 0 14px rgba(92,200,184,.75); }
-        /* Clickwheel offen: Zähler rückt etwas nach oben, damit der Ring ihn nicht überdeckt */
-        .stick-reps { transition: transform .24s cubic-bezier(.2,.8,.2,1); }
-        body.metro-gesturing .stick-reps { transform: translateY(-16px); }
-        @media (prefers-reduced-motion: reduce) { .stick-reps { transition: none; } }
-        .stick-next-reps { display: none; color: ${TEAL}; font: 700 20px/1 Oswald, sans-serif; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
-        .stick-next-reps .of { color: ${DIM}; font-size: 15px; }
-        .stick-next.soon .stick-next-reps { color: ${LIST}; }
-        @media (max-height: 720px) {
-          /* wenig Höhe: Zähler wandert in den Kopf der Vorschau (sonst läge er über der Karte) */
-          .stick-reps { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-          .stick-next-reps { display: inline; font-size: 18px; }
-          .stick-next-reps .of { font-size: 14px; }
-          /* Zähler mittig zur Kopfzeile statt an der Grundlinie - sonst stößt die große Ziffer an den oberen Kartenrand */
-          .stick-next-head { align-items: center; min-height: 20px; }
-        }
+        /* Wiederholungs-Zähler: kompakt rechts in der „Jetzt“-Zeile über der aktuellen Übung (feste Zeilenhöhe, nichts springt) */
+        .stick-now-reps { display: inline-flex; align-items: baseline; gap: 6px; height: 18px; white-space: nowrap; }
+        .stick-now-reps-kick { color: ${DIM}; font: 800 11px/18px Figtree, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; }
+        .stick-now-reps-num { color: ${TEAL}; font: 700 20px/18px Oswald, sans-serif; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
+        .stick-now-reps-num .of { color: ${DIM}; font-size: 15px; }
+        /* Letzte Wiederholung: Ziffer hell mit türkisem Schein (passend zur türkisen Vorschau) */
+        .stick-now-reps.last .stick-now-reps-num { color: ${LIST}; text-shadow: 0 0 10px rgba(92,200,184,.75); }
         /* Drehrädchen */
         .reps-field { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
         .reps-drum-wrap { position: relative; width: 52px; height: ${DRUM_ITEM * 3}px; flex: 0 0 auto; }
@@ -770,10 +755,6 @@ export default function StickControl({ preset = null } = {}) {
         @media (orientation: landscape) and (min-height: 561px) {
           .page.tool .stick-wrap.rud-wrap { --hc-side: 390px; }
         }
-        @media (orientation: landscape) and (min-height: 721px) {
-          /* Tablet quer: Wiederholungs-Zähler oben im Tempo-Bereich statt über dem Dock */
-          .page.tool .stick-wrap .stick-reps { position: static; margin-bottom: 10px; }
-        }
         @media (orientation: landscape) and (max-height: 560px) {
           .stick-dur { padding: 4px 8px; }
           .stick-dur-sub { display: none; }
@@ -814,7 +795,12 @@ export default function StickControl({ preset = null } = {}) {
         ) : null}
         <div className="stick-now">
           <span className="stick-now-kick">{t("Jetzt")}<span className="stick-now-pos">{`${ex.id}/${EXERCISES.length}`}</span></span>
-          {counting ? <span className="stick-now-count">COUNT-IN</span> : null}
+          {counting ? <span className="stick-now-count">COUNT-IN</span> : challenge && playing && repNow > 0 ? (
+            <span className={lastRep ? "stick-now-reps last" : "stick-now-reps"} role="status" aria-label={t("Wiederholung {n} von {m}", { n: repNow, m: reps })}>
+              <span className="stick-now-reps-kick" aria-hidden="true">{t("Wiederholung")}</span>
+              <span className="stick-now-reps-num" aria-hidden="true">{repNow}<span className="of"> / {reps}</span></span>
+            </span>
+          ) : null}
         </div>
         <div className={playing ? "stick-card stick-run staff-card" : "stick-card staff-card"} >
           <Phrase
@@ -835,7 +821,6 @@ export default function StickControl({ preset = null } = {}) {
       <div className={lastRep ? "stick-next soon" : "stick-next"} data-next={nextEx ? nextEx.id : "end"} role="status" aria-live="polite" aria-atomic="true">
         <div className="stick-next-head">
           <span className="stick-next-kick">{nextEx ? t("Als Nächstes") : t("Letzte Übung")}{nextEx && !stickOpen(nextEx.id) ? <PaidMark icon /> : null}</span>
-          {challenge && playing && repNow > 0 ? <span className="stick-next-reps" aria-hidden="true">{repNow}<span className="of"> / {reps}</span></span> : null}
         </div>
         {nextEx ? (
           <button type="button" key={nextEx.id} className="stick-next-body" onClick={() => pick(nextEx.id)} disabled={playing} aria-label={t("Nummer {n}", { n: nextEx.id })}>
@@ -850,12 +835,6 @@ export default function StickControl({ preset = null } = {}) {
       {done ? <p className="stick-done" style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{t("Bis Nr. 24 gehalten (ab Nr. {n}).", { n: done })}</p> : null}
       <div className="stick-fade" aria-hidden="true" />
         <div className="metro-shell rud-metro">
-          {challenge && playing && repNow > 0 ? (
-            <div className={lastRep ? "stick-reps last" : "stick-reps"} role="status" aria-label={t("Wiederholung {n} von {m}", { n: repNow, m: reps })}>
-              <span className="stick-reps-kick" aria-hidden="true">{t("Wiederholung")}</span>
-              <span className="stick-reps-num" aria-hidden="true">{repNow}<span className="of"> / {reps}</span></span>
-            </div>
-          ) : null}
           <div className="dock metro-face">
             <div className="dial-row">
               <Nudge by={-10} bpm={bpm} set={setBpm} min={30} max={200} />
