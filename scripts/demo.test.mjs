@@ -156,7 +156,6 @@ test("Gratis-Kacheln nennen sechs, gesperrte Rudiments und NoClick tragen die Sc
   assert.match(click, /noClickOpen\(\) \? null : <PaidMark icon \/>/);
   assert.match(stick, /locked: !stickOpen\(e\.id\)/);
   assert.match(stick, /nextEx && !stickOpen\(nextEx\.id\) \? <PaidMark icon \/> : null/);
-  assert.match(stick, /locked \? <PaidMark \/> : null/);
 });
 
 test("Würfel bei Sperre nur aus den sechs, auch auf Mittel/Schwer", () => {

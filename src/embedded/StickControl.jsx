@@ -155,10 +155,6 @@ function NextRow(props) {
   return <Hands {...props} size={18} light={false} />;
 }
 
-function StickRow(props) {
-  return <Hands {...props} size={15} light={false} />;
-}
-
 /* Drehrädchen (iOS-artiger Walzen-Picker) für die Wiederholungen: senkrecht wischen/scrollen rastet ein,
    Antippen einer Zahl wählt sie, Tastatur: ↑/↓, Bild↑/↓ (±5), Pos1/Ende. Für Screenreader ein spinbutton. */
 const DRUM_ITEM = 20; // drei Zeilen sichtbar: davor · Auswahl · danach
@@ -226,27 +222,6 @@ function RepsDrum({ value, min = 1, max = 20, onChange, disabled, label }) {
   );
 }
 
-function ListRow({ row, onPick, playing, label, near, className, ternary }) {
-  const locked = !stickOpen(row.id);
-  const name = t("Nummer {n}", { n: row.id });
-  return (
-    <button
-      type="button"
-      className={`${className || ""}${locked ? " stick-locked" : ""}`}
-      onClick={() => onPick(row.id)}
-      disabled={playing}
-      aria-label={locked ? `${name} · ${t("Volle App")}` : undefined}
-      style={{ display: locked ? "flex" : undefined, alignItems: "center", gap: locked ? 8 : undefined, width: "100%", marginTop: 4, background: "#14191c", border: "1px solid #2f383d", borderRadius: 12, padding: near ? "8px 8px 6px" : "6px 8px", color: "inherit", textAlign: "left", opacity: near ? 1 : 0.7 }}
-    >
-      <span style={locked ? { flex: "1 1 auto", minWidth: 0 } : undefined}>
-        {label ? <div style={{ color: TEAL, font: "400 14px Figtree, sans-serif", letterSpacing: "0.08em", padding: "0 4px 4px" }}>{label}</div> : null}
-        <StickRow id={row.id} hands={row.hands} ternary={ternary} />
-      </span>
-      {locked ? <PaidMark /> : null}
-    </button>
-  );
-}
-
 function runHint(run) {
   const range = run.from === run.to
     ? t("Nr. {n} · {reps}×", { n: run.from, reps: run.reps })
@@ -297,7 +272,6 @@ export default function StickControl({ preset = null } = {}) {
   const clockRef = useRef(null); // Scheduler-Stand für die Restzeit (Audio-Uhr)
   const planRef = useRef(null); // Zahlen der Übersicht, eingefroren solange der Lauf läuft
   const pinRef = useRef(null);
-  const prevRef = useRef(null);
   const wrapRef = useRef(null);
   const bpmRef = useRef(preset?.bpm || 80);
   bpmRef.current = bpm;
@@ -309,10 +283,7 @@ export default function StickControl({ preset = null } = {}) {
   const idx = Math.max(0, EXERCISES.findIndex((e) => e.id === exId));
   const ex = EXERCISES[idx] || EXERCISES[0];
   usePracticeTrack({ ex: "stick", item: ex.id, playing, bpm });
-  const previous = EXERCISES.slice(0, idx);
   const nextEx = EXERCISES[idx + 1] || null;
-  // Alle weiteren Übungen nach „Als Nächstes“ (idx+2 … 24) - bleiben erreichbar, gedämpft/unscharf wie die früheren
-  const later = EXERCISES.slice(idx + 2);
   const challenge = mode === "challenge";
   const lastRep = challenge && playing && repNow > 0 && repNow >= reps;
   const run = fokusRun({
@@ -342,43 +313,12 @@ export default function StickControl({ preset = null } = {}) {
     window.addEventListener("wheel", block, { passive: false });
     return () => { de.classList.remove("sf-scroll-lock"); window.removeEventListener("wheel", block); };
   }, [playing]);
-  // Layout-Effekt: Scrollen + Ausblenden passieren vor dem nächsten Bild - sonst blitzt beim Übungswechsel
-  // ein Frame lang die alte Lage auf (Geisterzeile oben neben dem „?“).
   useLayoutEffect(() => {
     // Kopfzeile ist angeheftet (in der Home-Bildschirm-App unterhalb der Statusleiste): Höhe + Abstand oben
     const topEl = document.querySelector(".top");
     const head = topEl ? topEl.offsetHeight + (parseFloat(getComputedStyle(topEl).top) || 0) : 0;
     wrapRef.current?.style.setProperty("--stick-top", `${head}px`);
-    const before = prevRef.current;
-    if (before) window.scrollTo({ top: before.getBoundingClientRect().bottom + window.scrollY - head, behavior: "instant" });
   }, [exId]);
-  useLayoutEffect(() => {
-    // Frühere Übungen unter der Kopfzeile (Zurück, Titel) ausblenden; beim Hochscrollen erscheinen sie darunter wieder
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const list = prevRef.current;
-      if (!list) return;
-      const topEl = document.querySelector(".top");
-      const limit = topEl ? topEl.getBoundingClientRect().bottom : 0;
-      for (const el of list.children) el.classList.toggle("stick-under", el.getBoundingClientRect().top < limit - 1);
-    };
-    const onMove = () => { if (!raf) raf = window.requestAnimationFrame(update); };
-    update();
-    window.addEventListener("scroll", onMove, { passive: true });
-    window.addEventListener("resize", onMove);
-    return () => { window.removeEventListener("scroll", onMove); window.removeEventListener("resize", onMove); window.cancelAnimationFrame(raf); };
-  }, [exId]);
-  useEffect(() => {
-    let t = 0;
-    const onScroll = () => {
-      wrapRef.current?.classList.add("stick-scrolling");
-      window.clearTimeout(t);
-      t = window.setTimeout(() => wrapRef.current?.classList.remove("stick-scrolling"), 1000);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => { window.removeEventListener("scroll", onScroll); window.clearTimeout(t); };
-  }, []);
   // Restzeit an der Audio-Uhr, nicht an einem runterzählenden Timer (der auf dem iPhone im Hintergrund stehen bleibt).
   useEffect(() => {
     if (!playing || mode !== "challenge") return undefined;
@@ -583,25 +523,10 @@ export default function StickControl({ preset = null } = {}) {
         body:has(.stick-wrap), #root:has(.stick-wrap), .page:has(.stick-wrap) { overflow-x: clip; }
         /* Kopfzeile ist hier angeheftet - in der Home-Bildschirm-App unterhalb der Statusleiste (im Browser 0) */
         .page:has(.stick-wrap) .top { top: env(safe-area-inset-top, 0px); }
-        .stick-far { filter: blur(1.8px); opacity: 0.45 !important; transition: filter 0.3s, opacity 0.3s; }
-        .stick-far.stick-locked, .stick-prev.stick-locked { filter: none; opacity: 0.95 !important; }
-        /* Frühere (schon gespielte) Übungen: wie die fernen kommenden unscharf und gedämpft - die direkt davor etwas weniger, damit sie lesbar bleibt */
-        .stick-prev { filter: blur(1.1px); opacity: 0.55 !important; transition: filter 0.3s, opacity 0.3s; }
-        .stick-scrolling :is(.stick-far, .stick-prev) { filter: none; opacity: 0.7 !important; }
-        /* Frühere Übungen, die unter die (durchsichtige) Kopfzeile geraten, ausblenden - sonst scheinen sie hinter „HAND CONTROL“ durch */
-        .stick-wrap .stick-list > button { transition: filter 0.3s, opacity 0.2s; }
-        /* … und zwar sofort, ohne Ausblenden: sonst schimmert beim Übungswechsel die Zeile „davor“ kurz oben in der Kopfzeile (Geisterzeile) */
-        .stick-wrap .stick-list > .stick-under { opacity: 0 !important; visibility: hidden; transition: none !important; pointer-events: none; }
-        /* Während die Übung läuft, liegt die ganze frühere Liste unter der Kopfzeile: komplett weg, damit beim Weiterscrollen nichts durchscheint */
-        .stick-wrap:has(.stick-run) > .stick-list:not(.stick-later) { visibility: hidden; }
-        /* Kommende Übungen nach der Vorschau: unter der angehefteten Bühne durchscrollen; Reserve (nur auf hohen Screens), damit #24 ganz unten zwischen Bühne und Dock sichtbar landet */
-        .stick-later { position: relative; z-index: 1; margin-top: 4px; padding-bottom: clamp(0px, calc(100dvh - 700px), 88px); }
-        .stick-later-kick { color: ${DIM}; font: 700 12px Figtree, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; padding: 10px 4px 0; }
         @media (prefers-reduced-motion: reduce) {
-          .stick-far, .stick-prev { transition: none; }
           .stick-card text { transition: none !important; }
         }
-        /* Bühne = angeheftete aktuelle Übung + Vorschau; so hoch, dass die frühere Liste darüber immer wegscrollen kann */
+        /* Bühne = angeheftete aktuelle Übung + Vorschau (füllt die Höhe bis zum Dock) */
         .stick-stage { min-height: calc(100dvh - var(--stick-top, 0px) - var(--rud-foot) - var(--rud-dock) + 16px); }
         .stick-fade {
           pointer-events: none;
@@ -773,7 +698,7 @@ export default function StickControl({ preset = null } = {}) {
             overflow: hidden;
           }
           .stick-stage { display: contents; }
-          .stick-list, .stick-done, .stick-fade { display: none !important; }
+          .stick-done, .stick-fade { display: none !important; }
           .page.tool .stick-wrap .stick-pin {
             grid-column: 1;
             grid-row: 1;
@@ -847,12 +772,6 @@ export default function StickControl({ preset = null } = {}) {
           .stick-dur-time, .stick-dur.run .stick-dur-time { font-size: 22px; }
         }
       `}</style>
-      <div className="stick-list" ref={prevRef}>
-        {previous.map((row, i) => {
-          const last = i === previous.length - 1;
-          return <ListRow key={row.id} row={row} onPick={pick} playing={playing} near={last} className={last ? "stick-prev" : "stick-far"} label={last ? t("DAVOR") : ""} ternary={ternary} />;
-        })}
-      </div>
       <div className="stick-stage">
       <div className="stick-pin" ref={pinRef}>
         <div className="stick-tools" style={{ display: "flex", gap: 8, alignItems: "center", margin: "0 0 10px", flexWrap: "wrap" }}>
@@ -919,12 +838,6 @@ export default function StickControl({ preset = null } = {}) {
         )}
       </div>
       </div>
-      {later.length ? (
-        <div className="stick-list stick-later" role="group" aria-label={t("Danach")}>
-          <div className="stick-later-kick" aria-hidden="true">{t("Danach")}</div>
-          {later.map((row) => <ListRow key={row.id} row={row} onPick={pick} playing={playing} className="stick-far" ternary={ternary} />)}
-        </div>
-      ) : null}
       </div>
       {done ? <p className="stick-done" style={{ color: TEAL, textAlign: "center", fontWeight: 700, margin: "12px 0 0" }}>{t("Bis Nr. 24 gehalten (ab Nr. {n}).", { n: done })}</p> : null}
       <div className="stick-fade" aria-hidden="true" />
