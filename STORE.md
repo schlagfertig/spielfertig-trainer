@@ -73,6 +73,7 @@ Der eigene Mac (2012) kann kein aktuelles Xcode. iOS wird deshalb in der Cloud g
 
 - **GitHub Actions** (macOS-Runner, Xcode vorinstalliert) oder **Codemagic** (Capacitor-Vorlage, Free-Tier)
 - Ablauf: `npm install` (kein `npm ci`: `package-lock.json` liegt nicht im Repo) → `npm run build:cap` → `npx cap add ios` / `npx cap sync ios` → Archiv signieren → Upload zu TestFlight
+- Info.plist im Cloud-Build: `ITSAppUsesNonExemptEncryption=false` plus `NSCameraUsageDescription` / `NSMicrophoneUsageDescription` (Clip = getUserMedia; sonst Absturz beim Kamera-Öffnen)
 - Signing über App-Store-Connect-API-Key und Zertifikat/Profil als Secrets des Build-Dienstes, nicht im Repo
 - Android kann im selben Workflow (Linux-Runner) als signiertes `.aab` mitlaufen
 

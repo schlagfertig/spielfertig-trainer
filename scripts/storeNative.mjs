@@ -1,4 +1,5 @@
-// Nach `npx cap add`: iOS-Deployment-Target aus dem Capgo-Podspec, Play-Billing-Recht für Android.
+// Nach `npx cap add`: iOS-Deployment-Target aus dem Capgo-Podspec, Play-Billing-Recht für Android,
+// TCC-Texte für Kamera/Mikrofon (Clip nutzt getUserMedia; ohne Texte stürzt iOS ab).
 // ios/ und android/ liegen nicht im Repo; der Android-Workflow ruft `android` auf.
 
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
@@ -37,6 +38,47 @@ export function ensureIos15(text) {
   return ensureIosVersion(text, "15.0");
 }
 
+// Clip (PracticeClip.jsx): getUserMedia Video + Mikrofon. Ohne diese Keys killt iOS die App (TCC).
+export const IOS_CAMERA_USAGE_DE =
+  "Schlagfertig braucht die Kamera, damit du dich beim Üben filmen kannst.";
+export const IOS_MICROPHONE_USAGE_DE =
+  "Schlagfertig braucht das Mikrofon, damit Click und Pad in deinem Clip zu hören sind.";
+
+function escapeXml(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
+}
+
+/** Setzt oder ersetzt einen String-Eintrag in einer Info.plist (XML). */
+export function ensurePlistString(xml, key, value) {
+  const text = String(xml || "");
+  const safeKey = String(key || "");
+  if (!safeKey || !/<plist\b/i.test(text) || !/<\/dict>/i.test(text)) return text;
+  const escaped = escapeXml(value);
+  const keyTag = `<key>${safeKey}</key>`;
+  const block = `${keyTag}\n\t<string>${escaped}</string>`;
+  const keyRe = new RegExp(
+    `<key>${safeKey.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</key>\\s*<string>[\\s\\S]*?</string>`,
+  );
+  if (keyRe.test(text)) return text.replace(keyRe, block);
+  // Vor dem schließenden </dict> der Wurzel einfügen (letztes </dict> vor </plist>).
+  const close = text.lastIndexOf("</dict>");
+  if (close < 0) return text;
+  return `${text.slice(0, close)}\t${block}\n${text.slice(close)}`;
+}
+
+export function ensureIosMediaUsageDescriptions(xml) {
+  return ensurePlistString(
+    ensurePlistString(xml, "NSCameraUsageDescription", IOS_CAMERA_USAGE_DE),
+    "NSMicrophoneUsageDescription",
+    IOS_MICROPHONE_USAGE_DE,
+  );
+}
+
 function patchFile(path, transform) {
   if (!existsSync(path)) {
     console.error(`Datei fehlt: ${path}`);
@@ -68,6 +110,18 @@ export function applyIosDeploymentTarget() {
   const low = [...patched.matchAll(/IPHONEOS_DEPLOYMENT_TARGET = (\d+(?:\.\d+)?);/g)]
     .some((m) => Number.parseFloat(m[1]) < Number.parseFloat(minimum));
   return low ? 1 : 0;
+}
+
+/** Schreibt Kamera-/Mikrofon-Texte in ios/App/App/Info.plist (nach cap add/sync). */
+export function applyIosMediaUsageDescriptions(plistPath = "ios/App/App/Info.plist") {
+  const patched = patchFile(plistPath, ensureIosMediaUsageDescriptions);
+  if (patched == null) return 1;
+  if (!patched.includes("NSCameraUsageDescription") || !patched.includes("NSMicrophoneUsageDescription")) {
+    console.error("Kamera-/Mikrofon-Texte fehlen nach dem Patch");
+    return 1;
+  }
+  console.log("Info.plist: NSCameraUsageDescription + NSMicrophoneUsageDescription gesetzt");
+  return 0;
 }
 
 function cliCommand() {

@@ -64,10 +64,12 @@ jobs:
           --iconBackgroundColor '#161a1d' --iconBackgroundColorDark '#161a1d'
           --splashBackgroundColor '#161a1d' --splashBackgroundColorDark '#161a1d'
 
-      - name: Info.plist (Export-Angabe, keine eigene Verschlüsselung)
+      - name: Info.plist (Export-Angabe, Kamera/Mikrofon-Texte)
         run: |
           /usr/libexec/PlistBuddy -c "Delete :ITSAppUsesNonExemptEncryption" ios/App/App/Info.plist || true
           /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" ios/App/App/Info.plist
+          # Clip öffnet die Kamera per getUserMedia. Ohne TCC-Texte stürzt iOS sofort ab (Guideline 2.1).
+          node --input-type=module -e 'import { applyIosMediaUsageDescriptions } from "./scripts/storeNative.mjs"; const code = applyIosMediaUsageDescriptions(); if (code) process.exit(code);'
 
       - name: Zertifikat + Profil (App Store Connect API)
         env:
