@@ -13,6 +13,25 @@ export function ensureBillingPermission(xml) {
   return text.replace(/<manifest\b[^>]*>/, (tag) => `${tag}\n${line}`);
 }
 
+// Clip nimmt Video mit Ton auf: Android-WebView braucht dafür Kamera- und Mikrofon-Rechte.
+const MEDIA_PERMISSIONS = [
+  "android.permission.CAMERA",
+  "android.permission.RECORD_AUDIO",
+  "android.permission.MODIFY_AUDIO_SETTINGS",
+];
+
+export function ensureMediaPermissions(xml) {
+  let text = String(xml || "");
+  if (!/<manifest\b[^>]*>/.test(text)) return text;
+  const missing = MEDIA_PERMISSIONS.filter((name) => !text.includes(`"${name}"`));
+  if (!missing.length) return text;
+  const lines = missing.map((name) => `    <uses-permission android:name="${name}" />`).join("\n");
+  const feature = text.includes("android.hardware.camera")
+    ? ""
+    : '\n    <uses-feature android:name="android.hardware.camera" android:required="false" />';
+  return text.replace(/<manifest\b[^>]*>/, (tag) => `${tag}\n${lines}${feature}`);
+}
+
 export function ensureIos15(text) {
   return String(text || "")
     .replace(/platform :ios, '(\d+(?:\.\d+)?)'/g, (line, version) => (
@@ -38,6 +57,7 @@ const isMain = process.argv[1] && import.meta.url === pathToFileURL(resolve(proc
 const cmd = process.argv[2];
 if (isMain && cmd === "android") {
   patchFile("android/app/src/main/AndroidManifest.xml", ensureBillingPermission);
+  patchFile("android/app/src/main/AndroidManifest.xml", ensureMediaPermissions);
 } else if (isMain && cmd === "ios") {
   patchFile("ios/App/Podfile", ensureIos15);
   if (existsSync("ios/App/App.xcodeproj/project.pbxproj")) {
