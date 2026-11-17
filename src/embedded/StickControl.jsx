@@ -245,9 +245,11 @@ function useMq(q) {
 }
 
 export default function StickControl({ preset = null } = {}) {
-  // Querformat: Übung links, Tempo-Bereich rechts; auf flachen Screens (Phone quer) kleineres Rad
+  // Querformat: Übung links, Tempo-Bereich rechts; auf flachen Screens (Phone quer) kleineres Rad.
+  // Hochkant knapp: etwas kleineres Rad, damit „Als Nächstes“ und das Rad ohne Überlappung passen.
   const lowWide = useMq("(orientation: landscape) and (max-height: 560px)");
-  const dialSize = lowWide ? 92 : 124;
+  const compactDock = useMq("(orientation: portrait) and (max-height: 900px)");
+  const dialSize = lowWide || compactDock ? 92 : 124;
   // „Heute“-Karte: Startübung und Tempo vorgeben
   const [exId, setExId] = useState(() => {
     const want = EXERCISES.some((e) => e.id === preset?.ex) ? preset.ex : 1;
@@ -672,6 +674,107 @@ export default function StickControl({ preset = null } = {}) {
         /* Clip-Knopf (links unten, schwebend) deckt sonst „Klang“ ab: Zeile rechts daneben zentrieren */
         @media (orientation: portrait) and (min-width: 360px) {
           .page.tool.view-stick .stick-hear { padding-left: 100px; }
+        }
+        /* Hochkant: Rad, Klang/Einzählen und Zahlenleiste im Fluss unter der Vorschau, nicht mehr
+           fest über die Karte „Als Nächstes“ gelegt. So bleibt ein Abstand zur Vorschau, und das
+           Rad sitzt tiefer, direkt über der Leiste (auch mit Safe-Area und auf kleinen Schirmen). */
+        @media (orientation: portrait) {
+          .page.tool.view-stick {
+            display: flex;
+            flex-direction: column;
+            min-height: 100dvh;
+            max-height: 100dvh;
+            overflow: hidden;
+          }
+          .page.tool.view-stick .top { flex: 0 0 auto; }
+          .page.tool.view-stick .main {
+            flex: 1 1 auto;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 0;
+          }
+          .page.tool .stick-wrap.rud-wrap {
+            flex: 1 1 auto;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 0 !important;
+            overflow: hidden;
+          }
+          .page.tool .stick-wrap .stick-stage {
+            flex: 1 1 auto;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+          }
+          .page.tool .stick-wrap .stick-pin {
+            position: static;
+            flex: 1 1 auto;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow: auto;
+            padding-bottom: 12px;
+          }
+          .page.tool .stick-wrap .stick-fade { display: none !important; }
+          .page.tool .stick-wrap .rud-metro {
+            position: relative;
+            left: auto;
+            right: auto;
+            bottom: auto;
+            flex: 0 0 auto;
+            z-index: 16;
+            margin-top: 16px;
+          }
+          .page.tool .stick-wrap .rud-metro .metro-face,
+          .page.tool .stick-wrap .rud-metro .dock {
+            padding: 4px 12px 6px;
+            max-height: none;
+            overflow: visible;
+          }
+          .page.tool.view-stick .rud-nav {
+            position: relative;
+            left: auto;
+            right: auto;
+            bottom: auto;
+            flex: 0 0 auto;
+          }
+          .stick-wrap:has(.stick-run) .stick-pin { overflow: hidden; }
+        }
+        @media (orientation: portrait) and (max-height: 900px) {
+          .stick-tools { margin: 0 0 6px !important; }
+          .stick-dur { margin: 0 2px 5px; padding: 5px 10px 4px; }
+          .stick-dur-time { font-size: 26px; }
+          .page.tool .stick-wrap .stick-pin { padding: 6px 0 0; }
+          .page.tool .stick-wrap .stick-card,
+          .page.tool .stick-wrap .stick-next { flex: 0 0 auto; }
+          .stick-count { margin-top: 4px; gap: 4px; }
+          .page.tool .stick-wrap .stick-hear,
+          .page.tool .stick-wrap .stick-countin { flex-wrap: nowrap; }
+        }
+        @media (orientation: portrait) and (max-height: 720px) {
+          .stick-tools { margin: 0 0 4px !important; }
+          .stick-dur { margin: 0 2px 4px; padding: 4px 8px 3px; }
+          .stick-dur-time { font-size: 24px; }
+          .page.tool .stick-wrap .stick-card { padding: 6px 8px 4px !important; }
+          .page.tool .stick-wrap .stick-card svg { width: 100%; height: auto; max-height: 44px; }
+          .stick-next { margin-top: 4px; }
+          .stick-next-body svg { max-height: 36px; }
+          .page.tool .stick-wrap .stick-pin { padding: 2px 0 0; }
+          .stick-now { margin: 0 2px 2px; }
+          .stick-count { margin-top: 2px; gap: 2px; }
+          .stick-dur-sub { display: none; }
+          .page.tool.view-stick .stick-hear { padding-left: 72px; }
+          .stick-hear-label, .stick-countin-label { font-size: 12px; }
+          .page.tool .stick-wrap .stick-count .seg button { padding: 6px 8px; min-height: 36px; font-size: 13px; }
+          .stick-wrap .rud-half {
+            min-height: 48px;
+            padding: 3px 10px calc(3px + env(safe-area-inset-bottom, 0px));
+          }
+          .cw-hint { display: none; }
         }
         /* Querformat (Paket C): aufgeräumt in zwei Spalten - links Modus, aktuelle Übung und Vorschau,
            rechts Tempo (Rad mit ±5/±10) und Einzählen. Kopf in einer Zeile, nichts liegt übereinander. */
