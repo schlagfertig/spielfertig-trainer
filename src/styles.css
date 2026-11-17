@@ -1150,6 +1150,48 @@ body:has(.page.view-lexicon), body:has(.page.view-lexicon) #root, .page.tool.vie
   text-underline-offset: 3px;
   cursor: pointer;
 }
+/* Kauf-Blatt iOS: zwei Wege, „Für immer“ und „Jahresabo“. */
+.paywall-options { display: grid; gap: 10px; }
+.paywall-opt {
+  display: grid;
+  gap: 4px;
+  justify-items: stretch;
+  padding: 12px 14px 14px;
+  border-radius: 18px;
+  background: #101416;
+  border: 1px solid #2f383d;
+}
+.paywall-opt-sub { border-color: rgba(92, 200, 184, 0.55); }
+.paywall-opt-title {
+  margin: 0;
+  color: #5cc8b8;
+  font: 800 13px Figtree, sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.paywall-opt .paywall-sub { margin: 0; }
+.paywall-opt .paywall-buy { width: 100%; margin-top: 8px; }
+.paywall-per { color: #9aa6aa; font: 700 17px Figtree, sans-serif; letter-spacing: 0; }
+.paywall-trial { margin: 0; color: #c5d0d2; font-size: 15px; line-height: 1.35; }
+.paywall-trial.is-on { color: #e8b84b; font-weight: 800; }
+.paywall-subs-on { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; margin-top: 8px; text-align: center; }
+.paywall-legal { margin-top: 14px; padding-top: 10px; border-top: 1px solid #2f383d; color: #9aa6aa; font-size: 13px; line-height: 1.4; }
+.paywall-legal p { margin: 0 0 8px; }
+.paywall-legal-links { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.paywall-link {
+  appearance: none;
+  display: inline;
+  margin: 0;
+  padding: 10px 2px;
+  border: 0;
+  background: transparent;
+  color: #5cc8b8;
+  font: 700 14px Figtree, sans-serif;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.paywall-link:focus-visible { outline: 2px solid #5cc8b8; outline-offset: 2px; }
 .paywall-note { margin: 8px 0 0; color: #e8b84b; font-size: 15px; font-weight: 700; }
 .paywall-copy { margin: 12px 0 0; color: #c5d0d2; font-size: 15px; line-height: 1.4; }
 .paywall-tester { margin-top: 16px; padding-top: 12px; border-top: 1px solid #2f383d; }
