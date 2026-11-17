@@ -31,7 +31,7 @@ import WhatsNew from "./lib/WhatsNew.jsx";
 import { startModal } from "./lib/startModal.js";
 import { APP_VERSION } from "./lib/version.js";
 import { canOpen, isUnlocked, setUnlocked, fallbackPrice, PAYWALL_EVENT } from "./lib/demo.js";
-import { loadStorePrice, refreshEntitlement } from "./lib/iap.js";
+import { loadStoreInfo, refreshEntitlement, watchEntitlement } from "./lib/iap.js";
 import { DemoPaywall } from "./lib/Paywall.jsx";
 import { AudioOffsetControl } from "./lib/AudioOffsetControl.jsx";
 
@@ -93,6 +93,7 @@ export default function App() {
   const [unlocked, setUnlockedState] = useState(isUnlocked);
   const [paywall, setPaywall] = useState(false);
   const [storePrice, setStorePrice] = useState(null);
+  const [storeSub, setStoreSub] = useState({ product: null, price: null });
   useEffect(() => {
     const onPay = () => setPaywall(true);
     window.addEventListener(PAYWALL_EVENT, onPay);
@@ -104,9 +105,15 @@ export default function App() {
     refreshEntitlement().then(() => { if (!stop) setUnlockedState(isUnlocked()); });
     return () => { stop = true; };
   }, []);
+  // Käufe und eingelöste Codes sofort freischalten: Store-Event und Zurückkehren in die App prüfen neu.
+  useEffect(() => watchEntitlement(() => setUnlockedState(isUnlocked())), []);
   useEffect(() => {
     let stop = false;
-    loadStorePrice().then((price) => { if (!stop) setStorePrice(price || null); });
+    loadStoreInfo().then((info) => {
+      if (stop) return;
+      setStorePrice(info.price || null);
+      setStoreSub({ product: info.sub || null, price: info.subPrice || null });
+    });
     return () => { stop = true; };
   }, [paywall]);
   // Startwerte für ein Modul, wenn es aus der „Heute“-Karte geöffnet wird (sonst null = eigene Werte).
@@ -318,6 +325,9 @@ export default function App() {
       {paywall && (
         <DemoPaywall
           price={storePrice}
+          sub={storeSub.product}
+          subPrice={storeSub.price}
+          onOpenLegal={(topic) => { setPaywall(false); open(topic); }}
           onClose={() => setPaywall(false)}
           onUnlock={() => { setUnlocked(true); setUnlockedState(true); setPaywall(false); }}
         />
@@ -461,6 +471,9 @@ export default function App() {
       {paywall && (
         <DemoPaywall
           price={storePrice}
+          sub={storeSub.product}
+          subPrice={storeSub.price}
+          onOpenLegal={(topic) => { setPaywall(false); open(topic); }}
           onClose={() => setPaywall(false)}
           onUnlock={() => { setUnlocked(true); setUnlockedState(true); setPaywall(false); }}
         />

@@ -10,7 +10,7 @@ const H = { "1.1": {}, "2.0": {} };
 
 test("Version: package.json = APP_VERSION, Highlights für die aktuelle Minor-Version auf DE und EN", () => {
   assert.equal(JSON.parse(readFileSync(new URL("../package.json", import.meta.url))).version, APP_VERSION);
-  const h = HIGHLIGHTS[minorKey(APP_VERSION)];
+  const h = HIGHLIGHTS["1.4"]; // 1.5 hat (bewusst) kein Popup
   assert.ok(h, "HIGHLIGHTS fehlt");
   for (const l of ["de", "en"]) {
     assert.ok(h[l].title && h[l].lines.length && h[l].go && h[l].later, l);
@@ -54,6 +54,7 @@ async function pick(store, search = "", opts) {
   return { first: m.startModal(opts), again: m.startModal(opts), m };
 }
 const J = JSON.stringify;
+const WN = HIGHLIGHTS[minorKey(APP_VERSION)] ? "whatsnew" : null; // 1.5 hat bewusst kein „Neu“-Popup
 
 test("Start-Popup: Erfolg > Einwilligung > Neu; höchstens eins pro Start", async () => {
   // Update von 1.0 (Begrüßung schon gesehen), Einwilligung noch offen → erst Einwilligung, Neu beim nächsten Start
@@ -63,7 +64,7 @@ test("Start-Popup: Erfolg > Einwilligung > Neu; höchstens eins pro Start", asyn
   assert.equal(r.again, "consent"); // gleiche Entscheidung, kein zweites Popup
   s["sf.v1.feedback"] = J({ consent: false });
   r = await pick(s);
-  assert.equal(r.first, "whatsnew");
+  assert.equal(r.first, WN);
   r.m.markWhatsNewSeen();
   assert.equal((await pick(s)).first, null);
   // nicht gezeigter Erfolg geht vor
