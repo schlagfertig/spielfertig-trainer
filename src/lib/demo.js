@@ -26,6 +26,14 @@ function nativeShell() {
 export function nativeApp() {
   return nativeShell();
 }
+// Jahresabo gibt es nur in der iOS-App (Android folgt später, dort gibt es das Produkt noch nicht).
+export function iosApp() {
+  try {
+    return nativeShell() && window.Capacitor?.getPlatform?.() === "ios";
+  } catch {
+    return false;
+  }
+}
 
 export const DEMO_ON = storeBuild() || nativeShell();
 const KEY = "sf-unlocked";
@@ -37,6 +45,11 @@ export function fallbackPrice(lang) {
 export const PAYWALL_EVENT = "sf-paywall";
 // Einmal-Kauf der vollen App (App Store Connect, nicht verbrauchbar). Nur diese eine Stelle.
 export const FULL_PRODUCT_ID = "de.schlagfertig.control.full";
+// Jahresabo (auto-renewable, Gruppe „Schlagfertig Vollzugang“, 14 Tage Gratis-Test als Einführungsangebot).
+// Vollversion ODER aktives Abo schaltet dasselbe frei. Preis, Dauer und Testphase kommen aus dem Store, nie von hier.
+export const SUB_PRODUCT_ID = "de.schlagfertig.control.yearly";
+// Apples Standard-Nutzungsbedingungen (EULA) für das Abo (App Review 3.1.2).
+export const EULA_URL = "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/";
 // Literal, damit der Store-Build das Code-Feld wegoptimiert (Guideline 3.1.1).
 // true nur bei VITE_SF_TESTER_BUILD=1. Ohne das Flag (auch in node-Tests): false.
 export const TESTER_UNLOCK = typeof __SF_TESTER__ !== "undefined" && __SF_TESTER__ === true;
@@ -66,12 +79,25 @@ export function isUnlocked() {
   try { return localStorage.getItem(KEY) === "1"; } catch { return false; }
 }
 
+// Woher die Freischaltung kommt: "sub" (Jahresabo) oder "full" (Vollversion, eingelöster Code, älterer Stand ohne Eintrag).
+// Nur ein Abo wird beim Zurückkehren in die App wieder zugesperrt, wenn es abgelaufen ist. Alles andere bleibt offen.
+const SRC_KEY = "sf-unlocked-src";
+export function unlockSource() {
+  try { return localStorage.getItem(SRC_KEY) || ""; } catch { return ""; }
+}
+export function setUnlockSource(src) {
+  try {
+    if (src) localStorage.setItem(SRC_KEY, src);
+    else localStorage.removeItem(SRC_KEY);
+  } catch { /* ignore */ }
+}
+
 // Echter Kauf und Wiederherstellen schreiben hierher (src/lib/iap.js).
 // Der Code aus der Stunde schreibt das nur im Tester-Build.
 export function setUnlocked(on) {
   try {
     if (on) localStorage.setItem(KEY, "1");
-    else localStorage.removeItem(KEY);
+    else { localStorage.removeItem(KEY); localStorage.removeItem(SRC_KEY); }
   } catch { /* ignore */ }
 }
 
