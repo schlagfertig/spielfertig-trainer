@@ -73,6 +73,7 @@ Der eigene Mac (2012) kann kein aktuelles Xcode. iOS wird deshalb in der Cloud g
 
 - **GitHub Actions** (macOS-Runner, Xcode vorinstalliert) oder **Codemagic** (Capacitor-Vorlage, Free-Tier)
 - Ablauf: `npm install` (kein `npm ci`: `package-lock.json` liegt nicht im Repo) → `npm run build:cap` → `npx cap add ios` / `npx cap sync ios` → Archiv signieren → Upload zu TestFlight
+- Info.plist im Cloud-Build: `ITSAppUsesNonExemptEncryption=false` plus `NSCameraUsageDescription` / `NSMicrophoneUsageDescription` (Clip = getUserMedia; sonst Absturz beim Kamera-Öffnen)
 - Signing über App-Store-Connect-API-Key und Zertifikat/Profil als Secrets des Build-Dienstes, nicht im Repo
 - Android kann im selben Workflow (Linux-Runner) als signiertes `.aab` mitlaufen
 
@@ -83,7 +84,7 @@ Konfiguration liegt in `capacitor.config.json` (JSON statt TS, damit die Capacit
 - `@capacitor/status-bar` — dunkle Leiste, startet in `src/lib/native.js`
 - `@capacitor/haptics` — `tapHaptic()` z. B. am Metronom-Tick
 - `@capacitor/app` — App-Lifecycle
-- `@capgo/native-purchases` `7.19.x` — Einmal-Kauf. Die 8.x-Linie des Plugins verlangt Capacitor 8; diese App bleibt bei Capacitor 7. Kein extra Konto (StoreKit 2 und Play Billing direkt).
+- `@capgo/native-purchases` `7.19.x` — Einmal-Kauf und Jahresabo (iOS). Die 8.x-Linie des Plugins verlangt Capacitor 8; diese App bleibt bei Capacitor 7. Kein extra Konto (StoreKit 2 und Play Billing direkt).
 
 Nach `npx cap add ios`: `node scripts/storeNative.mjs ios` (Podfile und Xcode-Ziel auf iOS 15, StoreKit 2). Nach `npx cap add android`: `node scripts/storeNative.mjs android` (Recht `com.android.vending.BILLING`). Der Android-Workflow macht den Android-Schritt selbst.
 
@@ -103,3 +104,21 @@ npx @capacitor/assets generate --ios
 Kein Eintrag in `package.json` nötig (läuft per `npx`). Das schreibt `AppIcon.appiconset` und `Splash.imageset` in `ios/App`.
 
 Wichtig: Die Datei muss `icon-only.png` heißen. Ein `assets/icon.png` oder `assets/logo.png` behandelt das Tool als Logo („Easy Mode“) und baut daraus eigene Splashes auf weißem Grund. Für Android liegen `icon-foreground.png` + `icon-background.png` (adaptive Icons) bereit; der Android-Workflow ruft `--android` auf.
+
+### Jahresabo (nur iOS)
+
+Zweiter Weg neben der Vollversion, in App Store Connect als automatisch erneuerndes Abo. Produkt-ID `de.schlagfertig.control.yearly` (nur in `SUB_PRODUCT_ID`, `src/lib/demo.js`), Abo-Gruppe „Schlagfertig Vollzugang“, 1 Jahr, 14 Tage Gratis-Test als Einführungsangebot. Vollversion ODER aktives Abo schaltet dasselbe frei (`entitlementFromPurchases`, `src/lib/iap.js`); bisherige Käufer und eingelöste Offer-Codes bleiben frei. Auf Android und im Browser gibt es das Abo nicht (die Kaufseite zeigt dort nur die Vollversion).
+
+- Kaufseite (iOS-App): „Für immer“ und „Jahresabo“, dazu Verlängerung, Kündigungshinweis (jederzeit in den Apple-ID-Einstellungen, mindestens 24 Stunden vor Ablauf), Nutzungsbedingungen (Apple-Standard-EULA), Datenschutz, Kauf wiederherstellen (App Review 3.1.2).
+- Preis, Dauer und Gratis-Testphase kommen aus dem Store-Produkt (`src/lib/subscriptionText.js`), nie aus dem Code. Fehlt eine Angabe, steht ein Ersatztext („Preis zeigt Apple beim Abonnieren“, „Gilt für dich eine Gratis-Testphase, zeigt Apple sie vor der Bestätigung.“).
+- `@capgo/native-purchases` 7.19.3 liefert auf iOS für ein Produkt nur Preis, Titel und Beschreibung. Der iOS-Workflow ergänzt deshalb vor dem Xcode-Build `subscriptionPeriod` und `introductoryPrice` im Swift-Code des Plugins (`applyNativePurchasesSubscriptionInfo`, `scripts/storeNative.mjs`; Felder wie im Plugin 8.x). Scheitert das (Plugin-Quelle geändert), bricht der Lauf ab.
+- Sofort freischalten: Plugin-Event `transactionUpdated` (StoreKit `Transaction.updates`), Capacitor `resume` und `visibilitychange` lösen eine neue Prüfung aus (`watchEntitlement`). Beim Zurückkehren sperrt nur ein abgelaufenes Abo wieder zu; Vollversion und Codes bleiben offen.
+
+## iOS-Cloud-Build → TestFlight
+
+GitHub → Actions → „iOS TestFlight“ (`.github/workflows/ios-testflight.yml`, macOS-26-Runner, Xcode 26). Läuft bei Push auf `cursor/ios-testflight-build` oder per Run workflow.
+
+- Secrets: `ASC_KEY_P8` (Inhalt der Datei `AuthKey_<ID>.p8`, Zeilenumbrüche egal), `ASC_KEY_ID`, `ASC_ISSUER_ID`. App-Store-Connect-API-Schlüssel (Team-Schlüssel, Rolle App-Manager).
+- Signatur: `scripts/iosSigning.mjs` legt pro Lauf ein Verteilungs-Zertifikat und ein App-Store-Profil an (kein Zertifikat als Secret nötig, kein Gerät nötig). Beides bleibt bis zum nächsten Lauf. Der nächste Lauf löscht ältere Profile mit dem Namen „Schlagfertig CI …“ und widerruft nur deren Zertifikate — das Zertifikat am Ende des laufenden Builds zu löschen lehnt Apple ab (ITMS-90721). Apple setzt den Zertifikatsnamen auf den Team-Namen, der CI-Marker steht deshalb im Profilnamen.
+- Version `1.4`, Build-Nummer = Run-Nummer. `ITSAppUsesNonExemptEncryption = false` (keine Export-Frage in TestFlight).
+- Ergebnis: Build in App Store Connect → TestFlight, dazu Artefakt `schlagfertig-ios-ipa`.
