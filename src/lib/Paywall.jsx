@@ -191,7 +191,7 @@ function buyNote(res) {
   return "Kauf hat nicht geklappt. Bitte nochmal versuchen.";
 }
 
-function restoreNote(res) {
+export function restoreNote(res) {
   if (res?.reason === "not-native") return "Wiederherstellen geht nur in der Store-App.";
   if (res?.reason === "cancel") return "Kauf abgebrochen.";
   if (res?.reason === "none") return "Kein Kauf zum Wiederherstellen.";

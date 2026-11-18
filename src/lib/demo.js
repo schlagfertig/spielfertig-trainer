@@ -70,7 +70,7 @@ export const FREE_GROOVE_BARS = 1;
 // Groove über 1 Takt, Speichern, …).
 // Noten (archive) bleibt zu.
 const FREE = new Set([
-  "home", "first", "nostick", "click", "lexicon", "impressum", "datenschutz", "news",
+  "home", "first", "nostick", "click", "lexicon", "impressum", "datenschutz", "news", "zugang",
   "rudiments", "dice", "stick", "diary", "rhythm", "pyramid",
 ]);
 
@@ -85,6 +85,21 @@ const SRC_KEY = "sf-unlocked-src";
 export function unlockSource() {
   try { return localStorage.getItem(SRC_KEY) || ""; } catch { return ""; }
 }
+// Details zum Zugang für „Mein Zugang“ (Abo-Ablauf, Verlängerung, Testphase). Kommt aus der letzten Store-Prüfung.
+const ACCESS_KEY = "sf-access";
+export function accessInfo() {
+  try {
+    const v = JSON.parse(localStorage.getItem(ACCESS_KEY) || "null");
+    return v && typeof v === "object" ? v : null;
+  } catch { return null; }
+}
+export function setAccessInfo(info) {
+  try {
+    if (info && typeof info === "object") localStorage.setItem(ACCESS_KEY, JSON.stringify(info));
+    else localStorage.removeItem(ACCESS_KEY);
+  } catch { /* ignore */ }
+}
+
 export function setUnlockSource(src) {
   try {
     if (src) localStorage.setItem(SRC_KEY, src);
@@ -97,7 +112,7 @@ export function setUnlockSource(src) {
 export function setUnlocked(on) {
   try {
     if (on) localStorage.setItem(KEY, "1");
-    else { localStorage.removeItem(KEY); localStorage.removeItem(SRC_KEY); }
+    else { localStorage.removeItem(KEY); localStorage.removeItem(SRC_KEY); localStorage.removeItem(ACCESS_KEY); }
   } catch { /* ignore */ }
 }
 

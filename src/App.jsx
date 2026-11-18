@@ -30,7 +30,8 @@ import TesterFeedback, { FeedbackLink } from "./lib/TesterFeedback.jsx";
 import WhatsNew from "./lib/WhatsNew.jsx";
 import { startModal } from "./lib/startModal.js";
 import { APP_VERSION } from "./lib/version.js";
-import { canOpen, isUnlocked, setUnlocked, fallbackPrice, PAYWALL_EVENT } from "./lib/demo.js";
+import { canOpen, isUnlocked, setUnlocked, fallbackPrice, PAYWALL_EVENT, DEMO_ON } from "./lib/demo.js";
+import { Access } from "./lib/Access.jsx";
 import { loadStoreInfo, refreshEntitlement, watchEntitlement } from "./lib/iap.js";
 import { DemoPaywall } from "./lib/Paywall.jsx";
 import { AudioOffsetControl } from "./lib/AudioOffsetControl.jsx";
@@ -68,6 +69,7 @@ const META = {
   impressum: { title: "Impressum", help: "home" },
   datenschutz: { title: "Datenschutz", help: "home" },
   news: { title: "Neuigkeiten", help: "home" },
+  zugang: { title: "Mein Zugang", help: "home" },
 };
 
 function viewFromPath() {
@@ -452,6 +454,7 @@ export default function App() {
           <div className="foot-links">
             {/* Fester Weg zur Kaufseite, auch wenn schon freigeschaltet (Kauf wiederherstellen, App Review). */}
             <button type="button" className="foot-link" onClick={() => setPaywall(true)}>{t("Vollversion")}</button>
+            {DEMO_ON ? <button type="button" className="foot-link" onClick={() => open("zugang")}>{t("Mein Zugang")}</button> : null}
             <button type="button" className="foot-link" onClick={() => open("impressum")}>{t("Impressum")}</button>
             <button type="button" className="foot-link" onClick={() => open("datenschutz")}>{t("Datenschutz")}</button>
             <FeedbackLink />
@@ -499,7 +502,7 @@ export default function App() {
                 onClick={() => setStage((v) => !v)}
               >{t("Fokus-Mode")}</button>
             )}
-            {!stage && !printOpen && view !== "first" && view !== "nostick" && view !== "impressum" && view !== "datenschutz" && view !== "news" && <Help topic={meta.help} />}
+            {!stage && !printOpen && view !== "first" && view !== "nostick" && view !== "impressum" && view !== "datenschutz" && view !== "news" && view !== "zugang" && <Help topic={meta.help} />}
           </div>
         </div>
         <div className="top-title">{t(printOpen && view === "rudiments" ? "Drucken" : meta.title)}</div>
@@ -513,6 +516,7 @@ export default function App() {
           : view === "impressum" ? <Legal topic="impressum" onOpen={open} />
           : view === "datenschutz" ? <Legal topic="datenschutz" onOpen={open} />
           : view === "news" ? <News />
+          : view === "zugang" ? <Access onChange={() => setUnlockedState(isUnlocked())} />
           : view === "click" ? <ClickTrainer preset={preset} />
           : view === "pyramid" ? <PyramidTrainer preset={preset} />
           : view === "stick" ? <StickControl preset={preset} />

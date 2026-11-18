@@ -4,7 +4,7 @@
 // Das Plugin wird nur in der nativen Hülle geladen. Web und Tests rufen es nicht auf.
 
 import {
-  FULL_PRODUCT_ID, SUB_PRODUCT_ID, TESTER_UNLOCK, iosApp, nativeApp, setUnlockSource, setUnlocked, unlockSource,
+  FULL_PRODUCT_ID, SUB_PRODUCT_ID, TESTER_UNLOCK, iosApp, nativeApp, setAccessInfo, setUnlockSource, setUnlocked, unlockSource,
 } from "./demo.js";
 
 let pluginPromise = null;
@@ -86,6 +86,29 @@ export function entitlementFromPurchases(purchases, now = Date.now()) {
   if (ownsFullProduct(purchases)) return { owned: true, via: "full", until: null };
   if (ownsActiveSubscription(purchases, now)) return { owned: true, via: "sub", until: subscriptionUntil(purchases, now) };
   return { owned: false, via: null, until: null };
+}
+
+// Was „Mein Zugang“ anzeigt: Quelle plus beim Abo Ablauf, Verlängerung (willCancel), Zustand und Testphase.
+// null = nicht frei. Nur Anzeige, die Freischaltung hängt weiter an entitlementFromPurchases.
+export function entitlementDetail(purchases, now = Date.now()) {
+  const e = entitlementFromPurchases(purchases, now);
+  if (!e.owned) return null;
+  if (e.via === "full") return { via: "full" };
+  let best = null;
+  let bestT = -Infinity;
+  for (const p of purchases) {
+    if (!subscriptionActive(p, now)) continue;
+    const tm = Date.parse(p.expirationDate);
+    const rank = Number.isFinite(tm) ? tm : 0;
+    if (rank > bestT) { best = p; bestT = rank; }
+  }
+  return {
+    via: "sub",
+    until: e.until,
+    willCancel: typeof best?.willCancel === "boolean" ? best.willCancel : null,
+    state: best?.subscriptionState || "",
+    trial: best?.isTrialPeriod === true,
+  };
 }
 
 // Antwort von purchaseProduct für das Abo: gekauft und (noch) gültig.
@@ -203,6 +226,7 @@ export async function refreshEntitlement({ resume = false } = {}) {
     if (owned) {
       setUnlocked(true);
       setUnlockSource(via);
+      setAccessInfo(entitlementDetail(purchases));
     } else if (!TESTER_UNLOCK && (!resume || unlockSource() === "sub")) {
       setUnlocked(false);
     }
@@ -276,6 +300,7 @@ export async function buyFullVersion() {
     }
     setUnlocked(true);
     setUnlockSource("full");
+    setAccessInfo({ via: "full" });
     return { ok: true, productId: FULL_PRODUCT_ID };
   } catch (err) {
     const kind = purchaseFailureKind(err);
@@ -284,6 +309,7 @@ export async function buyFullVersion() {
         if (ownsFullProduct(await fetchPurchases())) {
           setUnlocked(true);
           setUnlockSource("full");
+          setAccessInfo({ via: "full" });
           return { ok: true, productId: FULL_PRODUCT_ID };
         }
       } catch { /* Abbruch-Text, die Freischaltung bleibt wie sie ist */ }
@@ -315,13 +341,15 @@ export async function buyYearly() {
     if (!transactionGrantsSub(tx)) {
       // Die Antwort ist nicht eindeutig: im Store nachsehen, bevor wir „nicht geklappt“ sagen.
       try {
-        const res = entitlementFromPurchases(await fetchPurchases());
-        if (res.owned) { setUnlocked(true); setUnlockSource(res.via); return { ok: true, productId: SUB_PRODUCT_ID }; }
+        const list = await fetchPurchases();
+        const res = entitlementFromPurchases(list);
+        if (res.owned) { setUnlocked(true); setUnlockSource(res.via); setAccessInfo(entitlementDetail(list)); return { ok: true, productId: SUB_PRODUCT_ID }; }
       } catch { /* Fehler-Text */ }
       return { ok: false, reason: "error", productId: SUB_PRODUCT_ID };
     }
     setUnlocked(true);
     setUnlockSource("sub");
+    setAccessInfo(entitlementDetail([tx]) || { via: "sub", until: null, willCancel: null, state: "", trial: false });
     return { ok: true, productId: SUB_PRODUCT_ID };
   } catch (err) {
     const kind = purchaseFailureKind(err);
@@ -351,10 +379,12 @@ export async function restoreFullVersion() {
   try {
     const { NativePurchases } = await loadPlugin();
     await NativePurchases.restorePurchases();
-    const res = entitlementFromPurchases(await fetchPurchases());
+    const list = await fetchPurchases();
+    const res = entitlementFromPurchases(list);
     if (res.owned) {
       setUnlocked(true);
       setUnlockSource(res.via);
+      setAccessInfo(entitlementDetail(list));
       return { ok: true, productId: FULL_PRODUCT_ID };
     }
     if (!TESTER_UNLOCK) setUnlocked(false);
