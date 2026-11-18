@@ -1247,3 +1247,38 @@ body:has(.page.view-lexicon), body:has(.page.view-lexicon) #root, .page.tool.vie
   outline: 2px solid #5cc8b8;
   outline-offset: 2px;
 }
+
+/* Mein Zugang: Status-Karte, Knöpfe in Anthrazit/Türkis, Gold nur für „Aufmerksamkeit“ (Testphase, Zahlung offen). */
+.access { display: grid; gap: 12px; align-content: start; padding-top: 16px; }
+.access-card {
+  padding: 16px 16px 18px;
+  border-radius: 18px;
+  background: #101416;
+  border: 1px solid var(--line);
+}
+.access-ok { border-color: rgba(92, 200, 184, 0.55); }
+.access-warn { border-color: rgba(232, 184, 75, 0.6); }
+.access-kicker { color: var(--dim); font: 800 12px Figtree, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; }
+.access-title { margin: 6px 0 8px; color: var(--txt); font: 800 22px/1.2 Figtree, sans-serif; }
+.access-ok .access-title { color: var(--teal); }
+.access-warn .access-title { color: var(--gold); }
+.access-line { margin: 0 0 6px; color: #c5d0d2; font-size: 16px; line-height: 1.45; }
+.access-btn {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--teal);
+  font: 800 16px Figtree, sans-serif;
+  cursor: pointer;
+}
+.access-btn:hover { border-color: var(--teal); }
+.access-btn:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.access-btn:disabled { opacity: 0.55; cursor: default; }
+.access-btn-main { margin-top: 12px; border: 0; background: var(--teal); color: var(--ink); }
+.access-note { margin: 0; color: var(--gold); font-size: 15px; font-weight: 700; }
+.access-hint { margin: 0; color: var(--dim); font-size: 14px; line-height: 1.4; }

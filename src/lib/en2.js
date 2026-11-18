@@ -147,4 +147,11 @@ export const EN2 = {
   "plus 1 Takt Einzählen": "plus a 1-bar count-in",
   "plus 2 Takte Einzählen": "plus a 2-bar count-in",
   "1-24 durchspielen. Wiederholungen = komplette Übung (beide Takte). Einzählen nur am Start, nicht zwischen den Nummern. Oben siehst du, wie lange du brauchst - und beim Spielen, was noch übrig ist.": "Play through 1-24. Repeats = the whole exercise (both bars). Count-in only at the start, not between exercises. At the top you see how long you'll need - and while you play, what's left.",
+  // Mein Zugang
+  "Mein Zugang": "My access",
+  "Dein Status": "Your status",
+  "Vollversion ansehen": "See the full version",
+  "Vollversion oder Jahresabo ansehen": "See full version or annual subscription",
+  "Dein Kauf ist wiederhergestellt.": "Your purchase has been restored.",
+  "Kündigen und ändern kannst du jederzeit in den Einstellungen deiner Apple-ID (Abonnements).": "You can cancel or change it any time in your Apple ID settings (Subscriptions).",
 };
