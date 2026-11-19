@@ -6,7 +6,7 @@ import {
   buyFullVersion, loadStorePrice, ownsFullProduct, priceFromProducts, purchaseFailureKind, restoreFullVersion, transactionGrantsFull,
 } from "../src/lib/iap.js";
 import { EN2 } from "../src/lib/en2.js";
-import { ensureBillingPermission, ensureIos15 } from "./storeNative.mjs";
+import { ensureBillingPermission, ensureIos15, ensureMediaPermissions } from "./storeNative.mjs";
 
 const id = FULL_PRODUCT_ID;
 
@@ -104,4 +104,15 @@ test("Play Billing und iOS 15 für das erzeugte native Projekt", () => {
   );
   const workflow = readFileSync(new URL("../.github/workflows/android-aab.yml", import.meta.url), "utf8");
   assert.match(workflow, /storeNative\.mjs android/);
+});
+
+test("Android: Kamera- und Mikrofon-Rechte für Clip", () => {
+  const xml = '<?xml version="1.0"?>\n<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n</manifest>\n';
+  const out = ensureMediaPermissions(ensureBillingPermission(xml));
+  assert.match(out, /android\.permission\.CAMERA/);
+  assert.match(out, /android\.permission\.RECORD_AUDIO/);
+  assert.match(out, /android\.permission\.MODIFY_AUDIO_SETTINGS/);
+  assert.match(out, /android\.hardware\.camera" android:required="false"/);
+  assert.match(out, /com\.android\.vending\.BILLING/);
+  assert.equal(ensureMediaPermissions(out), out);
 });

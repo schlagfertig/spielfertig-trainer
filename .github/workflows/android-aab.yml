@@ -4,6 +4,9 @@ name: Android App Bundle (.aab)
 # Ergebnis: Artefakt "schlagfertig-control-aab" (app-release.aab) für die Play Console.
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - 'cursor/android-**'
 
 permissions:
   contents: read
