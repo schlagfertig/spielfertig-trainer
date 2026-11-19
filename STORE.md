@@ -73,6 +73,7 @@ Der eigene Mac (2012) kann kein aktuelles Xcode. iOS wird deshalb in der Cloud g
 
 - **GitHub Actions** (macOS-Runner, Xcode vorinstalliert) oder **Codemagic** (Capacitor-Vorlage, Free-Tier)
 - Ablauf: `npm install` (kein `npm ci`: `package-lock.json` liegt nicht im Repo) → `npm run build:cap` → `npx cap add ios` / `npx cap sync ios` → Archiv signieren → Upload zu TestFlight
+- Info.plist im Cloud-Build: `ITSAppUsesNonExemptEncryption=false` plus `NSCameraUsageDescription` / `NSMicrophoneUsageDescription` (Clip = getUserMedia; sonst Absturz beim Kamera-Öffnen)
 - Signing über App-Store-Connect-API-Key und Zertifikat/Profil als Secrets des Build-Dienstes, nicht im Repo
 - Android kann im selben Workflow (Linux-Runner) als signiertes `.aab` mitlaufen
 
@@ -103,3 +104,12 @@ npx @capacitor/assets generate --ios
 Kein Eintrag in `package.json` nötig (läuft per `npx`). Das schreibt `AppIcon.appiconset` und `Splash.imageset` in `ios/App`.
 
 Wichtig: Die Datei muss `icon-only.png` heißen. Ein `assets/icon.png` oder `assets/logo.png` behandelt das Tool als Logo („Easy Mode“) und baut daraus eigene Splashes auf weißem Grund. Für Android liegen `icon-foreground.png` + `icon-background.png` (adaptive Icons) bereit; der Android-Workflow ruft `--android` auf.
+
+## iOS-Cloud-Build → TestFlight
+
+GitHub → Actions → „iOS TestFlight“ (`.github/workflows/ios-testflight.yml`, macOS-26-Runner, Xcode 26). Läuft bei Push auf `cursor/ios-testflight-build` oder per Run workflow.
+
+- Secrets: `ASC_KEY_P8` (Inhalt der Datei `AuthKey_<ID>.p8`, Zeilenumbrüche egal), `ASC_KEY_ID`, `ASC_ISSUER_ID`. App-Store-Connect-API-Schlüssel (Team-Schlüssel, Rolle App-Manager).
+- Signatur: `scripts/iosSigning.mjs` legt pro Lauf ein Verteilungs-Zertifikat und ein App-Store-Profil an (kein Zertifikat als Secret nötig, kein Gerät nötig). Beides bleibt bis zum nächsten Lauf. Der nächste Lauf löscht ältere Profile mit dem Namen „Schlagfertig CI …“ und widerruft nur deren Zertifikate — das Zertifikat am Ende des laufenden Builds zu löschen lehnt Apple ab (ITMS-90721). Apple setzt den Zertifikatsnamen auf den Team-Namen, der CI-Marker steht deshalb im Profilnamen.
+- Version `1.4`, Build-Nummer = Run-Nummer. `ITSAppUsesNonExemptEncryption = false` (keine Export-Frage in TestFlight).
+- Ergebnis: Build in App Store Connect → TestFlight, dazu Artefakt `schlagfertig-ios-ipa`.
