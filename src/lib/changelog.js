@@ -435,7 +435,25 @@ export const CHANGELOG_LATEST = CHANGELOG[0]?.date || "";
 // „Neu in Schlagfertig“-Popup: Highlights je Minor-Version („1.1“). Erscheint einmal nach einem Minor/Major-Update
 // (nicht bei Patch, nicht beim allerersten Start). Für die nächste Version einfach einen Eintrag ergänzen.
 // action: Ansicht, die „Jetzt ausprobieren“ öffnet (wie in App.jsx open()).
+// native: true = nur Store-Build oder native Hülle (Jahresabo und Mein Zugang gibt es nur dort).
 export const HIGHLIGHTS = {
+  "1.5": {
+    native: true,
+    de: { title: "Neu in Schlagfertig 1.5 🥁", lines: [
+      "💳 Jahresabo: 14 Tage gratis, danach 4,99 € im Jahr. Die einmalige Vollversion gibt es weiter.",
+      "🪪 Mein Zugang: Hier siehst du deinen Status.",
+      "💬 Feedback: Neuer Knopf auf dem Startbildschirm.",
+      "🎲 Rudiments: Der Zufall-Knopf sitzt jetzt unten, und alle Kacheln sind gleich groß.",
+      "✨ Design: frisches Glas-Design, und das Rad in Hand Control läuft wieder rund.",
+    ], go: "Alles klar", later: "Später" },
+    en: { title: "New in Schlagfertig 1.5 🥁", lines: [
+      "💳 Yearly subscription: 14 days free, then €4.99 a year. The one-off full version stays available.",
+      "🪪 My access: here you can see your status.",
+      "💬 Feedback: a new button on the home screen.",
+      "🎲 Rudiments: the Random button now sits at the bottom, and every tile is the same size.",
+      "✨ Look: a fresh glass design, and the Hand Control wheel works properly again.",
+    ], go: "Got it", later: "Later" },
+  },
   "1.4": {
     action: "diary",
     de: { title: "Neu in Schlagfertig 1.4 🥁", lines: ["📓 Journal: Tagebuch, Hausaufgaben und Karteikasten - alles für dein Üben an einem Ort.", "📌 Zu Hausaufgaben: Merk dir jede Übung mit deinen Einstellungen und leg später mit einem Tipp los.", "📲 Journal mitnehmen: Neues Handy? Exportier dein Journal und hol es dort wieder rein."], go: "Zum Journal", later: "Später" },

@@ -16,3 +16,13 @@ export function decideWhatsNew({ lastSeen, current, highlights = {} }) {
   if (!highlights[cur]) return { show: false, record: current };
   return { show: true, record: null }; // gespeichert wird erst, wenn das Popup wirklich gezeigt wurde
 }
+
+// native: true an einem HIGHLIGHTS-Eintrag = nur Store-Build oder native Hülle.
+export function pickHighlights(highlights, native = false) {
+  const out = {};
+  for (const [k, v] of Object.entries(highlights || {})) {
+    if (v && v.native && !native) continue;
+    out[k] = v;
+  }
+  return out;
+}

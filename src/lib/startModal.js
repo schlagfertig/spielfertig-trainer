@@ -4,7 +4,8 @@
 import { loadSession, saveSession } from "./session.js";
 import { HIGHLIGHTS } from "./changelog.js";
 import { APP_VERSION } from "./version.js";
-import { decideWhatsNew, minorKey } from "./whatsNew.js";
+import { decideWhatsNew, minorKey, pickHighlights } from "./whatsNew.js";
+import { demoOnNow } from "./demo.js";
 import { FEEDBACK_ENABLED, loadFb, needsConsentPrompt } from "./feedbackClient.js";
 
 const VKEY = "lastVersion";
@@ -21,7 +22,8 @@ function forcedWhatsNew() {
 export function startModal({ onHome = true } = {}) {
   if (choice !== undefined) return choice;
   const lastSeen = loadSession(VKEY, { v: "" }).v || PRIOR;
-  const wn = decideWhatsNew({ lastSeen, current: APP_VERSION, highlights: HIGHLIGHTS });
+  const highlights = pickHighlights(HIGHLIGHTS, demoOnNow());
+  const wn = decideWhatsNew({ lastSeen, current: APP_VERSION, highlights });
   if (wn.record) saveSession(VKEY, { v: wn.record });
   const fb = FEEDBACK_ENABLED ? loadFb() : null;
   if (taken) choice = null;
@@ -42,7 +44,7 @@ export function takeForAchievement() {
 }
 
 export function currentHighlights() {
-  return HIGHLIGHTS[minorKey(APP_VERSION)] || null;
+  return pickHighlights(HIGHLIGHTS, demoOnNow())[minorKey(APP_VERSION)] || null;
 }
 
 export function markWhatsNewSeen() {

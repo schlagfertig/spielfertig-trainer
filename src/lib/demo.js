@@ -35,7 +35,11 @@ export function iosApp() {
   }
 }
 
-export const DEMO_ON = storeBuild() || nativeShell();
+// Live-Check, nicht nur der einmalig gesetzte DEMO_ON-Wert (Tests, Neu-Popup).
+export function demoOnNow() {
+  return storeBuild() || nativeShell();
+}
+export const DEMO_ON = demoOnNow();
 const KEY = "sf-unlocked";
 export const DEMO_PRICE = "12,99 €";
 // Web, offline, oder der Store liefert keinen brauchbaren Preis für dieses Storefront.

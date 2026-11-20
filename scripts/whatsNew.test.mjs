@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { decideWhatsNew, minorKey } from "../src/lib/whatsNew.js";
+import { decideWhatsNew, minorKey, pickHighlights } from "../src/lib/whatsNew.js";
 import { HIGHLIGHTS } from "../src/lib/changelog.js";
 import { APP_VERSION } from "../src/lib/version.js";
 
@@ -10,19 +10,49 @@ const H = { "1.1": {}, "2.0": {} };
 
 test("Version: package.json = APP_VERSION, Highlights für die aktuelle Minor-Version auf DE und EN", () => {
   assert.equal(JSON.parse(readFileSync(new URL("../package.json", import.meta.url))).version, APP_VERSION);
-  const h = HIGHLIGHTS["1.4"]; // 1.5 hat (bewusst) kein Popup
-  assert.ok(h, "HIGHLIGHTS fehlt");
+  const h14 = HIGHLIGHTS["1.4"];
+  assert.ok(h14, "HIGHLIGHTS 1.4 fehlt");
   for (const l of ["de", "en"]) {
-    assert.ok(h[l].title && h[l].lines.length && h[l].go && h[l].later, l);
+    assert.ok(h14[l].title && h14[l].lines.length && h14[l].go && h14[l].later, l);
   }
-  assert.equal(h.de.title, "Neu in Schlagfertig 1.4 🥁");
-  assert.equal(h.en.title, "New in Schlagfertig 1.4 🥁");
-  assert.equal(h.de.lines[0], "📓 Journal: Tagebuch, Hausaufgaben und Karteikasten - alles für dein Üben an einem Ort.");
-  assert.equal(h.en.lines[0], "📓 Journal: diary, homework and card box - everything for your practice in one place.");
-  assert.equal(h.de.go, "Zum Journal");
-  assert.equal(h.en.go, "Go to Journal");
-  assert.equal(h.action, "diary");
-  assert.equal(h.preset, undefined);
+  assert.equal(h14.de.title, "Neu in Schlagfertig 1.4 🥁");
+  assert.equal(h14.en.title, "New in Schlagfertig 1.4 🥁");
+  assert.equal(h14.de.lines[0], "📓 Journal: Tagebuch, Hausaufgaben und Karteikasten - alles für dein Üben an einem Ort.");
+  assert.equal(h14.en.lines[0], "📓 Journal: diary, homework and card box - everything for your practice in one place.");
+  assert.equal(h14.de.go, "Zum Journal");
+  assert.equal(h14.en.go, "Go to Journal");
+  assert.equal(h14.action, "diary");
+  assert.equal(h14.preset, undefined);
+
+  const h = HIGHLIGHTS["1.5"];
+  assert.ok(h, "HIGHLIGHTS 1.5 fehlt");
+  assert.equal(h.native, true);
+  assert.equal(h.action, undefined);
+  for (const l of ["de", "en"]) {
+    assert.ok(h[l].title && h[l].lines.length === 5 && h[l].go && h[l].later, l);
+  }
+  assert.equal(h.de.title, "Neu in Schlagfertig 1.5 🥁");
+  assert.equal(h.en.title, "New in Schlagfertig 1.5 🥁");
+  assert.equal(h.de.lines[0], "💳 Jahresabo: 14 Tage gratis, danach 4,99 € im Jahr. Die einmalige Vollversion gibt es weiter.");
+  assert.equal(h.en.lines[0], "💳 Yearly subscription: 14 days free, then €4.99 a year. The one-off full version stays available.");
+  assert.equal(h.de.go, "Alles klar");
+  assert.equal(h.en.go, "Got it");
+  assert.match(h.de.lines.join("\n"), /Mein Zugang/);
+  assert.match(h.en.lines.join("\n"), /My access/);
+  assert.match(h.de.lines.join("\n"), /Zufall/);
+  assert.match(h.en.lines.join("\n"), /Random/);
+  assert.match(h.de.lines.join("\n"), /Hand Control/);
+  assert.match(h.en.lines.join("\n"), /Hand Control/);
+});
+
+test("1.5 nur im Store- oder Native-Build, 1.4 bleibt überall", () => {
+  const web = pickHighlights(HIGHLIGHTS, false);
+  const nat = pickHighlights(HIGHLIGHTS, true);
+  assert.ok(web["1.4"] && nat["1.4"]);
+  assert.equal(web["1.5"], undefined);
+  assert.ok(nat["1.5"]);
+  assert.deepEqual(decideWhatsNew({ lastSeen: "1.4.0", current: "1.5.0", highlights: web }), { show: false, record: "1.5.0" });
+  assert.deepEqual(decideWhatsNew({ lastSeen: "1.4.0", current: "1.5.0", highlights: nat }), { show: true, record: null });
 });
 
 test("minorKey", () => {
@@ -50,11 +80,13 @@ function fakeBrowser(store, search = "") {
 let n = 0;
 async function pick(store, search = "", opts) {
   fakeBrowser(store, search);
+  if (opts?.native) globalThis.window.Capacitor = { isNativePlatform: () => true, getPlatform: () => "ios" };
   const m = await import(`../src/lib/startModal.js?case=${n++}`);
   return { first: m.startModal(opts), again: m.startModal(opts), m };
 }
 const J = JSON.stringify;
-const WN = HIGHLIGHTS[minorKey(APP_VERSION)] ? "whatsnew" : null; // 1.5 hat bewusst kein „Neu“-Popup
+// Ohne native Hülle bleibt 1.5 unsichtbar - wie im Web.
+const WN = pickHighlights(HIGHLIGHTS, false)[minorKey(APP_VERSION)] ? "whatsnew" : null;
 
 test("Start-Popup: Erfolg > Einwilligung > Neu; höchstens eins pro Start", async () => {
   // Update von 1.0 (Begrüßung schon gesehen), Einwilligung noch offen → erst Einwilligung, Neu beim nächsten Start
@@ -89,4 +121,22 @@ test("Erfolg mitten in der Sitzung: danach kein Start-Popup", async () => {
   const m = await import(`../src/lib/startModal.js?case=${n++}`);
   m.takeForAchievement();
   assert.equal(m.startModal(), null);
+});
+
+test("1.5 Neu-Popup nur mit nativer Hülle, nach Update von 1.4", async () => {
+  const base = {
+    "sf.v1.welcomeSeen": J({ seen: true }),
+    "sf.v1.feedback": J({ consent: false }),
+    "sf.v1.lastVersion": J({ v: "1.4.0" }),
+  };
+  const web = { ...base };
+  assert.equal((await pick(web)).first, null);
+  assert.equal(JSON.parse(web["sf.v1.lastVersion"]).v, APP_VERSION); // im Web nur merken, nicht zeigen
+  assert.equal((await pick({ ...base })).m.currentHighlights(), null);
+
+  const nat = { ...base };
+  const r = await pick(nat, "", { native: true });
+  assert.equal(r.first, "whatsnew");
+  assert.equal(r.m.currentHighlights()?.de.title, "Neu in Schlagfertig 1.5 🥁");
+  assert.equal(JSON.parse(nat["sf.v1.lastVersion"] || "null")?.v, "1.4.0"); // erst merken, wenn das Popup gezeigt wurde
 });
