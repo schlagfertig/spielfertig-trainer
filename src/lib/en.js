@@ -31,7 +31,7 @@ export const EN = {
   "Halte dein Tempo und steigere deinen Groove Schritt für Schritt.": "Hold your tempo and build your groove step by step.",
   "Hier die 40 berühmten International Drum Rudiments, die von der Percussive Arts Society seit 42 Jahren kuratiert werden.": "The 40 famous International Drum Rudiments, curated by the Percussive Arts Society for 42 years.",
   "Am Smartphone nur die Notation, zum Eintippen quer drehen. Auf dem iPad geht die Eingabe auch hochkant.": "On a phone, portrait shows notation only. Turn it sideways to enter notes. On iPad, portrait entry works too.",
-  "Hi-Hat, Snare und Bass antippen. Eine Zeile wird aktiv, oben rechts gelten 1, + und e a. Taktzahl 1-4 sitzt neben der Vorschau.": "Tap hi-hat, snare and bass. A row becomes active, then 1, + and e a apply. Bar count 1-4 sits beside the preview.",
+  "Hi-Hat, Snare und Bass antippen. Eine Zeile wird aktiv, oben rechts gelten 1, + und e a.": "Tap hi-hat, snare and bass. A row becomes active, then 1, + and e a apply.",
   "Snare-Etüden": "Snare etudes",
   "Bald": "Soon",
   "Coming soon": "Coming soon",
@@ -58,7 +58,7 @@ export const EN = {
 
   "Eigenen Groove bauen und üben. Eintippen nur quer, hochkant siehst du den Rhythmus.": "Build and practise your own groove. Enter it in landscape, portrait shows the rhythm.",
   "Erstellen": "Create",
-  "Nur quer: Hi-Hat, Snare und Bass antippen. Eine Zeile wird aktiv, oben rechts gelten 1, + und e a. Taktzahl 1-4 sitzt neben der Vorschau.": "Landscape only: tap hi-hat, snare and bass. A row becomes active, 1, + and e a apply at the top right. Bar count 1-4 sits beside the preview.",
+  "Nur quer: Hi-Hat, Snare und Bass antippen. Eine Zeile wird aktiv, oben rechts gelten 1, + und e a.": "Landscape only: tap hi-hat, snare and bass. A row becomes active, 1, + and e a apply at the top right.",
   "Hochkant": "Portrait",
   "Nur die Notation. Zum Eintippen das Gerät quer drehen.": "Notation only. Turn the device sideways to enter notes.",
   "Speichern als…": "Save as…",

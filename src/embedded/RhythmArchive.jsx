@@ -17,6 +17,10 @@ const VOICES = [
   { id: "BD", label: "Bass" },
 ];
 const STEPS = 16;
+// Taktwahl 1–4 und die Zeile „‹ Takt 1/1 › / Takt kopieren“.
+// false: neue Grooves sind 1 Takt; gespeicherte Mehrtakt-Grooves bleiben lad- und spielbar.
+// Zum Wiederherstellen auf true setzen — die Logik (setBarsCount, copyBar, Paywall) bleibt.
+const SHOW_BAR_CONTROLS = false;
 
 function emptyGrid(bars) {
   const grid = {};
@@ -444,10 +448,21 @@ export default function RhythmArchive() {
           <button type="button" className={screen === "archive" ? "on" : ""} onClick={() => { stop(); setScreen("archive"); }}>{t("Archiv")}</button>
         </div>
         {screen === "build" ? (
+          <div className="rhythm-clip rhythm-clip-top"><PracticeClip inline title={t("Eigene Grooves")} view="rhythm" /></div>
+        ) : null}
+        {screen === "build" && SHOW_BAR_CONTROLS ? (
           <div className="seg rhythm-bars">
             {[1, 2, 3, 4].map((n) => (
               <button key={n} type="button" className={bars === n ? "on" : ""} onClick={() => setBarsCount(n)}>{n}</button>
             ))}
+          </div>
+        ) : null}
+        {screen === "build" && !SHOW_BAR_CONTROLS ? (
+          <div className="rhythm-tools-above">
+            <button type="button" disabled={!activeVoice} onClick={() => fill(activeVoice, "beat")}>1</button>
+            <button type="button" disabled={!activeVoice} onClick={() => fill(activeVoice, "off")}>+</button>
+            <button type="button" disabled={!activeVoice} onClick={() => fill(activeVoice, "ea")}>e a</button>
+            <button type="button" disabled={!activeVoice} onClick={() => clearVoice(activeVoice)}>{t("leer")}</button>
           </div>
         ) : null}
       </div>
@@ -458,8 +473,8 @@ export default function RhythmArchive() {
             <div className="staff-label">{name.trim() || t("Neuer Rhythmus")}</div>
             <GrooveStaff grid={grid} bars={bars} playStep={-1} />
           </div>
-          {/* Clip rechts direkt unter dem Notenbild - nicht schwebend über den Spurnamen. */}
-          <div className="rhythm-clip"><PracticeClip inline title={t("Eigene Grooves")} view="rhythm" /></div>
+          {/* Hochkant: Clip unter dem Notenbild. Quer liegt der Knopf in der Tab-Zeile (.rhythm-clip-top). */}
+          <div className="rhythm-clip rhythm-clip-side"><PracticeClip inline title={t("Eigene Grooves")} view="rhythm" /></div>
         </div>
       ) : null}
 
@@ -470,6 +485,7 @@ export default function RhythmArchive() {
             <p>{t("Zum Eintippen das Handy quer drehen. Hochkant siehst du nur den Rhythmus.")}</p>
           </div>
           <div className="rhythm-entry">
+          {SHOW_BAR_CONTROLS ? (
           <div className="rhythm-tools-row">
             {/* Vor/zurück: Nummer nur, wenn es den Takt gibt - in Takt 1 kein „Takt 0“. */}
             <button type="button" className="ghost" onClick={() => setBar((b) => Math.max(0, b - 1))} disabled={bar === 0} aria-label={t("Vorheriger Takt")}>{bar > 0 ? `‹ ${t("Takt")} ${bar}` : "‹"}</button>
@@ -483,6 +499,7 @@ export default function RhythmArchive() {
               <button type="button" disabled={!activeVoice} onClick={() => clearVoice(activeVoice)}>{t("leer")}</button>
             </span>
           </div>
+          ) : null}
           <div className="rhythm-grid">
             <div className="rhythm-counts">
               <span />
@@ -563,7 +580,7 @@ export default function RhythmArchive() {
       ) : null}
 
       {screen === "archive" ? (
-        <div>
+        <div className="rhythm-list">
           <p className="rhythm-note">{t("Nur auf diesem Gerät gespeichert. Bei Browser- oder Gerätewechsel kann das Archiv verloren gehen.")}</p>
           {list.length === 0 ? <p style={{ color: DIM }}>{t("Noch nichts gespeichert.")}</p> : null}
           {list.map((g) => (
@@ -600,6 +617,7 @@ export default function RhythmArchive() {
         .rhythm-side .rhythm-preview { margin: 0; }
         .rhythm-clip { display: flex; justify-content: flex-end; margin-top: 8px; }
         .rhythm-clip:empty { display: none; }
+        .rhythm-clip-top { display: none; }
         .rp-hear, .rp-edit { display: flex; justify-content: center; margin: 8px 0; }
         .rp-dial { margin-top: 8px; }
         .rhythm-name { display: flex; flex-direction: column; gap: 4px; color: ${DIM}; font-weight: 700; }
@@ -613,6 +631,8 @@ export default function RhythmArchive() {
         /* Spurnamen rechtsbündig dicht an den Feldern: links bleibt Platz für die Dynamic Island (quer). */
         .rhythm-voice.on { color: ${TEAL}; }
         .rhythm-tools { margin-left: auto; display: flex; gap: 4px; }
+        /* Presets in der Tab-Zeile nur im Editor-Querformat, nicht hochkant auf dem Handy. */
+        .rhythm-top > .rhythm-tools { display: none; }
         .rhythm-tools button { min-width: 36px; min-height: 32px; border-radius: 8px; border: 1px solid #2f383d; background: transparent; color: ${TEAL}; font: 800 12px Figtree, sans-serif; }
         .rhythm-tools button:disabled { opacity: 0.35; }
         .rhythm-helps { display: flex; gap: 4px; }
@@ -623,6 +643,7 @@ export default function RhythmArchive() {
         .rhythm-tip { color: ${TEAL}; font-size: 16px; font-weight: 700; margin: 12px auto; text-align: center; min-height: 46vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .rhythm-tip img { display: block; margin: 0 auto 12px; width: min(186px, 48vw); height: auto; }
         .rhythm-tip p { margin: 0; max-width: 18rem; }
+        .rhythm-tools-above { display: none; }
         .rhythm-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
         .rhythm-bars { display: none; }
         .rhythm-entry { display: none; }
@@ -630,28 +651,48 @@ export default function RhythmArchive() {
         .rhythm-save { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
         .rhythm-save input { flex: 1; min-height: 40px; border-radius: 10px; border: 1px solid #2f383d; background: #101416; color: #f4f7f6; padding: 0 10px; }
         @media (orientation: portrait) and (min-width: 700px), (orientation: landscape) {
-          .rhythm-arch { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 280px); gap: 14px 16px; align-items: start; padding-left: 4px; padding-right: 4px; }
-          .rhythm-top, .rhythm-top.build { padding-right: 0; grid-column: 1; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+          /* Erstellen quer: Vorschau rechts oben (280px, flacher), Tabs+Clip+Presets links daneben.
+             Raster darunter über die volle Breite, damit die Eingabefelder größer werden. */
+          .rhythm-arch { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 280px); gap: 8px 16px; align-items: start; padding-left: 4px; padding-right: 4px; }
+          .rhythm-top, .rhythm-top.build { padding-right: 0; grid-column: 1 / -1; grid-row: 1; display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 0; align-self: start; }
+          .rhythm-top.build { grid-column: 1; flex-wrap: wrap; align-content: start; gap: 8px 10px; }
           .rhythm-bars { display: flex; margin-left: 0; }
           .rhythm-tip { display: none; }
-          .rhythm-entry { display: block; padding-right: 0; grid-column: 1; }
-          .rhythm-tools-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+          .rhythm-entry { display: block; padding-right: 0; grid-column: 1 / -1; grid-row: 2; }
+          .rhythm-tools-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
           .rhythm-tools { margin-left: auto; }
-          .rhythm-side { position: static; width: auto; grid-column: 2; grid-row: 1 / span 3; margin: 0; }
-          .rhythm-steps button { min-height: 34px; }
-          .rhythm-counts { font-size: 10px; }
-          .rhythm-grid { gap: 6px; }
-          .rhythm-counts { grid-template-columns: 108px repeat(16, minmax(0, 1fr)); }
-          .rhythm-row { grid-template-columns: 108px 1fr; }
+          .rhythm-top.build > .rhythm-tools-above { display: flex; flex: 1 1 100%; gap: 8px; margin: 0; }
+          .rhythm-tools-above button { flex: 1; min-width: 48px; min-height: 40px; border-radius: 10px; border: 1px solid #2f383d; background: transparent; color: ${TEAL}; font: 800 16px Figtree, sans-serif; }
+          .rhythm-tools-above button:disabled { opacity: 0.35; }
+          .rhythm-top > .rhythm-clip-top { display: flex; flex: none; align-items: center; margin: 0; }
+          .rhythm-side .rhythm-clip-side { display: none; }
+          .rhythm-side { position: static; width: auto; grid-column: 2; grid-row: 1; margin: 0; }
+          .rhythm-side .rhythm-preview { margin: 0; padding: 6px 10px 4px; height: 104px; min-height: 0; max-height: 110px; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; }
+          .rhythm-side .staff-label { font-size: 15px; margin-bottom: 2px; }
+          /* Breite und rechte Lage bleiben; Kachel flacher, Noten bleiben lesbar. */
+          .page.tool .rhythm-arch .rhythm-preview svg { display: block; width: 100%; max-width: 100%; height: auto; max-height: 70px; margin: 0; }
+          .rhythm-steps { gap: 2px; }
+          .rhythm-counts { font-size: 10px; grid-template-columns: 96px repeat(16, minmax(0, 1fr)); gap: 2px; }
+          .rhythm-row { grid-template-columns: 96px 1fr; gap: 4px; }
           .rhythm-voice { flex-direction: column; align-items: flex-end; gap: 4px; }
-          .rhythm-steps button { min-height: 44px; }
+          .rhythm-grid { gap: 6px; }
+          .rhythm-steps button { min-height: 48px; }
           .rhythm-helps button { min-height: 28px; min-width: 28px; padding: 0 4px; }
+          .rhythm-save-row { margin-top: 8px; }
+          .rhythm-list { grid-column: 1 / -1; }
           /* Üben quer: Noten links, Start-Rad rechts daneben - ohne Scrollen erreichbar. */
           .rhythm-practice { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "staff hear" "staff dial" "edit dial"; column-gap: 16px; row-gap: 8px; align-items: start; }
           .rhythm-practice .rp-staff { grid-area: staff; margin-bottom: 0; }
           .rp-hear { grid-area: hear; margin: 0; }
           .rp-edit { grid-area: edit; margin: 0; justify-content: flex-start; }
           .rp-dial { grid-area: dial; margin-top: 0; }
+        }
+        /* Querformat: Zurück, Titel und ? in einer Zeile, damit das Raster auf 390px Höhe Platz hat. */
+        @media (orientation: landscape) {
+          .page.tool.view-rhythm .top { flex-direction: row; align-items: center; gap: 12px; padding: 2px 0 4px; }
+          .page.tool.view-rhythm .top-row { display: contents; }
+          .page.tool.view-rhythm .top-title { order: 1; flex: 1 1 auto; width: auto; min-width: 0; font-size: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+          .page.tool.view-rhythm .top-right { order: 2; }
         }
         /* iPad hochkant: ganzes Notenbild über dem Start-Rad. */
         @media (orientation: portrait) and (min-width: 700px) {
