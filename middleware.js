@@ -2,6 +2,7 @@
 import { verifyToken } from "./access/token.js";
 import { lockPage } from "./access/lockPage.js";
 import gesperrt from "./access/gesperrt.json" with { type: "json" };
+import { corsHeaders } from "./api/feedback.js";
 
 export const config = { runtime: "nodejs" };
 
@@ -63,8 +64,15 @@ function pageLang(request, url, pasted) {
 export default async function middleware(request) {
   const url = new URL(request.url);
   if (FREI.has(url.pathname)) return undefined; // durchlassen
-  // Admin-Export: GET /api/feedback mit Bearer-Token durchlassen; das Token prüft die Function (sonst 403).
-  if (url.pathname === "/api/feedback" && request.method === "GET" && /^Bearer\s+\S/.test(request.headers.get("authorization") || "")) return undefined;
+  // /api/feedback: Admin-Export (GET + Bearer) und allgemeines Feedback aus der Store-App
+  // (POST/OPTIONS ohne Einladungs-Cookie, anderer Ursprung). Das Token bzw. die Function prüft weiter.
+  if (url.pathname === "/api/feedback") {
+    if (request.method === "GET" && /^Bearer\s+\S/.test(request.headers.get("authorization") || "")) return undefined;
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: { "cache-control": "no-store", ...corsHeaders(request) } });
+    }
+    if (request.method === "POST") return undefined;
+  }
   const secret = process.env.ZUGANG_SECRET;
   if (!secret) console.error("ZUGANG_SECRET fehlt: alle Anfragen gesperrt");
 

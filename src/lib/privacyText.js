@@ -9,7 +9,7 @@ const tel = { href: `tel:${BRAND.phone.replace(/\s/g, "")}`, text: BRAND.phone }
 const lda = { href: "https://www.lda.bayern.de", text: "www.lda.bayern.de" };
 const address = [BRAND.person, BRAND.addressLine1, BRAND.addressLine2, "Deutschland"].join("\n");
 
-export const PRIVACY_UPDATED = { de: "Oktober 2026", en: "October 2026" };
+export const PRIVACY_UPDATED = { de: "November 2026", en: "November 2026" };
 
 const BASE = {
   de: {
@@ -87,30 +87,74 @@ export const PRIVACY_FEEDBACK = {
   ] },
 };
 
-// Abschnitt 2 der Web-/Testversion: Ausnahme für das Test-Feedback (Store-App behält den alten Text). {n} = Nummer des Abschnitts Test-Feedback.
-const GENERAL_TESTER = {
-  de: "Schlagfertig‽ ist eine App zum Üben. Es gibt sie als Web-Version im Browser und als App für iOS und Android. Es gibt keine Registrierung und kein Nutzerkonto. Übungsdaten bleiben auf deinem Gerät. Kein Tracking, keine Werbung. Einzige Ausnahme: Wenn du in der Testversion freiwillig beim Test-Feedback mitmachst, wird dein Feedback ohne Namen gespeichert (siehe Abschnitt {n}).",
-  en: "Schlagfertig‽ is an app for practising. It is available as a web version in the browser and as an app for iOS and Android. There is no registration and no user account. Practice data stays on your device. No tracking, no ads. The only exception: if you voluntarily take part in tester feedback in the test version, your feedback is stored without your name (see section {n}).",
+// Abschnitt 2: Ausnahmen für Feedback, mit den später eingesetzten Abschnittsnummern {t}/{g}.
+const GENERAL_INTRO = {
+  de: {
+    withTester: "Schlagfertig‽ ist eine App zum Üben. Es gibt sie als Web-Version im Browser und als App für iOS und Android. Es gibt keine Registrierung und kein Nutzerkonto. Übungsdaten bleiben auf deinem Gerät. Kein Tracking, keine Werbung. Ausnahmen: Wenn du in der Testversion freiwillig beim Test-Feedback mitmachst (siehe Abschnitt {t}), oder wenn du über den Feedback-Knopf eine Nachricht schickst (siehe Abschnitt {g}), wird dein Feedback ohne Namen gespeichert.",
+    app: "Schlagfertig‽ ist eine App zum Üben. Es gibt sie als Web-Version im Browser und als App für iOS und Android. Es gibt keine Registrierung und kein Nutzerkonto. Übungsdaten bleiben auf deinem Gerät. Kein Tracking, keine Werbung. Ausnahme: Wenn du über den Feedback-Knopf eine Nachricht schickst, wird dein Feedback ohne Namen gespeichert (siehe Abschnitt {g}).",
+  },
+  en: {
+    withTester: "Schlagfertig‽ is an app for practising. It is available as a web version in the browser and as an app for iOS and Android. There is no registration and no user account. Practice data stays on your device. No tracking, no ads. Exceptions: if you voluntarily take part in tester feedback in the test version (see section {t}), or if you send a message via the Feedback button (see section {g}), your feedback is stored without your name.",
+    app: "Schlagfertig‽ is an app for practising. It is available as a web version in the browser and as an app for iOS and Android. There is no registration and no user account. Practice data stays on your device. No tracking, no ads. Exception: if you send a message via the Feedback button, your feedback is stored without your name (see section {g}).",
+  },
 };
 
-// Abschnitt nach „6. Cookies und Analyse“ einfügen und die folgenden Nummern weiterzählen.
-function withFeedback(lang) {
+// Allgemeines Feedback (Web-Testversion und Store-App), Knopf auf dem Startbildschirm.
+export const PRIVACY_GENERAL = {
+  de: { h: "Feedback", body: [
+    "Wenn du über den Feedback-Knopf auf dem Startbildschirm eine Nachricht absendest, schickt die App die gewählte Kategorie, optional den Bereich und deinen Text sowie eine zufällige Geräte-Kennung ohne Bezug zu deinem Namen an einen Server bei Vercel. Das hilft mir, die App zu verbessern (Art. 6 Abs. 1 lit. a DSGVO). Gespeichert wird das Feedback bei Upstash (Upstash, Inc.) als Auftragsverarbeiter, auf Servern in Frankfurt (EU). Name und E-Mail sind nicht nötig.",
+  ] },
+  en: { h: "Feedback", body: [
+    "If you send a message via the Feedback button on the home screen, the app sends the chosen category, optionally the area and your text, plus a random device ID with no link to your name, to a server at Vercel. This helps me improve the app (Art. 6(1)(a) GDPR). The feedback is stored with Upstash (Upstash, Inc.) as processor, on servers in Frankfurt (EU). No name or email is required.",
+  ] },
+};
+
+// Abschnitte nach „6. Cookies und Analyse“ einfügen und die folgenden Nummern weiterzählen.
+// tester: Test-Feedback (nur Web-/Testversion). general: Feedback-Knopf (Web und Store-App).
+function withSections(lang, { tester, general }) {
   const out = [];
   let n = 0;
-  let fbNum = 0;
+  let testerNum = 0;
+  let generalNum = 0;
   for (const sec of BASE[lang].sections) {
     const m = sec.h.match(/^(\d+)\.\s*(.*)$/);
     if (!m) { out.push(sec); continue; }
     n += 1;
     out.push({ ...sec, h: `${n}. ${m[2]}` });
-    if (m[1] === "6") { n += 1; fbNum = n; out.push({ ...PRIVACY_FEEDBACK[lang], h: `${n}. ${PRIVACY_FEEDBACK[lang].h}` }); }
+    if (m[1] === "6") {
+      if (tester) {
+        n += 1;
+        testerNum = n;
+        out.push({ ...PRIVACY_FEEDBACK[lang], h: `${n}. ${PRIVACY_FEEDBACK[lang].h}` });
+      }
+      if (general) {
+        n += 1;
+        generalNum = n;
+        out.push({ ...PRIVACY_GENERAL[lang], h: `${n}. ${PRIVACY_GENERAL[lang].h}` });
+      }
+    }
   }
-  const general = out.findIndex((sec) => /^2\./.test(sec.h));
-  if (general >= 0) out[general] = { ...out[general], body: [GENERAL_TESTER[lang].replace("{n}", String(fbNum))] };
+  const introAt = out.findIndex((sec) => /^2\./.test(sec.h));
+  if (introAt >= 0 && (tester || general)) {
+    const tmpl = tester ? GENERAL_INTRO[lang].withTester : GENERAL_INTRO[lang].app;
+    out[introAt] = { ...out[introAt], body: [tmpl.replace("{t}", String(testerNum)).replace("{g}", String(generalNum))] };
+  }
+  const appAt = out.findIndex((sec) => /^4\./.test(sec.h));
+  if (appAt >= 0 && general) {
+    const add = lang === "de"
+      ? ` Ausnahme: Wenn du über den Feedback-Knopf eine Nachricht absendest, geht sie an unseren Server (siehe Abschnitt ${generalNum}).`
+      : ` Exception: if you send a message via the Feedback button, it is sent to our server (see section ${generalNum}).`;
+    const body = out[appAt].body.slice();
+    body[0] = String(body[0]).replace(
+      lang === "de" ? "beim Hosting-Anbieter." : "at the hosting provider.",
+      (lang === "de" ? "beim Hosting-Anbieter." : "at the hosting provider.") + add,
+    );
+    out[appAt] = { ...out[appAt], body };
+  }
   return { ...BASE[lang], sections: out };
 }
 
-// Store-App (Capacitor): ohne Test-Feedback.
-export const PRIVACY_APP = BASE;
-// Web-/Testversion und öffentliche /datenschutz.html: mit Test-Feedback.
-export const PRIVACY = { de: withFeedback("de"), en: withFeedback("en") };
+// Store-App (Capacitor): ohne Test-Feedback, mit allgemeinem Feedback-Knopf.
+export const PRIVACY_APP = { de: withSections("de", { tester: false, general: true }), en: withSections("en", { tester: false, general: true }) };
+// Web-/Testversion und öffentliche /datenschutz.html: Test-Feedback und allgemeines Feedback.
+export const PRIVACY = { de: withSections("de", { tester: true, general: true }), en: withSections("en", { tester: true, general: true }) };

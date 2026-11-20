@@ -1,5 +1,6 @@
-// Test-Feedback (nur Web-/Testversion): reine Regeln ohne DOM - gemeinsam für App (src/lib/TesterFeedback.jsx)
-// und Server (api/feedback.js). In der Store-App (Capacitor) ist das Feature komplett aus.
+// Feedback-Regeln ohne DOM - gemeinsam für App und Server (api/feedback.js).
+// Test-Feedback (👍/👎 nach Übungen) nur in der Web-/Testversion.
+// Allgemeines Feedback (Knopf auf dem Startbildschirm) auch in der Store-App.
 
 // Überraschungs-Erfolg: nach so vielen „zählenden“ Feedbacks. Hier ändern (Tom: 7).
 export const THANKS_AFTER = 7;
@@ -12,6 +13,30 @@ export const COMMENT_MAX = 500;
 export const NAME_MAX = 60;
 export const MIN_TEXT = 3; // so viele Zeichen braucht ein Kommentar, damit das Feedback zählt
 export const FEEDBACK_MAIL = "schlagfertig@icloud.com";
+export const FEEDBACK_API_ORIGIN = "https://spielfertig-trainer.vercel.app";
+
+// Allgemeines Feedback (Startbildschirm): stabile IDs, deutsche Bezeichnungen für den Admin-Export.
+export const GENERAL_CATEGORY_IDS = ["bug", "idea", "like", "unclear", "difficulty"];
+export const GENERAL_CATEGORY_LABEL = {
+  bug: "Fehler gefunden",
+  idea: "Idee",
+  like: "Gefällt mir",
+  unclear: "Etwas ist unklar",
+  difficulty: "Zu schwer / zu leicht",
+};
+export const GENERAL_AREA_IDS = ["rudiments", "click", "stick", "pyramid", "dice", "grooves", "diary", "lexicon", "sheets", "other"];
+export const GENERAL_AREA_LABEL = {
+  rudiments: "Rudiments",
+  click: "Click-Trainer",
+  stick: "Hand Control",
+  pyramid: "Rhythmuspyramide",
+  dice: "Rudiment-Würfel",
+  grooves: "Eigene Grooves",
+  diary: "Journal",
+  lexicon: "Lexikon",
+  sheets: "Noten",
+  other: "Sonstiges",
+};
 
 export const thanksAfter = (test) => (test ? TEST_THANKS_AFTER : THANKS_AFTER);
 
@@ -53,10 +78,38 @@ export function makeThanksNumber(rand = Math.random) {
   return `SF-${1000 + Math.floor(rand() * 9000)}`;
 }
 
+// Quelle des allgemeinen Feedbacks: ios / android / web.
+export function cleanSource(p) {
+  return p === "ios" || p === "android" || p === "web" ? p : "";
+}
+
 // Eingehendes Feedback prüfen und säubern. → { ok, value } oder { ok:false, error }
+// kind: "general" = Knopf auf dem Startbildschirm (Web und Store-App).
+// Sonst: Test-Feedback nach einer Übung (rating, ex, day).
 export function validateFeedback(raw) {
   const device = String(raw?.device || "");
   if (!DEVICE_RE.test(device)) return { ok: false, error: "device" };
+  if (raw?.kind === "general") {
+    const category = GENERAL_CATEGORY_IDS.includes(raw?.category) ? raw.category : null;
+    if (!category) return { ok: false, error: "category" };
+    const areaRaw = cleanText(raw?.area, 24);
+    const area = !areaRaw || GENERAL_AREA_IDS.includes(areaRaw) ? areaRaw : null;
+    if (areaRaw && !area) return { ok: false, error: "area" };
+    return {
+      ok: true,
+      value: {
+        kind: "general",
+        device,
+        category,
+        categoryLabel: GENERAL_CATEGORY_LABEL[category],
+        area: area || "",
+        areaLabel: area ? GENERAL_AREA_LABEL[area] : "",
+        comment: cleanText(raw?.comment, COMMENT_MAX),
+        lang: raw?.lang === "en" ? "en" : "de",
+        platform: cleanSource(raw?.platform),
+      },
+    };
+  }
   const rating = raw?.rating === "up" || raw?.rating === "down" ? raw.rating : null;
   if (!rating) return { ok: false, error: "rating" };
   const ex = cleanText(raw?.ex, 80);
@@ -98,5 +151,19 @@ export function mailtoHref({ num, platform, expired = false, code = "", lang = "
   const lines = de
     ? ["Hallo Tom,", "", expired ? `mein Code${code ? ` (${code})` : ""} ist leider abgelaufen. Kannst du mir einen neuen schicken?` : "ich habe beim Testen mitgeholfen und möchte mir die Vollversion abholen.", "", `Dankeschön-Nummer: ${num}`, `Gerät: ${dev}`, ""]
     : ["Hi Tom,", "", expired ? `my code${code ? ` (${code})` : ""} has expired. Could you send me a new one?` : "I helped test the app and would like to claim the full version.", "", `Thank-you number: ${num}`, `Device: ${dev}`, ""];
+  return `mailto:${FEEDBACK_MAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
+}
+
+// Mail-Fallback, wenn das allgemeine Feedback nicht gesendet werden konnte.
+export function generalMailtoHref({ category, area, comment, lang = "de" }) {
+  const de = lang !== "en";
+  const cat = GENERAL_CATEGORY_LABEL[category] || "";
+  const where = area && GENERAL_AREA_LABEL[area] ? GENERAL_AREA_LABEL[area] : "";
+  const subject = de
+    ? `Feedback Schlagfertig${cat ? ` - ${cat}` : ""}`
+    : `Schlagfertig feedback${cat ? ` - ${cat}` : ""}`;
+  const lines = de
+    ? ["Hallo Tom,", "", ...(cat ? [`Kategorie: ${cat}`] : []), ...(where ? [`Wo: ${where}`] : []), ...(comment ? ["", String(comment)] : []), ""]
+    : ["Hi Tom,", "", ...(cat ? [`Category: ${cat}`] : []), ...(where ? [`Where: ${where}`] : []), ...(comment ? ["", String(comment)] : []), ""];
   return `mailto:${FEEDBACK_MAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
 }

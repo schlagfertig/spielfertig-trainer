@@ -27,6 +27,7 @@ import { TileIcon } from "./lib/HomeIcons.jsx";
 import { getLang, setLang, t } from "./lib/i18n.js";
 import { holdWake } from "./lib/wake.js";
 import TesterFeedback, { FeedbackLink } from "./lib/TesterFeedback.jsx";
+import GeneralFeedback, { GeneralFeedbackLink } from "./lib/GeneralFeedback.jsx";
 import WhatsNew from "./lib/WhatsNew.jsx";
 import { startModal } from "./lib/startModal.js";
 import { APP_VERSION } from "./lib/version.js";
@@ -457,12 +458,14 @@ export default function App() {
             {DEMO_ON ? <button type="button" className="foot-link" onClick={() => open("zugang")}>{t("Mein Zugang")}</button> : null}
             <button type="button" className="foot-link" onClick={() => open("impressum")}>{t("Impressum")}</button>
             <button type="button" className="foot-link" onClick={() => open("datenschutz")}>{t("Datenschutz")}</button>
+            <GeneralFeedbackLink />
             <FeedbackLink />
           </div>
         </footer>
         <Welcome onClose={() => setWelcomeOpen(false)} />
         <DiaryToast />
         <TesterFeedback pick={startPick} />
+        <GeneralFeedback />
         {startPick === "whatsnew" ? <WhatsNew onOpen={open} onClose={() => setStartPick(null)} onNews={() => { setStartPick(null); open("news"); }} /> : null}
       </div>
     );
@@ -526,6 +529,7 @@ export default function App() {
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
       <DiaryToast />
       <TesterFeedback />
+      <GeneralFeedback />
       {/* Eigene Grooves: Clip-Knopf sitzt dort im Layout unter dem Notenbild (RhythmArchive). */}
       {["rudiments", "pyramid", "stick"].includes(view) && !printOpen ? <PracticeClip title={t(meta.title)} view={view} /> : null}
       </main>

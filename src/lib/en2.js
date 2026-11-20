@@ -154,4 +154,21 @@ export const EN2 = {
   "Vollversion oder Jahresabo ansehen": "See full version or annual subscription",
   "Dein Kauf ist wiederhergestellt.": "Your purchase has been restored.",
   "Kündigen und ändern kannst du jederzeit in den Einstellungen deiner Apple-ID (Abonnements).": "You can cancel or change it any time in your Apple ID settings (Subscriptions).",
+
+  // Allgemeines Feedback (Startbildschirm, Web und Store-App). Britisches Englisch.
+  "Feedback geben": "Send feedback",
+  "Worum geht es?": "What's it about?",
+  "Fehler gefunden": "Bug found",
+  "Idee": "Idea",
+  "Etwas ist unklar": "Something is unclear",
+  "Zu schwer / zu leicht": "Too hard / too easy",
+  "Wo? (optional)": "Where? (optional)",
+  "Sonstiges": "Something else",
+  "Dein Text (optional)": "Your message (optional)",
+  "z. B. was schiefgeht oder was du dir wünschst …": "e.g. what's going wrong or what you'd like …",
+  "Ohne Namen. Mit dem Absenden erklärst du dich einverstanden, dass ich die Nachricht speichere. Details stehen in der Datenschutzerklärung unter „Feedback“.": "No names. By sending, you agree that I store the message. Details are in the privacy policy under “Feedback”.",
+  "Wird gesendet …": "Sending …",
+  "Abbrechen": "Cancel",
+  "Das hat leider nicht geklappt. Prüfe deine Verbindung oder schreib mir eine Mail.": "That didn't work. Please check your connection or send me an email.",
+  "Per E-Mail schicken": "Send by email",
 };
