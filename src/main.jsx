@@ -4,6 +4,7 @@ import App from "./App.jsx";
 import "./fonts/fonts.css";
 import "./styles.css";
 import "./styles-glass.css";
+import "./styles-liquid.css";
 import "./styles-top.css";
 import "./styles-home.css";
 import "./styles-touch.css";

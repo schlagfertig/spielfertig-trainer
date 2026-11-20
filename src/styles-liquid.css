@@ -1,0 +1,244 @@
+/* Entwurf: Liquid Glass im Stil von iOS 26, nur auf gemeinsamen Flächen.
+   An  = Klasse sf-liquid an <html> (in diesem Branch gesetzt).
+   Aus = Klasse entfernen; alle bisherigen Styles bleiben unverändert.
+   Keine Layout- oder Funktionsänderungen. */
+
+html.sf-liquid {
+  --lg-ink: #161a1d;
+  --lg-fill: rgba(22, 26, 29, 0.46);
+  --lg-fill-sheet: rgba(22, 26, 29, 0.7);
+  --lg-fill-chip: rgba(255, 255, 255, 0.08);
+  --lg-stroke: rgba(255, 255, 255, 0.26);
+  --lg-hi: rgba(255, 255, 255, 0.52);
+  --lg-lo: rgba(0, 0, 0, 0.16);
+  --lg-glow: 0 10px 28px rgba(0, 0, 0, 0.3);
+  --lg-sheen: linear-gradient(160deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.06) 34%, rgba(92, 200, 184, 0.07) 72%, transparent 100%);
+  --lg-blur: 20px;
+  --lg-sat: 180%;
+  --glass-blur: 20px; /* dämpft den 42-px-Blur aus styles-glass.css */
+}
+
+/* CI-Anthrazit statt des etwas abweichenden Glas-Hintergrunds. Gold nicht als Fläche. */
+html.sf-liquid,
+html.sf-liquid body,
+html.sf-liquid #root {
+  background:
+    radial-gradient(1200px 700px at 12% -10%, rgba(92, 200, 184, 0.2), transparent 55%),
+    #161a1d;
+}
+
+/* ----- Leistung: Blur nicht auf Vollbild-Dimmung, Listen, Animation ----- */
+html.sf-liquid .modal,
+html.sf-liquid .fb-modal,
+html.sf-liquid .paywall,
+html.sf-liquid .stick-list button,
+html.sf-liquid .dy-entry,
+html.sf-liquid .dy-glass.dy-entry,
+html.sf-liquid .dy-glass.dy-month,
+html.sf-liquid .metro-face,
+html.sf-liquid .dial-row .nudge-lg {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  -apple-visual-effect: none;
+}
+
+/* Notation bleibt festes Weiß, gut lesbar. */
+html.sf-liquid .staff-card,
+html.sf-liquid .stick-card.staff-card {
+  background: #fff !important;
+  background-image: none !important;
+  color: #161a1d;
+  border-color: transparent;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  -apple-visual-effect: none !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+}
+
+/* ----- Gemeinsames Material: Karten, Blätter, Zugangs-Karte ----- */
+html.sf-liquid .card,
+html.sf-liquid .panel,
+html.sf-liquid .modal-card,
+html.sf-liquid .help-card,
+html.sf-liquid .paywall-card,
+html.sf-liquid .access-card,
+html.sf-liquid .fb-card {
+  border: 1px solid var(--lg-stroke);
+  background-color: var(--lg-fill);
+  background-image: var(--lg-sheen);
+  box-shadow:
+    inset 0 1px 0 var(--lg-hi),
+    inset 0 -1px 0 var(--lg-lo),
+    var(--lg-glow);
+}
+
+html.sf-liquid .paywall-card,
+html.sf-liquid .fb-card,
+html.sf-liquid .modal-card,
+html.sf-liquid .help-card {
+  background-color: var(--lg-fill-sheet);
+}
+
+/* Feedback-Blatt überschreibt sonst mit !important eine undurchsichtige Fläche. */
+html.sf-liquid .fb-card {
+  background:
+    var(--lg-sheen),
+    rgba(22, 26, 29, 0.72) !important;
+  border: 1px solid var(--lg-stroke) !important;
+  box-shadow:
+    inset 0 1px 0 var(--lg-hi),
+    inset 0 -1px 0 var(--lg-lo),
+    0 18px 50px rgba(0, 0, 0, 0.42) !important;
+}
+
+html.sf-liquid .access-ok { border-color: rgba(92, 200, 184, 0.55); }
+html.sf-liquid .access-warn { border-color: rgba(232, 184, 75, 0.6); }
+
+/* Innere Kauf-Kacheln: Rand und Glanz, aber kein zweites backdrop-filter. */
+html.sf-liquid .paywall-opt,
+html.sf-liquid .paywall-offer {
+  background: var(--lg-sheen), rgba(255, 255, 255, 0.05);
+  border-color: var(--lg-stroke);
+  box-shadow: inset 0 1px 0 var(--lg-hi);
+}
+
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  html.sf-liquid .card,
+  html.sf-liquid .panel,
+  html.sf-liquid .modal-card,
+  html.sf-liquid .help-card,
+  html.sf-liquid .paywall-card,
+  html.sf-liquid .access-card,
+  html.sf-liquid .fb-card {
+    -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
+    backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
+  }
+}
+
+/* Startkacheln: etwas kräftigerer Glanz, Blur bleibt begrenzt (wenige Kacheln). */
+html.sf-liquid .home .card {
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.46),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.14),
+    0 10px 24px rgba(0, 0, 0, 0.28);
+}
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  html.sf-liquid .home .card {
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    backdrop-filter: blur(16px) saturate(160%);
+  }
+}
+
+/* ----- Knöpfe, Chips, Kopfzeile, Fußzeile ----- */
+html.sf-liquid .chip,
+html.sf-liquid .ghost,
+html.sf-liquid .more-btn,
+html.sf-liquid .social-btn,
+html.sf-liquid .help-dot,
+html.sf-liquid .legal-nav-btn,
+html.sf-liquid .top .ghost,
+html.sf-liquid .jr-btn,
+html.sf-liquid .access-btn:not(.access-btn-main),
+html.sf-liquid .paywall-x,
+html.sf-liquid .fb-btn:not(.fb-primary):not(.fb-gold-btn),
+html.sf-liquid .fb-chip,
+html.sf-liquid .foot-link {
+  border: 1px solid var(--lg-stroke);
+  background-color: var(--lg-fill-chip);
+  background-image: var(--lg-sheen);
+  box-shadow: inset 0 1px 0 var(--lg-hi), 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+html.sf-liquid .foot-link {
+  color: #d7e0e0;
+  text-decoration: none;
+  border-radius: 999px;
+}
+html.sf-liquid .foot-link:hover,
+html.sf-liquid .foot-link:focus-visible {
+  color: #5cc8b8;
+}
+
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  html.sf-liquid .chip,
+  html.sf-liquid .ghost,
+  html.sf-liquid .more-btn,
+  html.sf-liquid .social-btn,
+  html.sf-liquid .help-dot,
+  html.sf-liquid .legal-nav-btn,
+  html.sf-liquid .top .ghost,
+  html.sf-liquid .jr-btn,
+  html.sf-liquid .access-btn:not(.access-btn-main),
+  html.sf-liquid .paywall-x,
+  html.sf-liquid .fb-chip,
+  html.sf-liquid .foot-link,
+  html.sf-liquid .seg {
+    -webkit-backdrop-filter: blur(16px) saturate(var(--lg-sat));
+    backdrop-filter: blur(16px) saturate(var(--lg-sat));
+  }
+}
+
+/* Aktive/gefüllte CI-Flächen bleiben deckend (Kontrast, Teal). */
+html.sf-liquid .chip.on,
+html.sf-liquid .seg button.on,
+html.sf-liquid .ghost.on,
+html.sf-liquid .more-btn.on,
+html.sf-liquid .paywall-buy,
+html.sf-liquid .access-btn-main,
+html.sf-liquid .fb-primary,
+html.sf-liquid .clip-fab,
+html.sf-liquid .rud-random {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  -apple-visual-effect: none !important;
+  background-image: linear-gradient(165deg, rgba(255, 255, 255, 0.35), transparent 55%);
+}
+
+/* Fallback ohne backdrop-filter und bei reduzierter Transparenz. */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  html.sf-liquid .card,
+  html.sf-liquid .panel,
+  html.sf-liquid .modal-card,
+  html.sf-liquid .help-card,
+  html.sf-liquid .paywall-card,
+  html.sf-liquid .access-card,
+  html.sf-liquid .fb-card,
+  html.sf-liquid .chip,
+  html.sf-liquid .ghost,
+  html.sf-liquid .foot-link,
+  html.sf-liquid .top .ghost,
+  html.sf-liquid .help-dot {
+    background: #1c2226;
+    background-image: var(--lg-sheen);
+  }
+  html.sf-liquid .fb-card { background: #1c2226 !important; }
+  html.sf-liquid .staff-card,
+  html.sf-liquid .stick-card.staff-card { background: #fff !important; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  html.sf-liquid .card,
+  html.sf-liquid .panel,
+  html.sf-liquid .modal-card,
+  html.sf-liquid .help-card,
+  html.sf-liquid .paywall-card,
+  html.sf-liquid .access-card,
+  html.sf-liquid .fb-card,
+  html.sf-liquid .chip,
+  html.sf-liquid .ghost,
+  html.sf-liquid .foot-link,
+  html.sf-liquid .top .ghost,
+  html.sf-liquid .help-dot,
+  html.sf-liquid .seg,
+  html.sf-liquid .home .card {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    -apple-visual-effect: none !important;
+    background: #1c2226;
+    background-image: none;
+  }
+  html.sf-liquid .fb-card { background: #1c2226 !important; }
+  html.sf-liquid .staff-card,
+  html.sf-liquid .stick-card.staff-card { background: #fff !important; }
+}
