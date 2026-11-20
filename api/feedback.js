@@ -1,5 +1,5 @@
-// Test-Feedback der Web-/Testversion (nie in der Store-App). Eine Funktion, mehrere Aktionen (POST JSON { type, … }):
-//   feedback  → Bewertung speichern, liefert { count } = zählende Feedbacks dieses Geräts
+// Feedback-API. Eine Funktion, mehrere Aktionen (POST JSON { type, … }):
+//   feedback  → Bewertung speichern (Test-Feedback oder kind:"general"), liefert { count } bei Test-Feedback
 //   thanks    → Dankeschön-Nummer (SF-1234) vergeben/abrufen und Gerät (iPhone/Android) merken
 //   status    → { num, platform, code, validUntil } - code/validUntil trägt Tom später ein (setcode)
 //   special   → Name für die Special Thanks (getrennt vom Feedback, ohne Geräte-Kennung)
@@ -13,8 +13,19 @@ import { DEVICE_RE, NAME_MAX, NUM_RE, cleanPlatform, cleanText, makeThanksNumber
 
 const MAX_PER_DEVICE = 2000;
 
-function json(body, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+// Native Capacitor-WebViews (kein Cookie, anderer Ursprung als die Vercel-App).
+const CORS_ORIGIN = /^(capacitor:\/\/localhost|ionic:\/\/localhost|https?:\/\/localhost(?::\d+)?)$/;
+
+export function corsHeaders(request) {
+  const origin = request.headers.get("origin") || "";
+  if (!CORS_ORIGIN.test(origin)) return {};
+  return {
+    "access-control-allow-origin": origin,
+    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-headers": "content-type",
+    "access-control-max-age": "86400",
+    vary: "Origin",
+  };
 }
 
 function isAdmin(request, env) {
@@ -43,6 +54,13 @@ async function readBody(request) {
 }
 
 export async function handle(request, { env = process.env, store = storeFromEnv(env), now = Date.now(), rand = Math.random } = {}) {
+  const json = (body, status = 200) => new Response(JSON.stringify(body), {
+    status,
+    headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", ...corsHeaders(request) },
+  });
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: { "cache-control": "no-store", ...corsHeaders(request) } });
+  }
   if (request.method === "GET") {
     if (!isAdmin(request, env)) return json({ error: "forbidden" }, 403);
     if (!store) return json({ error: "storage" }, 503);

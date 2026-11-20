@@ -1,8 +1,8 @@
 // Test-Feedback: Regeln (src/lib/feedbackRules.js) und Server-Funktion (api/feedback.js) mit Arbeitsspeicher.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { THANKS_AFTER, TEST_THANKS_AFTER, addQualified, isExpired, mailtoHref, makeThanksNumber, qualifyKey, thanksAfter, validateFeedback } from "../src/lib/feedbackRules.js";
-import { handle } from "../api/feedback.js";
+import { THANKS_AFTER, TEST_THANKS_AFTER, addQualified, generalMailtoHref, isExpired, mailtoHref, makeThanksNumber, qualifyKey, thanksAfter, validateFeedback } from "../src/lib/feedbackRules.js";
+import { corsHeaders, handle } from "../api/feedback.js";
 import { memoryStore, storeFromEnv } from "../api/_lib/store.js";
 import { PRIVACY, PRIVACY_APP } from "../src/lib/privacyText.js";
 
@@ -45,6 +45,27 @@ test("validateFeedback: säubert und lehnt Unsinn ab", () => {
   assert.equal(v.ok, true);
   assert.equal(v.value.comment.length, 500);
   assert.equal(v.value.quote, false); // nur echtes true
+  assert.equal(v.value.kind, undefined);
+});
+
+test("validateFeedback: allgemeines Feedback (kind general)", () => {
+  assert.equal(validateFeedback({ kind: "general", device: DEV }).ok, false);
+  assert.equal(validateFeedback({ kind: "general", device: DEV, category: "nope" }).ok, false);
+  assert.equal(validateFeedback({ kind: "general", device: DEV, category: "idea", area: "nope" }).ok, false);
+  const v = validateFeedback({ kind: "general", device: DEV, category: "bug", area: "click", comment: "a".repeat(900), lang: "en", platform: "ios" });
+  assert.equal(v.ok, true);
+  assert.equal(v.value.kind, "general");
+  assert.equal(v.value.category, "bug");
+  assert.equal(v.value.categoryLabel, "Fehler gefunden");
+  assert.equal(v.value.area, "click");
+  assert.equal(v.value.areaLabel, "Click-Trainer");
+  assert.equal(v.value.comment.length, 500);
+  assert.equal(v.value.lang, "en");
+  assert.equal(v.value.platform, "ios");
+  assert.equal(qualifyKey(v.value), null); // zählt nicht fürs Dankeschön
+  const mail = generalMailtoHref({ category: "bug", area: "click", comment: "Klick hängt", lang: "de" });
+  assert.match(mail, /^mailto:schlagfertig@icloud\.com\?subject=/);
+  assert.match(decodeURIComponent(mail), /Fehler gefunden[^]*Click-Trainer[^]*Klick hängt/);
 });
 
 const req = (body, headers = {}) => new Request("http://x/api/feedback", { method: "POST", headers: { "content-type": "application/json", ...headers }, body: JSON.stringify(body) });
@@ -90,23 +111,55 @@ test("Ablauf: Feedback → Dankeschön (erst ab Schwelle) → Code → Widerruf"
   assert.equal(after.feedback.filter((f) => f.device === DEV).length, 0);
 });
 
-test("Datenschutz: Test-Feedback nur in der Web-/Testfassung", () => {
+test("Datenschutz: Test-Feedback nur in der Web-/Testfassung, allgemeines Feedback in beiden", () => {
   for (const l of ["de", "en"]) {
     assert.ok(PRIVACY[l].sections.some((s) => /Test/.test(s.h)));
     assert.ok(!PRIVACY_APP[l].sections.some((s) => /Test/.test(s.h)));
+    assert.ok(PRIVACY[l].sections.some((s) => /Feedback/.test(s.h) && !/Test/.test(s.h)));
+    assert.ok(PRIVACY_APP[l].sections.some((s) => /Feedback/.test(s.h) && !/Test/.test(s.h)));
   }
   assert.match(JSON.stringify(PRIVACY.de), /spätestens 6 Monate nach Ende der Testphase/);
   assert.match(JSON.stringify(PRIVACY.de), /Art\. 6 Abs\. 1 lit\. a DSGVO/);
-  // Abschnitt 2: Ausnahme nur in der Web-/Testfassung
-  assert.ok(PRIVACY.de.sections[1].body.join("").includes("Kein Tracking, keine Werbung. Einzige Ausnahme: Wenn du in der Testversion freiwillig beim Test-Feedback mitmachst, wird dein Feedback ohne Namen gespeichert (siehe Abschnitt 7)."));
-  assert.ok(PRIVACY.en.sections[1].body.join("").includes("No tracking, no ads. The only exception: if you voluntarily take part in tester feedback in the test version, your feedback is stored without your name (see section 7)."));
-  assert.match(PRIVACY_APP.de.sections[1].body.join(""), /kein Tracking und keine Werbung\. Übungsdaten bleiben auf deinem Gerät\.$/);
-  assert.doesNotMatch(JSON.stringify(PRIVACY_APP), /Einzige Ausnahme|only exception/);
+  assert.ok(PRIVACY.de.sections[1].body.join("").includes("Kein Tracking, keine Werbung. Ausnahmen: Wenn du in der Testversion freiwillig beim Test-Feedback mitmachst (siehe Abschnitt 7), oder wenn du über den Feedback-Knopf eine Nachricht schickst (siehe Abschnitt 8), wird dein Feedback ohne Namen gespeichert."));
+  assert.ok(PRIVACY.en.sections[1].body.join("").includes("No tracking, no ads. Exceptions: if you voluntarily take part in tester feedback in the test version (see section 7), or if you send a message via the Feedback button (see section 8), your feedback is stored without your name."));
+  assert.match(PRIVACY_APP.de.sections[1].body.join(""), /Kein Tracking, keine Werbung\. Ausnahme: Wenn du über den Feedback-Knopf/);
+  assert.doesNotMatch(JSON.stringify(PRIVACY_APP), /Einzige Ausnahme|only exception|Test-Feedback|tester feedback/);
 });
 
-test("middleware: /api/* ohne Einladungs-Cookie → 401 JSON statt Sperrseite", async () => {
+test("middleware: /api/feedback POST/OPTIONS ohne Cookie durch, andere /api/* → 401 JSON", async () => {
   const { default: middleware } = await import("../middleware.js");
-  const r = await middleware(new Request("https://x/api/feedback", { method: "POST" }));
+  assert.equal(await middleware(new Request("https://x/api/feedback", { method: "POST" })), undefined);
+  const opt = await middleware(new Request("https://x/api/feedback", { method: "OPTIONS", headers: { origin: "capacitor://localhost" } }));
+  assert.equal(opt.status, 204);
+  assert.equal(opt.headers.get("access-control-allow-origin"), "capacitor://localhost");
+  const r = await middleware(new Request("https://x/api/other", { method: "POST" }));
   assert.equal(r.status, 401);
   assert.match(r.headers.get("content-type"), /json/);
+});
+
+test("allgemeines Feedback: API speichert lesbar, CORS für Capacitor, kein Dankeschön-Zähler", async () => {
+  const store = memoryStore();
+  const env = { FEEDBACK_ADMIN_TOKEN: "geheim" };
+  const opt = { store, env };
+  const r = await handle(req({
+    type: "feedback", kind: "general", device: DEV, category: "idea", area: "stick",
+    comment: "Bitte mehr Tempo-Stufen", lang: "de", platform: "ios",
+  }, { origin: "capacitor://localhost" }), opt);
+  assert.equal(r.status, 200);
+  assert.equal(r.headers.get("access-control-allow-origin"), "capacitor://localhost");
+  const body = await r.json();
+  assert.equal(body.ok, true);
+  assert.equal(body.count, 0);
+  const pre = await handle(new Request("http://x/api/feedback", { method: "OPTIONS", headers: { origin: "capacitor://localhost" } }), opt);
+  assert.equal(pre.status, 204);
+  assert.equal(pre.headers.get("access-control-allow-origin"), "capacitor://localhost");
+  const blocked = corsHeaders(new Request("http://x/api/feedback", { headers: { origin: "https://evil.example" } }));
+  assert.equal(blocked["access-control-allow-origin"], undefined);
+  const all = await (await handle(new Request("http://x/api/feedback", { headers: { authorization: "Bearer geheim" } }), opt)).json();
+  const g = all.feedback.find((f) => f.kind === "general");
+  assert.equal(g.category, "idea");
+  assert.equal(g.categoryLabel, "Idee");
+  assert.equal(g.areaLabel, "Hand Control");
+  assert.equal(g.comment, "Bitte mehr Tempo-Stufen");
+  assert.equal(g.platform, "ios");
 });
