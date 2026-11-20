@@ -375,14 +375,17 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           .page.tool .rud-tool .rud-metro .dial-row .nudge-lg { width: 42px; height: 42px; font-size: 16px; }
           .page.tool .rud-tool .rud-metro .dial-row .nudge-lg.nudge-10 { width: 38px; height: 38px; font-size: 14px; }
           .page.tool .rud-tool .rud-picks { margin-bottom: 4px; }
-          .page.tool .rud-tool .rud-title { flex: 0 0 auto; min-height: 0; margin-bottom: 4px; padding-bottom: 4px; }
+          .page.tool .rud-tool .rud-title { flex: 0 0 auto; height: auto; min-height: 0; margin-bottom: 4px; padding-bottom: 4px; }
           .page.tool .rud-tool .beat-track, .page.tool .rud-tool .beat-loop { flex: 0 0 auto; }
           .page.tool .rud-tool .beat-track { margin-top: 4px; }
           .page.tool .rud-tool .beat-cells span { padding: 4px 0; font-size: 17px; }
           .page.tool .rud-tool .beat-loop { margin-top: 4px; }
           .rud-cheer { top: 18%; }
         }
-        .rud-random { position: relative; z-index: 4; display: block; width: fit-content; margin: 0 0 10px auto; min-height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: #5cc8b8; color: #06120f; font: 800 15px Figtree, sans-serif; pointer-events: auto; }
+        .rud-random { position: fixed; right: 16px; bottom: 96px; z-index: 30; display: block; width: fit-content; margin: 0; min-width: 84px; min-height: 52px; padding: 0 18px; border: 0; border-radius: 999px; background: #5cc8b8; color: #06120f; font: 800 17px Figtree, sans-serif; box-shadow: 0 8px 22px rgba(92,200,184,.35); pointer-events: auto; }
+        @media (orientation: landscape) {
+          .rud-random { right: 332px; }
+        }
         .rud-back { padding: 28px 8px 8px; color: #161a1d; text-align: left; }
         .rud-back h3 { margin: 12px 0 4px; font: 800 13px Figtree, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; color: #0b3d38; }
         .rud-back p { margin: 0; font: 600 15px/1.4 Figtree, sans-serif; }
@@ -409,7 +412,6 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
             ))}
           </select>
         </div>
-        <button type="button" className="rud-random" onClick={randomRud}>{t("Zufall")}</button>
         {info ? (
           <RudimentBack rud={rud} onBack={() => setInfo(false)} />
         ) : (
@@ -431,6 +433,9 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           </>
         )}
       </div>
+      {printOpen ? null : (
+        <button type="button" className="rud-random" onClick={randomRud}>{t("Zufall")}</button>
+      )}
       {cheer ? (
         <div className="rud-cheer" role="status" aria-live="polite" onClick={() => setCheer(null)}>
           <div className="rud-cheer-kick">{t("Geschafft!")}</div>
