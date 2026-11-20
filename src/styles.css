@@ -1288,3 +1288,17 @@ body:has(.page.view-lexicon), body:has(.page.view-lexicon) #root, .page.tool.vie
 .access-btn-main { margin-top: 12px; border: 0; background: var(--teal); color: var(--ink); }
 .access-note { margin: 0; color: var(--gold); font-size: 15px; font-weight: 700; }
 .access-hint { margin: 0; color: var(--dim); font-size: 14px; line-height: 1.4; }
+.access .paywall-options { margin: 0; }
+.access .paywall-legal { margin-top: 4px; }
+
+.access-testmode { margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--line); }
+.access-testmode-lab {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--txt);
+  font: 700 15px/1.35 Figtree, sans-serif;
+  cursor: pointer;
+}
+.access-testmode-lab input { margin-top: 2px; flex: 0 0 auto; accent-color: var(--teal); }
+.access-testmode .access-hint { margin-top: 8px; }

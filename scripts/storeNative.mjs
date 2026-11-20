@@ -193,6 +193,94 @@ export function applyNativePurchasesSubscriptionInfo(
   return 0;
 }
 
+
+export const STORE_ENV_MARKER = "// sf-store-env (Schlagfertig)";
+const STORE_ENV_METHODS_HEAD = 'CAPPluginMethod(name: "getStorefront", returnType: CAPPluginReturnPromise)\n    ]';
+const STORE_ENV_METHODS_NEXT = 'CAPPluginMethod(name: "getStorefront", returnType: CAPPluginReturnPromise),\n        CAPPluginMethod(name: "getStoreEnvironment", returnType: CAPPluginReturnPromise) ' + STORE_ENV_MARKER + '\n    ]';
+const STORE_ENV_CLASS_END = `            print("isEntitledToOldBusinessModel error: \\(error)")
+            call.reject("Failed to get app transaction: \\(error.localizedDescription)")
+        }
+    }
+}`;
+const STORE_ENV_SWIFT = `            print("isEntitledToOldBusinessModel error: \\(error)")
+            call.reject("Failed to get app transaction: \\(error.localizedDescription)")
+        }
+    }
+
+    ${STORE_ENV_MARKER}
+    @objc func getStoreEnvironment(_ call: CAPPluginCall) {
+        let receiptURL = Bundle.main.appStoreReceiptURL
+        let receiptSandbox = receiptURL?.lastPathComponent == "sandboxReceipt"
+        if #available(iOS 16.0, *) {
+            Task { @MainActor in
+                await self.handleGetStoreEnvironment(call, receiptSandbox: receiptSandbox)
+            }
+        } else {
+            call.resolve([
+                "environment": receiptSandbox ? "Sandbox" : "unknown",
+                "sandbox": receiptSandbox,
+                "receiptSandbox": receiptSandbox,
+                "source": "receipt"
+            ])
+        }
+    }
+
+    @available(iOS 16.0, *)
+    @MainActor
+    private func handleGetStoreEnvironment(_ call: CAPPluginCall, receiptSandbox: Bool) async {
+        do {
+            let verificationResult = try await AppTransaction.shared
+            let env: String
+            switch verificationResult {
+            case .verified(let appTransaction):
+                env = appTransaction.environment.environmentString
+            case .unverified(let appTransaction, _):
+                env = appTransaction.environment.environmentString
+            }
+            let sandbox = env.lowercased() == "sandbox" || receiptSandbox
+            call.resolve([
+                "environment": env,
+                "sandbox": sandbox,
+                "receiptSandbox": receiptSandbox,
+                "source": "appTransaction"
+            ])
+        } catch {
+            call.resolve([
+                "environment": receiptSandbox ? "Sandbox" : "unknown",
+                "sandbox": receiptSandbox,
+                "receiptSandbox": receiptSandbox,
+                "source": "receipt"
+            ])
+        }
+    }
+}`;
+
+/** Ergänzt getStoreEnvironment im Capgo-Plugin (AppTransaction.environment oder sandboxReceipt). Idempotent. null = Anker fehlt. */
+export function ensureStoreEnvironment(swift) {
+  const text = String(swift || "");
+  if (text.includes(STORE_ENV_MARKER)) return text;
+  if (!text.includes(STORE_ENV_METHODS_HEAD) || !text.includes(STORE_ENV_CLASS_END)) return null;
+  return text.replace(STORE_ENV_METHODS_HEAD, STORE_ENV_METHODS_NEXT).replace(STORE_ENV_CLASS_END, STORE_ENV_SWIFT);
+}
+
+export function applyNativePurchasesStoreEnvironment(
+  swiftPath = "node_modules/@capgo/native-purchases/ios/Sources/NativePurchasesPlugin/NativePurchasesPlugin.swift",
+) {
+  if (!existsSync(swiftPath)) {
+    console.error(`Datei fehlt: ${swiftPath}`);
+    return 1;
+  }
+  const prev = readFileSync(swiftPath, "utf8");
+  const next = ensureStoreEnvironment(prev);
+  if (next == null) {
+    console.error("Plugin-Quelle hat sich geändert: Anker für getStoreEnvironment nicht gefunden");
+    return 1;
+  }
+  if (next !== prev) writeFileSync(swiftPath, next);
+  console.log("Plugin: getStoreEnvironment (Sandbox/TestFlight) ergänzt");
+  return 0;
+}
+
 function cliCommand() {
   const args = process.argv.slice(1).map((a) => String(a).replaceAll("\\", "/"));
   const script = args.some((a) => /(?:^|\/)storeNative\.mjs$/.test(a));

@@ -6,6 +6,7 @@
 import {
   FULL_PRODUCT_ID, SUB_PRODUCT_ID, TESTER_UNLOCK, iosApp, nativeApp, setAccessInfo, setUnlockSource, setUnlocked, unlockSource,
 } from "./demo.js";
+import { isTestIgnoreFullActive } from "./storeEnv.js";
 
 let pluginPromise = null;
 let priceInflight = null;
@@ -83,7 +84,7 @@ export function subscriptionUntil(purchases, now = Date.now()) {
 
 // Eine Antwort für „ist die App frei?“. via: "full" hat Vorrang vor "sub".
 export function entitlementFromPurchases(purchases, now = Date.now()) {
-  if (ownsFullProduct(purchases)) return { owned: true, via: "full", until: null };
+  if (ownsFullProduct(purchases) && !isTestIgnoreFullActive()) return { owned: true, via: "full", until: null };
   if (ownsActiveSubscription(purchases, now)) return { owned: true, via: "sub", until: subscriptionUntil(purchases, now) };
   return { owned: false, via: null, until: null };
 }
@@ -227,8 +228,9 @@ export async function refreshEntitlement({ resume = false } = {}) {
       setUnlocked(true);
       setUnlockSource(via);
       setAccessInfo(entitlementDetail(purchases));
-    } else if (!TESTER_UNLOCK && (!resume || unlockSource() === "sub")) {
+    } else if (!TESTER_UNLOCK && (!resume || unlockSource() === "sub" || isTestIgnoreFullActive())) {
       setUnlocked(false);
+      if (isTestIgnoreFullActive()) { setUnlockSource(""); setAccessInfo(null); }
     }
     return { checked: true, owned, via, until };
   } catch {

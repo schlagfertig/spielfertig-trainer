@@ -59,3 +59,27 @@ test("Plugin-Patch: Abo-Dauer und Testphase im Produkt (idempotent, Anker geprü
   assert.match(workflow, /applyNativePurchasesSubscriptionInfo/);
   assert.equal(typeof applyNativePurchasesSubscriptionInfo, "function");
 });
+
+import { STORE_ENV_MARKER, applyNativePurchasesStoreEnvironment, ensureStoreEnvironment } from "./storeNative.mjs";
+
+test("Plugin-Patch: getStoreEnvironment (Sandbox/TestFlight, idempotent, Anker geprüft)", (t) => {
+  const swiftPath = new URL("../node_modules/@capgo/native-purchases/ios/Sources/NativePurchasesPlugin/NativePurchasesPlugin.swift", import.meta.url);
+  if (!existsSync(swiftPath)) return t.skip("npm install fehlt");
+  const original = readFileSync(swiftPath, "utf8");
+  const once = ensureStoreEnvironment(original);
+  assert.ok(once.includes(STORE_ENV_MARKER));
+  assert.match(once, /CAPPluginMethod\(name: "getStoreEnvironment"/);
+  assert.match(once, /func getStoreEnvironment\(_ call: CAPPluginCall\)/);
+  assert.match(once, /AppTransaction\.shared/);
+  assert.match(once, /sandboxReceipt/);
+  assert.match(once, /environmentString/);
+  assert.equal(ensureStoreEnvironment(once), once);
+  assert.equal(ensureStoreEnvironment("kein Swift"), null);
+  assert.equal(ensureStoreEnvironment(""), null);
+  const count = (s, c) => s.split(c).length - 1;
+  assert.equal(count(once, "{"), count(once, "}"));
+  assert.equal(count(once, "("), count(once, ")"));
+  const workflow = readFileSync(new URL("../.github/workflows/ios-testflight.yml", import.meta.url), "utf8");
+  assert.match(workflow, /applyNativePurchasesStoreEnvironment/);
+  assert.equal(typeof applyNativePurchasesStoreEnvironment, "function");
+});

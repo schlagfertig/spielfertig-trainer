@@ -75,6 +75,10 @@ jobs:
         # @capgo/native-purchases 7.19.3 liefert auf iOS nur den Preis. Die Kaufseite zeigt Dauer und Testphase aus dem Store.
         run: node --input-type=module -e 'import { applyNativePurchasesSubscriptionInfo } from "./scripts/storeNative.mjs"; const code = applyNativePurchasesSubscriptionInfo(); if (code) process.exit(code);'
 
+      - name: Plugin ergänzen (Sandbox/TestFlight-Umgebung)
+        # getStoreEnvironment: AppTransaction.environment oder Receipt-URL sandboxReceipt. Nur so erscheint der Tester-Schalter.
+        run: node --input-type=module -e 'import { applyNativePurchasesStoreEnvironment } from "./scripts/storeNative.mjs"; const code = applyNativePurchasesStoreEnvironment(); if (code) process.exit(code);'
+
       - name: Zertifikat + Profil (App Store Connect API)
         env:
           # runner ist im Job-env nicht erlaubt, nur in Steps.

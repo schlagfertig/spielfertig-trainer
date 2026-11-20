@@ -154,6 +154,8 @@ export const EN2 = {
   "Vollversion oder Jahresabo ansehen": "See full version or annual subscription",
   "Dein Kauf ist wiederhergestellt.": "Your purchase has been restored.",
   "Kündigen und ändern kannst du jederzeit in den Einstellungen deiner Apple-ID (Abonnements).": "You can cancel or change it any time in your Apple ID settings (Subscriptions).",
+  "Testmodus: Vollversion ignorieren": "Test mode: ignore full version",
+  "Nur ein TestFlight-Testmodus. An Apple wird nichts gelöscht.": "This is a TestFlight test mode and deletes nothing at Apple.",
 
   // Allgemeines Feedback (Startbildschirm, Web und Store-App). Britisches Englisch.
   "Feedback geben": "Send feedback",

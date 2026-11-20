@@ -17,12 +17,9 @@ export function DemoPaywall({ onClose, onUnlock, price, sub = null, subPrice = n
   const field = useRef(null);
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
-  const shownPrice = price || fallbackPrice(getLang());
   // Schon freigeschaltet (Kauf oder Wiederherstellen): Status statt Kaufen, damit niemand doppelt zahlt.
   const owned = isUnlocked();
   const ios = iosApp();
-  const lang = getLang();
-  const offer = subscriptionOffer(sub, lang, subPrice);
   const viaSub = owned && unlockSource() === "sub";
 
   useEffect(() => {
@@ -107,32 +104,16 @@ export function DemoPaywall({ onClose, onUnlock, price, sub = null, subPrice = n
           <div className="paywall-offer paywall-owned">
             <p className="paywall-status" role="status"><span aria-hidden="true">✓</span> {t("Bereits freigeschaltet")}</p>
           </div>
-        ) : ios ? (
-          <div className="paywall-options">
-            <section className="paywall-opt" aria-labelledby="paywall-opt-full">
-              <h3 className="paywall-opt-title" id="paywall-opt-full">{t("Für immer")}</h3>
-              <p className="paywall-price">{shownPrice}</p>
-              <p className="paywall-sub">{t("Einmalig, kein Abo.")}</p>
-              <button type="button" className="paywall-buy" onClick={buy} disabled={busy}>{t("Kaufen")}</button>
-            </section>
-            <section className="paywall-opt paywall-opt-sub" aria-labelledby="paywall-opt-sub">
-              <h3 className="paywall-opt-title" id="paywall-opt-sub">{t("Jahresabo")}</h3>
-              <p className="paywall-price">
-                {offer.loaded ? <>{offer.price}<span className="paywall-per"> {offer.per}</span></> : <span className="paywall-per">{offer.priceLine}</span>}
-              </p>
-              <p className={offer.trial ? "paywall-trial is-on" : "paywall-trial"}>{offer.trialLine}</p>
-              <p className="paywall-sub">{t("Verlängert sich automatisch, bis du kündigst.")}</p>
-              <button type="button" className="paywall-buy" onClick={subscribe} disabled={busy}>{offer.buyLabel}</button>
-            </section>
-          </div>
         ) : (
-          <>
-            <div className="paywall-offer">
-              <p className="paywall-price">{shownPrice}</p>
-              <button type="button" className="paywall-buy" onClick={buy} disabled={busy}>{t("Kaufen")}</button>
-            </div>
-            <p className="paywall-sub">{t("Einmalig, kein Abo.")}</p>
-          </>
+          <PurchaseOptions
+            price={price}
+            sub={sub}
+            subPrice={subPrice}
+            busy={busy}
+            ios={ios}
+            onBuy={buy}
+            onSubscribe={subscribe}
+          />
         )}
         {viaSub ? (
           <p className="paywall-sub paywall-subs-on">
@@ -183,6 +164,56 @@ export function DemoPaywall({ onClose, onUnlock, price, sub = null, subPrice = n
     </div>
   );
 }
+
+// Kauf-Optionen (Einmalkauf + Jahresabo), gemeinsam für das Kauf-Blatt und „Mein Zugang“.
+export function PurchaseOptions({ price, sub = null, subPrice = null, busy = false, ios = false, showLegal = false, idPrefix = "paywall-opt", onBuy, onSubscribe, onOpenLegal }) {
+  const shownPrice = price || fallbackPrice(getLang());
+  const lang = getLang();
+  const offer = subscriptionOffer(sub, lang, subPrice);
+  return (
+    <>
+      {ios ? (
+        <div className="paywall-options">
+          <section className="paywall-opt" aria-labelledby={`${idPrefix}-full`}>
+            <h3 className="paywall-opt-title" id={`${idPrefix}-full`}>{t("Für immer")}</h3>
+            <p className="paywall-price">{shownPrice}</p>
+            <p className="paywall-sub">{t("Einmalig, kein Abo.")}</p>
+            <button type="button" className="paywall-buy" onClick={onBuy} disabled={busy}>{t("Kaufen")}</button>
+          </section>
+          <section className="paywall-opt paywall-opt-sub" aria-labelledby={`${idPrefix}-sub`}>
+            <h3 className="paywall-opt-title" id={`${idPrefix}-sub`}>{t("Jahresabo")}</h3>
+            <p className="paywall-price">
+              {offer.loaded ? <>{offer.price}<span className="paywall-per"> {offer.per}</span></> : <span className="paywall-per">{offer.priceLine}</span>}
+            </p>
+            <p className={offer.trial ? "paywall-trial is-on" : "paywall-trial"}>{offer.trialLine}</p>
+            <p className="paywall-sub">{t("Verlängert sich automatisch, bis du kündigst.")}</p>
+            <button type="button" className="paywall-buy" onClick={onSubscribe} disabled={busy}>{offer.buyLabel}</button>
+          </section>
+        </div>
+      ) : (
+        <>
+          <div className="paywall-offer">
+            <p className="paywall-price">{shownPrice}</p>
+            <button type="button" className="paywall-buy" onClick={onBuy} disabled={busy}>{t("Kaufen")}</button>
+          </div>
+          <p className="paywall-sub">{t("Einmalig, kein Abo.")}</p>
+        </>
+      )}
+      {ios && showLegal ? (
+        <div className="paywall-legal">
+          <p>{t("Jahresabo: Die Zahlung läuft über deine Apple-ID. Das Abo verlängert sich automatisch um ein weiteres Jahr, wenn du nicht mindestens 24 Stunden vor Ablauf des laufenden Zeitraums kündigst. Die Verlängerung wird dir innerhalb von 24 Stunden vor Ablauf berechnet.")}</p>
+          <p>{t("Du verwaltest und kündigst das Abo jederzeit in den Einstellungen deiner Apple-ID (Einstellungen › Apple-ID › Abonnements). Eine Gratis-Testphase gibt es nur, wenn du sie noch nicht genutzt hast.")}</p>
+          <p className="paywall-legal-links">
+            <a className="paywall-link" href={EULA_URL} target="_blank" rel="noopener noreferrer">{t("Nutzungsbedingungen (EULA)")}</a>
+            <span aria-hidden="true"> · </span>
+            <button type="button" className="paywall-link" onClick={() => onOpenLegal?.("datenschutz")}>{t("Datenschutz")}</button>
+          </p>
+        </div>
+      ) : null}
+    </>
+  );
+}
+
 
 function buyNote(res) {
   if (res?.reason === "cancel") return "Kauf abgebrochen.";

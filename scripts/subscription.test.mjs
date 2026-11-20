@@ -180,7 +180,8 @@ test("Verdrahtung: Transaktions-Event, resume, Produkt-ID, kein Festtext", () =>
   const app = readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
   assert.match(app, /watchEntitlement\(/);
   assert.equal(app.split("<DemoPaywall").length - 1, 2);
-  assert.equal(app.split("sub={storeSub.product}").length - 1, 2);
+  assert.equal(app.split("sub={storeSub.product}").length - 1, 3);
+  assert.match(app, /<Access[\s\S]*sub=\{storeSub\.product\}/);
   // Die Produkt-ID des Abos steht nur in demo.js
   const src = ["../src/lib/iap.js", "../src/lib/Paywall.jsx", "../src/lib/subscriptionText.js", "../src/App.jsx"];
   for (const f of src) assert.doesNotMatch(readFileSync(new URL(f, import.meta.url), "utf8"), /control\.yearly/);

@@ -1,3 +1,4 @@
+import { isTestIgnoreFullActive } from "./storeEnv.js";
 // Store-Freemium (Tom, 2026-10-24). Einmalig, kein Abo. Anzeige: der lokalisierte
 // Store-String (priceString / localizedPrice). Ohne Produkt: fallbackPrice.
 // Web und Test: DEMO_ON aus, volle App. Store-Build (CAPACITOR=1 → __SF_STORE__, wie feedbackClient.js)
@@ -80,7 +81,13 @@ const FREE = new Set([
 
 export function isUnlocked() {
   if (!DEMO_ON) return true;
-  try { return localStorage.getItem(KEY) === "1"; } catch { return false; }
+  try {
+    if (localStorage.getItem(KEY) !== "1") return false;
+    // In der TestFlight-Sandbox darf der Schalter nur die Vollversion ausblenden.
+    // Ohne erkannte Sandbox (Produktion, Web) gilt die Vorliebe nicht.
+    if (isTestIgnoreFullActive() && unlockSource() !== "sub") return false;
+    return true;
+  } catch { return false; }
 }
 
 // Woher die Freischaltung kommt: "sub" (Jahresabo) oder "full" (Vollversion, eingelöster Code, älterer Stand ohne Eintrag).

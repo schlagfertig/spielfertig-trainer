@@ -73,5 +73,12 @@ test("Details aus den Käufen: Vollversion, Abo (spätestes Ablaufdatum), nichts
 test("Ansicht zugang ist auch ohne Freischaltung offen; Link nur im Store-Build", () => {
   assert.equal(freeView("zugang"), true);
   const app = readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
-  assert.ok(app.includes('{DEMO_ON ? <button type="button" className="foot-link" onClick={() => open("zugang")}'));
+  assert.match(app, /demoOnNow\(\) \? \(/);
+  assert.match(app, /open\("zugang"\).*t\("Mein Zugang"\)/s);
+  assert.match(app, /setPaywall\(true\).*t\("Vollversion"\)/s);
+  // Store/native: nur Mein Zugang. Web: Vollversion bleibt, kein zweiter Kauf-Knopf daneben.
+  const footer = app.slice(app.lastIndexOf("foot-links"), app.lastIndexOf("</footer>"));
+  assert.equal((footer.match(/t\("Mein Zugang"\)/g) || []).length, 1);
+  assert.equal((footer.match(/t\("Vollversion"\)/g) || []).length, 1);
+  assert.match(footer, /demoOnNow\(\) \? \([\s\S]*Mein Zugang[\s\S]*\) : \([\s\S]*Vollversion/);
 });
