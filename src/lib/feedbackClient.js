@@ -1,12 +1,21 @@
 // Test-Feedback: Zustand auf dem Gerät (localStorage sf.v1.feedback), Postausgang und Server-Aufrufe.
-// Nur Web-/Testversion: in der Store-App (CAPACITOR=1 bzw. native Hülle) ist FEEDBACK_ENABLED false und es wird nichts gesendet.
+// Test-Feedback (nach Übungen) nur Web-/Testversion: in der Store-App ist FEEDBACK_ENABLED false.
+// Allgemeines Feedback (Startbildschirm) sendet auch aus der nativen App an FEEDBACK_API_ORIGIN.
 import { loadSession, saveSession } from "./session.js";
-import { ASK_MIN_SEC, TEST_ASK_MIN_SEC, addQualified, dayKey, exKey, makeThanksNumber, thanksAfter } from "./feedbackRules.js";
+import { ASK_MIN_SEC, FEEDBACK_API_ORIGIN, TEST_ASK_MIN_SEC, addQualified, dayKey, exKey, makeThanksNumber, thanksAfter } from "./feedbackRules.js";
 
 /* global __SF_STORE__ */
 const STORE_BUILD = typeof __SF_STORE__ !== "undefined" && __SF_STORE__ === true;
 const NATIVE = typeof window !== "undefined" && !!window.Capacitor?.isNativePlatform?.();
 export const FEEDBACK_ENABLED = !STORE_BUILD && !NATIVE;
+
+// Web-/Testversion: gleicher Ursprung (/api/feedback). Native Store-App: feste Live-URL.
+export function feedbackApiUrl() {
+  if (typeof window !== "undefined" && window.Capacitor?.isNativePlatform?.()) {
+    return `${FEEDBACK_API_ORIGIN}/api/feedback`;
+  }
+  return "/api/feedback";
+}
 
 const KEY = "feedback";
 const TEST_KEY = "fbtest";
@@ -91,7 +100,13 @@ export function offerFeedback(seg) {
 
 // ---- Postausgang ----
 async function post(body) {
-  const r = await fetch(API, { method: "POST", headers: { "content-type": "application/json" }, credentials: "same-origin", body: JSON.stringify(body) });
+  const native = typeof window !== "undefined" && !!window.Capacitor?.isNativePlatform?.();
+  const r = await fetch(feedbackApiUrl(), {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    credentials: native ? "omit" : "same-origin",
+    body: JSON.stringify(body),
+  });
   let j = null;
   try { j = await r.json(); } catch { /* ignore */ }
   return { status: r.status, json: j };
@@ -200,4 +215,27 @@ export function forgetMine() {
   patchFb({ outbox: fb.outbox.filter((x) => x.type !== "feedback"), qual: [] });
   if (!fb.device) return Promise.resolve();
   return enqueue({ type: "forget", device: fb.device });
+}
+
+// Allgemeines Feedback vom Startbildschirm. Unabhängig von FEEDBACK_ENABLED und ohne Test-Einwilligung
+// (die Person tippt selbst auf Absenden). Bei Fehler wirft die Funktion, die Oberfläche bietet mailto an.
+export async function submitGeneralFeedback({ category, area, comment, lang }) {
+  const platform = (typeof window !== "undefined" && window.Capacitor?.getPlatform?.()) || "";
+  const body = {
+    type: "feedback",
+    kind: "general",
+    device: deviceId(),
+    category,
+    area: area || "",
+    comment: comment || "",
+    lang: lang === "en" ? "en" : "de",
+    platform: platform === "ios" || platform === "android" ? platform : "web",
+  };
+  const res = await post(body);
+  if (res.status !== 200 || !res.json?.ok) {
+    const err = new Error(res.json?.error || "send");
+    err.status = res.status;
+    throw err;
+  }
+  return res.json;
 }

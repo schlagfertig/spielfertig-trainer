@@ -89,3 +89,24 @@
   background: rgba(92, 200, 184, 0.14); border: 1px solid rgba(92, 200, 184, 0.45); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3); }
 .wn-item:nth-child(2) .wn-ico { background: rgba(232, 184, 75, 0.12); border-color: rgba(232, 184, 75, 0.5); }
 .fb-btn:focus-visible { outline: none; box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.6), 0 0 0 3px rgba(255, 255, 255, 0.35); }
+
+/* Allgemeines Feedback (Startbildschirm, auch Store-App) */
+.fb-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+.fb-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 40px; padding: 6px 12px; border-radius: 999px; cursor: pointer;
+  color: #d6dedd; font: 700 14px/1.2 Figtree, sans-serif;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.03) 55%), rgba(22, 26, 29, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.fb-chip.on {
+  color: #fff; border-color: #5cc8b8;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.02) 55%), rgba(92, 200, 184, 0.32);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 0 14px rgba(92, 200, 184, 0.45);
+}
+.fb-where { margin: 2px 0 6px; color: #c9d3d1; font: 800 13px/1.3 Figtree, sans-serif; letter-spacing: 0.04em; }
+.fb-send-err { margin: 12px 0 0; }
+.fb-send-err p { margin: 0 0 10px; color: #e8b84b; font: 600 14px/1.45 Figtree, sans-serif; text-align: center; }
+.fb-send-err .fb-btn { width: 100%; }
+.fb-chip:focus-visible { outline: none; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 0 0 3px rgba(255, 255, 255, 0.35); }
