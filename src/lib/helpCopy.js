@@ -61,7 +61,7 @@ export const HELP = {
     ["Ein/Aus", "Der Schalter oben pausiert das Tagebuch. Deine Einträge bleiben auf diesem Gerät gespeichert."],
   ],
   grooves: [
-    ["Erstellen", "Hi-Hat, Snare und Bass antippen. Eine Zeile wird aktiv, oben rechts gelten 1, + und e a. Taktzahl 1-4 sitzt neben der Vorschau."],
+    ["Erstellen", "Hi-Hat, Snare und Bass antippen. Eine Zeile wird aktiv, oben rechts gelten 1, + und e a."],
     ["Hochkant", "Am Smartphone nur die Notation, zum Eintippen quer drehen. Auf dem iPad geht die Eingabe auch hochkant."],
     ["Speichern als…", "Fragt den Namen ab. Der Groove bleibt auf diesem Gerät."],
     ["Üben", "Nur Click, Playback oder Beides. Der Click blinkt auf den vollen Zählzeiten. SpinDial wie überall: tippen startet, drehen ändert das Tempo."],
