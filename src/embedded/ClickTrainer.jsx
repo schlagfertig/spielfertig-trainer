@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { TempoControl } from "../lib/tempo.jsx";
+import { DraftNumberInput, TempoControl } from "../lib/tempo.jsx";
 import { MetronomeDial, Nudge } from "../lib/metronome.jsx";
 import { playClick, unlockAudio } from "../lib/audio.js";
 import { beatDelayMs } from "../lib/audioOffset.js";
@@ -278,17 +278,17 @@ export default function ClickTrainer({ preset = null } = {}) {
             <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
               <label className="field">
                 <span>{t("Alle")}</span>
-                <input type="number" min={2} max={60} value={everySec} onChange={(e) => setEverySec(clamp(Number(e.target.value) || 10, 2, 60))} />
+                <DraftNumberInput value={everySec} setValue={setEverySec} min={2} max={60} ariaLabel={t("Sekunden")} />
                 <span>{t("Sekunden")}</span>
               </label>
               <label className="field">
                 <span>{t("um")}</span>
-                <input type="number" min={1} max={20} value={step} onChange={(e) => setStep(clamp(Number(e.target.value) || 4, 1, 20))} />
+                <DraftNumberInput value={step} setValue={setStep} min={1} max={20} ariaLabel={t("BPM schneller")} />
                 <span>{t("BPM schneller")}</span>
               </label>
               <label className="field">
                 <span>{t("bis")}</span>
-                <input type="number" min={40} max={260} value={cap} onChange={(e) => setCap(clamp(Number(e.target.value) || 160, 40, 260))} />
+                <DraftNumberInput value={cap} setValue={setCap} min={40} max={260} ariaLabel={t("bis")} />
                 <span>BPM</span>
               </label>
             </div>
