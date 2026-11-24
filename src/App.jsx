@@ -493,7 +493,7 @@ export default function App() {
           </div>
         </div>
         <div className="top-title">{t(printOpen && view === "rudiments" ? "Drucken" : meta.title)}</div>
-        {journal && !printOpen ? <JournalBar view={view} /> : null}
+        {journal && !printOpen && view !== "stick" ? <JournalBar view={view} /> : null}
       </header>
       <main className="main">
         {view === "first" ? <FirstLesson key={preset?.step || "next"} onHome={goHome} onOpen={open} preset={preset} />
