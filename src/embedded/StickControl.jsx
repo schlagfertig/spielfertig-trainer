@@ -7,6 +7,7 @@ import { t } from "../lib/i18n.js";
 import { loadSession, saveSession } from "../lib/session.js";
 import { TERNARY_ENABLED, TRI_LEN, triHands, triNotes } from "../lib/handTernary.js";
 import { usePracticeTrack } from "../lib/PracticeDiary.jsx";
+import { JournalBar } from "../lib/Journal.jsx";
 import { askUnlock, stickOpen } from "../lib/demo.js";
 import { PaidMark } from "../lib/PaidMark.jsx";
 import { formatDuration, fokusRun, quartersPerRep, remainingSec, secPerQuarter } from "../lib/stickDuration.js";
@@ -522,6 +523,8 @@ export default function StickControl({ preset = null } = {}) {
           --rud-foot: calc(84px + env(safe-area-inset-bottom, 0px));
           --rud-dock: 272px;
         }
+        /* Hausaufgaben-Knopf sitzt in der Werkzeugzeile neben Üben/Fokus-Mode, nicht in der Kopfzeile. */
+        .stick-tools .jr-bar { margin: 0; }
         body:has(.stick-wrap), #root:has(.stick-wrap), .page:has(.stick-wrap) { overflow-x: clip; }
         /* Kopfzeile ist hier angeheftet - in der Home-Bildschirm-App unterhalb der Statusleiste (im Browser 0) */
         .page:has(.stick-wrap) .top { top: env(safe-area-inset-top, 0px); }
@@ -871,6 +874,7 @@ export default function StickControl({ preset = null } = {}) {
             <button type="button" className={mode === "practice" ? "on" : ""} onClick={() => !playing && setMode("practice")}>{t("Üben")}</button>
             <button type="button" className={mode === "challenge" ? "on" : ""} onClick={() => !playing && setMode("challenge")}>{t("Fokus-Mode")}</button>
           </div>
+          <JournalBar view="stick" />
           {TERNARY_ENABLED ? (
             <div className="seg" style={{ width: "fit-content" }} role="group" aria-label={t("Raster")}>
               <button type="button" className={!ternary ? "on" : ""} onClick={() => !playing && setTernary(false)}>{t("binär")}</button>
