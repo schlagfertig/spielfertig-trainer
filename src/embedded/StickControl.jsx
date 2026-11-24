@@ -317,10 +317,34 @@ export default function StickControl({ preset = null } = {}) {
     return () => { de.classList.remove("sf-scroll-lock"); window.removeEventListener("wheel", block); };
   }, [playing]);
   useLayoutEffect(() => {
-    // Kopfzeile ist angeheftet (in der Home-Bildschirm-App unterhalb der Statusleiste): Höhe + Abstand oben
-    const topEl = document.querySelector(".top");
-    const head = topEl ? topEl.offsetHeight + (parseFloat(getComputedStyle(topEl).top) || 0) : 0;
-    wrapRef.current?.style.setProperty("--stick-top", `${head}px`);
+    // Abstand unter der Kopfzeile neu messen, wenn sich Höhe, Safe-Area oder Schrift ändert
+    const el = wrapRef.current;
+    const header = document.querySelector(".page.tool .top");
+    if (!el || !header) return undefined;
+    let gone = false;
+    const apply = () => {
+      if (gone) return;
+      const bottom = Math.max(0, Math.round(header.getBoundingClientRect().bottom));
+      el.style.setProperty("--stick-top", `${bottom}px`);
+    };
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(header);
+    const pageEl = header.closest(".page");
+    if (pageEl) ro.observe(pageEl);
+    document.fonts?.ready?.then(apply);
+    window.visualViewport?.addEventListener("resize", apply);
+    window.addEventListener("resize", apply);
+    // Late Safe-Area / font-display:swap: ein paar Frames nachziehen
+    let frames = 16;
+    const tick = () => { apply(); if (!gone && frames-- > 0) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+    return () => {
+      gone = true;
+      ro.disconnect();
+      window.visualViewport?.removeEventListener("resize", apply);
+      window.removeEventListener("resize", apply);
+    };
   }, [exId]);
   // Restzeit an der Audio-Uhr, nicht an einem runterzählenden Timer (der auf dem iPhone im Hintergrund stehen bleibt).
   useEffect(() => {
@@ -526,8 +550,10 @@ export default function StickControl({ preset = null } = {}) {
         /* Hausaufgaben-Knopf sitzt in der Werkzeugzeile neben Üben/Fokus-Mode, nicht in der Kopfzeile. */
         .stick-tools .jr-bar { margin: 0; }
         body:has(.stick-wrap), #root:has(.stick-wrap), .page:has(.stick-wrap) { overflow-x: clip; }
-        /* Kopfzeile ist hier angeheftet - in der Home-Bildschirm-App unterhalb der Statusleiste (im Browser 0) */
-        .page:has(.stick-wrap) .top { top: env(safe-area-inset-top, 0px); }
+        /* Seiten-Padding enthält schon safe-area-inset-top. Dieselben Insets noch einmal als sticky-top
+           würden die transparente Kopfzeile über Üben/Fokus-Mode schieben, weil .page.tool.view-stick
+           (Hochkant, overflow: hidden) selbst der Sticky-Scrollport ist. */
+        .page:has(.stick-wrap) .top { top: 0; }
         @media (prefers-reduced-motion: reduce) {
           .stick-card text { transition: none !important; }
         }
@@ -689,7 +715,7 @@ export default function StickControl({ preset = null } = {}) {
             max-height: 100dvh;
             overflow: hidden;
           }
-          .page.tool.view-stick .top { flex: 0 0 auto; }
+          .page.tool.view-stick .top { flex: 0 0 auto; position: relative; }
           .page.tool.view-stick .main {
             flex: 1 1 auto;
             min-height: 0;
