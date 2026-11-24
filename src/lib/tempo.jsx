@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { clampInt, commitNumber, draftDigits } from "./commitNumber.js";
 
 const TEAL = "#5cc8b8";
 const INK = "#161a1d";
@@ -6,7 +7,39 @@ const LINE = "#2f383d";
 const DIM = "#8a969c";
 
 function clamp(n, min, max) {
-  return Math.max(min, Math.min(max, Math.round(n)));
+  return clampInt(n, min, max);
+}
+
+// Freies Tippen: Feld darf leer bleiben, Prüfung erst beim Verlassen / Enter / „Fertig“.
+export function DraftNumberInput({ value, setValue, min, max, ariaLabel }) {
+  const safe = clamp(Number(value) || min, min, max);
+  const [draft, setDraft] = useState(String(safe));
+  const [focused, setFocused] = useState(false);
+  const maxLen = String(Math.max(Math.abs(min), Math.abs(max))).length;
+
+  useEffect(() => {
+    if (!focused) setDraft(String(safe));
+  }, [safe, focused]);
+
+  function commit(raw) {
+    const next = commitNumber(raw, min, max, safe);
+    setValue(next);
+    setDraft(String(next));
+  }
+
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      pattern="[0-9]*"
+      aria-label={ariaLabel}
+      value={focused ? draft : String(safe)}
+      onFocus={(e) => { setFocused(true); setDraft(String(safe)); e.target.select(); }}
+      onChange={(e) => setDraft(draftDigits(e.target.value, maxLen))}
+      onBlur={() => { setFocused(false); commit(draft); }}
+      onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+    />
+  );
 }
 
 // slider=false: kein Schieberegler (Click-Trainer - dort stellt das Rad das Tempo ein).
@@ -27,31 +60,11 @@ export function TempoControl({ bpm, setBpm, min = 30, max = 260, hideNudge = fal
   }
 
   function commit(raw) {
-    const n = parseInt(raw, 10);
-    if (Number.isNaN(n)) {
-      setDraft(String(safe));
-      return;
-    }
-    apply(n);
+    apply(commitNumber(raw, min, max, safe));
   }
 
   function onDraft(raw) {
-    const clean = raw.replace(/[^\d]/g, "").slice(0, 3);
-    if (clean === "") {
-      setDraft("");
-      return;
-    }
-    const n = parseInt(clean, 10);
-    if (Number.isNaN(n)) {
-      setDraft(String(safe));
-      return;
-    }
-    if (n > max) {
-      apply(max);
-      return;
-    }
-    setDraft(String(n));
-    if (n >= min) setBpm(n);
+    setDraft(draftDigits(raw, 3));
   }
 
   function slide(n) {
@@ -76,7 +89,7 @@ export function TempoControl({ bpm, setBpm, min = 30, max = 260, hideNudge = fal
         pattern="[0-9]*"
         aria-label="Tempo in BPM"
         value={focused ? draft : String(safe)}
-        onFocus={() => { setFocused(true); setDraft(String(safe)); }}
+        onFocus={(e) => { setFocused(true); setDraft(String(safe)); e.target.select(); }}
         onChange={(e) => onDraft(e.target.value)}
         onBlur={() => { setFocused(false); commit(draft); }}
         onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
