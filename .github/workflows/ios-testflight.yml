@@ -19,11 +19,11 @@ concurrency:
 
 jobs:
   testflight:
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 60
     env:
       BUNDLE_ID: de.schlagfertig.app
-      MARKETING_VERSION: "1.5"
+      MARKETING_VERSION: "1.6"
       BUILD_NUMBER: ${{ github.run_number }}
       ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
@@ -40,6 +40,17 @@ jobs:
           for s in ASC_KEY_P8 ASC_KEY_ID ASC_ISSUER_ID; do
             test -n "${!s}" || { echo "Secret $s fehlt"; exit 1; }
           done
+          # Xcode 27.2 (GM) fest wählen; Fallback 27.1 (ebenfalls GM).
+          if [ -d /Applications/Xcode_27.2.app ]; then
+            sudo xcode-select -s /Applications/Xcode_27.2.app/Contents/Developer
+          elif [ -d /Applications/Xcode_27.1.app ]; then
+            sudo xcode-select -s /Applications/Xcode_27.1.app/Contents/Developer
+          else
+            echo "Weder Xcode 27.2 noch 27.1 gefunden"
+            ls -d /Applications/Xcode*.app || true
+            exit 1
+          fi
+          xcode-select -p
           xcodebuild -version
 
       - name: Web-Build für die App

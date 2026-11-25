@@ -43,16 +43,38 @@ test("Version: package.json = APP_VERSION, Highlights für die aktuelle Minor-Ve
   assert.match(h.en.lines.join("\n"), /Random/);
   assert.match(h.de.lines.join("\n"), /Hand Control/);
   assert.match(h.en.lines.join("\n"), /Hand Control/);
+
+  const h16 = HIGHLIGHTS["1.6"];
+  assert.ok(h16, "HIGHLIGHTS 1.6 fehlt");
+  assert.equal(h16.native, true);
+  assert.equal(h16.action, undefined);
+  for (const l of ["de", "en"]) {
+    assert.ok(h16[l].title && h16[l].lines.length === 3 && h16[l].go && h16[l].later, l);
+  }
+  assert.equal(h16.de.title, "Neu in Schlagfertig 1.6 🥁");
+  assert.equal(h16.en.title, "New in Schlagfertig 1.6 🥁");
+  assert.match(h16.de.lines.join("\n"), /neue iOS/);
+  assert.match(h16.en.lines.join("\n"), /latest iOS/);
+  assert.match(h16.de.lines.join("\n"), /Kopfzeile/);
+  assert.match(h16.en.lines.join("\n"), /header/);
+  assert.match(h16.de.lines.join("\n"), /Tempo-Zahlen/);
+  assert.match(h16.en.lines.join("\n"), /tempo figures/);
+  assert.equal(h16.de.go, "Alles klar");
+  assert.equal(h16.en.go, "Got it");
 });
 
-test("1.5 nur im Store- oder Native-Build, 1.4 bleibt überall", () => {
+test("1.5 und 1.6 nur im Store- oder Native-Build, 1.4 bleibt überall", () => {
   const web = pickHighlights(HIGHLIGHTS, false);
   const nat = pickHighlights(HIGHLIGHTS, true);
   assert.ok(web["1.4"] && nat["1.4"]);
   assert.equal(web["1.5"], undefined);
   assert.ok(nat["1.5"]);
+  assert.equal(web["1.6"], undefined);
+  assert.ok(nat["1.6"]);
   assert.deepEqual(decideWhatsNew({ lastSeen: "1.4.0", current: "1.5.0", highlights: web }), { show: false, record: "1.5.0" });
   assert.deepEqual(decideWhatsNew({ lastSeen: "1.4.0", current: "1.5.0", highlights: nat }), { show: true, record: null });
+  assert.deepEqual(decideWhatsNew({ lastSeen: "1.5.0", current: "1.6.0", highlights: web }), { show: false, record: "1.6.0" });
+  assert.deepEqual(decideWhatsNew({ lastSeen: "1.5.0", current: "1.6.0", highlights: nat }), { show: true, record: null });
 });
 
 test("minorKey", () => {
@@ -123,11 +145,11 @@ test("Erfolg mitten in der Sitzung: danach kein Start-Popup", async () => {
   assert.equal(m.startModal(), null);
 });
 
-test("1.5 Neu-Popup nur mit nativer Hülle, nach Update von 1.4", async () => {
+test("1.6 Neu-Popup nur mit nativer Hülle, nach Update von 1.5", async () => {
   const base = {
     "sf.v1.welcomeSeen": J({ seen: true }),
     "sf.v1.feedback": J({ consent: false }),
-    "sf.v1.lastVersion": J({ v: "1.4.0" }),
+    "sf.v1.lastVersion": J({ v: "1.5.0" }),
   };
   const web = { ...base };
   assert.equal((await pick(web)).first, null);
@@ -137,6 +159,6 @@ test("1.5 Neu-Popup nur mit nativer Hülle, nach Update von 1.4", async () => {
   const nat = { ...base };
   const r = await pick(nat, "", { native: true });
   assert.equal(r.first, "whatsnew");
-  assert.equal(r.m.currentHighlights()?.de.title, "Neu in Schlagfertig 1.5 🥁");
-  assert.equal(JSON.parse(nat["sf.v1.lastVersion"] || "null")?.v, "1.4.0"); // erst merken, wenn das Popup gezeigt wurde
+  assert.equal(r.m.currentHighlights()?.de.title, "Neu in Schlagfertig 1.6 🥁");
+  assert.equal(JSON.parse(nat["sf.v1.lastVersion"] || "null")?.v, "1.5.0"); // erst merken, wenn das Popup gezeigt wurde
 });

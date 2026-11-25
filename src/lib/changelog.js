@@ -5,6 +5,17 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-11-25",
+    items: [
+      { de: "Die App ist für das neue iOS vorbereitet.",
+        en: "The app is ready for the latest iOS." },
+      { de: "Hand Control: Die Kopfzeile rutscht auf dem iPhone nicht mehr über Üben und Fokus-Mode.",
+        en: "Hand Control: the header on iPhone no longer slides over Practice and Focus mode." },
+      { de: "Click-Trainer und Eigene Grooves: Die Tempo-Zahlen kannst du frei tippen; übernommen wird beim Verlassen oder mit Fertig.",
+        en: "Click Trainer and My grooves: you can type the tempo figures freely; they are applied when you leave the field or tap Done." },
+    ],
+  },
+  {
     date: "2026-10-26",
     items: [
       { de: "Hand Control: neuer Klang „Tom / Snare“. Rechts hörst du den Floortom, links die Snare - derselbe Klang wie bei den Rudiments. Du stellst ihn unter dem Tempo-Rad ein, direkt beim Einzählen. Der Click bleibt der andere Klang.",
@@ -437,6 +448,19 @@ export const CHANGELOG_LATEST = CHANGELOG[0]?.date || "";
 // action: Ansicht, die „Jetzt ausprobieren“ öffnet (wie in App.jsx open()).
 // native: true = nur Store-Build oder native Hülle (Jahresabo und Mein Zugang gibt es nur dort).
 export const HIGHLIGHTS = {
+  "1.6": {
+    native: true,
+    de: { title: "Neu in Schlagfertig 1.6 🥁", lines: [
+      "📱 Die App ist für das neue iOS vorbereitet.",
+      "🧭 Hand Control: Die Kopfzeile rutscht auf dem iPhone nicht mehr über Üben und Fokus-Mode.",
+      "🎯 Click-Trainer und Eigene Grooves: Die Tempo-Zahlen kannst du frei tippen; übernommen wird beim Verlassen oder mit Fertig.",
+    ], go: "Alles klar", later: "Später" },
+    en: { title: "New in Schlagfertig 1.6 🥁", lines: [
+      "📱 The app is ready for the latest iOS.",
+      "🧭 Hand Control: the header on iPhone no longer slides over Practice and Focus mode.",
+      "🎯 Click Trainer and My grooves: you can type the tempo figures freely; they are applied when you leave the field or tap Done.",
+    ], go: "Got it", later: "Later" },
+  },
   "1.5": {
     native: true,
     de: { title: "Neu in Schlagfertig 1.5 🥁", lines: [
