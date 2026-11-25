@@ -104,12 +104,23 @@ export function applyIosDeploymentTarget() {
   console.log(line || "Podfile ohne platform :ios");
   const platform = line && line.match(/(\d+(?:\.\d+)?)/);
   if (!platform || Number.parseFloat(platform[1]) < Number.parseFloat(minimum)) return 1;
-  const project = "ios/App/App.xcodeproj/project.pbxproj";
-  const patched = patchFile(project, bump);
-  if (patched == null) return 1;
-  const low = [...patched.matchAll(/IPHONEOS_DEPLOYMENT_TARGET = (\d+(?:\.\d+)?);/g)]
-    .some((m) => Number.parseFloat(m[1]) < Number.parseFloat(minimum));
-  return low ? 1 : 0;
+  const projects = [
+    "ios/App/App.xcodeproj/project.pbxproj",
+    "ios/App/Pods/Pods.xcodeproj/project.pbxproj",
+  ];
+  for (const project of projects) {
+    if (!existsSync(project)) {
+      if (project.includes("/Pods/")) continue; // vor pod install noch nicht da
+      console.error(`Datei fehlt: ${project}`);
+      return 1;
+    }
+    const patched = patchFile(project, bump);
+    if (patched == null) return 1;
+    const low = [...patched.matchAll(/IPHONEOS_DEPLOYMENT_TARGET = (\d+(?:\.\d+)?);/g)]
+      .some((m) => Number.parseFloat(m[1]) < Number.parseFloat(minimum));
+    if (low) return 1;
+  }
+  return 0;
 }
 
 /** Schreibt Kamera-/Mikrofon-Texte in ios/App/App/Info.plist (nach cap add/sync). */

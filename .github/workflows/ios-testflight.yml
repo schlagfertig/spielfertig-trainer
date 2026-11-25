@@ -68,6 +68,9 @@ jobs:
           fi
           node --input-type=module -e 'import { applyIosDeploymentTarget } from "./scripts/storeNative.mjs"; const code = applyIosDeploymentTarget(); if (code) process.exit(code);'
           npx cap sync ios
+          # Xcode 27 erlaubt kein Target unter 15.0. Capacitor-7-Pods kommen mit 14.0;
+          # nach pod install deshalb nochmal anheben.
+          node --input-type=module -e 'import { applyIosDeploymentTarget } from "./scripts/storeNative.mjs"; const code = applyIosDeploymentTarget(); if (code) process.exit(code);'
 
       - name: Icons und Splash (assets/)
         run: >
