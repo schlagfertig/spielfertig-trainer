@@ -3,19 +3,21 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { HOME_SPLIT_MQ, HOME_COMPACT_DIAL_MQ, isHomeSplit, isCompactHomeDial } from "../src/lib/homeLayout.js";
 
-test("HOME_SPLIT_MQ ist Querformat überall oder Breite ab 640 px", () => {
-  assert.equal(HOME_SPLIT_MQ, "(orientation: landscape), (min-width: 640px)");
+test("HOME_SPLIT_MQ ist Querformat überall oder Duo aufgeklappt hochkant", () => {
+  assert.equal(HOME_SPLIT_MQ, "(orientation: landscape), (min-width: 640px) and (max-width: 736px) and (orientation: portrait)");
 });
 
 test("HOME_COMPACT_DIAL_MQ ist flaches Querformat", () => {
   assert.equal(HOME_COMPACT_DIAL_MQ, "(orientation: landscape) and (max-height: 500px)");
 });
 
-test("isHomeSplit: Querformat überall, Duo/iPad hochkant ja, Handy hochkant und Duo zu hochkant nein", () => {
+test("isHomeSplit: Querformat überall und Duo hochkant ja, iPad/Handy hochkant und Duo zu hochkant nein", () => {
   assert.equal(isHomeSplit(951, 669), true);  // Duo quer
   assert.equal(isHomeSplit(669, 951), true);  // Duo aufgeklappt hochkant
   assert.equal(isHomeSplit(1180, 820), true); // iPad quer
-  assert.equal(isHomeSplit(820, 1180), true); // iPad hochkant
+  assert.equal(isHomeSplit(820, 1180), false); // iPad hochkant: wie bisher
+  assert.equal(isHomeSplit(768, 1024), false); // iPad hochkant älter
+  assert.equal(isHomeSplit(744, 1133), false); // iPad mini hochkant
   assert.equal(isHomeSplit(844, 390), true);  // iPhone quer
   assert.equal(isHomeSplit(932, 430), true);  // iPhone quer groß
   assert.equal(isHomeSplit(667, 375), true);  // iPhone quer klein
@@ -38,7 +40,7 @@ test("CSS und App nutzen dieselbe Schwelle wie HOME_SPLIT_MQ", () => {
   const css = readFileSync(new URL("../src/styles-home.css", import.meta.url), "utf8");
   const app = readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
   const metro = readFileSync(new URL("../src/lib/LogoMetronome.jsx", import.meta.url), "utf8");
-  assert.match(css, /@media \(orientation: landscape\), \(min-width: 640px\)/);
+  assert.match(css, /@media \(orientation: landscape\), \(min-width: 640px\) and \(max-width: 736px\) and \(orientation: portrait\)/);
   assert.match(css, /@media \(orientation: landscape\) and \(max-height: 500px\)/);
   assert.match(app, /HOME_SPLIT_MQ/);
   assert.match(app, /home-stage/);

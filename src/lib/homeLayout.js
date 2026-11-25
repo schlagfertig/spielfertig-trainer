@@ -1,19 +1,23 @@
 import { useEffect, useState } from "react";
 
 // Geteilter Homescreen: links Logo/Metronom, rechts die Menüpunkte.
-// Querformat immer (auch iPhone und flaches Duo), außerdem hohe schmale
-// Geräte ab 640 px Breite (Duo aufgeklappt hochkant, iPad hochkant).
-// iPhone hochkant und Duo zugeklappt hochkant bleiben einspaltig.
-export const HOME_SPLIT_MQ = "(orientation: landscape), (min-width: 640px)";
+// Querformat immer (iPhone, Duo, iPad). Hochkant nur beim Duo aufgeklappt
+// (ca. 669 px breit). iPad hochkant (ab ca. 744 px) und iPhone/Duo
+// zugeklappt hochkant bleiben einspaltig wie bisher.
+export const HOME_SPLIT_MQ = "(orientation: landscape), (min-width: 640px) and (max-width: 736px) and (orientation: portrait)";
 
 // Kurzes Querformat (iPhone 375–430 px hoch): Dial und Logo kleiner, damit beides passt.
 export const HOME_COMPACT_DIAL_MQ = "(orientation: landscape) and (max-height: 500px)";
+
+// Hochkant-Duo: typisch 669 px, mit Spielraum unter iPad-mini-Breite (744 px).
+const DUO_PORT_MAX = 736;
 
 export function isHomeSplit(w, h) {
   const width = Number(w);
   const height = Number(h);
   if (!Number.isFinite(width) || !Number.isFinite(height)) return false;
-  return width > height || width >= 640;
+  if (width > height) return true;
+  return width >= 640 && width <= DUO_PORT_MAX;
 }
 
 export function isCompactHomeDial(w, h) {

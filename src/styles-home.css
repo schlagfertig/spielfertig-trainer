@@ -125,9 +125,9 @@
 
 
 /* Geteilter Homescreen: links Logo/Metronom, rechts scrollbare Kacheln.
-   Querformat überall, plus Breite ab 640 px (Duo aufgeklappt hochkant, iPad hochkant).
-   iPhone hochkant und Duo zugeklappt hochkant bleiben unverändert. */
-@media (orientation: landscape), (min-width: 640px) {
+   Querformat überall, hochkant nur Duo aufgeklappt (640–736 px).
+   iPad hochkant, iPhone hochkant und Duo zugeklappt hochkant bleiben unverändert. */
+@media (orientation: landscape), (min-width: 640px) and (max-width: 736px) and (orientation: portrait) {
   .page.home {
     max-width: none;
     width: 100%;
@@ -196,6 +196,25 @@
   .home .home-help-col { flex-direction: row; }
   .home .cards { margin-top: 16px; }
   .home .first-wrap { margin-top: 0; }
+  /* Rechte Spalte: Karten und Köpfe nicht breiter als die Spalte (sonst fehlen A/B/C und „Überspringen"). */
+  .home-menu .today-wrap,
+  .home-menu .first-wrap,
+  .home-menu .first-inner,
+  .home-menu .cards,
+  .home-menu .card,
+  .home-menu .card.today,
+  .home-menu .ns-link,
+  .home-menu .foot,
+  .home-menu .today-head,
+  .home-menu .today-steps,
+  .home-menu .today-step {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .home-menu .today-head > * { min-width: 0; }
+  .home-menu .quest-kicker { flex-wrap: wrap; max-width: 100%; }
+  .home-menu .today-seg { flex-shrink: 1; }
 }
 
 /* Flaches Querformat (iPhone, Duo zugeklappt quer): Logo und Dial kompakt. */
