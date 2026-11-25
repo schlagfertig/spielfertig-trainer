@@ -7,8 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-11-25",
     items: [
-      { de: "Click-Trainer: Auf dem iPad und wenn du das iPhone Duo aufklappst, stehen die Einstellungen links und das SpinDial rechts - in guter Größe, mit ±5 und ±10, ohne extra Rahmen ums Rad. NoClick ebenso. Auf dem normalen iPhone bleibt alles wie bisher.",
-        en: "Click Trainer: on iPad, and when you open iPhone Duo, the settings sit on the left and the SpinDial on the right - at a comfortable size, with ±5 and ±10, and no extra frame around the dial. The same goes for NoClick. On a regular iPhone everything stays as it is." },
+      { de: "Click-Trainer: Auf dem iPad und wenn du das iPhone Duo aufklappst, stehen die Einstellungen schlank links und das SpinDial rechts - in guter Größe, mit ±5 über ±10 neben dem Rad, ohne extra Rahmen. NoClick ebenso. Auf dem normalen iPhone bleibt alles wie bisher.",
+        en: "Click Trainer: on iPad, and when you open iPhone Duo, the settings sit slim on the left and the SpinDial on the right - at a comfortable size, with ±5 above ±10 beside the dial, and no extra frame. The same goes for NoClick. On a regular iPhone everything stays as it is." },
     ],
   },
   {

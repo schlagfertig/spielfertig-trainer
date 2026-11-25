@@ -494,11 +494,27 @@ export default function ClickTrainer({ preset = null } = {}) {
           }
           .ct-wrap {
             display: grid;
-            grid-template-columns: minmax(240px, 1fr) clamp(360px, 42vw, 390px);
+            /* Linke Spalte bewusst schmaler (max. 340px), rechts das Rad in der Restbreite. */
+            grid-template-columns: minmax(0, 340px) minmax(max-content, 1fr);
             grid-template-rows: auto minmax(0, 1fr);
-            column-gap: 12px;
+            column-gap: 16px;
             align-items: stretch;
             min-height: 0;
+          }
+          /* Modus-Knöpfe in einer Reihe: kurze Labels bleiben schmal, lange bekommen den Rest. */
+          .ct-settings > .seg {
+            flex-wrap: nowrap;
+            width: 100%;
+            box-sizing: border-box;
+          }
+          .ct-settings > .seg button {
+            flex: 1 1 auto;
+            min-width: 0;
+            padding: 8px 5px;
+            font-size: 13px;
+            line-height: 1.2;
+            white-space: nowrap;
+            text-align: center;
           }
           .ct-settings {
             display: flex;
@@ -518,13 +534,40 @@ export default function ClickTrainer({ preset = null } = {}) {
             grid-row: 1 / -1;
             justify-content: center;
             align-items: center;
-            padding: 8px 4px env(safe-area-inset-bottom, 0px);
+            padding: 8px 20px env(safe-area-inset-bottom, 0px);
             background: transparent;
             border: none;
             box-shadow: none;
             border-radius: 0;
           }
           .ct-wrap > .ct-stage .dial-row { padding-bottom: 8px; }
+          /* Clip bleibt unter dem Rad-Block, nicht am linken Rand der breiten Spalte. */
+          .ct-wrap .ct-below {
+            align-self: center;
+            width: max-content;
+            min-width: 0;
+            max-width: 100%;
+          }
+          .ct-wrap .ct-clip { position: static; }
+          /* ±5 oben, ±10 unten, je eine Spalte links und rechts vom Rad. */
+          .ct-wrap .dial-row:has(.nudge-10) {
+            display: grid;
+            grid-template-columns: auto auto auto;
+            grid-template-rows: auto auto;
+            grid-template-areas:
+              "m5  dial p5"
+              "m10 dial p10";
+            column-gap: 14px;
+            row-gap: 12px;
+            align-items: center;
+            justify-items: center;
+            justify-content: center;
+          }
+          .ct-wrap .dial-row:has(.nudge-10) > .nudge-lg:nth-child(1) { grid-area: m10; }
+          .ct-wrap .dial-row:has(.nudge-10) > .nudge-lg:nth-child(2) { grid-area: m5; }
+          .ct-wrap .dial-row:has(.nudge-10) > .clip-dial { grid-area: dial; }
+          .ct-wrap .dial-row:has(.nudge-10) > .nudge-lg:nth-child(4) { grid-area: p5; }
+          .ct-wrap .dial-row:has(.nudge-10) > .nudge-lg:nth-child(5) { grid-area: p10; }
           .ct-below { height: auto; min-height: 52px; }
           /* Mixer steht in der linken Spalte, kein Blatt über dem Rad */
           .ct-adv-slot .ct-sheet {
@@ -553,7 +596,7 @@ export default function ClickTrainer({ preset = null } = {}) {
             grid-row: 1 / -1;
             justify-content: center;
             align-items: center;
-            padding: 8px 4px env(safe-area-inset-bottom, 0px);
+            padding: 8px 20px env(safe-area-inset-bottom, 0px);
             background: transparent;
             border: none;
             box-shadow: none;

@@ -6,7 +6,7 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 
 ## 25.11.2026
 
-- Click-Trainer: Auf dem iPad und aufgeklapptem iPhone Duo stehen die Einstellungen links und das SpinDial rechts, mit ±5/±10 und ohne extra Rahmen; NoClick ebenso. Auf dem normalen iPhone unverändert.
+- Click-Trainer: Auf dem iPad und aufgeklapptem iPhone Duo stehen die Einstellungen schlank links und das SpinDial rechts, mit ±5 über ±10 neben dem Rad und ohne extra Rahmen; NoClick ebenso. Auf dem normalen iPhone unverändert.
 
 ## 25.10.2026
 
