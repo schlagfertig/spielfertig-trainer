@@ -113,9 +113,135 @@
 /* Logo-Metronom (Easter Egg) nur oben auf der Startseite antippbar - nicht beim Scrollen durch die Kacheln. */
 .page.home.is-scrolled .hero .logo-metro,
 .page.home.is-scrolled .hero .logo { pointer-events: none; }
+/* Spezifischer als .home .hero .app-logo in styles-glass, sonst bleibt der Untertitel über dem Rad-Hinweis. */
+.home .hero .logo-metro.open + .app-logo { opacity: 0; pointer-events: none; }
+
 /* Lange Titel („Rhythmuspyramide“) passen neben das Symbol, ohne darunter zu laufen. */
 .home .card.has-icon .card-title { font-size: clamp(24px, 7.2vw, 32px); overflow-wrap: anywhere; }
 /* Erste Übung: Symbol etwas tiefer, damit es „Nicht heute“ oben rechts nicht berührt. */
 .first-inner .tile-icon { top: calc(50% + 16px); }
 /* Erste Übung: Kicker („Loslegen · Schritt 1 von 5“) hält Abstand zur Pille „Nicht heute“ oben rechts - lieber ausgeglichen umbrechen als darunterlaufen. */
 .first-inner .card.has-icon .card-kicker { margin-right: 40px; text-wrap: balance; }
+
+
+/* Geteilter Homescreen: links Logo/Metronom, rechts scrollbare Kacheln.
+   Querformat überall, hochkant nur Duo aufgeklappt (640–736 px).
+   iPad hochkant, iPhone hochkant und Duo zugeklappt hochkant bleiben unverändert. */
+@media (orientation: landscape), (min-width: 640px) and (max-width: 736px) and (orientation: portrait) {
+  .page.home {
+    max-width: none;
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .home-stage {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(200px, min(40vw, 420px)) minmax(0, 1fr);
+    gap: 8px 16px;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: max(10px, env(safe-area-inset-left, 0px));
+    padding-right: max(10px, env(safe-area-inset-right, 0px));
+  }
+  .home .hero {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: auto;
+    max-width: none;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 4px;
+    z-index: 1;
+  }
+  .home .hero .logo,
+  .home .hero .logo-metro::before {
+    width: min(380px, 92%);
+  }
+  .home .hero { container-type: inline-size; }
+  .home .hero .app-logo {
+    margin: calc(13px - min(380px, 92%) * .1432) 0 0;
+    font-size: clamp(12px, 6.4cqi, 22px);
+    max-width: 100%;
+    padding: 0 6px;
+    text-wrap: balance;
+  }
+  .home .hero::before {
+    width: min(420px, 100%);
+    height: min(420px, 72%);
+  }
+  .home-menu {
+    min-height: 0;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 68px 4px 24px;
+  }
+  .home .home-help {
+    right: max(10px, env(safe-area-inset-right, 0px));
+  }
+  .home .home-help-col { flex-direction: row; }
+  .home .cards { margin-top: 16px; }
+  .home .first-wrap { margin-top: 0; }
+  /* Rechte Spalte: Karten und Köpfe nicht breiter als die Spalte (sonst fehlen A/B/C und „Überspringen"). */
+  .home-menu .today-wrap,
+  .home-menu .first-wrap,
+  .home-menu .first-inner,
+  .home-menu .cards,
+  .home-menu .card,
+  .home-menu .card.today,
+  .home-menu .ns-link,
+  .home-menu .foot,
+  .home-menu .today-head,
+  .home-menu .today-steps,
+  .home-menu .today-step {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .home-menu .today-head > * { min-width: 0; }
+  .home-menu .quest-kicker { flex-wrap: wrap; max-width: 100%; }
+  .home-menu .today-seg { flex-shrink: 1; }
+}
+
+/* Flaches Querformat (iPhone, Duo zugeklappt quer): Logo und Dial kompakt. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .home-stage {
+    gap: 4px 10px;
+    grid-template-columns: minmax(176px, min(42vw, 280px)) minmax(0, 1fr);
+  }
+  .home .hero { padding: 4px 2px; }
+  .home .hero .logo,
+  .home .hero .logo-metro::before {
+    width: min(200px, 86%);
+  }
+  .home .hero .app-logo {
+    font-size: clamp(13px, 4.2vh, 17px);
+    margin: calc(8px - min(200px, 86%) * .1432) 0 0;
+  }
+  .home .hero::before {
+    width: min(240px, 100%);
+    height: min(240px, 80%);
+  }
+  .home .hero .nudge-lg {
+    width: 40px;
+    height: 40px;
+    font-size: 15px;
+    border-radius: 12px;
+  }
+  .home .dial-row { gap: 6px; }
+  .home-menu { padding: 62px 2px 16px; }
+}

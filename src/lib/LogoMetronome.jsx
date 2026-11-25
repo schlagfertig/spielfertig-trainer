@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { MetronomeDial } from "./metronome.jsx";
+import { useCompactHomeDial } from "./homeLayout.js";
 import { playClick, unlockAudio } from "./audio.js";
 import { beatDelayMs } from "./audioOffset.js";
 import { loadSession } from "./session.js";
@@ -10,6 +11,7 @@ const clamp = (n) => Math.max(30, Math.min(260, Math.round(n)));
 // Easter Egg: Logo antippen = Metronom (gleiches Dial und gleicher Click wie im Click-Trainer)
 // locked: Startseite ist gescrollt - dann kein Antippen, und ein offenes Metronom schließt sich (kein Easter Egg beim Scrollen).
 export function LogoMetronome({ locked = false }) {
+  const compact = useCompactHomeDial();
   const [open, setOpen] = useState(false);
   // Einmal entdeckt = Logo blinkt nicht mehr (CSS-Animation nur ohne .found)
   const [found, setFound] = useState(() => { try { return !!localStorage.getItem("sf.v1.logoFound"); } catch { return false; } });
@@ -85,7 +87,7 @@ export function LogoMetronome({ locked = false }) {
           <button type="button" className="logo-dial-x" onClick={close} aria-label={t("Metronom schließen")}>×</button>
           <div className="dial-row">
             <button type="button" className="nudge-lg" onClick={() => set(bpm - 5)} aria-label={t("5 BPM langsamer")}>−5</button>
-            <MetronomeDial bpm={bpm} setBpm={set} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={150} now subLabel={playing ? "Stop" : "Start"} wheel />
+            <MetronomeDial bpm={bpm} setBpm={set} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={compact ? 120 : 150} now subLabel={playing ? "Stop" : "Start"} wheel />
             <button type="button" className="nudge-lg" onClick={() => set(bpm + 5)} aria-label={t("5 BPM schneller")}>+5</button>
           </div>
         </div>

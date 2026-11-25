@@ -35,6 +35,7 @@ import { canOpen, isUnlocked, setUnlocked, fallbackPrice, PAYWALL_EVENT } from "
 import { loadStorePrice, refreshEntitlement } from "./lib/iap.js";
 import { DemoPaywall } from "./lib/Paywall.jsx";
 import { AudioOffsetControl } from "./lib/AudioOffsetControl.jsx";
+import { HOME_SPLIT_MQ } from "./lib/homeLayout.js";
 
 const FLAG_EN = (
   <svg viewBox="0 0 60 30" width="30" height="30" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -122,6 +123,7 @@ export default function App() {
   viewRef.current = view;
   // Scroll-Position der Startseite (beim Verlassen gemerkt, bei der Rückkehr wiederhergestellt).
   const homeScrollRef = useRef(0);
+  const menuRef = useRef(null);
   // Einstieg (Erste Übung + Folgeübungen): nächster offener Schritt, -1 = alle geschafft.
   const beginDone = loadBeginnerDone();
   const beginIdx = beginNext(beginDone);
@@ -175,8 +177,14 @@ export default function App() {
     setLangState(next);
   }
 
+  function homeIsSplit() {
+    return !!window.matchMedia?.(HOME_SPLIT_MQ).matches;
+  }
+
   function rememberHomeScroll() {
-    if (viewRef.current === "home") homeScrollRef.current = window.scrollY || 0;
+    if (viewRef.current !== "home") return;
+    if (homeIsSplit() && menuRef.current) homeScrollRef.current = menuRef.current.scrollTop || 0;
+    else homeScrollRef.current = window.scrollY || 0;
   }
 
   function goHome() {
@@ -223,7 +231,12 @@ export default function App() {
   useLayoutEffect(() => {
     try {
       if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
-      window.scrollTo(0, view === "home" ? homeScrollRef.current : 0);
+      if (view === "home" && homeIsSplit() && menuRef.current) {
+        window.scrollTo(0, 0);
+        menuRef.current.scrollTop = homeScrollRef.current || 0;
+      } else {
+        window.scrollTo(0, view === "home" ? homeScrollRef.current : 0);
+      }
     } catch { /* ignore */ }
   }, [view]);
 
@@ -246,12 +259,19 @@ export default function App() {
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
     if (view !== "home") { setHelpHidden(false); setScrolled(false); return undefined; }
-    let last = window.scrollY || 0;
+    const mq = window.matchMedia?.(HOME_SPLIT_MQ);
+    let last = 0;
     let raf = 0;
+    const splitNow = () => !!mq?.matches;
+    const readY = () => {
+      if (splitNow() && menuRef.current) return Math.max(0, menuRef.current.scrollTop || 0);
+      return Math.max(0, window.scrollY || 0);
+    };
     const update = () => {
       raf = 0;
-      const y = Math.max(0, window.scrollY || 0);
-      setScrolled(y > 24);
+      const y = readY();
+      // Geteilt: Logo steht links fest, Kacheln scrollen rechts - Easter Egg nicht sperren.
+      setScrolled(splitNow() ? false : y > 24);
       if (y < 40) setHelpHidden(false);
       else if (y > last + 6) setHelpHidden(true);
       else if (y < last - 6) setHelpHidden(false);
@@ -259,9 +279,22 @@ export default function App() {
       last = y;
     };
     const onScroll = () => { if (!raf) raf = window.requestAnimationFrame(update); };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => { window.removeEventListener("scroll", onScroll); if (raf) window.cancelAnimationFrame(raf); };
+    const bind = () => {
+      window.removeEventListener("scroll", onScroll);
+      menuRef.current?.removeEventListener("scroll", onScroll);
+      if (splitNow() && menuRef.current) menuRef.current.addEventListener("scroll", onScroll, { passive: true });
+      else window.addEventListener("scroll", onScroll, { passive: true });
+      last = readY();
+      update();
+    };
+    bind();
+    mq?.addEventListener?.("change", bind);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      menuRef.current?.removeEventListener("scroll", onScroll);
+      mq?.removeEventListener?.("change", bind);
+      if (raf) window.cancelAnimationFrame(raf);
+    };
   }, [view]);
 
   useEffect(() => {
@@ -330,6 +363,7 @@ export default function App() {
             <NewsButton />
           </div>
         </div>
+        <div className="home-stage">
         <header className="hero">
           <LogoMetronome locked={scrolled} />
           {/* Das runde Logo zeigt schon „schlagfertig‽ · Zeit für guten Sound“ - darunter der Untertitel. */}
@@ -338,6 +372,7 @@ export default function App() {
           </h1>
           {!unlocked && <p className="app-price" style={{ margin: "6px 0 0", color: "#5cc8b8", font: "800 15px Figtree, sans-serif", letterSpacing: "0.02em" }}>{t("Demo")} · {t("volle App")} {storePrice || fallbackPrice(lang)}</p>}
         </header>
+        <div className="home-menu" ref={menuRef}>
         {firstHidden ? null : (
           <div className={firstLeaving ? "first-wrap leaving" : "first-wrap"}>
             <div className="first-inner">
@@ -449,6 +484,8 @@ export default function App() {
             <FeedbackLink />
           </div>
         </footer>
+        </div>
+        </div>
         <Welcome onClose={() => setWelcomeOpen(false)} />
         <DiaryToast />
         <TesterFeedback pick={startPick} />

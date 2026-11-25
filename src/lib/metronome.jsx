@@ -1,6 +1,8 @@
 import { useRef, useState, useEffect, useLayoutEffect, useId } from "react";
+import { createPortal } from "react-dom";
 import { t } from "./i18n.js";
 import { holdWake } from "./wake.js";
+import { toOverlayCoords, overlayViewBox } from "./leverOverlay.js";
 
 const TEAL = "#5cc8b8";
 const INK = "#161a1d";
@@ -81,6 +83,38 @@ function originOf(el) {
   return { cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
 }
 
+
+function useOverlayBox() {
+  const ref = useRef(null);
+  const [box, setBox] = useState(() => ({
+    left: 0,
+    top: 0,
+    width: typeof window !== "undefined" ? window.innerWidth : 1,
+    height: typeof window !== "undefined" ? window.innerHeight : 1,
+  }));
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const sync = () => {
+      const r = el.getBoundingClientRect();
+      setBox({ left: r.left, top: r.top, width: r.width, height: r.height });
+    };
+    sync();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(sync) : null;
+    ro?.observe(el);
+    window.addEventListener("resize", sync);
+    window.visualViewport?.addEventListener("resize", sync);
+    window.visualViewport?.addEventListener("scroll", sync);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener("resize", sync);
+      window.visualViewport?.removeEventListener("resize", sync);
+      window.visualViewport?.removeEventListener("scroll", sync);
+    };
+  }, []);
+  return [ref, box];
+}
+
 function WheelHints() {
   const cx = 50;
   const cy = 50;
@@ -102,35 +136,35 @@ function WheelHints() {
 }
 
 function DragArrows({ cx, cy, size, visible }) {
-  const vw = typeof window !== "undefined" ? window.innerWidth : 400;
-  const vh = typeof window !== "undefined" ? window.innerHeight : 800;
+  const [ref, box] = useOverlayBox();
+  const p = toOverlayCoords(cx, cy, cx, cy, box);
+  const { viewBox } = overlayViewBox(box);
   const r = size / 2 + 36;
-  const [lx, ly] = polar(cx, cy, r + 8, 228);
-  const [rx, ry] = polar(cx, cy, r + 8, 312);
-  const [lmX, lmY] = polar(cx, cy, r, 186);
-  const [rmX, rmY] = polar(cx, cy, r, 354);
-  return (
+  const [lx, ly] = polar(p.cx, p.cy, r + 8, 228);
+  const [rx, ry] = polar(p.cx, p.cy, r + 8, 312);
+  const [lmX, lmY] = polar(p.cx, p.cy, r, 186);
+  const [rmX, rmY] = polar(p.cx, p.cy, r, 354);
+  const node = (
     <svg
-      viewBox={`0 0 ${vw} ${vh}`}
-      width={vw}
-      height={vh}
+      ref={ref}
+      viewBox={viewBox}
       aria-hidden="true"
       style={{
         position: "fixed",
         left: 0,
         top: 0,
-        width: "100vw",
-        height: "100dvh",
+        width: "100%",
+        height: "100%",
         pointerEvents: "none",
         opacity: visible ? 1 : 0,
         transform: visible ? "scale(1)" : `scale(${GROW})`,
-        transformOrigin: `${cx}px ${cy}px`,
+        transformOrigin: `${p.cx}px ${p.cy}px`,
         transition: `opacity ${FADE_MS}ms ease-out, transform ${FADE_MS}ms ease-out`,
         zIndex: 81,
       }}
     >
-      <path d={arc(cx, cy, r, 236, 148, 0)} fill="none" stroke={TEAL} strokeWidth="2.6" strokeLinecap="round" />
-      <polygon points={fatTip(cx, cy, r, 148, -1)} fill={TEAL} />
+      <path d={arc(p.cx, p.cy, r, 236, 148, 0)} fill="none" stroke={TEAL} strokeWidth="2.6" strokeLinecap="round" />
+      <polygon points={fatTip(p.cx, p.cy, r, 148, -1)} fill={TEAL} />
       <text x={lmX} y={lmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="15" fontWeight="800">{MINUS}</text>
       <g style={{ opacity: visible ? 1 : 0, transition: `opacity ${FADE_MS * 0.6}ms ease-out` }}>
         <text x={lx - 6} y={ly - 16} textAnchor="end" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="800" letterSpacing="0.08em">{t("TIPP LINKS")}</text>
@@ -138,16 +172,20 @@ function DragArrows({ cx, cy, size, visible }) {
         <text x={rx + 6} y={ry - 16} textAnchor="start" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="800" letterSpacing="0.08em">{t("TIPP RECHTS")}</text>
         <text x={rx + 6} y={ry - 2} textAnchor="start" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="11" fontWeight="700" letterSpacing="0.06em">{t("= SCHNELLER")}</text>
       </g>
-      <path d={arc(cx, cy, r, 304, 32, 1)} fill="none" stroke={TEAL} strokeWidth="2.6" strokeLinecap="round" />
-      <polygon points={fatTip(cx, cy, r, 32, 1)} fill={TEAL} />
+      <path d={arc(p.cx, p.cy, r, 304, 32, 1)} fill="none" stroke={TEAL} strokeWidth="2.6" strokeLinecap="round" />
+      <polygon points={fatTip(p.cx, p.cy, r, 32, 1)} fill={TEAL} />
       <text x={rmX} y={rmY} textAnchor="middle" dominantBaseline="middle" fill={TEAL} fontFamily="Figtree, sans-serif" fontSize="15" fontWeight="800">+</text>
     </svg>
   );
+  return typeof document !== "undefined" ? createPortal(node, document.body) : node;
 }
 
 function HoldLever({ cx, cy, x, y, size, visible }) {
-  const dx = x - cx;
-  const dy = y - cy;
+  const [ref, box] = useOverlayBox();
+  const p = toOverlayCoords(cx, cy, x, y, box);
+  const { viewBox } = overlayViewBox(box);
+  const dx = p.x - p.cx;
+  const dy = p.y - p.cy;
   const dist = Math.hypot(dx, dy);
   const angle = Math.atan2(dy, dx);
   const rMin = size * 0.2;
@@ -159,21 +197,18 @@ function HoldLever({ cx, cy, x, y, size, visible }) {
   const halfSpan = 22 + coarse * 18;
   const arcR = Math.max(18, dist + 8);
   const uid = useId().replace(/:/g, "");
-  const vw = typeof window !== "undefined" ? window.innerWidth : 400;
-  const vh = typeof window !== "undefined" ? window.innerHeight : 800;
 
-  return (
+  const node = (
     <svg
-      viewBox={`0 0 ${vw} ${vh}`}
-      width={vw}
-      height={vh}
+      ref={ref}
+      viewBox={viewBox}
       aria-hidden="true"
       style={{
         position: "fixed",
         left: 0,
         top: 0,
-        width: "100vw",
-        height: "100dvh",
+        width: "100%",
+        height: "100%",
         pointerEvents: "none",
         opacity: visible ? 1 : 0,
         transition: `opacity ${FADE_MS}ms ease-out`,
@@ -191,19 +226,21 @@ function HoldLever({ cx, cy, x, y, size, visible }) {
       </defs>
       <g filter={`url(#${uid}-glow)`} opacity={0.95}>
         <path
-          d={arc(cx, cy, arcR, deg - halfSpan, deg + halfSpan, 1)}
+          d={arc(p.cx, p.cy, arcR, deg - halfSpan, deg + halfSpan, 1)}
           fill="none"
           stroke="rgba(92,200,184,0.28)"
           strokeWidth={strokeW}
           strokeLinecap="round"
         />
-        <line x1={cx} y1={cy} x2={x} y2={y} stroke={TEAL} strokeWidth={2.4} strokeLinecap="round" />
-        <circle cx={x} cy={y} r={7} fill={TEAL} stroke="rgba(244,247,246,0.7)" strokeWidth={1.4} />
-        <circle cx={x} cy={y} r={2.4} fill="#f4f7f6" />
+        <line x1={p.cx} y1={p.cy} x2={p.x} y2={p.y} stroke={TEAL} strokeWidth={2.4} strokeLinecap="round" />
+        <circle cx={p.x} cy={p.y} r={7} fill={TEAL} stroke="rgba(244,247,246,0.7)" strokeWidth={1.4} />
+        <circle cx={p.x} cy={p.y} r={2.4} fill="#f4f7f6" />
       </g>
     </svg>
   );
+  return typeof document !== "undefined" ? createPortal(node, document.body) : node;
 }
+
 
 /* Clickwheel (Entwurf, iPod-artig): ein Ring um den Kreis, der in Ruhe leise sichtbar ist
    und sich beim Antippen vergrößert. Gezeichnet wird immer die offene Größe; in Ruhe ist das
