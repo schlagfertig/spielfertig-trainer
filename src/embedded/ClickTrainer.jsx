@@ -602,6 +602,39 @@ export default function ClickTrainer({ preset = null } = {}) {
             box-shadow: none;
             border-radius: 0;
           }
+          /* Querformat: beide Spalten vertikal in der Mitte, nicht oben klebend. */
+          @media (orientation: landscape) {
+            .ct-wrap {
+              grid-template-rows: minmax(0, 1fr);
+              align-items: center;
+            }
+            .ct-settings {
+              grid-row: 1;
+              align-self: center;
+              max-height: 100%;
+              overflow: auto;
+            }
+            .ct-wrap > .ct-stage {
+              grid-row: 1;
+              align-self: center;
+            }
+            /* NoClick: Modus-Knöpfe + Einstellungen als eine Gruppe mittig, Rad daneben. */
+            .ct-wrap:has(.nc-dock) {
+              grid-template-rows: auto auto;
+              align-content: safe center;
+              align-items: start;
+            }
+            .ct-wrap:has(.nc-dock) .ct-settings {
+              grid-row: 1;
+              align-self: start;
+              overflow: visible;
+              max-height: none;
+            }
+            .ct-wrap:has(.nc-dock) .nc-dock {
+              grid-row: 1 / -1;
+              align-self: stretch;
+            }
+          }
         }
       `}</style>
     </div>
