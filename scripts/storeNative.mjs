@@ -1,5 +1,6 @@
 // Nach `npx cap add`: iOS-Deployment-Target aus dem Capgo-Podspec, Play-Billing-Recht für Android,
-// TCC-Texte für Kamera/Mikrofon (Clip nutzt getUserMedia; ohne Texte stürzt iOS ab).
+// TCC-Texte für Kamera/Mikrofon (Clip nutzt getUserMedia; ohne Texte stürzt iOS ab),
+// und UIScene-Lebenszyklus für iOS 27 (ohne Manifest stürzt die App beim Start ab).
 // ios/ und android/ liegen nicht im Repo; der Android-Workflow ruft `android` auf.
 
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
@@ -132,6 +133,161 @@ export function applyIosMediaUsageDescriptions(plistPath = "ios/App/App/Info.pli
     return 1;
   }
   console.log("Info.plist: NSCameraUsageDescription + NSMicrophoneUsageDescription gesetzt");
+  return 0;
+}
+
+// iOS 27 (Xcode 27 SDK): ohne UIScene-Lebenszyklus bricht UIKit beim Start ab
+// (UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption). Capacitor 7 hat
+// keinen SceneDelegate; Capacitor 8.5 würde SceneDelegateProxy bringen, ist aber
+// wegen Capgo 7.19.3 nicht möglich. Deshalb nach cap add/sync: Manifest +
+// SceneDelegate, Fenster weiter aus Main.storyboard (kein zweites CAPBridgeViewController).
+export const SCENE_LIFECYCLE_MARKER = "// sf-uiscene (Schlagfertig)";
+const SCENE_PBX_FILE_REF = "5F5CE11EDE1E6A7E00000001";
+const SCENE_PBX_BUILD_FILE = "5F5CE11EDE1E6A7E00000002";
+
+export const SCENE_DELEGATE_SWIFT = `import UIKit
+import Capacitor
+
+class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+    ${SCENE_LIFECYCLE_MARKER}
+    var window: UIWindow?
+
+    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        // Fenster kommt aus Main.storyboard (UISceneStoryboardFile). Links beim Kaltstart weiterreichen.
+        for ctx in connectionOptions.urlContexts {
+            _ = ApplicationDelegateProxy.shared.application(UIApplication.shared, open: ctx.url, options: [:])
+        }
+        for activity in connectionOptions.userActivities {
+            _ = ApplicationDelegateProxy.shared.application(UIApplication.shared, continue: activity, restorationHandler: { _ in })
+        }
+    }
+
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        for ctx in URLContexts {
+            _ = ApplicationDelegateProxy.shared.application(UIApplication.shared, open: ctx.url, options: [:])
+        }
+    }
+
+    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+        _ = ApplicationDelegateProxy.shared.application(UIApplication.shared, continue: userActivity, restorationHandler: { _ in })
+    }
+}
+`;
+
+const SCENE_MANIFEST_BLOCK = `\t<key>UIApplicationSceneManifest</key>
+\t<dict>
+\t\t<key>UIApplicationSupportsMultipleScenes</key>
+\t\t<false/>
+\t\t<key>UISceneConfigurations</key>
+\t\t<dict>
+\t\t\t<key>UIWindowSceneSessionRoleApplication</key>
+\t\t\t<array>
+\t\t\t\t<dict>
+\t\t\t\t\t<key>UISceneConfigurationName</key>
+\t\t\t\t\t<string>Default Configuration</string>
+\t\t\t\t\t<key>UISceneDelegateClassName</key>
+\t\t\t\t\t<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+\t\t\t\t\t<key>UISceneStoryboardFile</key>
+\t\t\t\t\t<string>Main</string>
+\t\t\t\t</dict>
+\t\t\t</array>
+\t\t</dict>
+\t</dict>`;
+
+export function ensureSceneManifest(xml) {
+  const text = String(xml || "");
+  if (!/<plist\b/i.test(text) || !/<\/dict>/i.test(text)) return text;
+  if (text.includes("<key>UIApplicationSceneManifest</key>")) return text;
+  const close = text.lastIndexOf("</dict>");
+  if (close < 0) return text;
+  return `${text.slice(0, close)}${SCENE_MANIFEST_BLOCK}\n${text.slice(close)}`;
+}
+
+const SCENE_APPDELEGATE_HOOK = `
+    ${SCENE_LIFECYCLE_MARKER}
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        let config = UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+        config.delegateClass = SceneDelegate.self
+        return config
+    }
+`;
+
+export function ensureSceneAppDelegateHook(source) {
+  const text = String(source || "");
+  if (text.includes(SCENE_LIFECYCLE_MARKER) || text.includes("configurationForConnecting")) return text;
+  if (!/class AppDelegate\b/.test(text) || !/UIApplicationDelegate/.test(text)) return null;
+  const last = text.lastIndexOf("}");
+  if (last < 0) return null;
+  return `${text.slice(0, last)}${SCENE_APPDELEGATE_HOOK}${text.slice(last)}`;
+}
+
+export function ensureSceneDelegateInPbxproj(pbxproj) {
+  const text = String(pbxproj || "");
+  if (text.includes("SceneDelegate.swift")) return text;
+  if (!text.includes("AppDelegate.swift")) return null;
+  let next = text;
+  const buildNeedle = "504EC3081FED79650016851F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };";
+  const buildLine = `\t\t${SCENE_PBX_BUILD_FILE} /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ${SCENE_PBX_FILE_REF} /* SceneDelegate.swift */; };`;
+  if (!next.includes(buildNeedle)) return null;
+  next = next.replace(buildNeedle, `${buildNeedle}\n${buildLine}`);
+
+  const refNeedle = "504EC3071FED79650016851F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = \"<group>\"; };";
+  const refLine = `\t\t${SCENE_PBX_FILE_REF} /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };`;
+  if (!next.includes(refNeedle)) return null;
+  next = next.replace(refNeedle, `${refNeedle}\n${refLine}`);
+
+  const groupNeedle = "504EC3071FED79650016851F /* AppDelegate.swift */,";
+  const groupLine = `\t\t\t\t${SCENE_PBX_FILE_REF} /* SceneDelegate.swift */,`;
+  if (!next.includes(groupNeedle)) return null;
+  next = next.replace(groupNeedle, `${groupNeedle}\n${groupLine}`);
+
+  const srcNeedle = "504EC3081FED79650016851F /* AppDelegate.swift in Sources */,";
+  const srcLine = `\t\t\t\t${SCENE_PBX_BUILD_FILE} /* SceneDelegate.swift in Sources */,`;
+  if (!next.includes(srcNeedle)) return null;
+  next = next.replace(srcNeedle, `${srcNeedle}\n${srcLine}`);
+  return next;
+}
+
+/** Schreibt SceneDelegate, Manifest, AppDelegate-Hook und pbxproj-Eintrag (nach cap add/sync). */
+export function applyIosSceneLifecycle({
+  plistPath = "ios/App/App/Info.plist",
+  appDelegatePath = "ios/App/App/AppDelegate.swift",
+  sceneDelegatePath = "ios/App/App/SceneDelegate.swift",
+  pbxprojPath = "ios/App/App.xcodeproj/project.pbxproj",
+} = {}) {
+  for (const p of [plistPath, appDelegatePath, pbxprojPath]) {
+    if (!existsSync(p)) {
+      console.error(`Datei fehlt: ${p}`);
+      return 1;
+    }
+  }
+  const plist = patchFile(plistPath, ensureSceneManifest);
+  if (plist == null || !plist.includes("<key>UIApplicationSceneManifest</key>")) {
+    console.error("UIApplicationSceneManifest fehlt nach dem Patch");
+    return 1;
+  }
+  if (!plist.includes("UISceneStoryboardFile") || !plist.includes("SceneDelegate")) {
+    console.error("UIScene-Konfiguration unvollständig");
+    return 1;
+  }
+  const hook = patchFile(appDelegatePath, (prev) => {
+    const next = ensureSceneAppDelegateHook(prev);
+    return next == null ? prev : next;
+  });
+  if (hook == null || !hook.includes("configurationForConnecting") || !hook.includes("SceneDelegate.self")) {
+    console.error("AppDelegate-Hook für UIScene fehlt nach dem Patch");
+    return 1;
+  }
+  writeFileSync(sceneDelegatePath, SCENE_DELEGATE_SWIFT);
+  const pbx = patchFile(pbxprojPath, (prev) => {
+    const next = ensureSceneDelegateInPbxproj(prev);
+    return next == null ? prev : next;
+  });
+  if (pbx == null || !pbx.includes("SceneDelegate.swift in Sources")) {
+    console.error("SceneDelegate.swift fehlt in project.pbxproj");
+    return 1;
+  }
+  console.log("iOS 27: UIScene-Lebenszyklus (SceneDelegate + Manifest) gesetzt");
   return 0;
 }
 

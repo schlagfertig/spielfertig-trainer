@@ -85,6 +85,12 @@ jobs:
           # Clip öffnet die Kamera per getUserMedia. Ohne TCC-Texte stürzt iOS sofort ab (Guideline 2.1).
           node --input-type=module -e 'import { applyIosMediaUsageDescriptions } from "./scripts/storeNative.mjs"; const code = applyIosMediaUsageDescriptions(); if (code) process.exit(code);'
 
+      - name: iOS 27 UIScene (sonst Absturz beim Start)
+        run: |
+          # Mit dem Xcode-27-SDK bricht UIKit ohne Scene-Lebenszyklus sofort ab.
+          # Capacitor 7 liefert keinen SceneDelegate; nicht auf Capacitor 8 wechseln (Capgo 7.19.3).
+          node --input-type=module -e 'import { applyIosSceneLifecycle } from "./scripts/storeNative.mjs"; const code = applyIosSceneLifecycle(); if (code) process.exit(code);'
+
       - name: Plugin ergänzen (Abo-Dauer und Gratis-Testphase aus StoreKit)
         # @capgo/native-purchases 7.19.3 liefert auf iOS nur den Preis. Die Kaufseite zeigt Dauer und Testphase aus dem Store.
         run: node --input-type=module -e 'import { applyNativePurchasesSubscriptionInfo } from "./scripts/storeNative.mjs"; const code = applyNativePurchasesSubscriptionInfo(); if (code) process.exit(code);'
