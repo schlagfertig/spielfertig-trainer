@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 
 // Gemeinsame Schwelle für die breite Zweispalten-Ansicht:
-// iPhone Duo aufgeklappt (quer 951×669 und hochkant 669×951) und iPad,
-// nicht das normale iPhone und nicht das kurze Querformat.
-export const WIDE_MQ = "(min-width: 640px) and (min-height: 560px)";
+// nur Querformat, und nur wenn genug Breite und Höhe da sind
+// (iPhone Duo aufgeklappt quer 951×669, iPad quer).
+// Hochkant und kurzes Querformat bleiben im einspaltigen Layout (Rad unter den Einstellungen).
+export const WIDE_MQ = "(min-width: 640px) and (min-height: 560px) and (orientation: landscape)";
 
 export function isWideLayout(w, h) {
-  return Number(w) >= 640 && Number(h) >= 560;
+  const width = Number(w);
+  const height = Number(h);
+  return width >= 640 && height >= 560 && width > height;
 }
 
 export function useWideLayout() {

@@ -40,7 +40,7 @@ function useMixNow(mix, flipped) {
 }
 
 // Kreisgröße nach verfügbarer Höhe: groß auf normalen Phones, kleiner auf kurzen Screens / Querformat.
-// Breite Ansicht (Duo aufgeklappt, iPad): etwas größeres Rad, passt mit ±5/±10 in die rechte Spalte.
+// Breite Ansicht (nur Querformat): etwas größeres Rad, passt mit ±5/±10 in die rechte Spalte.
 function dialSizeFor(h, w = 9999) {
   if (isWideLayout(w, h)) {
     const side = Math.min(390, Math.max(300, Math.round(w * 0.48)));
@@ -479,8 +479,8 @@ export default function ClickTrainer({ preset = null } = {}) {
           width: 64px; text-align: center; font-weight: 700; font-size: 16px; color: #5cc8b8;
           background: ${INK}; border: 1px solid ${LINE}; border-radius: 8px; padding: 7px 4px;
         }
-        /* Breite Ansicht: Einstellungen links, SpinDial rechts - ohne Rahmen ums Rad.
-           Dieselbe Schwelle wie WIDE_MQ, damit später auch andere Übungen sie nutzen. */
+        /* Breite Ansicht nur im Querformat (WIDE_MQ): Einstellungen links, SpinDial rechts,
+           ohne Rahmen ums Rad, beide Spalten vertikal in der Mitte. */
         @media ${WIDE_MQ} {
           .page.tool:has(.ct-wrap) {
             height: 100dvh;
@@ -496,9 +496,9 @@ export default function ClickTrainer({ preset = null } = {}) {
             display: grid;
             /* Linke Spalte bewusst schmaler (max. 340px), rechts das Rad in der Restbreite. */
             grid-template-columns: minmax(0, 340px) minmax(max-content, 1fr);
-            grid-template-rows: auto minmax(0, 1fr);
+            grid-template-rows: minmax(0, 1fr);
             column-gap: 16px;
-            align-items: stretch;
+            align-items: center;
             min-height: 0;
           }
           /* Modus-Knöpfe in einer Reihe: kurze Labels bleiben schmal, lange bekommen den Rest. */
@@ -520,18 +520,28 @@ export default function ClickTrainer({ preset = null } = {}) {
             display: flex;
             flex-direction: column;
             grid-column: 1;
-            grid-row: 1 / -1;
+            grid-row: 1;
+            align-self: center;
             min-height: 0;
+            max-height: 100%;
             overflow: auto;
+          }
+          .ct-wrap:has(.nc-dock) {
+            grid-template-rows: auto auto;
+            align-content: safe center;
+            align-items: start;
           }
           .ct-wrap:has(.nc-dock) .ct-settings {
             grid-row: 1;
+            align-self: start;
             overflow: visible;
+            max-height: none;
           }
           .ct-adv-slot { padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px)); }
           .ct-wrap > .ct-stage {
             grid-column: 2;
-            grid-row: 1 / -1;
+            grid-row: 1;
+            align-self: center;
             justify-content: center;
             align-items: center;
             padding: 8px 20px env(safe-area-inset-bottom, 0px);
@@ -540,7 +550,8 @@ export default function ClickTrainer({ preset = null } = {}) {
             box-shadow: none;
             border-radius: 0;
           }
-          .ct-wrap > .ct-stage .dial-row { padding-bottom: 8px; }
+          /* Platz für „Zum Einstellen drehen“ plus Luft über Clip. */
+          .ct-wrap > .ct-stage .dial-row { padding-bottom: 36px; }
           /* Clip bleibt unter dem Rad-Block, nicht am linken Rand der breiten Spalte. */
           .ct-wrap .ct-below {
             align-self: center;
@@ -548,7 +559,7 @@ export default function ClickTrainer({ preset = null } = {}) {
             min-width: 0;
             max-width: 100%;
           }
-          .ct-wrap .ct-clip { position: static; }
+          .ct-wrap .ct-clip { position: static; margin-top: 8px; }
           /* ±5 oben, ±10 unten, je eine Spalte links und rechts vom Rad. */
           .ct-wrap .dial-row:has(.nudge-10) {
             display: grid;
@@ -594,6 +605,7 @@ export default function ClickTrainer({ preset = null } = {}) {
           .nc-dock {
             grid-column: 2;
             grid-row: 1 / -1;
+            align-self: stretch;
             justify-content: center;
             align-items: center;
             padding: 8px 20px env(safe-area-inset-bottom, 0px);
@@ -602,38 +614,14 @@ export default function ClickTrainer({ preset = null } = {}) {
             box-shadow: none;
             border-radius: 0;
           }
-          /* Querformat: beide Spalten vertikal in der Mitte, nicht oben klebend. */
-          @media (orientation: landscape) {
-            .ct-wrap {
-              grid-template-rows: minmax(0, 1fr);
-              align-items: center;
-            }
-            .ct-settings {
-              grid-row: 1;
-              align-self: center;
-              max-height: 100%;
-              overflow: auto;
-            }
-            .ct-wrap > .ct-stage {
-              grid-row: 1;
-              align-self: center;
-            }
-            /* NoClick: Modus-Knöpfe + Einstellungen als eine Gruppe mittig, Rad daneben. */
-            .ct-wrap:has(.nc-dock) {
-              grid-template-rows: auto auto;
-              align-content: safe center;
-              align-items: start;
-            }
-            .ct-wrap:has(.nc-dock) .ct-settings {
-              grid-row: 1;
-              align-self: start;
-              overflow: visible;
-              max-height: none;
-            }
-            .ct-wrap:has(.nc-dock) .nc-dock {
-              grid-row: 1 / -1;
-              align-self: stretch;
-            }
+        }
+        /* Hochkant auf Duo aufgeklappt und iPad: einspaltig wie am Handy, nicht über die volle Breite. */
+        @media (min-width: 640px) and (orientation: portrait) {
+          .page.tool:has(.ct-wrap) .top,
+          .page.tool:has(.ct-wrap) .main {
+            max-width: 440px;
+            width: 100%;
+            margin-inline: auto;
           }
         }
       `}</style>
