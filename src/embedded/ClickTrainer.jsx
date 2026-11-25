@@ -13,6 +13,7 @@ import NoClick from "../lib/NoClick.jsx";
 import { PracticeClip } from "../lib/PracticeClip.jsx";
 import { askUnlock, noClickOpen } from "../lib/demo.js";
 import { PaidMark } from "../lib/PaidMark.jsx";
+import { WIDE_MQ, isWideLayout, useWideLayout } from "../lib/wideLayout.js";
 
 const INK = "#161a1d";
 const LINE = "#2f383d";
@@ -39,7 +40,12 @@ function useMixNow(mix, flipped) {
 }
 
 // Kreisgröße nach verfügbarer Höhe: groß auf normalen Phones, kleiner auf kurzen Screens / Querformat.
+// Breite Ansicht (nur Querformat): etwas größeres Rad, passt mit ±5/±10 in die rechte Spalte.
 function dialSizeFor(h, w = 9999) {
+  if (isWideLayout(w, h)) {
+    const side = Math.min(390, Math.max(300, Math.round(w * 0.48)));
+    return Math.max(124, Math.min(152, Math.round(h * 0.22), side - 200));
+  }
   const byH = h <= 480 ? 112 : h <= 720 ? 128 : 140;
   return Math.max(96, Math.min(byH, w - 252));
 }
@@ -83,6 +89,7 @@ export default function ClickTrainer({ preset = null } = {}) {
   // flipped = Click-Mixer-Sheet offen
   const [flipped, setFlipped] = useState(false);
   const dialSize = useDialSize();
+  const wide = useWideLayout();
   const advBtnRef = useRef(null);
   const sheetCloseRef = useRef(null);
   const sheetRef = useRef(null);
@@ -251,8 +258,46 @@ export default function ClickTrainer({ preset = null } = {}) {
   const ramp = mode === "ramp";
   const atCap = ramp && bpm >= cap;
 
+  const advBtn = (
+    <button
+      ref={advBtnRef}
+      type="button"
+      className={flipped ? "ghost ct-adv-btn on" : "ghost ct-adv-btn"}
+      aria-expanded={flipped}
+      aria-controls="ct-sheet"
+      onClick={() => flip(!flipped)}
+    >
+      {t("Erweitert")} <span aria-hidden="true" className="ct-adv-caret">▴</span>
+    </button>
+  );
+
+  const mixer = (
+    <div
+      id="ct-sheet"
+      ref={sheetRef}
+      className={flipped ? "ct-sheet open" : "ct-sheet"}
+      role="dialog"
+      aria-modal="false"
+      aria-label={t("Click-Mixer")}
+      inert={!flipped}
+    >
+      {wide ? null : (
+        <button ref={sheetCloseRef} type="button" className="ct-sheet-handle" onClick={() => flip(false)} aria-label={t("Schließen")}>
+          <span aria-hidden="true" />
+        </button>
+      )}
+      <div className="ct-sheet-head">
+        <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8" }}>{t("Click-Mixer")}</div>
+        <button ref={wide ? sheetCloseRef : undefined} type="button" className="ct-sheet-x" onClick={() => flip(false)} aria-label={t("Schließen")}>×</button>
+      </div>
+      <ClickAdvanced mix={mix} setMix={setMix} slidersOnly />
+      <AudioOffsetControl where="sheet" />
+    </div>
+  );
+
   return (
     <div className="ct-wrap">
+      <div className="ct-settings">
       <div className="seg" style={{ margin: "8px 0 12px", maxWidth: "100%" }}>
         <button type="button" className={mode === "hold" ? "on" : ""} onClick={() => pickMode("hold")}>{t("Tempo halten")}</button>
         <button type="button" className={ramp ? "on" : ""} onClick={() => pickMode("ramp")}>{t("Tempo steigern")}</button>
@@ -264,7 +309,7 @@ export default function ClickTrainer({ preset = null } = {}) {
           aria-label={noClickOpen() ? "NoClick" : `NoClick · ${t("Volle App")}`}
         >{noClickOpen() ? null : <PaidMark icon />}NoClick</button>
       </div>
-      {mode === "noclick" ? <NoClick dialSize={dialSize} /> : (<>
+      {mode === "noclick" ? null : (<>
       <div className="panel">
         <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8", marginBottom: 8 }}>{t("Einstellung")}</div>
         <p style={{ color: DIM, fontSize: 13, margin: "0 0 12px", lineHeight: 1.35 }}>
@@ -302,6 +347,10 @@ export default function ClickTrainer({ preset = null } = {}) {
           </p>
         )}
       </div>
+      {wide ? <div className="ct-adv-slot">{advBtn}{mixer}</div> : null}
+      </>)}
+      </div>
+      {mode === "noclick" ? <NoClick dialSize={dialSize} /> : (<>
       <div className="ct-stage click-dock">
         <div className="dial-row">
           <Nudge by={-10} bpm={bpm} set={setDial} min={30} max={260} />
@@ -330,43 +379,21 @@ export default function ClickTrainer({ preset = null } = {}) {
         </div>
         {done ? <p style={{ color: "#5cc8b8", textAlign: "center", fontSize: 14, margin: "12px 0 0" }}>{done}</p> : null}
         {bgHint ? <p style={{ color: "#e8b84b", textAlign: "center", fontSize: 12, margin: "10px 0 0" }}>{t("App im Hintergrund - der Click kann pausieren. Zurückkommen und ggf. neu starten.")}</p> : null}
-        <button
-          ref={advBtnRef}
-          type="button"
-          className={flipped ? "ghost ct-adv-btn on" : "ghost ct-adv-btn"}
-          aria-expanded={flipped}
-          aria-controls="ct-sheet"
-          onClick={() => flip(!flipped)}
-        >
-          {t("Erweitert")} <span aria-hidden="true" className="ct-adv-caret">▴</span>
-        </button>
+        {wide ? null : advBtn}
         </div>
       </div>
-      <div className={flipped ? "ct-backdrop open" : "ct-backdrop"} onClick={() => flip(false)} aria-hidden="true" />
-      <div
-        id="ct-sheet"
-        ref={sheetRef}
-        className={flipped ? "ct-sheet open" : "ct-sheet"}
-        role="dialog"
-        aria-modal="false"
-        aria-label={t("Click-Mixer")}
-        inert={!flipped}
-      >
-        <button ref={sheetCloseRef} type="button" className="ct-sheet-handle" onClick={() => flip(false)} aria-label={t("Schließen")}>
-          <span aria-hidden="true" />
-        </button>
-        <div className="ct-sheet-head">
-          <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5cc8b8" }}>{t("Click-Mixer")}</div>
-          <button type="button" className="ct-sheet-x" onClick={() => flip(false)} aria-label={t("Schließen")}>×</button>
-        </div>
-        <ClickAdvanced mix={mix} setMix={setMix} slidersOnly />
-        <AudioOffsetControl where="sheet" />
-      </div>
+      {wide ? null : (
+        <>
+          <div className={flipped ? "ct-backdrop open" : "ct-backdrop"} onClick={() => flip(false)} aria-hidden="true" />
+          {mixer}
+        </>
+      )}
       </>)}
       <style>{`
         .page.tool:has(.ct-wrap) { display: flex; flex-direction: column; }
         .page.tool:has(.ct-wrap) .main { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
         .ct-wrap { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; max-width: 100%; }
+        .ct-settings { display: contents; }
         /* Kreis mittig im freien Raum unter der Einstellung */
         .ct-stage {
           flex: 1 1 auto;
@@ -451,6 +478,151 @@ export default function ClickTrainer({ preset = null } = {}) {
         .field input {
           width: 64px; text-align: center; font-weight: 700; font-size: 16px; color: #5cc8b8;
           background: ${INK}; border: 1px solid ${LINE}; border-radius: 8px; padding: 7px 4px;
+        }
+        /* Breite Ansicht nur im Querformat (WIDE_MQ): Einstellungen links, SpinDial rechts,
+           ohne Rahmen ums Rad, beide Spalten vertikal in der Mitte. */
+        @media ${WIDE_MQ} {
+          .page.tool:has(.ct-wrap) {
+            height: 100dvh;
+            max-height: 100dvh;
+            overflow: hidden;
+          }
+          .page.tool:has(.ct-wrap) .main {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: hidden;
+          }
+          .ct-wrap {
+            display: grid;
+            /* Linke Spalte bewusst schmaler (max. 340px), rechts das Rad in der Restbreite. */
+            grid-template-columns: minmax(0, 340px) minmax(max-content, 1fr);
+            grid-template-rows: minmax(0, 1fr);
+            column-gap: 16px;
+            align-items: center;
+            min-height: 0;
+          }
+          /* Modus-Knöpfe in einer Reihe: kurze Labels bleiben schmal, lange bekommen den Rest. */
+          .ct-settings > .seg {
+            flex-wrap: nowrap;
+            width: 100%;
+            box-sizing: border-box;
+          }
+          .ct-settings > .seg button {
+            flex: 1 1 auto;
+            min-width: 0;
+            padding: 8px 5px;
+            font-size: 13px;
+            line-height: 1.2;
+            white-space: nowrap;
+            text-align: center;
+          }
+          .ct-settings {
+            display: flex;
+            flex-direction: column;
+            grid-column: 1;
+            grid-row: 1;
+            align-self: center;
+            min-height: 0;
+            max-height: 100%;
+            overflow: auto;
+          }
+          .ct-wrap:has(.nc-dock) {
+            grid-template-rows: auto auto;
+            align-content: safe center;
+            align-items: start;
+          }
+          .ct-wrap:has(.nc-dock) .ct-settings {
+            grid-row: 1;
+            align-self: start;
+            overflow: visible;
+            max-height: none;
+          }
+          .ct-adv-slot { padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px)); }
+          .ct-wrap > .ct-stage {
+            grid-column: 2;
+            grid-row: 1;
+            align-self: center;
+            justify-content: center;
+            align-items: center;
+            padding: 8px 20px env(safe-area-inset-bottom, 0px);
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            border-radius: 0;
+          }
+          /* Platz für „Zum Einstellen drehen“ plus Luft über Clip. */
+          .ct-wrap > .ct-stage .dial-row { padding-bottom: 36px; }
+          /* Clip bleibt unter dem Rad-Block, nicht am linken Rand der breiten Spalte. */
+          .ct-wrap .ct-below {
+            align-self: center;
+            width: max-content;
+            min-width: 0;
+            max-width: 100%;
+          }
+          .ct-wrap .ct-clip { position: static; margin-top: 8px; }
+          /* ±5 oben, ±10 unten, je eine Spalte links und rechts vom Rad. */
+          .ct-wrap .dial-row:has(.nudge-10) {
+            display: grid;
+            grid-template-columns: auto auto auto;
+            grid-template-rows: auto auto;
+            grid-template-areas:
+              "m5  dial p5"
+              "m10 dial p10";
+            column-gap: 14px;
+            row-gap: 12px;
+            align-items: center;
+            justify-items: center;
+            justify-content: center;
+          }
+          .ct-wrap .dial-row:has(.nudge-10) > .nudge-lg:nth-child(1) { grid-area: m10; }
+          .ct-wrap .dial-row:has(.nudge-10) > .nudge-lg:nth-child(2) { grid-area: m5; }
+          .ct-wrap .dial-row:has(.nudge-10) > .clip-dial { grid-area: dial; }
+          .ct-wrap .dial-row:has(.nudge-10) > .nudge-lg:nth-child(4) { grid-area: p5; }
+          .ct-wrap .dial-row:has(.nudge-10) > .nudge-lg:nth-child(5) { grid-area: p10; }
+          .ct-below { height: auto; min-height: 52px; }
+          /* Mixer steht in der linken Spalte, kein Blatt über dem Rad */
+          .ct-adv-slot .ct-sheet {
+            position: static;
+            left: auto;
+            right: auto;
+            bottom: auto;
+            z-index: auto;
+            max-width: none;
+            max-height: none;
+            margin: 10px 0 0;
+            padding: 10px 12px 12px;
+            transform: none;
+            visibility: visible;
+            border-radius: 12px;
+            border: 1px solid ${LINE};
+            border-bottom: 1px solid ${LINE};
+            box-shadow: none;
+            background: #182427;
+          }
+          .ct-adv-slot .ct-sheet:not(.open) { display: none; }
+          .nc-wrap { display: contents; }
+          .nc-settings { grid-column: 1; grid-row: 2 / -1; min-height: 0; overflow: auto; }
+          .nc-dock {
+            grid-column: 2;
+            grid-row: 1 / -1;
+            align-self: stretch;
+            justify-content: center;
+            align-items: center;
+            padding: 8px 20px env(safe-area-inset-bottom, 0px);
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            border-radius: 0;
+          }
+        }
+        /* Hochkant auf Duo aufgeklappt und iPad: einspaltig wie am Handy, nicht über die volle Breite. */
+        @media (min-width: 640px) and (orientation: portrait) {
+          .page.tool:has(.ct-wrap) .top,
+          .page.tool:has(.ct-wrap) .main {
+            max-width: 440px;
+            width: 100%;
+            margin-inline: auto;
+          }
         }
       `}</style>
     </div>

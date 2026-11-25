@@ -140,6 +140,8 @@ body.metro-gesturing .rud-metro .metro-face { overflow: visible; }
   margin: 0 auto;
   padding-bottom: 8px;
 }
+/* Gemeinsame Schwelle für die breite Zweispalten-Ansicht (zuerst Click-Trainer):
+   @media (min-width: 640px) and (min-height: 560px) and (orientation: landscape) — identisch mit WIDE_MQ in src/lib/wideLayout.js */
 .chip, .ghost, .play, .seg button, .more-btn, .nudge {
   background: transparent; color: var(--dim); border: 1px solid var(--line);
   border-radius: 8px; padding: 10px 12px; font-weight: 700; font-size: 16px; cursor: pointer;
