@@ -4,6 +4,10 @@ Alle für Nutzer sichtbaren Änderungen, nach Datum gruppiert (neueste zuerst).
 Kleine Fix-Commits sind dem jeweiligen Feature zugeordnet; reine Technik (Build-Fixes,
 Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SHA).
 
+## 25.11.2026
+
+- Click-Trainer: Auf dem iPad und aufgeklapptem iPhone Duo stehen die Einstellungen links und das SpinDial rechts, mit ±5/±10 und ohne extra Rahmen; NoClick ebenso. Auf dem normalen iPhone unverändert.
+
 ## 25.10.2026
 
 - Latenz: Regler 0–200 ms (Schritte 5) auf der Startseite und im Click-Mixer. Der gehörte Click bleibt auf der Audio-Uhr, der weiße Puls und die Zählzeit warten um diesen Offset, damit Bild und Kopfhörer zusammenfallen. Startwert aus `baseLatency` + `outputLatency`, wenn der Browser ihn nennt. Gilt für Click und Metronom in allen Übungen (`src/lib/audioOffset.js`).

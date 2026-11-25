@@ -5,6 +5,13 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-11-25",
+    items: [
+      { de: "Click-Trainer: Auf dem iPad und wenn du das iPhone Duo aufklappst, stehen die Einstellungen links und das SpinDial rechts - in guter Größe, mit ±5 und ±10, ohne extra Rahmen ums Rad. NoClick ebenso. Auf dem normalen iPhone bleibt alles wie bisher.",
+        en: "Click Trainer: on iPad, and when you open iPhone Duo, the settings sit on the left and the SpinDial on the right - at a comfortable size, with ±5 and ±10, and no extra frame around the dial. The same goes for NoClick. On a regular iPhone everything stays as it is." },
+    ],
+  },
+  {
     date: "2026-10-26",
     items: [
       { de: "Hand Control: neuer Klang „Tom / Snare“. Rechts hörst du den Floortom, links die Snare - derselbe Klang wie bei den Rudiments. Du stellst ihn unter dem Tempo-Rad ein, direkt beim Einzählen. Der Click bleibt der andere Klang.",

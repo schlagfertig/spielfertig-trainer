@@ -11,6 +11,7 @@ import { t } from "./i18n.js";
 import { usePracticeTrack } from "./PracticeDiary.jsx";
 import { PracticeClip } from "./PracticeClip.jsx";
 import { COUNT_IN, LIMITS, RING_HIDE_MS, announceLevel, barInfo, clampSetting, playBeat, readSettings, ringStep } from "./noClick.js";
+import { WIDE_MQ } from "./wideLayout.js";
 
 const TEAL = "#5cc8b8";
 const FLASH_SEC = 0.13; // Blitz auf der 1 in der Lücke
@@ -359,6 +360,7 @@ export default function NoClick({ dialSize = 140 }) {
 
   return (
     <div className={playing ? "nc-wrap playing" : "nc-wrap"}>
+      <div className="nc-settings">
       <div className="nc-head">
         <div className="nc-title">NoClick</div>
         <p className="nc-sub">{t("Click an, Click aus, du hältst das Tempo.")}</p>
@@ -429,6 +431,7 @@ export default function NoClick({ dialSize = 140 }) {
           </div>
         </>
       )}
+      </div>
       <div ref={dockRef} className={`ct-stage click-dock nc-dock${locked ? " locked" : ""}${editing ? " ring-open" : ""}`} aria-disabled={locked}>
         <div className="dial-row">
           <Nudge by={-10} bpm={bpm} set={setDial} min={30} max={260} />
@@ -505,6 +508,19 @@ export default function NoClick({ dialSize = 140 }) {
         .nc-ring.shown { opacity: 1; pointer-events: auto; }
         .nc-ring text { font-family: Figtree, sans-serif; pointer-events: none; }
         @media (prefers-reduced-motion: reduce) { .nc-ring, .nc-dock, .nc-num { transition: none; } }
+        /* Dieselbe Schwelle wie WIDE_MQ: Einstellungen links, Rad rechts ohne Rahmen */
+        @media ${WIDE_MQ} {
+          .nc-settings { min-width: 0; }
+          .nc-head { text-align: left; margin: 2px 0 12px; }
+          .nc-set { justify-content: flex-start; }
+          .nc-hint, .nc-flash, .nc-ci { justify-content: flex-start; text-align: left; }
+          .nc-dock, .nc-dock.ct-stage {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            border-radius: 0;
+          }
+        }
       `}</style>
     </div>
   );
