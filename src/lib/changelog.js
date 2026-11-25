@@ -7,6 +7,10 @@ export const CHANGELOG = [
   {
     date: "2026-11-25",
     items: [
+      { de: "Startseite: Im Querformat (und auf dem aufgeklappten iPhone Duo auch hochkant) bleibt das Logo mit Metronom links; rechts kannst du die Menüpunkte durchscrollen. Auf dem normalen iPhone und dem iPad hochkant bleibt alles wie bisher.",
+        en: "Home: in landscape (and on an open iPhone Duo in portrait too) the logo with the metronome stays on the left; on the right you can scroll through the menu. On a regular iPhone and on iPad in portrait everything stays as it is." },
+      { de: "Click-Trainer: Im Querformat auf dem iPad und dem aufgeklappten iPhone Duo stehen die Einstellungen schlank links und das SpinDial rechts - in guter Größe, mit ±5 über ±10 neben dem Rad, ohne extra Rahmen, beide Spalten in der Mitte. Hochkant bleibt das Rad unter den Einstellungen, wie am iPhone. NoClick ebenso. Auf dem normalen iPhone bleibt alles wie bisher.",
+        en: "Click Trainer: in landscape on iPad and on an open iPhone Duo, the settings sit slim on the left and the SpinDial on the right - at a comfortable size, with ±5 above ±10 beside the dial, no extra frame, both columns centred. In portrait the dial stays under the settings, as on iPhone. The same goes for NoClick. On a regular iPhone everything stays as it is." },
       { de: "Die App ist für das neue iOS vorbereitet.",
         en: "The app is ready for the latest iOS." },
       { de: "Hand Control: Die Kopfzeile rutscht auf dem iPhone nicht mehr über Üben und Fokus-Mode.",
