@@ -49,45 +49,47 @@ export default function Lexicon({ preset } = {}) {
   if (wide) {
     return (
       <div className="lex is-wide">
-        <div className="lex-col is-index">
-          {search}
-          {az}
-          <div className="lex-index">
-            {list.length === 0 ? <p className="lex-empty">{t("Kein Treffer.")}</p> : null}
-            {list.map((e, i) => {
-              const ch = e.term[0].toLocaleUpperCase(lang);
-              const prev = i > 0 ? list[i - 1].term[0].toLocaleUpperCase(lang) : "";
-              return (
-                <div key={e.id} className="lex-item" id={ch !== prev ? `lex-${ch}` : undefined}>
-                  {ch !== prev ? <div className="lex-letter">{ch}</div> : null}
-                  <button
-                    type="button"
-                    className={e.id === activeId ? "lex-term is-on" : "lex-term"}
-                    aria-current={e.id === activeId ? "true" : undefined}
-                    data-lex-id={e.id}
-                    onClick={() => setSelectedId(e.id)}
-                  >
-                    {e.brand ? <span className="lex-brand">{e.term}</span> : e.term}
-                  </button>
-                </div>
-              );
-            })}
+        {az}
+        <div className="lex-split">
+          <div className="lex-col is-index">
+            {search}
+            <div className="lex-index">
+              {list.length === 0 ? <p className="lex-empty">{t("Kein Treffer.")}</p> : null}
+              {list.map((e, i) => {
+                const ch = e.term[0].toLocaleUpperCase(lang);
+                const prev = i > 0 ? list[i - 1].term[0].toLocaleUpperCase(lang) : "";
+                return (
+                  <div key={e.id} className="lex-item" id={ch !== prev ? `lex-${ch}` : undefined}>
+                    {ch !== prev ? <div className="lex-letter">{ch}</div> : null}
+                    <button
+                      type="button"
+                      className={e.id === activeId ? "lex-term is-on" : "lex-term"}
+                      aria-current={e.id === activeId ? "true" : undefined}
+                      data-lex-id={e.id}
+                      onClick={() => setSelectedId(e.id)}
+                    >
+                      {e.brand ? <span className="lex-brand">{e.term}</span> : e.term}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
-        <div className="lex-col is-detail">
-          {selected ? (
-            <article className="lex-detail" aria-live="polite">
-              <h2 className={selected.brand ? "lex-detail-title is-brand" : "lex-detail-title"}>{selected.term}</h2>
-              <p className="lex-body">{selected.text}</p>
-              {selected.img ? (
-                <figure className="lex-fig">
-                  <img src={selected.img} alt={selected.alt || selected.term} decoding="async" />
-                </figure>
-              ) : null}
-            </article>
-          ) : (
-            <p className="lex-empty">{t("Kein Treffer.")}</p>
-          )}
+          <div className="lex-col is-detail">
+            {selected ? (
+              <article className="lex-detail" aria-live="polite">
+                <h2 className={selected.brand ? "lex-detail-title is-brand" : "lex-detail-title"}>{selected.term}</h2>
+                <p className="lex-body">{selected.text}</p>
+                {selected.img ? (
+                  <figure className="lex-fig">
+                    <img src={selected.img} alt={selected.alt || selected.term} decoding="async" />
+                  </figure>
+                ) : null}
+              </article>
+            ) : (
+              <p className="lex-empty">{t("Kein Treffer.")}</p>
+            )}
+          </div>
         </div>
       </div>
     );

@@ -6,7 +6,7 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 
 ## 26.11.2026
 
-- Lexikon: Im Querformat öffnet sich das Lexikon wie ein Nachschlagewerk – links Suche, Buchstaben und die Begriffsliste, rechts die Erklärung mit viel Platz für das Foto. Die Buchstabenleiste zeigt alle Buchstaben vollständig, nichts wird mehr abgeschnitten. Hochkant bleibt die gewohnte Liste.
+- Lexikon: Im Querformat liegt die Buchstabenleiste in einer Zeile über beiden Spalten. Darunter bleiben Suche und Begriffsliste links, die Erklärung rechts. Auf kurzem Querformat ist die Erklärung kompakter, damit das Bild – zum Beispiel bei „Achtel“ – vollständig sichtbar bleibt. Hochkant bleibt die gewohnte Liste.
 - Journal: An Hausaufgaben und Karteikarten kannst du jetzt eine kurze Notiz festhalten – zum Beispiel das Zieltempo oder worauf du achten willst. Steht nichts drin, bleibt die Liste aufgeräumt; tipp einfach auf „+ Notiz“.
 - Rhythmuspyramide: Im Querformat sitzt das SpinDial in der Mitte der linken Bildschirmhälfte, in derselben Größe wie im Click-Trainer, mit ±5 über ±10 daneben. Die Noten und die Einstellungen nutzen die rechte Hälfte, der Clip-Knopf liegt unter dem Rad. Hochkant bleibt alles wie bisher.
 - Rudiments: Im Querformat sitzt das SpinDial in der Mitte der linken Bildschirmhälfte wie im Click-Trainer, mit ±5 über ±10 daneben. Die Noten sowie Ziel und Klang nutzen die rechte Hälfte, die Zahlenleiste bleibt frei. Hochkant unverändert.
