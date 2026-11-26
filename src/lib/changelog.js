@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-11-26",
     items: [
+      { de: "Journal: Im Querformat öffnet sich das Journal wie ein Heft - links das Tagebuch, rechts die Hausaufgaben, mit einer feinen Linie in der Mitte. Den Karteikasten wählst du oben extra an. Hochkant bleibt alles wie bisher, mit den drei Reitern.",
+        en: "Journal: in landscape the Journal opens like a notebook - the diary on the left, homework on the right, with a fine line down the middle. You pick the card box separately at the top. In portrait everything stays as it is, with the three tabs." },
       { de: "Click-Trainer: Im Querformat steht das SpinDial jetzt überall links, die Einstellungen rechts - auch auf dem normalen iPhone, nicht nur auf iPad und aufgeklapptem Duo. ±5 über ±10 neben dem Rad bleiben, beide Spalten in der Mitte; auf kurzem Querformat ist das Rad etwas kleiner und die rechte Spalte scrollt bei Bedarf. Hochkant unverändert: Rad unter den Einstellungen. NoClick ebenso.",
         en: "Click Trainer: in landscape the SpinDial now sits on the left and the settings on the right everywhere - on a regular iPhone as well, not only on iPad and an open iPhone Duo. ±5 stays above ±10 beside the dial, both columns centred; on a short landscape screen the dial is a little smaller and the right-hand column scrolls if needed. In portrait nothing changes: the dial stays under the settings. The same goes for NoClick." },
       { de: "Startseite: Ist das Metronom-Rad offen, erreichst du oben rechts wieder Sprache, „!“ und „?“. Ein Tipp darauf schließt das Rad und öffnet wie gewohnt die jeweilige Funktion.",

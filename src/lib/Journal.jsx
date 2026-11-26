@@ -11,11 +11,17 @@ import { dayKey } from "./practiceLog.js";
 import JournalBackup from "./JournalBackup.jsx";
 import { askUnlock, isUnlocked, rudimentOpen, stickOpen, withinFreeCount, FREE_JOURNAL_N } from "./demo.js";
 import { PaidMark } from "./PaidMark.jsx";
+import { useWideLayout } from "./wideLayout.js";
 import "../styles-journal.css";
 
 const TABS = [
   { id: "diary", label: "Tagebuch" },
   { id: "hw", label: "Hausaufgaben" },
+  { id: "cards", label: "Karteikasten" },
+];
+// Querformat ab 640 px (WIDE_MQ): zwei Reiter statt drei, Heft-Ansicht links/rechts.
+const LAND_TABS = [
+  { id: "spread", label: "Tagebuch & Hausaufgaben" },
   { id: "cards", label: "Karteikasten" },
 ];
 // Welche Übung zu welcher Ansicht gehört (Click-Trainer meldet auch aus NoClick heraus „click“).
@@ -280,21 +286,42 @@ function Cards({ onOpen }) {
 
 export default function Journal({ onOpen }) {
   useJournal();
+  const wide = useWideLayout();
   const [tab, setTabRaw] = useState(() => (TABS.some((x) => x.id === loadSession("journal", {}).tab) ? loadSession("journal", {}).tab : "diary"));
   const setTab = (id) => { setTabRaw(id); saveSession("journal", { tab: id }); };
+  const pickTab = (id) => setTab(id === "spread" ? (tab === "cards" ? "diary" : tab) : id);
   const hwSplit = splitHw(loadHw());
   const hwOpen = capSlice([...hwSplit.open, ...hwSplit.done]).items.filter((x) => !x.done).length;
   const [gen, setGen] = useState(0); // nach einem Import neu laden
+  const landTab = tab === "cards" ? "cards" : "spread";
+  const tabs = wide ? LAND_TABS : TABS;
   return (
-    <div className="jr-wrap">
+    <div className={wide ? "jr-wrap is-wide" : "jr-wrap"}>
       <div className="seg jr-tabs" role="tablist" aria-label={t("Journal")}>
-        {TABS.map((x) => (
-          <button key={x.id} type="button" role="tab" aria-selected={tab === x.id} className={tab === x.id ? "on" : ""} onClick={() => setTab(x.id)}>
-            {t(x.label)}{x.id === "hw" && hwOpen ? <span className="jr-badge">{hwOpen}</span> : null}
-          </button>
-        ))}
+        {tabs.map((x) => {
+          const on = wide ? landTab === x.id : tab === x.id;
+          const badge = (x.id === "hw" || x.id === "spread") && hwOpen;
+          return (
+            <button key={x.id} type="button" role="tab" aria-selected={on} className={on ? "on" : ""} onClick={() => pickTab(x.id)}>
+              {t(x.label)}{badge ? <span className="jr-badge">{hwOpen}</span> : null}
+            </button>
+          );
+        })}
       </div>
-      <div key={gen}>{tab === "diary" ? <PracticeDiary /> : tab === "hw" ? <Homework onOpen={onOpen} /> : <Cards onOpen={onOpen} />}</div>
+      {wide && landTab === "spread" ? (
+        <div key={gen} className="jr-spread">
+          <section className="jr-spread-col is-left" aria-label={t("Tagebuch")}>
+            <h3 className="jr-spread-head">{t("Tagebuch")}</h3>
+            <PracticeDiary />
+          </section>
+          <section className="jr-spread-col is-right" aria-label={t("Hausaufgaben")}>
+            <h3 className="jr-spread-head">{t("Hausaufgaben")}</h3>
+            <Homework onOpen={onOpen} />
+          </section>
+        </div>
+      ) : (
+        <div key={gen} className={wide ? "jr-land-cards" : undefined}>{tab === "diary" ? <PracticeDiary /> : tab === "hw" ? <Homework onOpen={onOpen} /> : <Cards onOpen={onOpen} />}</div>
+      )}
       <JournalBackup onChanged={() => setGen((g) => g + 1)} />
     </div>
   );

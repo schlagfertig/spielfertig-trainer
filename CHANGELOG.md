@@ -6,6 +6,7 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 
 ## 26.11.2026
 
+- Journal: Im Querformat öffnet sich das Journal wie ein Heft: links das Tagebuch, rechts die Hausaufgaben, mit einer feinen Linie in der Mitte. Den Karteikasten wählst du oben extra an. Hochkant bleibt alles wie bisher, mit den drei Reitern.
 - Click-Trainer: Im Querformat steht das SpinDial jetzt überall links, die Einstellungen rechts – auch auf dem normalen iPhone, nicht nur auf iPad und aufgeklapptem Duo. ±5 über ±10 neben dem Rad bleiben, beide Spalten in der Mitte; auf kurzem Querformat ist das Rad etwas kleiner und die rechte Spalte scrollt bei Bedarf. Hochkant unverändert: Rad unter den Einstellungen. NoClick ebenso.
 - Startseite: Ist das Metronom-Rad offen, erreichst du oben rechts wieder Sprache, „!“ und „?“. Ein Tipp darauf schließt das Rad und öffnet wie gewohnt die jeweilige Funktion.
 

@@ -26,6 +26,7 @@ export const EN2 = {
   // Journal (Labs): Tagebuch, Hausaufgaben, Karteikasten
   "Tagebuch": "Diary",
   "Hausaufgaben": "Homework",
+  "Tagebuch & Hausaufgaben": "Diary & homework",
   "Karteikasten": "Card box",
   "Hausaufgabe": "Homework",
   "Tagebuch, Hausaufgaben und Karteikasten - alles für dein Üben an einem Ort.": "Diary, homework and card box - everything for your practice in one place.",
