@@ -432,7 +432,7 @@ export default function NoClick({ dialSize = 140 }) {
         </>
       )}
       </div>
-      <div ref={dockRef} className={`ct-stage click-dock nc-dock${locked ? " locked" : ""}${editing ? " ring-open" : ""}`} aria-disabled={locked}>
+      <div ref={dockRef} className={`ct-stage click-dock nc-dock sf-dial-col${locked ? " locked" : ""}${editing ? " ring-open" : ""}`} aria-disabled={locked}>
         <div className="dial-row">
           <Nudge by={-10} bpm={bpm} set={setDial} min={30} max={260} />
           <Nudge by={-5} bpm={bpm} set={setDial} min={30} max={260} />
