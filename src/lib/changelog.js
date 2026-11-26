@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-11-26",
     items: [
+      { de: "Journal: An Hausaufgaben und Karteikarten kannst du jetzt eine kurze Notiz festhalten – zum Beispiel das Zieltempo oder worauf du achten willst. Steht nichts drin, bleibt die Liste aufgeräumt; tipp einfach auf „+ Notiz“.",
+        en: "Journal: you can now add a short note to homework and cards – for example your target tempo or what to watch for. If there's nothing there, the list stays tidy; just tap “+ Note”." },
       { de: "Rhythmuspyramide: Im Querformat sitzt das SpinDial in der Mitte der linken Bildschirmhälfte, in derselben Größe wie im Click-Trainer, mit ±5 über ±10 daneben. Die Noten und die Einstellungen nutzen die rechte Hälfte, der Clip-Knopf liegt unter dem Rad. Hochkant bleibt alles wie bisher.",
         en: "Rhythm Pyramid: in landscape the SpinDial sits in the middle of the left half of the screen, at the same size as in Click Trainer, with ±5 above ±10 beside it. The notation and settings use the right half, and the Clip button sits under the dial. In portrait nothing changes." },
       { de: "Rudiments: Im Querformat sitzt das SpinDial in der Mitte der linken Bildschirmhälfte wie im Click-Trainer, mit ±5 über ±10 daneben. Die Noten sowie Ziel und Klang nutzen die rechte Hälfte, die Zahlenleiste bleibt frei. Hochkant unverändert.",
