@@ -508,9 +508,9 @@ export default function App() {
       <header className="top">
         <div className="top-row">
           {stage && !printOpen ? (
-            <button className="ghost" onClick={() => setStage(false)}>{t("Zurück")}</button>
+            <button className="ghost top-back" onClick={() => setStage(false)}>{t("Zurück")}</button>
           ) : (
-            <button className="ghost" onClick={back}>{t("Zurück")}</button>
+            <button className="ghost top-back" onClick={back}>{t("Zurück")}</button>
           )}
           <div className="top-right">
             {view === "rudiments" && !stage && !printOpen && (

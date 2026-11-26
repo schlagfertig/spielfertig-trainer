@@ -34,6 +34,72 @@
     flex-direction: column;
   }
   .page.tool:has(.sf-land) .top { flex-shrink: 0; }
+  /* Click-Trainer und Rhythmuspyramide: die Kopfzeile belegt nur die linke Hälfte
+     (Zurück, Titel, ggf. „Zu Hausaufgaben“). Die rechte Spalte beginnt dadurch oben,
+     neben dieser Zeile. Das ? bleibt fest oben rechts und fängt keine Klicks der Steuerung ab.
+     Rudiments behält die Kopfzeile über der ganzen Breite. Das SpinDial bleibt bei 25vw. */
+  .page.tool.view-click:has(.sf-land),
+  .page.tool.view-pyramid:has(.sf-land) {
+    position: relative;
+  }
+  .page.tool.view-click:has(.sf-land) .top,
+  .page.tool.view-pyramid:has(.sf-land) .top {
+    position: absolute;
+    z-index: 25;
+    top: var(--sf-page-pad-top);
+    left: var(--sf-page-pad-x);
+    width: calc(var(--sf-land-content-left) - var(--sf-page-pad-x) - 8px);
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: "back title" "bar bar";
+    align-items: center;
+    column-gap: 10px;
+    row-gap: 4px;
+    padding: 0;
+    margin: 0;
+    min-height: 0;
+    pointer-events: none;
+    background: transparent !important;
+    border: 0;
+  }
+  .page.tool.view-click:has(.sf-land) .top-row,
+  .page.tool.view-pyramid:has(.sf-land) .top-row {
+    display: contents;
+  }
+  .page.tool.view-click:has(.sf-land) .top-back,
+  .page.tool.view-pyramid:has(.sf-land) .top-back {
+    grid-area: back;
+    pointer-events: auto;
+  }
+  .page.tool.view-click:has(.sf-land) .top-title,
+  .page.tool.view-pyramid:has(.sf-land) .top-title {
+    grid-area: title;
+    pointer-events: none;
+    width: auto;
+    max-width: 100%;
+    margin: 0 0 0 8px;
+    font-size: 22px;
+    line-height: 1.05;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .page.tool.view-click:has(.sf-land) .jr-bar,
+  .page.tool.view-pyramid:has(.sf-land) .jr-bar {
+    grid-area: bar;
+    pointer-events: auto;
+    margin: 2px 0 0;
+  }
+  .page.tool.view-click:has(.sf-land) .top-right,
+  .page.tool.view-pyramid:has(.sf-land) .top-right {
+    position: fixed;
+    top: var(--sf-page-pad-top);
+    right: max(8px, env(safe-area-inset-right, 0px));
+    z-index: 40;
+    margin: 0;
+    pointer-events: auto;
+  }
   /* Rechte Hälfte: Noten und Einstellungen nutzen den gewonnenen Platz, ohne 880px-Deckel. */
   .page.tool:has(.sf-land) .main {
     flex: 1 1 auto;
@@ -155,5 +221,9 @@
     width: 44px;
     height: 44px;
     font-size: 15px;
+  }
+  .page.tool.view-click:has(.sf-land) .top-title,
+  .page.tool.view-pyramid:has(.sf-land) .top-title {
+    font-size: 18px;
   }
 }

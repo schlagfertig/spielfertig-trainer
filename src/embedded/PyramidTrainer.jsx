@@ -308,9 +308,7 @@ export default function PyramidTrainer({ preset = null } = {}) {
   return (
     <div className={focus ? "pyramid-wrap sf-land focus" : "pyramid-wrap sf-land"} ref={wrapRef}>
       {!focus ? (
-        <p style={{ color: DIM, fontSize: 13, margin: "8px 0 10px" }}>
-          {t("Stufen wählen · immer 4/4.")}
-        </p>
+        <p className="pyr-lead">{t("Stufen wählen · immer 4/4.")}</p>
       ) : null}
       <div className={focus ? "pyr-focus" : undefined}>
       <div className="staff-card pyr-cur" style={{ marginBottom: focus ? 0 : 10 }}>
@@ -364,7 +362,7 @@ export default function PyramidTrainer({ preset = null } = {}) {
       ) : null}
       </div>
       {!focus ? (
-        <div className="panel" style={{ padding: "10px 12px 12px", marginBottom: 8 }}>
+        <div className="panel pyr-panel">
           <div className="pyr-steps">
             {STAGES.map((s) => {
               const locked = !pyramidStageOpen(s.id);
@@ -432,6 +430,8 @@ export default function PyramidTrainer({ preset = null } = {}) {
         </div>
       </div>
       <style>{`
+        .pyr-lead { color: #8a969c; font-size: 13px; line-height: 1.35; margin: 8px 0 10px; }
+        .pyr-panel { padding: 10px 12px 12px; margin-bottom: 8px; }
         .pyr-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
         .pyr-steps .chip { min-height: 52px; padding: 6px 4px; display: flex; align-items: center; justify-content: center; }
         .pyr-steps .chip.pyr-locked { opacity: 0.45; }
@@ -505,6 +505,14 @@ export default function PyramidTrainer({ preset = null } = {}) {
             box-sizing: border-box;
           }
           .pyr-dial-inner { max-width: none; margin: 0; display: contents; }
+          /* Hinweiszeile beginnt oben und lässt rechts Platz für das feste ?. */
+          .pyramid-wrap:not(.focus) .pyr-lead {
+            margin: 2px 56px 8px 0;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+          }
+          .pyramid-wrap.focus { padding-top: 48px; }
           .pyr-dock .count { margin-top: 0; }
           .pyr-dock.focus .count-num { font-size: 28px; }
           .pyr-dock.focus .count-unit { font-size: 12px; }
@@ -523,6 +531,20 @@ export default function PyramidTrainer({ preset = null } = {}) {
           .pyr-steps .chip { min-height: 44px; padding: 4px; }
           .pyr-opt { margin-top: 6px; }
           .pyr-opt-l { font-size: 11px; margin-bottom: 4px; }
+        }
+        /* iPhone-Querformat (844×390): Stufen und Auswahl ohne Scrollen, Bild etwas flacher. */
+        @media ${WIDE_MQ} and (max-height: 500px) {
+          .pyramid-wrap:not(.focus) .pyr-lead { min-height: 40px; margin: 0 56px 4px 0; }
+          .pyramid-wrap:not(.focus) .pyr-cur { padding: 6px 10px 2px; }
+          .pyramid-wrap:not(.focus) .pyr-cur svg { max-height: 72px; }
+          .pyramid-wrap:not(.focus) .pyr-cur .staff-label { margin-bottom: 2px; font-size: 16px; }
+          .pyramid-wrap:not(.focus) .pyr-panel { padding: 8px 10px 6px; margin-bottom: 0; }
+          .pyr-steps { gap: 4px; margin-bottom: 2px; }
+          .pyr-steps .chip { min-height: 40px; padding: 3px; }
+          .pyr-opt { margin-top: 4px; }
+          .pyr-opt-l { margin-bottom: 2px; }
+          .pyr-seg button { padding: 6px 4px; font-size: 14px; }
+          .pyramid-wrap.focus { padding-top: 44px; }
         }
       `}</style>
     </div>
