@@ -7,10 +7,10 @@ export const CHANGELOG = [
   {
     date: "2026-11-26",
     items: [
-      { de: "Rhythmuspyramide: Im Querformat liegt das SpinDial rechts neben der Auswahl, nicht mehr über den Tasten „1 Takt / 2 Takte / 4 Takte“. ±5 steht über ±10 neben dem Rad. Hochkant bleibt alles wie bisher.",
-        en: "Rhythm Pyramid: in landscape the SpinDial sits to the right of the settings, no longer over the “1 bar / 2 bars / 4 bars” buttons. ±5 sits above ±10 beside the dial. In portrait nothing changes." },
-      { de: "Rudiments: Im Querformat stehen ±5 über ±10 neben dem SpinDial, damit der +10-Knopf rechts nicht mehr abgeschnitten wird. Hochkant unverändert.",
-        en: "Rudiments: in landscape ±5 sits above ±10 beside the SpinDial, so the +10 button is no longer clipped at the right edge. In portrait nothing changes." },
+      { de: "Rhythmuspyramide: Im Querformat sitzt das SpinDial links an derselben Stelle und in derselben Größe wie im Click-Trainer, mit ±5 über ±10 daneben. Die Noten und die Einstellungen stehen rechts, der Clip-Knopf liegt unter dem Rad. Hochkant bleibt alles wie bisher.",
+        en: "Rhythm Pyramid: in landscape the SpinDial sits on the left at the same position and size as in Click Trainer, with ±5 above ±10 beside it. The notation and settings sit on the right, and the Clip button sits under the dial. In portrait nothing changes." },
+      { de: "Rudiments: Im Querformat sitzt das SpinDial links wie im Click-Trainer, mit ±5 über ±10 daneben. Die Noten sowie Ziel und Klang stehen rechts, die Zahlenleiste bleibt frei. Hochkant unverändert.",
+        en: "Rudiments: in landscape the SpinDial sits on the left as in Click Trainer, with ±5 above ±10 beside it. The notation, plus Goal and Sound, sit on the right, and the number strip stays clear. In portrait nothing changes." },
       { de: "Journal: Im Querformat öffnet sich das Journal wie ein Heft - links das Tagebuch, rechts die Hausaufgaben, mit einer feinen Linie in der Mitte. Den Karteikasten wählst du oben extra an. Hochkant bleibt alles wie bisher, mit den drei Reitern.",
         en: "Journal: in landscape the Journal opens like a notebook - the diary on the left, homework on the right, with a fine line down the middle. You pick the card box separately at the top. In portrait everything stays as it is, with the three tabs." },
       { de: "Click-Trainer: Im Querformat steht das SpinDial jetzt überall links, die Einstellungen rechts - auch auf dem normalen iPhone, nicht nur auf iPad und aufgeklapptem Duo. ±5 über ±10 neben dem Rad bleiben, beide Spalten in der Mitte; auf kurzem Querformat ist das Rad etwas kleiner und die rechte Spalte scrollt bei Bedarf. Hochkant unverändert: Rad unter den Einstellungen. NoClick ebenso.",
