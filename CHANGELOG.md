@@ -4,6 +4,11 @@ Alle für Nutzer sichtbaren Änderungen, nach Datum gruppiert (neueste zuerst).
 Kleine Fix-Commits sind dem jeweiligen Feature zugeordnet; reine Technik (Build-Fixes,
 Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SHA).
 
+## 26.11.2026
+
+- Click-Trainer: Im Querformat steht das SpinDial jetzt überall links, die Einstellungen rechts – auch auf dem normalen iPhone, nicht nur auf iPad und aufgeklapptem Duo. ±5 über ±10 neben dem Rad bleiben, beide Spalten in der Mitte; auf kurzem Querformat ist das Rad etwas kleiner und die rechte Spalte scrollt bei Bedarf. Hochkant unverändert: Rad unter den Einstellungen. NoClick ebenso.
+- Startseite: Ist das Metronom-Rad offen, erreichst du oben rechts wieder Sprache, „!“ und „?“. Ein Tipp darauf schließt das Rad und öffnet wie gewohnt die jeweilige Funktion.
+
 ## 25.11.2026
 
 - Startseite: Im Querformat (und auf dem aufgeklappten iPhone Duo auch hochkant) bleibt das Logo mit Metronom links; rechts kannst du die Menüpunkte durchscrollen. Auf dem normalen iPhone und dem iPad hochkant bleibt alles wie bisher.
