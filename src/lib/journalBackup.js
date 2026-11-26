@@ -2,7 +2,7 @@
 // Reine Logik ohne DOM (node --test lädt sie direkt). Import führt zusammen: nichts wird gelöscht, nichts doppelt.
 // Format im Stil des Spielfertig-Live-Backups: { app, kind, version, exported_at, ... }.
 import { MAX_ENTRIES, MAX_SESSION_SEC, normalizeLog } from "./practiceLog.js";
-import { MAX_ITEMS, VIEW_OF, normalizeCards, normalizeHw } from "./journal.js";
+import { MAX_ITEMS, VIEW_OF, cleanNote, normalizeCards, normalizeHw } from "./journal.js";
 
 export const BACKUP_APP = "schlagfertig";
 export const BACKUP_KIND = "journal";
@@ -43,11 +43,14 @@ function cleanEntry(e) {
 function cleanHw(x) {
   if (!isObj(x) || typeof x.key !== "string" || !VIEW_OF[x.ex]) return null;
   const sessions = isObj(x.sessions) ? Object.fromEntries(SESSION_KEYS.filter((k) => isObj(x.sessions[k])).map((k) => [k, plain(x.sessions[k])])) : {};
-  return {
+  const item = {
     key: str(x.key, 60), ex: x.ex, item: x.item == null ? null : typeof x.item === "number" || typeof x.item === "string" ? x.item : null, label: str(x.label),
     preset: plain(x.preset), sessions, info: plain(x.info) || {}, view: VIEW_OF[x.ex],
     done: !!x.done, at: num(x.at), lastAt: num(x.lastAt), runs: Math.max(0, Math.round(num(x.runs))), ...(x.doneAt ? { doneAt: num(x.doneAt) } : {}),
   };
+  const note = cleanNote(x.note);
+  if (note) item.note = note;
+  return item;
 }
 
 // Text → { ok: true, data } oder { ok: false, reason: "json" | "app" | "version" | "empty" }
