@@ -31,7 +31,8 @@ import GeneralFeedback, { GeneralFeedbackLink } from "./lib/GeneralFeedback.jsx"
 import WhatsNew from "./lib/WhatsNew.jsx";
 import { startModal } from "./lib/startModal.js";
 import { APP_VERSION } from "./lib/version.js";
-import { canOpen, isUnlocked, setUnlocked, fallbackPrice, PAYWALL_EVENT, DEMO_ON } from "./lib/demo.js";
+import { canOpen, isUnlocked, setUnlocked, fallbackPrice, PAYWALL_EVENT, demoOnNow } from "./lib/demo.js";
+import { refreshSandboxStore } from "./lib/storeEnv.js";
 import { Access } from "./lib/Access.jsx";
 import { loadStoreInfo, refreshEntitlement, watchEntitlement } from "./lib/iap.js";
 import { DemoPaywall } from "./lib/Paywall.jsx";
@@ -106,7 +107,7 @@ export default function App() {
   // Native Hülle: Kauf beim Start prüfen. Preis neu, wenn das Kauf-Blatt aufgeht.
   useEffect(() => {
     let stop = false;
-    refreshEntitlement().then(() => { if (!stop) setUnlockedState(isUnlocked()); });
+    refreshSandboxStore().then(() => refreshEntitlement()).then(() => { if (!stop) setUnlockedState(isUnlocked()); });
     return () => { stop = true; };
   }, []);
   // Käufe und eingelöste Codes sofort freischalten: Store-Event und Zurückkehren in die App prüfen neu.
@@ -488,9 +489,12 @@ export default function App() {
           <div className="foot-copy">Version {APP_VERSION}</div>
           <SocialLinks />
           <div className="foot-links">
-            {/* Fester Weg zur Kaufseite, auch wenn schon freigeschaltet (Kauf wiederherstellen, App Review). */}
-            <button type="button" className="foot-link" onClick={() => setPaywall(true)}>{t("Vollversion")}</button>
-            {DEMO_ON ? <button type="button" className="foot-link" onClick={() => open("zugang")}>{t("Mein Zugang")}</button> : null}
+            {/* Store/native: ein Knopf „Mein Zugang“ (Status, Kaufen, Wiederherstellen). Web ohne Mein Zugang: Fußzeile unverändert. */}
+            {demoOnNow() ? (
+              <button type="button" className="foot-link" onClick={() => open("zugang")}>{t("Mein Zugang")}</button>
+            ) : (
+              <button type="button" className="foot-link" onClick={() => setPaywall(true)}>{t("Vollversion")}</button>
+            )}
             <button type="button" className="foot-link" onClick={() => open("impressum")}>{t("Impressum")}</button>
             <button type="button" className="foot-link" onClick={() => open("datenschutz")}>{t("Datenschutz")}</button>
             <GeneralFeedbackLink />
