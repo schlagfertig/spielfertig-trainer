@@ -7,6 +7,7 @@ import { beatDelayMs } from "../lib/audioOffset.js";
 import { t } from "../lib/i18n.js";
 import { usePracticeTrack } from "../lib/PracticeDiary.jsx";
 import { askUnlock, pyramidStageOpen } from "../lib/demo.js";
+import { WIDE_MQ } from "../lib/wideLayout.js";
 
 const DIM = "#8a969c";
 const TEAL = "#5cc8b8";
@@ -472,19 +473,66 @@ export default function PyramidTrainer({ preset = null } = {}) {
         @media (prefers-reduced-motion: reduce) {
           .pyr-layer-old { display: none; }
         }
-        /* Quer beim Üben: Noten links, Rad und Takt-Zähler rechts - nichts liegt übereinander */
-        @media (orientation: landscape) and (max-height: 820px) {
-          /* Rechte Spalte breit genug für −5 · Rad (144 px mit Ring) · +5 samt Rand - vorher ragte +5 um 4 px über den Bildschirm */
-          .pyramid-wrap.focus { padding-bottom: 12px; padding-right: calc(284px + env(safe-area-inset-right, 0px)); }
-          .pyr-dock.focus { left: auto; top: 0; width: calc(284px + env(safe-area-inset-right, 0px)); padding: 8px calc(12px + env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) 12px; display: flex; flex-direction: column; justify-content: center; }
-          .pyr-dock.focus .dial-row { gap: 8px; }
-          .pyr-dock.focus .count { margin-top: 22px; }
+        /* Querformat: Auswahl/Noten links, SpinDial rechts - auch in der Einstellansicht, nicht nur beim Üben.
+           Schwelle wie WIDE_MQ (ab 640 px, jedes Querformat inkl. iPad 1194×834). ±5 über ±10, damit alle vier Tasten in die Spalte passen. */
+        @media ${WIDE_MQ} {
+          .pyramid-wrap,
+          .pyramid-wrap.focus {
+            padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+            padding-right: calc(320px + env(safe-area-inset-right, 0px));
+          }
+          .pyr-dock,
+          .pyr-dock.focus {
+            left: auto;
+            top: 0;
+            width: calc(320px + env(safe-area-inset-right, 0px));
+            padding: 8px calc(16px + env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-sizing: border-box;
+          }
+          /* ±5 oben, ±10 unten, je eine Spalte links und rechts vom Rad (wie im Click-Trainer). */
+          .pyr-dock .dial-row:has(.nudge-10) {
+            display: grid;
+            grid-template-columns: auto auto auto;
+            grid-template-rows: auto auto;
+            grid-template-areas:
+              "m5  dial p5"
+              "m10 dial p10";
+            column-gap: 12px;
+            row-gap: 10px;
+            align-items: center;
+            justify-items: center;
+            justify-content: center;
+          }
+          .pyr-dock .dial-row:has(.nudge-10) > .nudge-lg:nth-child(1) { grid-area: m10; }
+          .pyr-dock .dial-row:has(.nudge-10) > .nudge-lg:nth-child(2) { grid-area: m5; }
+          .pyr-dock .dial-row:has(.nudge-10) > .clip-dial { grid-area: dial; }
+          .pyr-dock .dial-row:has(.nudge-10) > .nudge-lg:nth-child(4) { grid-area: p5; }
+          .pyr-dock .dial-row:has(.nudge-10) > .nudge-lg:nth-child(5) { grid-area: p10; }
+          .pyr-dock .count { margin-top: 22px; }
           .pyr-dock.focus .count-num { font-size: 40px; }
           .pyr-dock.focus .count-unit { font-size: 13px; }
           .pyramid-wrap.focus .pyr-cur .staff-label { display: flex; gap: 8px; align-items: baseline; }
           .pyramid-wrap.focus .pyr-cur .pyr-kick { display: inline; margin: 0; }
           .pyramid-wrap.focus .pyr-next { margin-top: 8px; padding: 8px 12px 6px; }
           .pyramid-wrap.focus .pyr-next-staff svg { max-height: 84px; }
+          /* Clip gehört in die rechte Spalte unter das Rad, sonst liegt er über Auswahl oder Noten. */
+          .page.tool:has(.pyramid-wrap) .clip-fab {
+            left: auto;
+            right: calc(118px + env(safe-area-inset-right, 0px));
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+          }
+        }
+        /* Kürzeres Querformat (Duo, iPhone): Notenkarte etwas flacher, damit Richtung und Länge sichtbar bleiben. */
+        @media ${WIDE_MQ} and (max-height: 700px) {
+          .pyramid-wrap:not(.focus) .pyr-cur { padding-top: 8px; padding-bottom: 4px; }
+          .pyramid-wrap:not(.focus) .pyr-cur svg { max-height: 96px; }
+          .pyr-steps { gap: 5px; margin-bottom: 4px; }
+          .pyr-steps .chip { min-height: 44px; padding: 4px; }
+          .pyr-opt { margin-top: 6px; }
+          .pyr-opt-l { font-size: 11px; margin-bottom: 4px; }
         }
       `}</style>
     </div>

@@ -6,6 +6,9 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 
 ## 26.11.2026
 
+- Rhythmuspyramide: Im Querformat liegt das SpinDial rechts neben der Auswahl, nicht mehr über den Tasten „1 Takt / 2 Takte / 4 Takte“. ±5 steht über ±10 neben dem Rad. Hochkant bleibt alles wie bisher.
+- Rudiments: Im Querformat stehen ±5 über ±10 neben dem SpinDial, damit der +10-Knopf rechts nicht mehr abgeschnitten wird. Hochkant unverändert.
+
 - Journal: Im Querformat öffnet sich das Journal wie ein Heft: links das Tagebuch, rechts die Hausaufgaben, mit einer feinen Linie in der Mitte. Den Karteikasten wählst du oben extra an. Hochkant bleibt alles wie bisher, mit den drei Reitern.
 - Click-Trainer: Im Querformat steht das SpinDial jetzt überall links, die Einstellungen rechts – auch auf dem normalen iPhone, nicht nur auf iPad und aufgeklapptem Duo. ±5 über ±10 neben dem Rad bleiben, beide Spalten in der Mitte; auf kurzem Querformat ist das Rad etwas kleiner und die rechte Spalte scrollt bei Bedarf. Hochkant unverändert: Rad unter den Einstellungen. NoClick ebenso.
 - Startseite: Ist das Metronom-Rad offen, erreichst du oben rechts wieder Sprache, „!“ und „?“. Ein Tipp darauf schließt das Rad und öffnet wie gewohnt die jeweilige Funktion.

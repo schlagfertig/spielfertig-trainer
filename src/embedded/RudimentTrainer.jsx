@@ -364,14 +364,33 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           .page.tool.view-rudiments .top-row { display: contents; }
           .page.tool.view-rudiments .top-title { order: 1; flex: 1 1 auto; width: auto; min-width: 0; font-size: 22px; }
           .page.tool.view-rudiments .top-right { order: 2; }
-          .page.tool .rud-wrap.rud-tool { padding-bottom: calc(var(--rud-foot) + 8px); padding-right: 316px; overflow: hidden; }
+          .page.tool .rud-wrap.rud-tool { padding-bottom: calc(var(--rud-foot) + 8px); padding-right: calc(316px + env(safe-area-inset-right, 0px)); overflow: hidden; }
           .page.tool .rud-tool .staff-card { flex: 1 1 auto; justify-content: flex-start; }
           .page.tool .rud-tool .rud-staff-box { flex: 1 1 auto; min-height: 0; height: auto; }
           .page.tool .rud-tool .staff-card .rud-staff-box svg { max-height: 100%; }
           .page.tool .rud-tool .staff-card.rud-card-info { overflow: auto; }
-          .page.tool .rud-tool .rud-metro { left: auto !important; right: 0; top: 0; width: 316px; max-height: none; display: flex; flex-direction: column; justify-content: flex-end; }
-          .page.tool .rud-tool .rud-metro .metro-face { max-height: none; overflow: visible; padding: 0 10px calc(var(--rud-foot) + 14px); }
-          .page.tool .rud-tool .rud-metro .dial-row { gap: 5px; padding-bottom: 14px; }
+          .page.tool .rud-tool .rud-metro { left: auto !important; right: 0; top: 0; width: calc(316px + env(safe-area-inset-right, 0px)); max-height: none; display: flex; flex-direction: column; justify-content: flex-end; box-sizing: border-box; }
+          .page.tool .rud-tool .rud-metro .metro-face { max-height: none; overflow: visible; padding: 0 calc(16px + env(safe-area-inset-right, 0px)) calc(var(--rud-foot) + 14px) 16px; }
+          .page.tool .rud-tool .rud-metro .dial-row { padding-bottom: 14px; }
+          /* ±5 oben, ±10 unten, je eine Spalte links und rechts vom Rad (wie im Click-Trainer) - +10 wurde in einer Reihe rechts abgeschnitten. */
+          .page.tool .rud-tool .rud-metro .dial-row:has(.nudge-10) {
+            display: grid;
+            grid-template-columns: auto auto auto;
+            grid-template-rows: auto auto;
+            grid-template-areas:
+              "m5  dial p5"
+              "m10 dial p10";
+            column-gap: 12px;
+            row-gap: 10px;
+            align-items: center;
+            justify-items: center;
+            justify-content: center;
+          }
+          .page.tool .rud-tool .rud-metro .dial-row:has(.nudge-10) > .nudge-lg:nth-child(1) { grid-area: m10; }
+          .page.tool .rud-tool .rud-metro .dial-row:has(.nudge-10) > .nudge-lg:nth-child(2) { grid-area: m5; }
+          .page.tool .rud-tool .rud-metro .dial-row:has(.nudge-10) > .clip-dial { grid-area: dial; }
+          .page.tool .rud-tool .rud-metro .dial-row:has(.nudge-10) > .nudge-lg:nth-child(4) { grid-area: p5; }
+          .page.tool .rud-tool .rud-metro .dial-row:has(.nudge-10) > .nudge-lg:nth-child(5) { grid-area: p10; }
           .page.tool .rud-tool .rud-metro .dial-row .nudge-lg { width: 42px; height: 42px; font-size: 16px; }
           .page.tool .rud-tool .rud-metro .dial-row .nudge-lg.nudge-10 { width: 38px; height: 38px; font-size: 14px; }
           .page.tool .rud-tool .rud-picks { margin-bottom: 4px; }
@@ -384,7 +403,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
         }
         .rud-random { position: fixed; right: 16px; bottom: 96px; z-index: 30; display: block; width: fit-content; margin: 0; min-width: 84px; min-height: 52px; padding: 0 18px; border: 0; border-radius: 999px; background: #5cc8b8; color: #06120f; font: 800 17px Figtree, sans-serif; box-shadow: 0 8px 22px rgba(92,200,184,.35); pointer-events: auto; }
         @media (orientation: landscape) {
-          .rud-random { right: 332px; }
+          .rud-random { right: calc(332px + env(safe-area-inset-right, 0px)); }
         }
         .rud-back { padding: 28px 8px 8px; color: #161a1d; text-align: left; }
         .rud-back h3 { margin: 12px 0 4px; font: 800 13px Figtree, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; color: #0b3d38; }
