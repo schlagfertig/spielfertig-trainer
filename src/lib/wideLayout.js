@@ -1,15 +1,24 @@
 import { useEffect, useState } from "react";
 
-// Gemeinsame Schwelle für die breite Zweispalten-Ansicht:
-// nur Querformat, und nur wenn genug Breite und Höhe da sind
-// (iPhone Duo aufgeklappt quer 951×669, iPad quer).
-// Hochkant und kurzes Querformat bleiben im einspaltigen Layout (Rad unter den Einstellungen).
-export const WIDE_MQ = "(min-width: 640px) and (min-height: 560px) and (orientation: landscape)";
+// Gemeinsame Schwelle für die breite Zweispalten-Ansicht im Click-Trainer:
+// jedes Querformat ab 640 px Breite (iPhone, Duo, iPad). Das SpinDial sitzt links,
+// die Einstellungen rechts. Hochkant bleibt einspaltig (Rad unter den Einstellungen),
+// auch auf dem aufgeklappten Duo.
+export const WIDE_MQ = "(min-width: 640px) and (orientation: landscape)";
+
+// Kurzes Querformat (iPhone typisch 375–430 px hoch): kleineres Rad, engerer Abstand.
+export const WIDE_COMPACT_MQ = "(min-width: 640px) and (orientation: landscape) and (max-height: 500px)";
 
 export function isWideLayout(w, h) {
   const width = Number(w);
   const height = Number(h);
-  return width >= 640 && height >= 560 && width > height;
+  return width >= 640 && width > height;
+}
+
+export function isWideCompact(w, h) {
+  const width = Number(w);
+  const height = Number(h);
+  return width >= 640 && width > height && height <= 500;
 }
 
 export function useWideLayout() {
