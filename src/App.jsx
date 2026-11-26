@@ -565,7 +565,7 @@ export default function App() {
           : view === "pyramid" ? <PyramidTrainer preset={preset} />
           : view === "stick" ? <StickControl preset={preset} />
           : view === "archive" ? <Archive />
-          : view === "lexicon" ? <Lexicon />
+          : view === "lexicon" ? <Lexicon preset={preset} />
           : view === "rhythm" ? <RhythmArchive />
           : <RudimentTrainer printOpen={printOpen} onPrintClose={() => setPrintOpen(false)} stage={stage} preset={preset} />}
       <DiaryToast />
