@@ -12,6 +12,9 @@ import { rudimentInfo } from "../lib/rudimentInfo.js";
 import { t, getLang } from "../lib/i18n.js";
 import { pickCheer } from "../lib/cheers.js";
 import { usePracticeTrack } from "../lib/PracticeDiary.jsx";
+import { WIDE_MQ, useWideLayout } from "../lib/wideLayout.js";
+import { PracticeClip } from "../lib/PracticeClip.jsx";
+import { useDialSize } from "../lib/dialLayout.js";
 
 const HEAR_OK = ["snare", "hands", "click"];
 const HEARS = [
@@ -112,7 +115,9 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
   const beatN = playT < 0 ? -1 : Math.floor((playT + 1e-4) / meterNow.pulse) % beatsInBar;
   const goal = GOALS.find((g) => g.id === goalId) || GOALS[0];
   const compact = useShortScreen() && !stage;
-  const wide = useLowLandscape();
+  const lowLand = useLowLandscape();
+  const land = useWideLayout();
+  const dialSize = useDialSize();
 
   useEffect(() => {
     saveSession("rudiments", { sel, bpm, hear, goalId });
@@ -259,7 +264,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
   }
 
   return (
-    <div className={compact ? "rud-wrap rud-tool rud-short" : "rud-wrap rud-tool"}>
+    <div className={compact ? "rud-wrap rud-tool rud-short sf-land" : "rud-wrap rud-tool sf-land"}>
       <style>{`
         .rud-wrap {
           /* Platz für Hören-Umschalter über dem Dial */
@@ -305,6 +310,17 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           z-index: 16;
           /* Fußzone der Vor/Zurück-Leiste bleibt klickbar */
           pointer-events: none;
+        }
+        /* Hochkant: Rad unten über die volle Breite (Querformat kommt aus styles-dial.css). */
+        @media (orientation: portrait) {
+          .rud-wrap .rud-metro {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: auto;
+            bottom: 0;
+            width: auto;
+          }
         }
         .rud-wrap .rud-metro .dial-row,
         .rud-wrap .rud-metro .dial-row *,
@@ -358,33 +374,65 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           .rud-cheer { animation: rudCheerIn .32s cubic-bezier(.2,.8,.2,1) both; }
           @keyframes rudCheerIn { from { opacity: 0; transform: translateX(-50%) translateY(10px) scale(.94); } to { opacity: 1; transform: translateX(-50%); } }
         }
-        /* Querformat: Karte links, Ziel/Klang und Rad rechts */
+        /* Querformat-Kopf bleibt in jeder Breite einzeilig. */
         @media (orientation: landscape) {
           .page.tool.view-rudiments .top { flex-direction: row; align-items: center; gap: 12px; padding: 2px 0 8px; }
           .page.tool.view-rudiments .top-row { display: contents; }
           .page.tool.view-rudiments .top-title { order: 1; flex: 1 1 auto; width: auto; min-width: 0; font-size: 22px; }
           .page.tool.view-rudiments .top-right { order: 2; }
-          .page.tool .rud-wrap.rud-tool { padding-bottom: calc(var(--rud-foot) + 8px); padding-right: 316px; overflow: hidden; }
-          .page.tool .rud-tool .staff-card { flex: 1 1 auto; justify-content: flex-start; }
+          .rud-cheer { top: 18%; }
+        }
+        /* Ab 640 px: SpinDial links in der gemeinsamen Spalte (wie Click-Trainer), Noten und Ziel/Klang rechts. */
+        @media ${WIDE_MQ} {
+          .page.tool:has(.rud-wrap) .main {
+            max-width: none;
+            width: 100%;
+            margin: 0;
+            padding-left: calc(var(--sf-land-content-left) - var(--sf-page-pad-x));
+          }
+          .page.tool .rud-wrap.rud-tool { padding-bottom: calc(var(--rud-foot) + 8px); padding-right: 0; overflow: hidden; height: 100%; box-sizing: border-box; }
+          .page.tool .rud-tool .staff-card { flex: 1 1 auto; justify-content: flex-start; min-height: 0; }
           .page.tool .rud-tool .rud-staff-box { flex: 1 1 auto; min-height: 0; height: auto; }
           .page.tool .rud-tool .staff-card .rud-staff-box svg { max-height: 100%; }
           .page.tool .rud-tool .staff-card.rud-card-info { overflow: auto; }
-          .page.tool .rud-tool .rud-metro { left: auto !important; right: 0; top: 0; width: 316px; max-height: none; display: flex; flex-direction: column; justify-content: flex-end; }
-          .page.tool .rud-tool .rud-metro .metro-face { max-height: none; overflow: visible; padding: 0 10px calc(var(--rud-foot) + 14px); }
-          .page.tool .rud-tool .rud-metro .dial-row { gap: 5px; padding-bottom: 14px; }
-          .page.tool .rud-tool .rud-metro .dial-row .nudge-lg { width: 42px; height: 42px; font-size: 16px; }
-          .page.tool .rud-tool .rud-metro .dial-row .nudge-lg.nudge-10 { width: 38px; height: 38px; font-size: 14px; }
-          .page.tool .rud-tool .rud-picks { margin-bottom: 4px; }
+          /* metro-face füllt die gemeinsame Dial-Spalte, ohne eigenes Extra-Padding. */
+          .page.tool .rud-tool .rud-metro .metro-face {
+            display: contents;
+            max-height: none;
+            overflow: visible;
+            padding: 0;
+          }
+          .page.tool .rud-tool .rud-picks-land {
+            margin: 8px 0 0;
+            max-width: none;
+            width: 100%;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+            align-items: stretch;
+          }
+          .page.tool .rud-tool .rud-picks-land .rud-random {
+            position: static;
+            right: auto;
+            bottom: auto;
+            z-index: auto;
+            min-height: 46px;
+            margin: 0;
+            box-shadow: 0 4px 14px rgba(92,200,184,.28);
+            pointer-events: auto;
+          }
           .page.tool .rud-tool .rud-title { flex: 0 0 auto; height: auto; min-height: 0; margin-bottom: 4px; padding-bottom: 4px; }
           .page.tool .rud-tool .beat-track, .page.tool .rud-tool .beat-loop { flex: 0 0 auto; }
           .page.tool .rud-tool .beat-track { margin-top: 4px; }
           .page.tool .rud-tool .beat-cells span { padding: 4px 0; font-size: 17px; }
           .page.tool .rud-tool .beat-loop { margin-top: 4px; }
-          .rud-cheer { top: 18%; }
+          /* Zahlenleiste nur unter der Notenspalte, nicht unter dem Rad. */
+          .page.tool.view-rudiments .rud-nav { left: var(--sf-land-content-left); right: 0; width: auto; }
+          /* Der feste Clip-Knopf aus der App-Hülle weicht dem Clip unter dem Rad. */
+          .page.tool.view-rudiments .clip-fab:not(.clip-inline) { display: none; }
+          .page.tool .rud-wrap > .rud-random { display: none; }
         }
         .rud-random { position: fixed; right: 16px; bottom: 96px; z-index: 30; display: block; width: fit-content; margin: 0; min-width: 84px; min-height: 52px; padding: 0 18px; border: 0; border-radius: 999px; background: #5cc8b8; color: #06120f; font: 800 17px Figtree, sans-serif; box-shadow: 0 8px 22px rgba(92,200,184,.35); pointer-events: auto; }
         @media (orientation: landscape) {
-          .rud-random { right: 332px; }
+          .rud-random { right: 16px; }
         }
         .rud-back { padding: 28px 8px 8px; color: #161a1d; text-align: left; }
         .rud-back h3 { margin: 12px 0 4px; font: 800 13px Figtree, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; color: #0b3d38; }
@@ -430,10 +478,33 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
             <div className={playing ? "beat-loop on" : "beat-loop"} aria-live="polite">
               {playing && goal.sec ? fmt(leftSec) : playing ? `Loop ${loopN}${goal.loops ? " / " + goal.loops : ""}` : "Loop -"}
             </div>
+            {land && !stage ? (
+              <div className="rud-hear rud-picks rud-picks-land">
+                <label className={playing ? "rud-pick off" : "rud-pick"}>
+                  <span className="rud-pick-kick">{t("Ziel", null, "rud")}</span>
+                  <span className="rud-pick-val">{t(goal.label)}</span>
+                  <span className="rud-pick-caret" aria-hidden="true">▾</span>
+                  <select value={goalId} disabled={playing} onChange={(e) => setGoalId(e.target.value)} aria-label={t("Ziel", null, "rud")}>
+                    {GOALS.map((g) => <option key={g.id} value={g.id}>{t(g.label)}</option>)}
+                  </select>
+                </label>
+                <label className="rud-pick">
+                  <span className="rud-pick-kick">{t("Klang")}</span>
+                  <span className="rud-pick-val">{t((HEARS.find((h) => h.id === hear) || HEARS[0]).label)}</span>
+                  <span className="rud-pick-caret" aria-hidden="true">▾</span>
+                  <select value={hear} onChange={(e) => setHear(e.target.value)} aria-label={t("Klang")}>
+                    {HEARS.map((h) => <option key={h.id} value={h.id}>{h.id === "hands" ? `${t(h.label)} (${t("rechts Floortom, links 14er Snare")})` : t(h.label)}</option>)}
+                  </select>
+                </label>
+                {printOpen ? null : (
+                  <button type="button" className="rud-random" onClick={randomRud}>{t("Zufall")}</button>
+                )}
+              </div>
+            ) : null}
           </>
         )}
       </div>
-      {printOpen ? null : (
+      {printOpen || land ? null : (
         <button type="button" className="rud-random" onClick={randomRud}>{t("Zufall")}</button>
       )}
       {cheer ? (
@@ -444,7 +515,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           <div className="rud-cheer-hint">{t("Antippen zum Schließen")}</div>
         </div>
       ) : null}
-      <div className="metro-shell rud-metro" style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 16, gridTemplateColumns: "1fr" }}>
+      <div className="metro-shell rud-metro sf-dial-col">
         <div
           className="dock metro-face"
           style={{
@@ -454,7 +525,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
             boxShadow: "none",
           }}
         >
-          {stage ? null : (
+          {stage || land ? null : (
             <div className="rud-hear rud-picks">
               <label className={playing ? "rud-pick off" : "rud-pick"}>
                 <span className="rud-pick-kick">{t("Ziel", null, "rud")}</span>
@@ -477,9 +548,19 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           <div className="dial-row">
             <Nudge by={-10} bpm={bpm} set={setBpm} min={30} max={260} />
             <Nudge by={-5} bpm={bpm} set={setBpm} min={30} max={260} />
-            <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={wide || compact ? 88 : stage ? 152 : 124} now subLabel={playing ? "Stop" : "Start"} wheel />
+            <MetronomeDial bpm={bpm} setBpm={setBpm} beat={beat} active={playing} onToggle={() => (playing ? stop() : startLoop())} size={land ? dialSize : (lowLand || compact ? 88 : stage ? 152 : 124)} now subLabel={playing ? "Stop" : "Start"} wheel />
             <Nudge by={5} bpm={bpm} set={setBpm} min={30} max={260} />
             <Nudge by={10} bpm={bpm} set={setBpm} min={30} max={260} />
+          </div>
+          <div className="sf-dial-below">
+            {land && !stage ? (
+              <div className="sf-dial-clip">
+                <PracticeClip inline title={t("Rudiments")} view="rudiments" />
+              </div>
+            ) : (
+              <div className="sf-dial-clip" />
+            )}
+            <div className="sf-dial-slot" />
           </div>
         </div>
       </div>

@@ -1,0 +1,159 @@
+/* Gemeinsame Querformat-Spalte für das SpinDial
+   (Click-Trainer, Rhythmuspyramide, Rudiments und spätere Übungen).
+   Linke Spaltenbreite, Raddurchmesser (via useDialSize) und vertikaler Anker sind gleich. */
+@media (min-width: 640px) and (orientation: landscape) {
+  .page.tool:has(.sf-land) {
+    /* Linke Hälfte des Bildschirms: das SpinDial sitzt in deren Mitte (Zentrum bei 25vw). */
+    --sf-page-pad-x: 12px;
+    --sf-page-pad-top: 6px;
+    --sf-header-stack: 145px;
+    --sf-land-top-space: calc(var(--sf-page-pad-top) + var(--sf-header-stack));
+    --sf-dial-col-left: 0px;
+    --sf-dial-col-width: 50vw;
+    --sf-land-content-left: 50vw;
+    --sf-dial-col-gap: 16px;
+    --sf-dial-safe-x: max(
+      var(--sf-page-pad-x),
+      env(safe-area-inset-left, 0px),
+      env(safe-area-inset-right, 0px)
+    );
+    /* Symmetrisches Padding, damit das Rad bei 25vw bleibt und ±5/±10 nicht in die Safe Area rutschen. */
+    --sf-dial-col-pad: 8px max(20px, var(--sf-dial-safe-x)) env(safe-area-inset-bottom, 0px) max(20px, var(--sf-dial-safe-x));
+    --sf-dial-row-pad-bottom: 36px;
+    --sf-dial-nudge-col-gap: 14px;
+    --sf-dial-nudge-row-gap: 12px;
+    --sf-dial-below-min: 52px;
+    --sf-dial-clip-mt: 8px;
+    --sf-dial-slot-h: 48px;
+    --sf-dial-stack-gap: 4px;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    padding: var(--sf-page-pad-top) var(--sf-page-pad-x) 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .page.tool:has(.sf-land) .top { flex-shrink: 0; }
+  /* Rechte Hälfte: Noten und Einstellungen nutzen den gewonnenen Platz, ohne 880px-Deckel. */
+  .page.tool:has(.sf-land) .main {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    padding-bottom: 0;
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    padding-left: calc(var(--sf-land-content-left) - var(--sf-page-pad-x));
+  }
+
+  /* Fest verankerte linke Spalte: gleiche Breite, gleiche linke Kante, gleicher vertikaler Anker. */
+  .page.tool:has(.sf-land) .sf-dial-col {
+    position: fixed;
+    left: var(--sf-dial-col-left);
+    right: auto;
+    width: var(--sf-dial-col-width);
+    top: var(--sf-land-top-space);
+    bottom: 0;
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sf-dial-stack-gap);
+    box-sizing: border-box;
+    padding: var(--sf-dial-col-pad);
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    margin: 0;
+    pointer-events: none;
+    max-height: none;
+  }
+  .page.tool:has(.sf-land) .sf-dial-col .dial-row,
+  .page.tool:has(.sf-land) .sf-dial-col .dial-row *,
+  .page.tool:has(.sf-land) .sf-dial-col .sf-dial-below,
+  .page.tool:has(.sf-land) .sf-dial-col .sf-dial-below * {
+    pointer-events: auto;
+  }
+  .page.tool:has(.sf-land) .sf-dial-col .dial-row { padding-bottom: var(--sf-dial-row-pad-bottom); flex-shrink: 0; }
+  .page.tool:has(.sf-land) .sf-dial-col .dial-row:has(.nudge-10) {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "m5  dial p5"
+      "m10 dial p10";
+    column-gap: var(--sf-dial-nudge-col-gap);
+    row-gap: var(--sf-dial-nudge-row-gap);
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+  }
+  .page.tool:has(.sf-land) .sf-dial-col .dial-row:has(.nudge-10) > .nudge-lg:nth-child(1) { grid-area: m10; }
+  .page.tool:has(.sf-land) .sf-dial-col .dial-row:has(.nudge-10) > .nudge-lg:nth-child(2) { grid-area: m5; }
+  .page.tool:has(.sf-land) .sf-dial-col .dial-row:has(.nudge-10) > .clip-dial { grid-area: dial; }
+  .page.tool:has(.sf-land) .sf-dial-col .dial-row:has(.nudge-10) > .nudge-lg:nth-child(4) { grid-area: p5; }
+  .page.tool:has(.sf-land) .sf-dial-col .dial-row:has(.nudge-10) > .nudge-lg:nth-child(5) { grid-area: p10; }
+  .page.tool:has(.sf-land) .sf-dial-col .dial-row .nudge-lg.nudge-10 {
+    width: 44px;
+    height: 44px;
+    font-size: 15px;
+  }
+  .page.tool:has(.sf-land) .sf-dial-below {
+    position: relative;
+    align-self: center;
+    width: max-content;
+    min-width: 0;
+    max-width: 100%;
+    min-height: var(--sf-dial-below-min);
+    height: auto;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  /* position:static schlägt .ct-clip { position:absolute }, damit der Clip-Slot die Höhe hält. */
+  .page.tool:has(.sf-land) .sf-dial-clip {
+    position: static;
+    left: auto;
+    top: auto;
+    margin-top: var(--sf-dial-clip-mt);
+  }
+  /* Leerer Clip-Slot behält die Höhe des Clip-Knopfs (min-height 44px), damit das Rad nicht verrutscht. */
+  .page.tool:has(.sf-land) .sf-dial-clip:empty {
+    display: block;
+    height: 44px;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .page.tool:has(.sf-land) .sf-dial-slot {
+    height: var(--sf-dial-slot-h);
+    min-height: var(--sf-dial-slot-h);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+  }
+}
+
+/* Kurzes iPhone-Querformat: enger, kleineres Rad (Größe kommt aus useDialSize). */
+@media (min-width: 640px) and (orientation: landscape) and (max-height: 500px) {
+  .page.tool:has(.sf-land) {
+    --sf-page-pad-top: 4px;
+    --sf-dial-col-gap: 12px;
+    --sf-dial-col-pad: 0px max(8px, var(--sf-dial-safe-x)) env(safe-area-inset-bottom, 0px) max(8px, var(--sf-dial-safe-x));
+    --sf-dial-row-pad-bottom: 8px;
+    --sf-dial-nudge-col-gap: 8px;
+    --sf-dial-nudge-row-gap: 8px;
+    --sf-dial-clip-mt: 2px;
+    --sf-dial-below-min: 0px;
+    padding: 4px var(--sf-page-pad-x) 0;
+  }
+  .page.tool:has(.sf-land) .sf-dial-col .dial-row .nudge-lg {
+    width: 44px;
+    height: 44px;
+    font-size: 15px;
+  }
+}
