@@ -48,6 +48,40 @@ test("Buchstabenleiste umbricht und wird nicht am rechten Rand abgeschnitten", (
   assert.doesNotMatch(css, /\.lex-az \{[^}]*overflow-x:\s*auto/s);
 });
 
+test("Querformat: Buchstabenleiste eine Zeile über beide Spalten, ohne Umbruch", () => {
+  const wideJsx = lex.split('className="lex is-wide"')[1].split('className="lex-col is-index"')[0];
+  assert.match(wideJsx, /\{az\}/);
+  assert.match(wideJsx, /className="lex-split"/);
+  const wide = css.split("@media (min-width: 640px) and (orientation: landscape)")[1]
+    .split("@media (min-width: 640px) and (orientation: landscape) and (max-height: 500px)")[0];
+  assert.match(wide, /\.lex\.is-wide > \.lex-az \{[^}]*flex-wrap:\s*nowrap/s);
+  assert.match(wide, /\.lex\.is-wide > \.lex-az \{[^}]*width:\s*100%/s);
+  assert.match(wide, /\.lex\.is-wide > \.lex-az button \{[^}]*min-width:\s*0/s);
+  assert.match(wide, /\.lex\.is-wide > \.lex-az button \{[^}]*flex:\s*1 1 0/s);
+  assert.match(wide, /\.lex-split \{[^}]*grid-template-columns:\s*minmax\(230px,\s*0\.34fr\)\s+minmax\(0,\s*1fr\)/s);
+  // Hochkant-Zweig behält die Leiste in der einspaltigen Liste
+  const port = lex.split("if (wide)")[1].split("return (\n    <div className=\"lex\">")[1];
+  assert.match(port, /\{az\}/);
+  assert.doesNotMatch(port, /lex-split/);
+});
+
+test("Querformat: Erklärung kompakt, Bild bleibt im Fenster und längere Einträge scrollen", () => {
+  const wide = css.split("@media (min-width: 640px) and (orientation: landscape)")[1]
+    .split("@media (min-width: 640px) and (orientation: landscape) and (max-height: 500px)")[0];
+  assert.match(wide, /\.lex-detail \{[^}]*display:\s*grid/s);
+  assert.match(wide, /\.lex-detail \{[^}]*min-height:\s*100%/s);
+  assert.match(wide, /\.lex-detail \.lex-fig img \{[^}]*object-fit:\s*contain/s);
+  assert.match(wide, /\.lex-detail \.lex-fig img \{[^}]*max-height:\s*min\(520px,\s*calc\(100dvh - 210px\)\)/s);
+  assert.match(wide, /\.lex-col\.is-detail \{[^}]*display:\s*block/s);
+  assert.match(wide, /body \.page\.tool\.view-lexicon \.top \{[^}]*display:\s*flex/s);
+  assert.match(wide, /\.lex-col\.is-detail \{[^}]*overflow:\s*auto/s);
+  const compact = css.split("@media (min-width: 640px) and (orientation: landscape) and (max-height: 500px)")[1];
+  assert.match(compact, /\.lex-detail-title \{[^}]*font-size:\s*18px/s);
+  assert.match(compact, /\.lex-detail \.lex-body \{[^}]*font-size:\s*14px/s);
+  assert.match(compact, /\.lex\.is-wide > \.lex-az button \{[^}]*min-width:\s*0/s);
+  assert.doesNotMatch(compact, /max-height:\s*none/);
+});
+
 test("Hochkant bleibt bei der einspaltigen Akkordeon-Liste", () => {
   assert.match(lex, /<details className="lex-details"/);
   assert.match(lex, /onToggle=/);

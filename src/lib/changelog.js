@@ -7,8 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-11-26",
     items: [
-      { de: "Lexikon: Im Querformat öffnet sich das Lexikon wie ein Nachschlagewerk - links Suche, Buchstaben und die Begriffsliste, rechts die Erklärung mit viel Platz für das Foto. Die Buchstabenleiste zeigt alle Buchstaben vollständig, nichts wird mehr abgeschnitten. Hochkant bleibt die gewohnte Liste.",
-        en: "Glossary: in landscape the glossary opens like a reference book - search, letters and the term list on the left, and the explanation with generous space for the photo on the right. The letter bar now shows every letter in full, with nothing cut off. In portrait the familiar list stays as it is." },
+      { de: "Lexikon: Im Querformat liegt die Buchstabenleiste in einer Zeile über beiden Spalten. Darunter bleiben Suche und Begriffsliste links, die Erklärung rechts. Auf kurzem Querformat ist die Erklärung kompakter, damit das Bild - zum Beispiel bei „Achtel“ - vollständig sichtbar bleibt. Hochkant bleibt die gewohnte Liste.",
+        en: "Glossary: in landscape the letter bar sits in a single row above both columns. Below that, search and the term list stay on the left and the explanation on the right. On a short landscape screen the explanation is more compact, so the picture - for example on “Eighth note” - stays fully visible. In portrait the familiar list stays as it is." },
       { de: "Journal: An Hausaufgaben und Karteikarten kannst du jetzt eine kurze Notiz festhalten – zum Beispiel das Zieltempo oder worauf du achten willst. Steht nichts drin, bleibt die Liste aufgeräumt; tipp einfach auf „+ Notiz“.",
         en: "Journal: you can now add a short note to homework and cards – for example your target tempo or what to watch for. If there's nothing there, the list stays tidy; just tap “+ Note”." },
       { de: "Rhythmuspyramide: Im Querformat sitzt das SpinDial in der Mitte der linken Bildschirmhälfte, in derselben Größe wie im Click-Trainer, mit ±5 über ±10 daneben. Die Noten und die Einstellungen nutzen die rechte Hälfte, der Clip-Knopf liegt unter dem Rad. Hochkant bleibt alles wie bisher.",

@@ -1,4 +1,5 @@
-/* Lexikon: einspaltige Akkordeon-Ansicht (Hochkant) und zweispaltiges Nachschlagewerk (Querformat ab 640 px). */
+/* Lexikon: einspaltige Akkordeon-Ansicht (Hochkant) und zweispaltiges Nachschlagewerk (Querformat ab 640 px).
+   Querformat: Buchstabenleiste eine Zeile über beide Spalten, Erklärung kompakt, Bild bleibt im Fenster. */
 
 .lex { padding: 0 0 28px; }
 .lex-lead { color: var(--dim, #8a969c); font: 600 14px/1.4 Figtree, sans-serif; margin: 0 0 12px; }
@@ -57,7 +58,8 @@
 .lex-fig { margin: 0 0 14px; }
 .lex-fig img { display: block; width: 100%; height: auto; border-radius: 12px; background: #101416; }
 
-/* Querformat ab 640 px (WIDE_MQ): links Verzeichnis, rechts Erklärung mit Bild. */
+/* Querformat ab 640 px (WIDE_MQ): Buchstabenleiste eine Zeile über beide Spalten,
+   darunter links Verzeichnis, rechts die kompakte Erklärung mit Bild. */
 @media (min-width: 640px) and (orientation: landscape) {
   .page.tool.view-lexicon {
     box-sizing: border-box;
@@ -66,19 +68,32 @@
     height: 100dvh;
     max-height: 100dvh;
     overflow: hidden;
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
   }
-  /* Hochkant klebt nur die Knopfzeile; quer bleibt die ganze Kopfzeile fest oben. */
-  .page.tool.view-lexicon .top {
+  /* Hochkant klebt nur die Knopfzeile; quer bleibt die ganze Kopfzeile fest oben, aber flach.
+     Höhere Spezifität als display:contents in styles.css, sonst hat die Kopfzeile keinen Kasten. */
+  body .page.tool.view-lexicon .top {
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    gap: 1px;
+    padding: 0 0 2px;
   }
   .page.tool.view-lexicon .top-row {
     position: static;
     box-shadow: none;
     background: transparent;
-    padding-top: 0;
+    padding: 0;
   }
+  .page.tool.view-lexicon .top .ghost,
+  .page.tool.view-lexicon .top .help-dot {
+    min-height: 36px;
+    height: 36px;
+    padding: 4px 12px;
+  }
+  .page.tool.view-lexicon .top .help-dot { width: 36px; padding: 0; }
+  .page.tool.view-lexicon .top-title { font-size: 20px; line-height: 1.05; }
   .page.tool.view-lexicon .main {
     flex: 1 1 auto;
     min-height: 0;
@@ -92,12 +107,38 @@
     flex: 1 1 auto;
     min-height: 0;
     min-width: 0;
-    display: grid;
-    grid-template-columns: minmax(230px, 0.34fr) minmax(0, 1fr);
-    align-items: stretch;
-    gap: 0;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
     padding-bottom: 0;
+  }
+  /* Alle vorhandenen Buchstaben in einer Zeile, volle Breite, ohne Umbruch und ohne seitliches Abschneiden. */
+  .lex.is-wide > .lex-az {
+    flex: none;
+    flex-wrap: nowrap;
+    gap: 3px;
+    width: 100%;
+    min-width: 0;
+    margin: 0 0 8px;
+  }
+  .lex.is-wide > .lex-az button {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
+    width: auto;
+    height: 30px;
+    padding: 0;
+    border-radius: 7px;
+    font-size: clamp(12px, 1.5vw, 14px);
+  }
+  .lex-split {
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(230px, 0.34fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    align-items: stretch;
   }
   .lex-col {
     min-width: 0;
@@ -107,6 +148,7 @@
   }
   .lex-col.is-index { padding-right: 16px; }
   .lex-col.is-detail {
+    display: block;
     padding-left: 18px;
     border-left: 1px solid rgba(201, 211, 214, 0.18);
     box-shadow: inset 10px 0 14px -12px rgba(0, 0, 0, 0.45);
@@ -115,7 +157,6 @@
     -webkit-overflow-scrolling: touch;
   }
   .lex.is-wide .lex-search { margin-bottom: 8px; flex: none; }
-  .lex.is-wide .lex-az { flex: none; margin-bottom: 8px; }
   .lex-index {
     flex: 1 1 auto;
     min-height: 0;
@@ -157,60 +198,70 @@
     color: var(--teal, #5cc8b8);
     box-shadow: inset 3px 0 0 var(--teal, #5cc8b8);
   }
+  /* Erklärung füllt die Spalte. Kurzer Text lässt dem Bild den Rest; längerer Text scrollt die Spalte. */
   .lex-detail {
     box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    min-height: 0;
-    padding: 2px 2px 16px;
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    align-content: stretch;
+    min-height: 100%;
+    padding: 0 2px 8px;
   }
   .lex-detail-title {
-    flex: none;
-    margin: 0 0 10px;
-    font: 800 28px/1.15 Figtree, sans-serif;
+    margin: 0 0 6px;
+    font: 800 24px/1.1 Figtree, sans-serif;
     color: var(--txt, #f4f7f6);
   }
   .lex-detail .lex-body {
-    flex: none;
-    font-size: 16px;
-    line-height: 1.5;
-    margin: 0 0 16px;
+    font-size: 15px;
+    line-height: 1.4;
+    margin: 0 0 8px;
   }
   .lex-detail .lex-fig {
-    flex: 1 1 auto;
-    min-height: 80px;
+    min-height: 112px;
     margin: 0;
     display: flex;
     align-items: flex-start;
+    justify-content: center;
+    overflow: hidden;
   }
   .lex-detail .lex-fig img {
-    width: 100%;
+    display: block;
+    width: auto;
     height: auto;
-    max-height: 100%;
+    max-width: 100%;
+    max-height: min(520px, calc(100dvh - 210px));
     object-fit: contain;
     object-position: top center;
-    border-radius: 16px;
+    border-radius: 12px;
   }
 }
 
-/* Kurzes Querformat (iPhone typisch 390 px hoch): enger, beide Spalten bleiben unabhängig scrollbar. */
+/* Kurzes Querformat (iPhone typisch 390 px hoch): noch enger, Bild bleibt im Fenster. */
 @media (min-width: 640px) and (orientation: landscape) and (max-height: 500px) {
   .page.tool.view-lexicon {
-    padding-top: max(8px, env(safe-area-inset-top, 0px));
-    padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+    padding-top: max(4px, env(safe-area-inset-top, 0px));
+    padding-bottom: max(4px, env(safe-area-inset-bottom, 0px));
   }
-  .page.tool.view-lexicon .top { padding-top: 0; padding-bottom: 2px; }
-  .page.tool.view-lexicon .top-title { font-size: 20px; }
+  body .page.tool.view-lexicon .top { padding: 0; gap: 0; }
+  .page.tool.view-lexicon .top .ghost,
+  .page.tool.view-lexicon .top .help-dot {
+    min-height: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  .page.tool.view-lexicon .top .help-dot { width: 32px; }
+  .page.tool.view-lexicon .top-title { font-size: 17px; }
   .lex-col.is-index { padding-right: 12px; }
   .lex-col.is-detail { padding-left: 12px; }
   .lex.is-wide .lex-search { padding: 8px 12px; margin-bottom: 6px; }
-  .lex-az button { height: 28px; min-width: 24px; }
-  .lex-term { padding: 8px 8px 8px 10px; font-size: 15px; }
-  .lex-detail { height: auto; }
-  .lex-detail-title { font-size: 22px; margin-bottom: 8px; }
-  .lex-detail .lex-body { font-size: 15px; margin-bottom: 12px; }
-  /* Bild in voller Spaltenbreite, die rechte Seite scrollt — kein kleines, seitlich leeres Miniaturbild. */
-  .lex-detail .lex-fig { flex: none; min-height: 0; display: block; }
-  .lex-detail .lex-fig img { max-height: none; width: 100%; height: auto; }
+  .lex.is-wide > .lex-az { gap: 2px; margin-bottom: 4px; }
+  .lex.is-wide > .lex-az button { height: 26px; min-width: 0; font-size: 12px; }
+  .lex-index .lex-letter { padding: 4px 0 2px; }
+  .lex-term { padding: 7px 8px 7px 10px; font-size: 15px; }
+  .lex-detail { padding-bottom: 4px; }
+  .lex-detail-title { font-size: 18px; margin-bottom: 4px; }
+  .lex-detail .lex-body { font-size: 14px; line-height: 1.35; margin-bottom: 6px; }
+  .lex-detail .lex-fig { min-height: 96px; }
+  .lex-detail .lex-fig img { border-radius: 10px; }
 }
