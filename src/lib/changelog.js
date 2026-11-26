@@ -5,10 +5,10 @@
 
 export const CHANGELOG = [
   {
-    date: "2026-11-25",
+    date: "2026-11-26",
     items: [
-      { de: "Click-Trainer: Im Querformat auf dem iPad und dem aufgeklappten iPhone Duo stehen die Einstellungen schlank links und das SpinDial rechts - in guter Größe, mit ±5 über ±10 neben dem Rad, ohne extra Rahmen, beide Spalten in der Mitte. Hochkant bleibt das Rad unter den Einstellungen, wie am iPhone. NoClick ebenso. Auf dem normalen iPhone bleibt alles wie bisher.",
-        en: "Click Trainer: in landscape on iPad and on an open iPhone Duo, the settings sit slim on the left and the SpinDial on the right - at a comfortable size, with ±5 above ±10 beside the dial, no extra frame, both columns centred. In portrait the dial stays under the settings, as on iPhone. The same goes for NoClick. On a regular iPhone everything stays as it is." },
+      { de: "Click-Trainer: Im Querformat steht das SpinDial jetzt überall links, die Einstellungen rechts - auch auf dem normalen iPhone, nicht nur auf iPad und aufgeklapptem Duo. ±5 über ±10 neben dem Rad bleiben, beide Spalten in der Mitte; auf kurzem Querformat ist das Rad etwas kleiner und die rechte Spalte scrollt bei Bedarf. Hochkant unverändert: Rad unter den Einstellungen. NoClick ebenso.",
+        en: "Click Trainer: in landscape the SpinDial now sits on the left and the settings on the right everywhere - on a regular iPhone as well, not only on iPad and an open iPhone Duo. ±5 stays above ±10 beside the dial, both columns centred; on a short landscape screen the dial is a little smaller and the right-hand column scrolls if needed. In portrait nothing changes: the dial stays under the settings. The same goes for NoClick." },
     ],
   },
   {
