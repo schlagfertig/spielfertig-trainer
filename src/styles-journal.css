@@ -33,6 +33,26 @@
   background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.18); }
 .jr-sitzt { color: #e8b84b; border-color: rgba(232, 184, 75, 0.45); }
 .jr-acts .dy-del { margin-left: auto; }
+
+/* Optionale Notiz: ohne Text nur ein kompakter „+ Notiz“-Knopf, mit Text dezent unter dem Titel. */
+.jr-note-slot { padding: 0 16px 8px; }
+.jr-card .jr-note-slot { padding: 0 16px 8px 18px; }
+.jr-note, .jr-note-add {
+  display: block; width: 100%; margin: 0; padding: 0; border: 0; background: transparent;
+  text-align: left; cursor: pointer; font: 600 13px/1.4 Figtree, sans-serif;
+}
+.jr-note {
+  color: #8a969c; white-space: pre-wrap; overflow: hidden;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2;
+}
+.jr-note-add { color: #5cc8b8; font-weight: 700; min-height: 32px; }
+.jr-note-edit { display: grid; gap: 8px; }
+.jr-note-edit textarea {
+  width: 100%; min-height: 56px; box-sizing: border-box; padding: 8px 10px; border-radius: 12px; resize: none;
+  border: 1px solid rgba(92, 200, 184, 0.45); background: rgba(22, 26, 29, 0.7); color: #eeeeee;
+  font: 600 14px/1.35 Figtree, sans-serif;
+}
+.jr-note-edit-acts { display: flex; justify-content: flex-end; gap: 8px; }
 .jr-item.is-done .jr-item-main b { color: #c9d3d6; }
 .jr-item.is-done { opacity: .82; }
 .jr-done h3 { margin: 18px 0 10px; color: #e8b84b; font: 800 13px Figtree, sans-serif; letter-spacing: .08em; text-transform: uppercase; }

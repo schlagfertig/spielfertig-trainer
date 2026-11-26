@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { backupFileName, buildBackup, hasJournalData, mergeBackup, parseBackup, replaceBackup } from "../src/lib/journalBackup.js";
 import { record } from "../src/lib/practiceLog.js";
-import { exKey, toggleHw, toggleCard } from "../src/lib/journal.js";
+import { exKey, setCardNote, setHwNote, toggleHw, toggleCard } from "../src/lib/journal.js";
 import { EN } from "../src/lib/en.js";
 import { EN2 } from "../src/lib/en2.js";
 
@@ -72,4 +72,36 @@ test("Ersetzen: nur die Daten aus der Datei", () => {
 test("Umzug: Texte übersetzt", () => {
   const EN_ALL = { ...EN, ...EN2 };
   for (const k of ["Exportieren", "Importieren", "Zusammenführen", "Ersetzen", "Abbrechen", "Kopieren", "Datei speichern", "Ja, ersetzen"]) assert.ok(EN_ALL[k], k);
+});
+
+test("Umzug: Notizen bleiben beim Export und Import erhalten, alte Dateien ohne note bleiben gültig", () => {
+  let cur = device();
+  cur.homework = setHwNote(cur.homework, "rudiments|16", "Ziel: 96 BPM, locker aus dem Handgelenk");
+  cur.cards = setCardNote(cur.cards, 16, "Akzent auf die 2");
+  const raw = buildBackup(cur, at);
+  assert.equal(raw.homework[0].note, "Ziel: 96 BPM, locker aus dem Handgelenk");
+  assert.equal(raw.karteikasten[0].note, "Akzent auf die 2");
+  const parsed = parseBackup(JSON.stringify(raw));
+  assert.equal(parsed.ok, true);
+  assert.equal(parsed.data.homework[0].note, "Ziel: 96 BPM, locker aus dem Handgelenk");
+  assert.equal(parsed.data.karteikasten[0].note, "Akzent auf die 2");
+  const merged = mergeBackup({ diary: null, homework: null, cards: null }, parsed.data);
+  assert.equal(merged.homework.items[0].note, "Ziel: 96 BPM, locker aus dem Handgelenk");
+  assert.equal(merged.cards.cards[0].note, "Akzent auf die 2");
+  const replaced = replaceBackup(parsed.data);
+  assert.equal(replaced.homework.items[0].note, "Ziel: 96 BPM, locker aus dem Handgelenk");
+  assert.equal(replaced.cards.cards[0].note, "Akzent auf die 2");
+  // Vorhandene Einträge behalten beim Zusammenführen ihre eigene Notiz (Datei ändert sie nicht)
+  const mine = setHwNote(toggleHw(null, hwEntry(16), at).list, "rudiments|16", "meine Notiz");
+  const keep = mergeBackup({ diary: null, homework: mine, cards: toggleCard(null, 16, at).list }, parsed.data);
+  assert.equal(keep.homework.items[0].note, "meine Notiz");
+  assert.ok(!("note" in keep.cards.cards[0]));
+  // Alte Datei ohne note-Feld
+  const legacy = buildBackup(device(), at);
+  assert.ok(!("note" in legacy.homework[0]));
+  assert.ok(!("note" in legacy.karteikasten[0]));
+  const old = parseBackup(JSON.stringify(legacy));
+  assert.equal(old.ok, true);
+  assert.ok(!("note" in old.data.homework[0]));
+  assert.ok(!("note" in old.data.karteikasten[0]));
 });
