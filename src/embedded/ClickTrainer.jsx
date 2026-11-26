@@ -13,7 +13,8 @@ import NoClick from "../lib/NoClick.jsx";
 import { PracticeClip } from "../lib/PracticeClip.jsx";
 import { askUnlock, noClickOpen } from "../lib/demo.js";
 import { PaidMark } from "../lib/PaidMark.jsx";
-import { WIDE_MQ, isWideLayout, useWideLayout } from "../lib/wideLayout.js";
+import { WIDE_MQ, useWideLayout } from "../lib/wideLayout.js";
+import { useDialSize } from "../lib/dialLayout.js";
 
 const INK = "#161a1d";
 const LINE = "#2f383d";
@@ -37,37 +38,6 @@ function readClickSession() {
 
 function useMixNow(mix, flipped) {
   return flipped || extrasOn(mix);
-}
-
-// Kreisgröße nach verfügbarer Höhe: groß auf normalen Phones, kleiner auf kurzen Screens / Querformat.
-// Breite Ansicht (jedes Querformat ab 640 px): Rad links, etwas größer; auf kurzem iPhone-Querformat kleiner, damit nichts abgeschnitten wird.
-function dialSizeFor(h, w = 9999) {
-  if (isWideLayout(w, h)) {
-    if (h <= 500) {
-      const cap = h <= 400 ? 108 : 120;
-      return Math.max(96, Math.min(cap, Math.round(h * 0.28), Math.round(w * 0.26)));
-    }
-    const side = Math.min(390, Math.max(300, Math.round(w * 0.48)));
-    return Math.max(124, Math.min(152, Math.round(h * 0.22), side - 200));
-  }
-  const byH = h <= 480 ? 112 : h <= 720 ? 128 : 140;
-  return Math.max(96, Math.min(byH, w - 252));
-}
-
-function useDialSize() {
-  const [size, setSize] = useState(() =>
-    dialSizeFor(
-      typeof window !== "undefined" ? window.innerHeight : 844,
-      typeof window !== "undefined" ? window.innerWidth : 9999,
-    ),
-  );
-  useEffect(() => {
-    const on = () => setSize(dialSizeFor(window.innerHeight, window.innerWidth));
-    on();
-    window.addEventListener("resize", on);
-    return () => window.removeEventListener("resize", on);
-  }, []);
-  return size;
 }
 
 function readClickInit(preset) {
@@ -300,7 +270,7 @@ export default function ClickTrainer({ preset = null } = {}) {
   );
 
   return (
-    <div className="ct-wrap">
+    <div className="ct-wrap sf-land">
       <div className="ct-settings">
       <div className="seg" style={{ margin: "8px 0 12px", maxWidth: "100%" }}>
         <button type="button" className={mode === "hold" ? "on" : ""} onClick={() => pickMode("hold")}>{t("Tempo halten")}</button>
@@ -355,7 +325,7 @@ export default function ClickTrainer({ preset = null } = {}) {
       </>)}
       </div>
       {mode === "noclick" ? <NoClick dialSize={dialSize} /> : (<>
-      <div className="ct-stage click-dock">
+      <div className="ct-stage click-dock sf-dial-col">
         <div className="dial-row">
           <Nudge by={-10} bpm={bpm} set={setDial} min={30} max={260} />
           <Nudge by={-5} bpm={bpm} set={setDial} min={30} max={260} />
@@ -364,10 +334,10 @@ export default function ClickTrainer({ preset = null } = {}) {
           <Nudge by={10} bpm={bpm} set={setDial} min={30} max={260} />
         </div>
         {/* Feste Höhe unter dem Rad (Countdown-Platz + „Erweitert“), damit das SpinDial in allen Modi still steht */}
-        <div className="ct-below">
+        <div className="ct-below sf-dial-below">
         {/* Clip-Knopf links unter -10/-5 im Fluss der Seite, damit er beim Scrollen nie über den Knöpfen liegt */}
-        <div className="ct-clip"><PracticeClip inline title={t("Click-Trainer")} view="click" /></div>
-        <div className="ct-count-slot">
+        <div className="ct-clip sf-dial-clip"><PracticeClip inline title={t("Click-Trainer")} view="click" /></div>
+        <div className="ct-count-slot sf-dial-slot">
         {playing && ramp ? (
           <div className="count">
             {atCap ? (
@@ -500,10 +470,10 @@ export default function ClickTrainer({ preset = null } = {}) {
           }
           .ct-wrap {
             display: grid;
-            /* Links das Rad in der Restbreite, rechts die Einstellungen bewusst schmaler (max. 340px). */
-            grid-template-columns: minmax(max-content, 1fr) minmax(0, 340px);
+            /* Platzhalter links in der gemeinsamen Dial-Spaltenbreite, Einstellungen rechts (max. 340px). */
+            grid-template-columns: var(--sf-dial-col-width) minmax(0, var(--sf-settings-col));
             grid-template-rows: minmax(0, 1fr);
-            column-gap: 16px;
+            column-gap: var(--sf-dial-col-gap);
             align-items: center;
             min-height: 0;
           }
@@ -553,48 +523,9 @@ export default function ClickTrainer({ preset = null } = {}) {
           .ct-wrap > .ct-stage {
             grid-column: 1;
             grid-row: 1;
-            align-self: center;
-            justify-content: center;
-            align-items: center;
-            max-height: 100%;
-            min-height: 0;
-            box-sizing: border-box;
-            padding: 8px 20px env(safe-area-inset-bottom, 0px);
-            background: transparent;
-            border: none;
-            box-shadow: none;
-            border-radius: 0;
           }
-          /* Platz für „Zum Einstellen drehen“ plus Luft über Clip. */
-          .ct-wrap > .ct-stage .dial-row { padding-bottom: 36px; }
-          /* Clip bleibt unter dem Rad-Block, nicht am linken Rand der breiten Spalte. */
-          .ct-wrap .ct-below {
-            align-self: center;
-            width: max-content;
-            min-width: 0;
-            max-width: 100%;
-          }
-          .ct-wrap .ct-clip { position: static; margin-top: 8px; }
-          /* ±5 oben, ±10 unten, je eine Spalte links und rechts vom Rad. */
-          .ct-wrap .dial-row:has(.nudge-10) {
-            display: grid;
-            grid-template-columns: auto auto auto;
-            grid-template-rows: auto auto;
-            grid-template-areas:
-              "m5  dial p5"
-              "m10 dial p10";
-            column-gap: 14px;
-            row-gap: 12px;
-            align-items: center;
-            justify-items: center;
-            justify-content: center;
-          }
-          .ct-wrap .dial-row:has(.nudge-10) > .nudge-lg:nth-child(1) { grid-area: m10; }
-          .ct-wrap .dial-row:has(.nudge-10) > .nudge-lg:nth-child(2) { grid-area: m5; }
-          .ct-wrap .dial-row:has(.nudge-10) > .clip-dial { grid-area: dial; }
-          .ct-wrap .dial-row:has(.nudge-10) > .nudge-lg:nth-child(4) { grid-area: p5; }
-          .ct-wrap .dial-row:has(.nudge-10) > .nudge-lg:nth-child(5) { grid-area: p10; }
-          .ct-below { height: auto; min-height: 52px; }
+          /* ±5/±10-Raster, Padding und Clip-Slot kommen aus styles-dial.css (.sf-dial-col). */
+          .ct-below { height: auto; min-height: var(--sf-dial-below-min); }
           /* Mixer steht in der rechten Spalte, kein Blatt über dem Rad */
           .ct-adv-slot .ct-sheet {
             position: static;
@@ -620,34 +551,14 @@ export default function ClickTrainer({ preset = null } = {}) {
           .nc-dock {
             grid-column: 1;
             grid-row: 1 / -1;
-            align-self: stretch;
-            justify-content: center;
-            align-items: center;
-            padding: 8px 20px env(safe-area-inset-bottom, 0px);
-            background: transparent;
-            border: none;
-            box-shadow: none;
-            border-radius: 0;
           }
         }
         /* Kurzes iPhone-Querformat: enger, kleineres Rad, rechte Spalte scrollt bei Bedarf. */
         @media ${WIDE_MQ} and (max-height: 500px) {
-          .page.tool:has(.ct-wrap) { padding: 4px 12px 0; }
-          .ct-wrap { column-gap: 12px; }
-          .ct-wrap > .ct-stage { padding: 0 8px env(safe-area-inset-bottom, 0px); }
-          .ct-wrap > .ct-stage .dial-row { padding-bottom: 8px; }
-          .ct-wrap .dial-row:has(.nudge-10) { column-gap: 8px; row-gap: 8px; }
-          .page.tool:has(.ct-wrap) .ct-stage .dial-row .nudge-lg {
-            width: 44px;
-            height: 44px;
-            font-size: 15px;
-          }
           .ct-settings > .seg { margin: 0 0 6px; }
           .ct-settings .panel { padding: 10px 12px; margin-bottom: 6px; }
           .ct-settings .panel p { margin-top: 8px; }
           .ct-adv-slot { padding: 4px 0 env(safe-area-inset-bottom, 0px); }
-          .ct-below { min-height: 0; }
-          .ct-wrap .ct-clip { margin-top: 2px; }
         }
         /* Hochkant auf Duo aufgeklappt und iPad: einspaltig wie am Handy, nicht über die volle Breite. */
         @media (min-width: 640px) and (orientation: portrait) {
