@@ -508,7 +508,7 @@ export default function NoClick({ dialSize = 140 }) {
         .nc-ring.shown { opacity: 1; pointer-events: auto; }
         .nc-ring text { font-family: Figtree, sans-serif; pointer-events: none; }
         @media (prefers-reduced-motion: reduce) { .nc-ring, .nc-dock, .nc-num { transition: none; } }
-        /* Dieselbe Schwelle wie WIDE_MQ (nur Querformat): Einstellungen links, Rad rechts ohne Rahmen */
+        /* Dieselbe Schwelle wie WIDE_MQ (jedes Querformat ab 640 px): Rad links, Einstellungen rechts, ohne Rahmen */
         @media ${WIDE_MQ} {
           .nc-settings { min-width: 0; }
           .nc-head { text-align: left; margin: 2px 0 12px; }

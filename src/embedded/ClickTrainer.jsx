@@ -40,9 +40,13 @@ function useMixNow(mix, flipped) {
 }
 
 // Kreisgröße nach verfügbarer Höhe: groß auf normalen Phones, kleiner auf kurzen Screens / Querformat.
-// Breite Ansicht (nur Querformat): etwas größeres Rad, passt mit ±5/±10 in die rechte Spalte.
+// Breite Ansicht (jedes Querformat ab 640 px): Rad links, etwas größer; auf kurzem iPhone-Querformat kleiner, damit nichts abgeschnitten wird.
 function dialSizeFor(h, w = 9999) {
   if (isWideLayout(w, h)) {
+    if (h <= 500) {
+      const cap = h <= 400 ? 108 : 120;
+      return Math.max(96, Math.min(cap, Math.round(h * 0.28), Math.round(w * 0.26)));
+    }
     const side = Math.min(390, Math.max(300, Math.round(w * 0.48)));
     return Math.max(124, Math.min(152, Math.round(h * 0.22), side - 200));
   }
@@ -479,23 +483,25 @@ export default function ClickTrainer({ preset = null } = {}) {
           width: 64px; text-align: center; font-weight: 700; font-size: 16px; color: #5cc8b8;
           background: ${INK}; border: 1px solid ${LINE}; border-radius: 8px; padding: 7px 4px;
         }
-        /* Breite Ansicht nur im Querformat (WIDE_MQ): Einstellungen links, SpinDial rechts,
-           ohne Rahmen ums Rad, beide Spalten vertikal in der Mitte. */
+        /* Breite Ansicht in jedem Querformat ab 640 px (WIDE_MQ): SpinDial links,
+           Einstellungen rechts (schmale Spalte), ohne Rahmen ums Rad, beide Spalten vertikal in der Mitte. */
         @media ${WIDE_MQ} {
           .page.tool:has(.ct-wrap) {
             height: 100dvh;
             max-height: 100dvh;
             overflow: hidden;
+            padding-bottom: 0;
           }
           .page.tool:has(.ct-wrap) .main {
             flex: 1 1 auto;
             min-height: 0;
             overflow: hidden;
+            padding-bottom: 0;
           }
           .ct-wrap {
             display: grid;
-            /* Linke Spalte bewusst schmaler (max. 340px), rechts das Rad in der Restbreite. */
-            grid-template-columns: minmax(0, 340px) minmax(max-content, 1fr);
+            /* Links das Rad in der Restbreite, rechts die Einstellungen bewusst schmaler (max. 340px). */
+            grid-template-columns: minmax(max-content, 1fr) minmax(0, 340px);
             grid-template-rows: minmax(0, 1fr);
             column-gap: 16px;
             align-items: center;
@@ -519,11 +525,17 @@ export default function ClickTrainer({ preset = null } = {}) {
           .ct-settings {
             display: flex;
             flex-direction: column;
-            grid-column: 1;
+            grid-column: 2;
             grid-row: 1;
             align-self: center;
             min-height: 0;
             max-height: 100%;
+            overflow: hidden;
+          }
+          /* Panel scrollt bei Bedarf, „Erweitert“ bleibt sichtbar am unteren Rand. */
+          .ct-settings > .panel {
+            flex: 1 1 auto;
+            min-height: 0;
             overflow: auto;
           }
           .ct-wrap:has(.nc-dock) {
@@ -539,11 +551,14 @@ export default function ClickTrainer({ preset = null } = {}) {
           }
           .ct-adv-slot { padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px)); }
           .ct-wrap > .ct-stage {
-            grid-column: 2;
+            grid-column: 1;
             grid-row: 1;
             align-self: center;
             justify-content: center;
             align-items: center;
+            max-height: 100%;
+            min-height: 0;
+            box-sizing: border-box;
             padding: 8px 20px env(safe-area-inset-bottom, 0px);
             background: transparent;
             border: none;
@@ -580,7 +595,7 @@ export default function ClickTrainer({ preset = null } = {}) {
           .ct-wrap .dial-row:has(.nudge-10) > .nudge-lg:nth-child(4) { grid-area: p5; }
           .ct-wrap .dial-row:has(.nudge-10) > .nudge-lg:nth-child(5) { grid-area: p10; }
           .ct-below { height: auto; min-height: 52px; }
-          /* Mixer steht in der linken Spalte, kein Blatt über dem Rad */
+          /* Mixer steht in der rechten Spalte, kein Blatt über dem Rad */
           .ct-adv-slot .ct-sheet {
             position: static;
             left: auto;
@@ -601,9 +616,9 @@ export default function ClickTrainer({ preset = null } = {}) {
           }
           .ct-adv-slot .ct-sheet:not(.open) { display: none; }
           .nc-wrap { display: contents; }
-          .nc-settings { grid-column: 1; grid-row: 2 / -1; min-height: 0; overflow: auto; }
+          .nc-settings { grid-column: 2; grid-row: 2 / -1; min-height: 0; overflow: auto; }
           .nc-dock {
-            grid-column: 2;
+            grid-column: 1;
             grid-row: 1 / -1;
             align-self: stretch;
             justify-content: center;
@@ -614,6 +629,25 @@ export default function ClickTrainer({ preset = null } = {}) {
             box-shadow: none;
             border-radius: 0;
           }
+        }
+        /* Kurzes iPhone-Querformat: enger, kleineres Rad, rechte Spalte scrollt bei Bedarf. */
+        @media ${WIDE_MQ} and (max-height: 500px) {
+          .page.tool:has(.ct-wrap) { padding: 4px 12px 0; }
+          .ct-wrap { column-gap: 12px; }
+          .ct-wrap > .ct-stage { padding: 0 8px env(safe-area-inset-bottom, 0px); }
+          .ct-wrap > .ct-stage .dial-row { padding-bottom: 8px; }
+          .ct-wrap .dial-row:has(.nudge-10) { column-gap: 8px; row-gap: 8px; }
+          .page.tool:has(.ct-wrap) .ct-stage .dial-row .nudge-lg {
+            width: 44px;
+            height: 44px;
+            font-size: 15px;
+          }
+          .ct-settings > .seg { margin: 0 0 6px; }
+          .ct-settings .panel { padding: 10px 12px; margin-bottom: 6px; }
+          .ct-settings .panel p { margin-top: 8px; }
+          .ct-adv-slot { padding: 4px 0 env(safe-area-inset-bottom, 0px); }
+          .ct-below { min-height: 0; }
+          .ct-wrap .ct-clip { margin-top: 2px; }
         }
         /* Hochkant auf Duo aufgeklappt und iPad: einspaltig wie am Handy, nicht über die volle Breite. */
         @media (min-width: 640px) and (orientation: portrait) {
