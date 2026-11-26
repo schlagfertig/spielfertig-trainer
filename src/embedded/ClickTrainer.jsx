@@ -453,8 +453,8 @@ export default function ClickTrainer({ preset = null } = {}) {
           width: 64px; text-align: center; font-weight: 700; font-size: 16px; color: #5cc8b8;
           background: ${INK}; border: 1px solid ${LINE}; border-radius: 8px; padding: 7px 4px;
         }
-        /* Breite Ansicht in jedem Querformat ab 640 px (WIDE_MQ): SpinDial links,
-           Einstellungen rechts (schmale Spalte), ohne Rahmen ums Rad, beide Spalten vertikal in der Mitte. */
+        /* Breite Ansicht in jedem Querformat ab 640 px (WIDE_MQ): SpinDial in der Mitte
+           der linken Bildschirmhälfte, Einstellungen nutzen die rechte Hälfte. */
         @media ${WIDE_MQ} {
           .page.tool:has(.ct-wrap) {
             height: 100dvh;
@@ -468,12 +468,11 @@ export default function ClickTrainer({ preset = null } = {}) {
             overflow: hidden;
             padding-bottom: 0;
           }
+          /* Die linke Spalte ist fest (styles-dial.css); main beginnt bereits bei 50vw. */
           .ct-wrap {
             display: grid;
-            /* Platzhalter links in der gemeinsamen Dial-Spaltenbreite, Einstellungen rechts (max. 340px). */
-            grid-template-columns: var(--sf-dial-col-width) minmax(0, var(--sf-settings-col));
+            grid-template-columns: minmax(0, 1fr);
             grid-template-rows: minmax(0, 1fr);
-            column-gap: var(--sf-dial-col-gap);
             align-items: center;
             min-height: 0;
           }
@@ -495,9 +494,12 @@ export default function ClickTrainer({ preset = null } = {}) {
           .ct-settings {
             display: flex;
             flex-direction: column;
-            grid-column: 2;
+            grid-column: 1;
             grid-row: 1;
             align-self: center;
+            width: 100%;
+            max-width: none;
+            box-sizing: border-box;
             min-height: 0;
             max-height: 100%;
             overflow: hidden;
@@ -547,7 +549,7 @@ export default function ClickTrainer({ preset = null } = {}) {
           }
           .ct-adv-slot .ct-sheet:not(.open) { display: none; }
           .nc-wrap { display: contents; }
-          .nc-settings { grid-column: 2; grid-row: 2 / -1; min-height: 0; overflow: auto; }
+          .nc-settings { grid-column: 1; grid-row: 2 / -1; width: 100%; min-height: 0; overflow: auto; }
           .nc-dock {
             grid-column: 1;
             grid-row: 1 / -1;

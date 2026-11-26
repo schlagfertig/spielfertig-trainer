@@ -3,20 +3,22 @@
    Linke Spaltenbreite, Raddurchmesser (via useDialSize) und vertikaler Anker sind gleich. */
 @media (min-width: 640px) and (orientation: landscape) {
   .page.tool:has(.sf-land) {
-    --sf-land-main-max: 880px;
-    --sf-settings-col: 340px;
-    --sf-dial-col-gap: 16px;
-    --sf-dial-col-width: calc(var(--sf-land-main-max) - var(--sf-settings-col) - var(--sf-dial-col-gap));
+    /* Linke Hälfte des Bildschirms: das SpinDial sitzt in deren Mitte (Zentrum bei 25vw). */
     --sf-page-pad-x: 12px;
     --sf-page-pad-top: 6px;
     --sf-header-stack: 145px;
     --sf-land-top-space: calc(var(--sf-page-pad-top) + var(--sf-header-stack));
-    --sf-dial-col-left: max(
+    --sf-dial-col-left: 0px;
+    --sf-dial-col-width: 50vw;
+    --sf-land-content-left: 50vw;
+    --sf-dial-col-gap: 16px;
+    --sf-dial-safe-x: max(
       var(--sf-page-pad-x),
-      calc(var(--sf-page-pad-x) + (100vw - 2 * var(--sf-page-pad-x) - var(--sf-land-main-max)) / 2)
+      env(safe-area-inset-left, 0px),
+      env(safe-area-inset-right, 0px)
     );
-    --sf-land-content-left: calc(var(--sf-dial-col-left) + var(--sf-dial-col-width) + var(--sf-dial-col-gap));
-    --sf-dial-col-pad: 8px 20px env(safe-area-inset-bottom, 0px);
+    /* Symmetrisches Padding, damit das Rad bei 25vw bleibt und ±5/±10 nicht in die Safe Area rutschen. */
+    --sf-dial-col-pad: 8px max(20px, var(--sf-dial-safe-x)) env(safe-area-inset-bottom, 0px) max(20px, var(--sf-dial-safe-x));
     --sf-dial-row-pad-bottom: 36px;
     --sf-dial-nudge-col-gap: 14px;
     --sf-dial-nudge-row-gap: 12px;
@@ -32,11 +34,16 @@
     flex-direction: column;
   }
   .page.tool:has(.sf-land) .top { flex-shrink: 0; }
+  /* Rechte Hälfte: Noten und Einstellungen nutzen den gewonnenen Platz, ohne 880px-Deckel. */
   .page.tool:has(.sf-land) .main {
     flex: 1 1 auto;
     min-height: 0;
     overflow: hidden;
     padding-bottom: 0;
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    padding-left: calc(var(--sf-land-content-left) - var(--sf-page-pad-x));
   }
 
   /* Fest verankerte linke Spalte: gleiche Breite, gleiche linke Kante, gleicher vertikaler Anker. */
@@ -136,8 +143,7 @@
   .page.tool:has(.sf-land) {
     --sf-page-pad-top: 4px;
     --sf-dial-col-gap: 12px;
-    --sf-dial-col-width: calc(100vw - 2 * var(--sf-page-pad-x) - var(--sf-settings-col) - var(--sf-dial-col-gap));
-    --sf-dial-col-pad: 0px 8px env(safe-area-inset-bottom, 0px);
+    --sf-dial-col-pad: 0px max(8px, var(--sf-dial-safe-x)) env(safe-area-inset-bottom, 0px) max(8px, var(--sf-dial-safe-x));
     --sf-dial-row-pad-bottom: 8px;
     --sf-dial-nudge-col-gap: 8px;
     --sf-dial-nudge-row-gap: 8px;

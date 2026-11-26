@@ -59,9 +59,9 @@ test("Click-Trainer: im Querformat sitzt das SpinDial links, die Einstellungen r
   const src = readFileSync(new URL("../src/embedded/ClickTrainer.jsx", import.meta.url), "utf8");
   const wide = src.split("@media ${WIDE_MQ}")[1];
   assert.ok(wide, "WIDE_MQ-Block fehlt");
-  assert.match(wide, /grid-template-columns:\s*var\(--sf-dial-col-width\)\s+minmax\(0, var\(--sf-settings-col\)\)/);
+  assert.match(wide, /grid-template-columns:\s*minmax\(0, 1fr\)/);
   assert.match(src, /\.ct-wrap > \.ct-stage \{[^}]*grid-column:\s*1;/s);
-  assert.match(src, /\.ct-settings \{[^}]*grid-column:\s*2;/s);
+  assert.match(src, /\.ct-settings \{[^}]*grid-column:\s*1;/s);
   assert.match(src, /\.nc-dock \{[^}]*grid-column:\s*1;/s);
-  assert.match(src, /\.nc-settings \{ grid-column:\s*2;/);
+  assert.match(src, /\.nc-settings \{ grid-column:\s*1;/);
 });

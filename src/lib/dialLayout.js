@@ -3,11 +3,12 @@ import { isWideLayout } from "./wideLayout.js";
 
 // Gemeinsame Landschafts-Tokens für das SpinDial (Click-Trainer, Rhythmuspyramide,
 // Rudiments und spätere Übungen). Werte müssen zu src/styles-dial.css passen.
-export const DIAL_LAND_MAIN_MAX = 880;
-export const DIAL_LAND_SETTINGS_COL = 340;
+// Das Rad sitzt in der Mitte der linken Bildschirmhälfte (Zentrum bei 25vw);
+// die rechte Hälfte (ab 50vw) gehört Noten und Einstellungen.
+export const DIAL_LAND_CENTER_FRAC = 0.25;
+export const DIAL_LAND_COL_FRAC = 0.5;
 export const DIAL_LAND_COL_GAP = 16;
 export const DIAL_LAND_COL_GAP_COMPACT = 12;
-export const DIAL_LAND_COL_WIDTH = DIAL_LAND_MAIN_MAX - DIAL_LAND_SETTINGS_COL - DIAL_LAND_COL_GAP; // 524
 export const DIAL_LAND_HEADER_STACK = 145;
 export const DIAL_LAND_PAGE_PAD_X = 12;
 export const DIAL_LAND_PAGE_PAD_TOP = 6;

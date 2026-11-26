@@ -3,10 +3,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { WIDE_MQ } from "../src/lib/wideLayout.js";
 import {
-  DIAL_LAND_MAIN_MAX,
-  DIAL_LAND_SETTINGS_COL,
+  DIAL_LAND_CENTER_FRAC,
+  DIAL_LAND_COL_FRAC,
   DIAL_LAND_COL_GAP,
-  DIAL_LAND_COL_WIDTH,
   DIAL_LAND_HEADER_STACK,
   DIAL_LAND_PAGE_PAD_X,
   DIAL_LAND_PAGE_PAD_TOP,
@@ -20,18 +19,17 @@ const main = readFileSync(new URL("../src/main.jsx", import.meta.url), "utf8");
 
 test("Gemeinsame Querformat-Tokens für die linke SpinDial-Spalte", () => {
   assert.equal(WIDE_MQ, "(min-width: 640px) and (orientation: landscape)");
-  assert.equal(DIAL_LAND_MAIN_MAX, 880);
-  assert.equal(DIAL_LAND_SETTINGS_COL, 340);
+  assert.equal(DIAL_LAND_CENTER_FRAC, 0.25);
+  assert.equal(DIAL_LAND_COL_FRAC, 0.5);
   assert.equal(DIAL_LAND_COL_GAP, 16);
-  assert.equal(DIAL_LAND_COL_WIDTH, 524);
   assert.equal(DIAL_LAND_HEADER_STACK, 145);
   assert.equal(DIAL_LAND_PAGE_PAD_X, 12);
   assert.equal(DIAL_LAND_PAGE_PAD_TOP, 6);
   assert.match(main, /import "\.\/styles-dial\.css"/);
-  assert.match(shared, /--sf-land-main-max:\s*880px/);
-  assert.match(shared, /--sf-settings-col:\s*340px/);
+  assert.match(shared, /--sf-dial-col-left:\s*0px/);
+  assert.match(shared, /--sf-dial-col-width:\s*50vw/);
+  assert.match(shared, /--sf-land-content-left:\s*50vw/);
   assert.match(shared, /--sf-dial-col-gap:\s*16px/);
-  assert.match(shared, /--sf-dial-col-width:\s*calc\(var\(--sf-land-main-max\) - var\(--sf-settings-col\) - var\(--sf-dial-col-gap\)\)/);
   assert.match(shared, /--sf-header-stack:\s*145px/);
   assert.match(shared, /\.page\.tool:has\(\.sf-land\) \.sf-dial-col \{/);
   assert.match(shared, /left:\s*var\(--sf-dial-col-left\)/);
