@@ -7,6 +7,8 @@ export const CHANGELOG = [
   {
     date: "2026-11-26",
     items: [
+      { de: "Lexikon: Im Querformat öffnet sich das Lexikon wie ein Nachschlagewerk - links Suche, Buchstaben und die Begriffsliste, rechts die Erklärung mit viel Platz für das Foto. Die Buchstabenleiste zeigt alle Buchstaben vollständig, nichts wird mehr abgeschnitten. Hochkant bleibt die gewohnte Liste.",
+        en: "Glossary: in landscape the glossary opens like a reference book - search, letters and the term list on the left, and the explanation with generous space for the photo on the right. The letter bar now shows every letter in full, with nothing cut off. In portrait the familiar list stays as it is." },
       { de: "Rhythmuspyramide: Im Querformat sitzt das SpinDial in der Mitte der linken Bildschirmhälfte, in derselben Größe wie im Click-Trainer, mit ±5 über ±10 daneben. Die Noten und die Einstellungen nutzen die rechte Hälfte, der Clip-Knopf liegt unter dem Rad. Hochkant bleibt alles wie bisher.",
         en: "Rhythm Pyramid: in landscape the SpinDial sits in the middle of the left half of the screen, at the same size as in Click Trainer, with ±5 above ±10 beside it. The notation and settings use the right half, and the Clip button sits under the dial. In portrait nothing changes." },
       { de: "Rudiments: Im Querformat sitzt das SpinDial in der Mitte der linken Bildschirmhälfte wie im Click-Trainer, mit ±5 über ±10 daneben. Die Noten sowie Ziel und Klang nutzen die rechte Hälfte, die Zahlenleiste bleibt frei. Hochkant unverändert.",
