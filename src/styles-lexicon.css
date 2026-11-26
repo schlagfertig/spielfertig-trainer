@@ -1,0 +1,267 @@
+/* Lexikon: einspaltige Akkordeon-Ansicht (Hochkant) und zweispaltiges Nachschlagewerk (Querformat ab 640 px).
+   Querformat: Buchstabenleiste eine Zeile über beide Spalten, Erklärung kompakt, Bild bleibt im Fenster. */
+
+.lex { padding: 0 0 28px; }
+.lex-lead { color: var(--dim, #8a969c); font: 600 14px/1.4 Figtree, sans-serif; margin: 0 0 12px; }
+.lex-search {
+  width: 100%; box-sizing: border-box; margin: 0 0 12px;
+  background: #14191c; color: var(--txt, #f4f7f6); border: 1px solid var(--line, #2f383d); border-radius: 12px;
+  padding: 12px 14px; font: 600 16px Figtree, sans-serif;
+}
+.lex-search:focus { outline: none; border-color: var(--teal, #5cc8b8); }
+/* Buchstabenleiste: immer umbrechen, nie horizontal abschneiden oder wegscrollen. */
+.lex-az {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 0 10px;
+  overflow: visible;
+}
+.lex-az button {
+  flex: 1 1 28px;
+  min-width: 28px;
+  max-width: 36px;
+  height: 32px;
+  padding: 0;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: var(--teal, #5cc8b8);
+  background: #14191c;
+  border: 1px solid var(--line, #2f383d);
+  font: 800 13px Figtree, sans-serif;
+  cursor: pointer;
+}
+.lex-az button:focus-visible { outline: 2px solid var(--teal, #5cc8b8); outline-offset: 2px; }
+.lex-az button.is-on {
+  background: var(--teal, #5cc8b8);
+  border-color: var(--teal, #5cc8b8);
+  color: var(--ink, #161a1d);
+}
+.lex-empty { color: var(--dim, #8a969c); font: 600 14px Figtree, sans-serif; }
+.lex-item { border-bottom: 1px solid var(--line, #2f383d); scroll-margin-top: 76px; }
+.lex-details { color: var(--txt, #f4f7f6); }
+.lex-details summary {
+  list-style: none; cursor: pointer; padding: 14px 28px 14px 2px; position: relative; scroll-margin-top: 76px;
+  font: 700 18px/1.2 Figtree, sans-serif;
+}
+.lex-details summary::-webkit-details-marker { display: none; }
+.lex-details summary::after {
+  content: "+"; position: absolute; right: 2px; top: 14px; color: var(--teal, #5cc8b8); font-size: 18px;
+}
+.lex-details[open] summary::after { content: "-"; }
+.lex-details .lex-brand,
+.lex-term .lex-brand,
+.lex-detail-title.is-brand { color: var(--teal, #5cc8b8); }
+.lex-body { color: #d5dcde; font: 600 15px/1.45 Figtree, sans-serif; margin: 0 0 8px; }
+.lex-letter { color: var(--teal, #5cc8b8); font: 800 12px Figtree, sans-serif; letter-spacing: 0.14em; margin: 14px 0 0; }
+.lex-fig { margin: 0 0 14px; }
+.lex-fig img { display: block; width: 100%; height: auto; border-radius: 12px; background: #101416; }
+
+/* Querformat ab 640 px (WIDE_MQ): Buchstabenleiste eine Zeile über beide Spalten,
+   darunter links Verzeichnis, rechts die kompakte Erklärung mit Bild. */
+@media (min-width: 640px) and (orientation: landscape) {
+  .page.tool.view-lexicon {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+  }
+  /* Hochkant klebt nur die Knopfzeile; quer bleibt die ganze Kopfzeile fest oben, aber flach.
+     Höhere Spezifität als display:contents in styles.css, sonst hat die Kopfzeile keinen Kasten. */
+  body .page.tool.view-lexicon .top {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    gap: 1px;
+    padding: 0 0 2px;
+  }
+  .page.tool.view-lexicon .top-row {
+    position: static;
+    box-shadow: none;
+    background: transparent;
+    padding: 0;
+  }
+  .page.tool.view-lexicon .top .ghost,
+  .page.tool.view-lexicon .top .help-dot {
+    min-height: 36px;
+    height: 36px;
+    padding: 4px 12px;
+  }
+  .page.tool.view-lexicon .top .help-dot { width: 36px; padding: 0; }
+  .page.tool.view-lexicon .top-title { font-size: 20px; line-height: 1.05; }
+  .page.tool.view-lexicon .main {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: 0;
+    max-width: none;
+  }
+  .lex.is-wide {
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: 0;
+  }
+  /* Alle vorhandenen Buchstaben in einer Zeile, volle Breite, ohne Umbruch und ohne seitliches Abschneiden. */
+  .lex.is-wide > .lex-az {
+    flex: none;
+    flex-wrap: nowrap;
+    gap: 3px;
+    width: 100%;
+    min-width: 0;
+    margin: 0 0 8px;
+  }
+  .lex.is-wide > .lex-az button {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
+    width: auto;
+    height: 30px;
+    padding: 0;
+    border-radius: 7px;
+    font-size: clamp(12px, 1.5vw, 14px);
+  }
+  .lex-split {
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(230px, 0.34fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    align-items: stretch;
+  }
+  .lex-col {
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .lex-col.is-index { padding-right: 16px; }
+  .lex-col.is-detail {
+    display: block;
+    padding-left: 18px;
+    border-left: 1px solid rgba(201, 211, 214, 0.18);
+    box-shadow: inset 10px 0 14px -12px rgba(0, 0, 0, 0.45);
+    overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .lex.is-wide .lex-search { margin-bottom: 8px; flex: none; }
+  .lex-index {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 16px;
+  }
+  .lex-index .lex-letter {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    margin: 0;
+    padding: 8px 0 4px;
+    background: var(--ink, #161a1d);
+    scroll-margin-top: 0;
+  }
+  .lex-index .lex-item {
+    border-bottom: 0;
+    scroll-margin-top: 0;
+  }
+  .lex-term {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    border-radius: 8px;
+    color: var(--txt, #f4f7f6);
+    padding: 10px 10px 10px 12px;
+    font: 700 16px/1.25 Figtree, sans-serif;
+    cursor: pointer;
+  }
+  .lex-term + .lex-term,
+  .lex-item + .lex-item .lex-term { margin-top: 2px; }
+  .lex-term:focus-visible { outline: 2px solid var(--teal, #5cc8b8); outline-offset: 0; }
+  .lex-term.is-on {
+    background: rgba(92, 200, 184, 0.14);
+    color: var(--teal, #5cc8b8);
+    box-shadow: inset 3px 0 0 var(--teal, #5cc8b8);
+  }
+  /* Erklärung füllt die Spalte. Kurzer Text lässt dem Bild den Rest; längerer Text scrollt die Spalte. */
+  .lex-detail {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    align-content: stretch;
+    min-height: 100%;
+    padding: 0 2px 8px;
+  }
+  .lex-detail-title {
+    margin: 0 0 6px;
+    font: 800 24px/1.1 Figtree, sans-serif;
+    color: var(--txt, #f4f7f6);
+  }
+  .lex-detail .lex-body {
+    font-size: 15px;
+    line-height: 1.4;
+    margin: 0 0 8px;
+  }
+  .lex-detail .lex-fig {
+    min-height: 112px;
+    margin: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .lex-detail .lex-fig img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: min(520px, calc(100dvh - 210px));
+    object-fit: contain;
+    object-position: top center;
+    border-radius: 12px;
+  }
+}
+
+/* Kurzes Querformat (iPhone typisch 390 px hoch): noch enger, Bild bleibt im Fenster. */
+@media (min-width: 640px) and (orientation: landscape) and (max-height: 500px) {
+  .page.tool.view-lexicon {
+    padding-top: max(4px, env(safe-area-inset-top, 0px));
+    padding-bottom: max(4px, env(safe-area-inset-bottom, 0px));
+  }
+  body .page.tool.view-lexicon .top { padding: 0; gap: 0; }
+  .page.tool.view-lexicon .top .ghost,
+  .page.tool.view-lexicon .top .help-dot {
+    min-height: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  .page.tool.view-lexicon .top .help-dot { width: 32px; }
+  .page.tool.view-lexicon .top-title { font-size: 17px; }
+  .lex-col.is-index { padding-right: 12px; }
+  .lex-col.is-detail { padding-left: 12px; }
+  .lex.is-wide .lex-search { padding: 8px 12px; margin-bottom: 6px; }
+  .lex.is-wide > .lex-az { gap: 2px; margin-bottom: 4px; }
+  .lex.is-wide > .lex-az button { height: 26px; min-width: 0; font-size: 12px; }
+  .lex-index .lex-letter { padding: 4px 0 2px; }
+  .lex-term { padding: 7px 8px 7px 10px; font-size: 15px; }
+  .lex-detail { padding-bottom: 4px; }
+  .lex-detail-title { font-size: 18px; margin-bottom: 4px; }
+  .lex-detail .lex-body { font-size: 14px; line-height: 1.35; margin-bottom: 6px; }
+  .lex-detail .lex-fig { min-height: 96px; }
+  .lex-detail .lex-fig img { border-radius: 10px; }
+}

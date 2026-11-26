@@ -33,6 +33,26 @@
   background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.18); }
 .jr-sitzt { color: #e8b84b; border-color: rgba(232, 184, 75, 0.45); }
 .jr-acts .dy-del { margin-left: auto; }
+
+/* Optionale Notiz: ohne Text nur ein kompakter „+ Notiz“-Knopf, mit Text dezent unter dem Titel. */
+.jr-note-slot { padding: 0 16px 8px; }
+.jr-card .jr-note-slot { padding: 0 16px 8px 18px; }
+.jr-note, .jr-note-add {
+  display: block; width: 100%; margin: 0; padding: 0; border: 0; background: transparent;
+  text-align: left; cursor: pointer; font: 600 13px/1.4 Figtree, sans-serif;
+}
+.jr-note {
+  color: #8a969c; white-space: pre-wrap; overflow: hidden;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2;
+}
+.jr-note-add { color: #5cc8b8; font-weight: 700; min-height: 32px; }
+.jr-note-edit { display: grid; gap: 8px; }
+.jr-note-edit textarea {
+  width: 100%; min-height: 56px; box-sizing: border-box; padding: 8px 10px; border-radius: 12px; resize: none;
+  border: 1px solid rgba(92, 200, 184, 0.45); background: rgba(22, 26, 29, 0.7); color: #eeeeee;
+  font: 600 14px/1.35 Figtree, sans-serif;
+}
+.jr-note-edit-acts { display: flex; justify-content: flex-end; gap: 8px; }
 .jr-item.is-done .jr-item-main b { color: #c9d3d6; }
 .jr-item.is-done { opacity: .82; }
 .jr-done h3 { margin: 18px 0 10px; color: #e8b84b; font: 800 13px Figtree, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
@@ -87,3 +107,117 @@
 .jr-move-text { width: 100%; min-height: 96px; max-height: 160px; padding: 10px; border-radius: 12px; resize: vertical; box-sizing: border-box;
   background: #161a1d; color: #cfd6d8; border: 1px solid rgba(255, 255, 255, 0.18); font: 12px/1.4 ui-monospace, Menlo, monospace; }
 .jr-move-err { margin: 0; color: #e8b84b; font: 700 14px/1.4 Figtree, sans-serif; text-align: center; }
+
+
+/* Querformat ab 640 px (WIDE_MQ): aufgeschlagenes Heft — Tagebuch links, Hausaufgaben rechts, feine Buchfalz. */
+@media (min-width: 640px) and (orientation: landscape) {
+  .page.tool.view-diary {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+  .page.tool.view-diary .main {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    max-width: min(1080px, 100%);
+    padding-bottom: 0;
+  }
+  .jr-wrap.is-wide {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 0;
+  }
+  .jr-wrap.is-wide .jr-tabs { flex: none; margin: 2px 0 10px; }
+  .jr-spread,
+  .jr-land-cards {
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+  }
+  .jr-spread {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+    overflow: hidden;
+  }
+  .jr-spread-col {
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .jr-spread-col.is-left { padding-right: 16px; }
+  .jr-spread-col.is-right {
+    padding-left: 16px;
+    border-left: 1px solid rgba(201, 211, 214, 0.18);
+    box-shadow: inset 10px 0 14px -12px rgba(0, 0, 0, 0.45);
+  }
+  .jr-spread-head {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    margin: 0 0 8px;
+    padding: 0 0 6px;
+    color: #5cc8b8;
+    font: 800 13px/1.2 Figtree, sans-serif;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    background: var(--ink, #161a1d);
+  }
+  .jr-spread-col .dy-kick,
+  .jr-spread-col .dy-lead { display: none; }
+  .jr-spread-col .jr-pane { padding-bottom: 16px; }
+  .jr-land-cards {
+    overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .jr-land-cards .jr-pane { padding-bottom: 16px; }
+  .jr-wrap.is-wide .jr-move { flex: none; margin: 10px 0 0; }
+}
+
+/* Auf iPad und Duo (höheres Querformat): Karteikarten zweispaltig, damit die Fläche ruhig wirkt. */
+@media (min-width: 640px) and (orientation: landscape) and (min-height: 501px) {
+  .jr-land-cards .jr-cards { grid-template-columns: 1fr 1fr; }
+}
+
+/* Kurzes Querformat (iPhone typisch 390–430 px hoch): oben und unten enger, Spalten bleiben unabhängig scrollbar.
+   „Journal mitnehmen“ wird zur schmalen Leiste, damit Tagebuch-Einträge und Karten wirklich sichtbar sind. */
+@media (min-width: 640px) and (orientation: landscape) and (max-height: 500px) {
+  .page.tool.view-diary {
+    padding-top: max(8px, env(safe-area-inset-top, 0px));
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+  }
+  .page.tool.view-diary .top { padding-top: 0; padding-bottom: 2px; }
+  .page.tool.view-diary .top-title { font-size: 20px; }
+  .jr-wrap.is-wide .jr-tabs { margin: 0 0 6px; }
+  .jr-wrap.is-wide .jr-tabs button { min-height: 40px; }
+  .jr-spread-col.is-left { padding-right: 12px; }
+  .jr-spread-col.is-right { padding-left: 12px; }
+  .jr-spread-col .dy-set { padding: 8px 12px; gap: 8px; }
+  .jr-spread-col .dy-set small { display: none; }
+  .jr-spread-col .dy-month { display: none; }
+  .jr-land-cards .dy-lead { display: none; }
+  .jr-land-cards .jr-add { margin: 0 0 8px; padding: 8px 10px; }
+  .jr-wrap.is-wide .jr-move {
+    margin: 4px 0 0;
+    padding: 6px 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+  .jr-wrap.is-wide .jr-move h3 { margin: 0; white-space: nowrap; }
+  .jr-wrap.is-wide .jr-move > p { display: none; }
+  .jr-wrap.is-wide .jr-move-btns { flex: 1; min-width: 0; }
+  .jr-wrap.is-wide .jr-move-btn { min-height: 36px; }
+}

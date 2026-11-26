@@ -7,6 +7,9 @@ import { beatDelayMs } from "../lib/audioOffset.js";
 import { t } from "../lib/i18n.js";
 import { usePracticeTrack } from "../lib/PracticeDiary.jsx";
 import { askUnlock, pyramidStageOpen } from "../lib/demo.js";
+import { WIDE_MQ, useWideLayout } from "../lib/wideLayout.js";
+import { useDialSize } from "../lib/dialLayout.js";
+import { PracticeClip } from "../lib/PracticeClip.jsx";
 
 const DIM = "#8a969c";
 const TEAL = "#5cc8b8";
@@ -99,6 +102,8 @@ function useMorph(rud, sig, on) {
 }
 
 export default function PyramidTrainer({ preset = null } = {}) {
+  const wide = useWideLayout();
+  const dialSize = useDialSize();
   const startBpm = preset?.bpm || 80;
   const [bpm, setBpm] = useState(startBpm);
   const [bars, setBars] = useState(2);
@@ -301,7 +306,7 @@ export default function PyramidTrainer({ preset = null } = {}) {
   }
 
   return (
-    <div className={focus ? "pyramid-wrap focus" : "pyramid-wrap"} ref={wrapRef}>
+    <div className={focus ? "pyramid-wrap sf-land focus" : "pyramid-wrap sf-land"} ref={wrapRef}>
       {!focus ? (
         <p style={{ color: DIM, fontSize: 13, margin: "8px 0 10px" }}>
           {t("Stufen wählen · immer 4/4.")}
@@ -399,22 +404,31 @@ export default function PyramidTrainer({ preset = null } = {}) {
           </div>
         </div>
       ) : null}
-      <div className={focus ? "pyramid-dock pyr-dock focus" : "pyramid-dock pyr-dock"}>
-        <div style={{ pointerEvents: "auto", maxWidth: 880, margin: "0 auto" }}>
+      <div className={focus ? "pyramid-dock pyr-dock sf-dial-col focus" : "pyramid-dock pyr-dock sf-dial-col"}>
+        <div className="pyr-dial-inner">
           <div className="dial-row">
             <Nudge by={-10} bpm={bpm} set={setBpm} min={30} max={200} />
             <Nudge by={-5} bpm={bpm} set={setBpm} min={30} max={200} />
-            <MetronomeDial bpm={bpm} setBpm={(n) => setBpm(clamp(n, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={focus ? 112 : 124} now subLabel={playing ? "Stop" : "Start"} wheel />
+            <MetronomeDial bpm={bpm} setBpm={(n) => setBpm(clamp(n, 30, 200))} beat={beat} active={playing} onToggle={() => (playing ? stop() : start())} size={wide ? dialSize : (focus ? 112 : 124)} now subLabel={playing ? "Stop" : "Start"} wheel />
             <Nudge by={5} bpm={bpm} set={setBpm} min={30} max={200} />
             <Nudge by={10} bpm={bpm} set={setBpm} min={30} max={200} />
           </div>
-          {playing && !counting ? (
-            <div className="count">
-              <span className="count-num">{leftBars}</span>
-              <span className="count-unit">{t(leftBars === 1 ? "Takt übrig" : "Takte übrig")}</span>
+          <div className="sf-dial-below">
+            {wide ? (
+              <div className="sf-dial-clip">
+                <PracticeClip inline title={t("Rhythmuspyramide")} view="pyramid" />
+              </div>
+            ) : null}
+            <div className="sf-dial-slot">
+              {playing && !counting ? (
+                <div className="count">
+                  <span className="count-num">{leftBars}</span>
+                  <span className="count-unit">{t(leftBars === 1 ? "Takt übrig" : "Takte übrig")}</span>
+                </div>
+              ) : null}
+              {done ? <p style={{ color: TEAL, textAlign: "center", margin: "12px 0 0" }}>{t(done)}</p> : null}
             </div>
-          ) : null}
-          {done ? <p style={{ color: TEAL, textAlign: "center", margin: "12px 0 0" }}>{t(done)}</p> : null}
+          </div>
         </div>
       </div>
       <style>{`
@@ -472,19 +486,43 @@ export default function PyramidTrainer({ preset = null } = {}) {
         @media (prefers-reduced-motion: reduce) {
           .pyr-layer-old { display: none; }
         }
-        /* Quer beim Üben: Noten links, Rad und Takt-Zähler rechts - nichts liegt übereinander */
-        @media (orientation: landscape) and (max-height: 820px) {
-          /* Rechte Spalte breit genug für −5 · Rad (144 px mit Ring) · +5 samt Rand - vorher ragte +5 um 4 px über den Bildschirm */
-          .pyramid-wrap.focus { padding-bottom: 12px; padding-right: calc(284px + env(safe-area-inset-right, 0px)); }
-          .pyr-dock.focus { left: auto; top: 0; width: calc(284px + env(safe-area-inset-right, 0px)); padding: 8px calc(12px + env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) 12px; display: flex; flex-direction: column; justify-content: center; }
-          .pyr-dock.focus .dial-row { gap: 8px; }
-          .pyr-dock.focus .count { margin-top: 22px; }
-          .pyr-dock.focus .count-num { font-size: 40px; }
-          .pyr-dock.focus .count-unit { font-size: 13px; }
+        .pyr-dial-inner { pointer-events: auto; max-width: 880px; margin: 0 auto; }
+        /* Querformat: SpinDial links in der gemeinsamen Spalte (wie Click-Trainer), Noten und Auswahl rechts. */
+        @media ${WIDE_MQ} {
+          .page.tool:has(.pyramid-wrap) .main {
+            max-width: none;
+            width: 100%;
+            margin: 0;
+            padding-left: calc(var(--sf-land-content-left) - var(--sf-page-pad-x));
+          }
+          .pyramid-wrap,
+          .pyramid-wrap.focus {
+            padding-bottom: 8px;
+            padding-right: 0;
+            height: 100%;
+            min-height: 0;
+            overflow: auto;
+            box-sizing: border-box;
+          }
+          .pyr-dial-inner { max-width: none; margin: 0; display: contents; }
+          .pyr-dock .count { margin-top: 0; }
+          .pyr-dock.focus .count-num { font-size: 28px; }
+          .pyr-dock.focus .count-unit { font-size: 12px; }
           .pyramid-wrap.focus .pyr-cur .staff-label { display: flex; gap: 8px; align-items: baseline; }
           .pyramid-wrap.focus .pyr-cur .pyr-kick { display: inline; margin: 0; }
           .pyramid-wrap.focus .pyr-next { margin-top: 8px; padding: 8px 12px 6px; }
           .pyramid-wrap.focus .pyr-next-staff svg { max-height: 84px; }
+          /* Der feste Clip-Knopf aus der App-Hülle weicht dem Clip unter dem Rad. */
+          .page.tool.view-pyramid .clip-fab:not(.clip-inline) { display: none; }
+        }
+        /* Kürzeres Querformat (Duo, iPhone): Notenkarte etwas flacher, damit Richtung und Länge sichtbar bleiben. */
+        @media ${WIDE_MQ} and (max-height: 700px) {
+          .pyramid-wrap:not(.focus) .pyr-cur { padding-top: 8px; padding-bottom: 4px; }
+          .pyramid-wrap:not(.focus) .pyr-cur svg { max-height: 96px; }
+          .pyr-steps { gap: 5px; margin-bottom: 4px; }
+          .pyr-steps .chip { min-height: 44px; padding: 4px; }
+          .pyr-opt { margin-top: 6px; }
+          .pyr-opt-l { font-size: 11px; margin-bottom: 4px; }
         }
       `}</style>
     </div>

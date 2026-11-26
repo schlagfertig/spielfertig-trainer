@@ -505,3 +505,10 @@ export function searchLexicon(q, lang = "de") {
   if (!s) return list;
   return list.filter((e) => e.term.toLowerCase().includes(s) || e.text.toLowerCase().includes(s));
 }
+
+/** Aktive Auswahl: bleibt, wenn der Begriff noch in der (gefilterten) Liste steht, sonst der erste sichtbare. */
+export function pickLexiconSelection(list, currentId) {
+  if (!Array.isArray(list) || list.length === 0) return null;
+  if (currentId && list.some((e) => e.id === currentId)) return currentId;
+  return list[0].id;
+}

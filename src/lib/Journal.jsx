@@ -5,17 +5,23 @@ import { loadSession, saveSession } from "./session.js";
 import { RUDIMENTS } from "./rudiments.js";
 import { RudimentStaff } from "./staff.jsx";
 import PracticeDiary, { entryName } from "./PracticeDiary.jsx";
-import { CARD_LEVELS, addCard, hasCard, removeCard, removeHw, setCardLevel, setHwDone, sortCards, splitHw, toggleCard, toggleHw } from "./journal.js";
+import { CARD_LEVELS, MAX_NOTE, addCard, hasCard, removeCard, removeHw, setCardLevel, setCardNote, setHwDone, setHwNote, sortCards, splitHw, toggleCard, toggleHw } from "./journal.js";
 import { JOURNAL_EVENT, buildEntry, getCtx, journalOn, loadCards, loadHw, restoreSessions, saveCards, saveHw } from "./journalStore.js";
 import { dayKey } from "./practiceLog.js";
 import JournalBackup from "./JournalBackup.jsx";
 import { askUnlock, isUnlocked, rudimentOpen, stickOpen, withinFreeCount, FREE_JOURNAL_N } from "./demo.js";
 import { PaidMark } from "./PaidMark.jsx";
+import { useWideLayout } from "./wideLayout.js";
 import "../styles-journal.css";
 
 const TABS = [
   { id: "diary", label: "Tagebuch" },
   { id: "hw", label: "Hausaufgaben" },
+  { id: "cards", label: "Karteikasten" },
+];
+// Querformat ab 640 px (WIDE_MQ): zwei Reiter statt drei, Heft-Ansicht links/rechts.
+const LAND_TABS = [
+  { id: "spread", label: "Tagebuch & Hausaufgaben" },
   { id: "cards", label: "Karteikasten" },
 ];
 // Welche Übung zu welcher Ansicht gehört (Click-Trainer meldet auch aus NoClick heraus „click“).
@@ -70,6 +76,52 @@ export function whenText(at) {
 const Trash = () => (
   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" /></svg>
 );
+
+// Optionale kurze Notiz: ohne Text nur „+ Notiz“, mit Text dezent unter dem Titel, tippen zum Bearbeiten.
+function ItemNote({ text, onSave }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(text || "");
+  const start = () => { setDraft(text || ""); setEditing(true); };
+  const cancel = () => { setEditing(false); setDraft(text || ""); };
+  const save = () => { onSave(draft); setEditing(false); };
+  if (editing) {
+    return (
+      <div className="jr-note-slot">
+        <div className="jr-note-edit">
+          <textarea
+            value={draft}
+            maxLength={MAX_NOTE}
+            rows={2}
+            autoFocus
+            placeholder={t("z. B. Ziel: 96 BPM, locker aus dem Handgelenk")}
+            aria-label={t("Notiz")}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); save(); }
+              if (e.key === "Escape") { e.preventDefault(); cancel(); }
+            }}
+          />
+          <div className="jr-note-edit-acts">
+            <button type="button" className="jr-chip" onClick={cancel}>{t("Abbrechen")}</button>
+            <button type="button" className="jr-go" onClick={save}>{t("Speichern")}</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (text) {
+    return (
+      <div className="jr-note-slot">
+        <button type="button" className="jr-note" onClick={start} aria-label={t("Notiz bearbeiten")}>{text}</button>
+      </div>
+    );
+  }
+  return (
+    <div className="jr-note-slot">
+      <button type="button" className="jr-note-add" onClick={start} aria-label={t("Notiz hinzufügen")}>+ {t("Notiz")}</button>
+    </div>
+  );
+}
 
 // Glas-Knöpfe in der Kopfzeile einer Übung: „Zu Hausaufgaben“ (und bei Rudiments „In den Karteikasten“).
 export function JournalBar({ view }) {
@@ -147,6 +199,7 @@ function HwItem({ x, onOpen }) {
         <small>{hwDetail(x)}</small>
         <span className={x.lastAt ? "jr-when" : "jr-when is-new"}>{whenText(x.lastAt)}</span>
       </button>
+      <ItemNote text={x.note || ""} onSave={(note) => saveHw(setHwNote(loadHw(), x.key, note))} />
       <div className="jr-acts">
         <button type="button" className="jr-go" onClick={() => openHw(x, onOpen)}>{t("Üben", null, "hw")} ›</button>
         {x.done ? (
@@ -260,6 +313,7 @@ function Cards({ onOpen }) {
                   <span className="jr-thumb" aria-hidden="true"><RudimentStaff rud={r} /></span>
                   <span className={c.lastAt ? "jr-when" : "jr-when is-new"}>{whenText(c.lastAt)}</span>
                 </button>
+                <ItemNote text={c.note || ""} onSave={(note) => saveCards(setCardNote(loadCards(), c.rud, note))} />
                 <div className="jr-card-foot">
                   <div className="seg jr-lv" role="radiogroup" aria-label={t("Stufe: {name}", { name })}>
                     {CARD_LEVELS.map((l) => (
@@ -280,21 +334,42 @@ function Cards({ onOpen }) {
 
 export default function Journal({ onOpen }) {
   useJournal();
+  const wide = useWideLayout();
   const [tab, setTabRaw] = useState(() => (TABS.some((x) => x.id === loadSession("journal", {}).tab) ? loadSession("journal", {}).tab : "diary"));
   const setTab = (id) => { setTabRaw(id); saveSession("journal", { tab: id }); };
+  const pickTab = (id) => setTab(id === "spread" ? (tab === "cards" ? "diary" : tab) : id);
   const hwSplit = splitHw(loadHw());
   const hwOpen = capSlice([...hwSplit.open, ...hwSplit.done]).items.filter((x) => !x.done).length;
   const [gen, setGen] = useState(0); // nach einem Import neu laden
+  const landTab = tab === "cards" ? "cards" : "spread";
+  const tabs = wide ? LAND_TABS : TABS;
   return (
-    <div className="jr-wrap">
+    <div className={wide ? "jr-wrap is-wide" : "jr-wrap"}>
       <div className="seg jr-tabs" role="tablist" aria-label={t("Journal")}>
-        {TABS.map((x) => (
-          <button key={x.id} type="button" role="tab" aria-selected={tab === x.id} className={tab === x.id ? "on" : ""} onClick={() => setTab(x.id)}>
-            {t(x.label)}{x.id === "hw" && hwOpen ? <span className="jr-badge">{hwOpen}</span> : null}
-          </button>
-        ))}
+        {tabs.map((x) => {
+          const on = wide ? landTab === x.id : tab === x.id;
+          const badge = (x.id === "hw" || x.id === "spread") && hwOpen;
+          return (
+            <button key={x.id} type="button" role="tab" aria-selected={on} className={on ? "on" : ""} onClick={() => pickTab(x.id)}>
+              {t(x.label)}{badge ? <span className="jr-badge">{hwOpen}</span> : null}
+            </button>
+          );
+        })}
       </div>
-      <div key={gen}>{tab === "diary" ? <PracticeDiary /> : tab === "hw" ? <Homework onOpen={onOpen} /> : <Cards onOpen={onOpen} />}</div>
+      {wide && landTab === "spread" ? (
+        <div key={gen} className="jr-spread">
+          <section className="jr-spread-col is-left" aria-label={t("Tagebuch")}>
+            <h3 className="jr-spread-head">{t("Tagebuch")}</h3>
+            <PracticeDiary />
+          </section>
+          <section className="jr-spread-col is-right" aria-label={t("Hausaufgaben")}>
+            <h3 className="jr-spread-head">{t("Hausaufgaben")}</h3>
+            <Homework onOpen={onOpen} />
+          </section>
+        </div>
+      ) : (
+        <div key={gen} className={wide ? "jr-land-cards" : undefined}>{tab === "diary" ? <PracticeDiary /> : tab === "hw" ? <Homework onOpen={onOpen} /> : <Cards onOpen={onOpen} />}</div>
+      )}
       <JournalBackup onChanged={() => setGen((g) => g + 1)} />
     </div>
   );
