@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { exKey, toggleHw, setHwDone, removeHw, splitHw, notePractice, findHw, normalizeHw, toggleCard, addCard, setCardLevel, removeCard, noteCard, sortCards, normalizeCards, hasCard } from "../src/lib/journal.js";
+import { exKey, toggleHw, setHwDone, removeHw, setHwNote, splitHw, notePractice, findHw, normalizeHw, toggleCard, addCard, setCardLevel, setCardNote, removeCard, noteCard, sortCards, normalizeCards, hasCard, cleanNote, MAX_NOTE } from "../src/lib/journal.js";
 import { record } from "../src/lib/practiceLog.js";
 import { EN } from "../src/lib/en.js";
 import { EN2 } from "../src/lib/en2.js";
@@ -111,4 +111,61 @@ test("Journal: Texte übersetzt", () => {
   const EN_ALL = { ...EN, ...EN2 };
   for (const [k, v] of HELP.journal) { assert.ok(EN_ALL[k], `EN fehlt: ${k}`); assert.ok(EN_ALL[v], `EN fehlt: ${v}`); }
   for (const k of ["Zu Hausaufgaben", "In den Karteikasten", "Hausaufgabe", "Übe ich", "Sitzt", "Karteikasten"]) assert.ok(EN2[k], k);
+});
+
+test("Notiz: an Hausaufgabe und Karteikarte setzen, ändern, löschen", () => {
+  let l = toggleHw(null, rud(16), 1).list;
+  l = setHwNote(l, "rudiments|16", "  Ziel: 96 BPM, locker aus dem Handgelenk  ");
+  assert.equal(l.items[0].note, "Ziel: 96 BPM, locker aus dem Handgelenk");
+  l = setHwNote(l, "rudiments|16", "Akzent auf die 2");
+  assert.equal(l.items[0].note, "Akzent auf die 2");
+  l = setHwNote(l, "rudiments|16", "   \n  ");
+  assert.ok(!("note" in l.items[0]));
+  // unbekannter Schlüssel ändert nichts
+  const same = setHwNote(l, "rudiments|99", "x");
+  assert.equal(same.items[0].note, undefined);
+  assert.equal(l.items.length, 1);
+});
+
+test("Notiz: Karteikarte setzen, ändern, löschen; alte Einträge ohne note bleiben gültig", () => {
+  let l = toggleCard(null, 16, 1).list;
+  assert.ok(!("note" in l.cards[0]));
+  l = setCardNote(l, 16, "Akzent auf die 2");
+  assert.equal(l.cards[0].note, "Akzent auf die 2");
+  l = setCardNote(l, 16, "  88 BPM  ");
+  assert.equal(l.cards[0].note, "88 BPM");
+  l = setCardNote(l, 16, "");
+  assert.ok(!("note" in l.cards[0]));
+  const old = { v: 1, cards: [{ rud: 1, level: "neu", at: 1, lastAt: 0 }] };
+  const n = normalizeCards(old);
+  assert.deepEqual(n.cards[0], { rud: 1, level: "neu", at: 1, lastAt: 0 });
+  const oldHw = { v: 1, items: [{ key: "pyramid", ex: "pyramid", view: "pyramid", done: false, at: 1, lastAt: 0, runs: 0 }] };
+  assert.ok(!("note" in normalizeHw(oldHw).items[0]));
+});
+
+test("Notiz: bleibt beim Abhaken, Stufenwechseln und Üben erhalten; leere und zu lange Werte werden aufgeräumt", () => {
+  let l = setHwNote(toggleHw(null, rud(16), 1).list, "rudiments|16", "locker bleiben");
+  l = setHwDone(l, "rudiments|16", true, 10);
+  assert.equal(l.items[0].note, "locker bleiben");
+  assert.equal(notePractice(l, "rudiments|16", 20).list.items[0].note, "locker bleiben");
+  let c = setCardNote(toggleCard(null, 6, 1).list, 6, "Ziel: 80 BPM");
+  c = setCardLevel(c, 6, "uebe");
+  assert.equal(c.cards[0].note, "Ziel: 80 BPM");
+  assert.equal(noteCard(c, 6, 30).list.cards[0].note, "Ziel: 80 BPM");
+  assert.equal(cleanNote("  a\n\nb  "), "a\n\nb");
+  assert.equal(cleanNote(null), "");
+  assert.equal(cleanNote("x".repeat(MAX_NOTE + 40)).length, MAX_NOTE);
+  const trimmed = setHwNote(toggleHw(null, rud(1), 1).list, "rudiments|1", "x".repeat(MAX_NOTE + 40));
+  assert.equal(trimmed.items[0].note.length, MAX_NOTE);
+  const empty = normalizeHw({ v: 1, items: [{ ...rud(1), view: "rudiments", done: false, at: 1, lastAt: 0, runs: 0, note: "   " }] });
+  assert.ok(!("note" in empty.items[0]));
+});
+
+test("Notiz: Texte übersetzt", () => {
+  const EN_ALL = { ...EN, ...EN2 };
+  for (const k of ["Notiz", "Notiz hinzufügen", "Notiz bearbeiten", "Speichern", "Abbrechen", "z. B. Ziel: 96 BPM, locker aus dem Handgelenk"]) {
+    assert.ok(EN_ALL[k], k);
+  }
+  assert.equal(EN2["Notiz hinzufügen"], "Add a note");
+  assert.equal(EN2["Notiz bearbeiten"], "Edit note");
 });

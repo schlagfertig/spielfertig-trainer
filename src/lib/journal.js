@@ -24,11 +24,26 @@ export function exKey(ex, item, clickMode) {
 
 const num = (v, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
 
+// Kurze optionale Notiz an Hausaufgabe oder Karteikarte. Leer oder nur Leerzeichen = keine Notiz.
+export const MAX_NOTE = 200;
+export function cleanNote(raw) {
+  if (typeof raw !== "string") return "";
+  return raw.replace(/\r\n/g, "\n").trim().slice(0, MAX_NOTE);
+}
+function applyNote(item, raw) {
+  const note = cleanNote(raw);
+  if (note) return { ...item, note };
+  const next = { ...item };
+  delete next.note;
+  return next;
+}
+
+
 export function normalizeHw(raw) {
   const items = Array.isArray(raw?.items)
-    ? raw.items.filter((x) => x && typeof x.key === "string" && VIEW_OF[x.ex]).map((x) => ({
+    ? raw.items.filter((x) => x && typeof x.key === "string" && VIEW_OF[x.ex]).map((x) => applyNote({
       ...x, done: !!x.done, at: num(x.at), lastAt: num(x.lastAt), runs: num(x.runs),
-    }))
+    }, x.note))
     : [];
   return { v: 1, items };
 }
@@ -42,7 +57,7 @@ export function toggleHw(list, entry, at = Date.now()) {
   const base = normalizeHw(list);
   if (!VIEW_OF[entry?.ex]) return { list: base, added: false }; // keine Hausaufgabe für diese Übung (z. B. Würfel)
   if (base.items.some((x) => x.key === entry.key)) return { list: { v: 1, items: base.items.filter((x) => x.key !== entry.key) }, added: false };
-  const item = { ...entry, view: VIEW_OF[entry.ex], done: false, at, lastAt: 0, runs: 0 };
+  const item = applyNote({ ...entry, view: VIEW_OF[entry.ex], done: false, at, lastAt: 0, runs: 0 }, entry.note);
   return { list: { v: 1, items: [item, ...base.items].slice(0, MAX_ITEMS) }, added: true };
 }
 
@@ -54,6 +69,11 @@ export function setHwDone(list, key, done, at = Date.now()) {
 export function removeHw(list, key) {
   const base = normalizeHw(list);
   return { v: 1, items: base.items.filter((x) => x.key !== key) };
+}
+
+export function setHwNote(list, key, note) {
+  const base = normalizeHw(list);
+  return { v: 1, items: base.items.map((x) => (x.key === key ? applyNote(x, note) : x)) };
 }
 
 // Offen zuerst (neueste oben), dann „sitzt“ (zuletzt abgehakt oben).
@@ -85,7 +105,7 @@ export function normalizeCards(raw) {
     const rud = Math.round(num(c?.rud, NaN));
     if (!Number.isFinite(rud) || rud < 1 || seen.has(rud)) continue;
     seen.add(rud);
-    cards.push({ rud, level: LEVEL_IDS.includes(c.level) ? c.level : "neu", at: num(c.at), lastAt: num(c.lastAt) });
+    cards.push(applyNote({ rud, level: LEVEL_IDS.includes(c.level) ? c.level : "neu", at: num(c.at), lastAt: num(c.lastAt) }, c.note));
   }
   return { v: 1, cards };
 }
@@ -113,6 +133,11 @@ export function setCardLevel(list, rud, level) {
 export function removeCard(list, rud) {
   const base = normalizeCards(list);
   return { v: 1, cards: base.cards.filter((c) => c.rud !== rud) };
+}
+
+export function setCardNote(list, rud, note) {
+  const base = normalizeCards(list);
+  return { v: 1, cards: base.cards.map((c) => (c.rud === rud ? applyNote(c, note) : c)) };
 }
 
 export function noteCard(list, rud, at = Date.now()) {
