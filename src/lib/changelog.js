@@ -5,6 +5,13 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-11-26",
+    items: [
+      { de: "Startseite: Ist das Metronom-Rad offen, erreichst du oben rechts wieder Sprache, „!“ und „?“. Ein Tipp darauf schließt das Rad und öffnet wie gewohnt die jeweilige Funktion.",
+        en: "Home: when the metronome dial is open, you can again reach Language, “!” and “?” at the top right. Tapping one closes the dial and opens that function as usual." },
+    ],
+  },
+  {
     date: "2026-11-25",
     items: [
       { de: "Click-Trainer: Im Querformat auf dem iPad und dem aufgeklappten iPhone Duo stehen die Einstellungen schlank links und das SpinDial rechts - in guter Größe, mit ±5 über ±10 neben dem Rad, ohne extra Rahmen, beide Spalten in der Mitte. Hochkant bleibt das Rad unter den Einstellungen, wie am iPhone. NoClick ebenso. Auf dem normalen iPhone bleibt alles wie bisher.",

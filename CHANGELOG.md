@@ -4,6 +4,10 @@ Alle für Nutzer sichtbaren Änderungen, nach Datum gruppiert (neueste zuerst).
 Kleine Fix-Commits sind dem jeweiligen Feature zugeordnet; reine Technik (Build-Fixes,
 Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SHA).
 
+## 26.11.2026
+
+- Startseite: Ist das Metronom-Rad offen, erreichst du oben rechts wieder Sprache, „!“ und „?“. Ein Tipp darauf schließt das Rad und öffnet wie gewohnt die jeweilige Funktion.
+
 ## 25.11.2026
 
 - Click-Trainer: Im Querformat auf dem iPad und aufgeklapptem iPhone Duo stehen die Einstellungen schlank links und das SpinDial rechts, mit ±5 über ±10 neben dem Rad und ohne extra Rahmen, beide Spalten in der Mitte. Hochkant bleibt das Rad unter den Einstellungen, wie am iPhone. NoClick ebenso. Auf dem normalen iPhone unverändert.

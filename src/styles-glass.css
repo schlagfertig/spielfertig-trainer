@@ -261,7 +261,8 @@ html, body, #root {
   position: fixed;
   top: calc(10px + env(safe-area-inset-top, 0px));
   right: max(10px, calc((100% - 640px) / 2 + 10px));
-  z-index: 6;
+  /* Über dem offenen Hero (z-index 8), sonst liegen Sprache/„!“/„?“ unter dem Dial und sind nicht antippbar. */
+  z-index: 10;
 }
 .home .first-wrap,
 .home .cards,

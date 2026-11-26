@@ -47,3 +47,24 @@ test("CSS und App nutzen dieselbe Schwelle wie HOME_SPLIT_MQ", () => {
   assert.match(app, /home-menu/);
   assert.match(metro, /useCompactHomeDial/);
 });
+
+test("home-help bleibt über dem offenen Logo-Metronom (Sprache/!/? antippbar)", () => {
+  const glass = readFileSync(new URL("../src/styles-glass.css", import.meta.url), "utf8");
+  const home = readFileSync(new URL("../src/styles-home.css", import.meta.url), "utf8");
+  const heroOpen = /\.home \.hero:has\(\.logo-metro\.open\)\s*\{[^}]*z-index:\s*(\d+)/.exec(glass);
+  const helpGlass = /\.home \.home-help\s*\{[^}]*z-index:\s*(\d+)/.exec(glass);
+  assert.ok(heroOpen, "z-index für offenes Hero fehlt in styles-glass.css");
+  assert.ok(helpGlass, "z-index für .home-help fehlt in styles-glass.css");
+  const heroZ = Number(heroOpen[1]);
+  const helpZ = Number(helpGlass[1]);
+  assert.ok(helpZ > heroZ, `.home-help (z-index ${helpZ}) muss über dem offenen Hero (z-index ${heroZ}) liegen, sonst sind Sprache/!/? hinter dem Dial`);
+  // styles-home.css kommt danach und darf .home-help nicht wieder unter das Hero setzen
+  const helpHome = [...home.matchAll(/\.home \.home-help(?:\.[\w-]+)?\s*\{([^}]*)\}/g)];
+  for (const m of helpHome) {
+    const z = /z-index:\s*(\d+)/.exec(m[1]);
+    if (z) {
+      assert.ok(Number(z[1]) > heroZ, `styles-home.css setzt .home-help auf z-index ${z[1]}, unter dem offenen Hero (${heroZ})`);
+    }
+  }
+});
+
