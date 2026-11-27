@@ -392,8 +392,24 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           }
           .page.tool .rud-wrap.rud-tool { padding-bottom: calc(var(--rud-foot) + 8px); padding-right: 0; overflow: hidden; height: 100%; box-sizing: border-box; }
           .page.tool .rud-tool .staff-card { flex: 1 1 auto; justify-content: flex-start; min-height: 0; }
-          .page.tool .rud-tool .rud-staff-box { flex: 1 1 auto; min-height: 0; height: auto; }
-          .page.tool .rud-tool .staff-card .rud-staff-box svg { max-height: 100%; }
+          /* Feste Mindesthöhe: height:auto + min-height:0 hat die Noten im kurzen Querformat auf einen Strich zusammengedrückt. */
+          .page.tool:not(.stage) .rud-tool .rud-staff-box {
+            flex: 1 1 auto;
+            align-items: stretch;
+            justify-content: center;
+            min-height: 112px;
+            height: clamp(112px, 30dvh, 200px);
+          }
+          .page.tool:not(.stage) .rud-tool .staff-card .rud-staff-box svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            align-self: stretch;
+          }
+          .page.tool.stage .rud-tool .rud-staff-box { flex: 1 1 auto; min-height: 96px; height: auto; align-items: stretch; }
+          .page.tool.stage .rud-tool .staff-card .rud-staff-box svg { width: 100%; height: 100%; max-height: none; align-self: stretch; }
           .page.tool .rud-tool .staff-card.rud-card-info { overflow: auto; }
           /* metro-face füllt die gemeinsame Dial-Spalte, ohne eigenes Extra-Padding. */
           .page.tool .rud-tool .rud-metro .metro-face {
@@ -429,6 +445,32 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           /* Der feste Clip-Knopf aus der App-Hülle weicht dem Clip unter dem Rad. */
           .page.tool.view-rudiments .clip-fab:not(.clip-inline) { display: none; }
           .page.tool .rud-wrap > .rud-random { display: none; }
+          /* Info und der Auswahl-Pfeil nebeneinander, mit Abstand. */
+          .page.tool .rud-tool .rud-title-row { padding-right: 70px; }
+          .page.tool .rud-tool .rud-info { top: 20px; right: 8px; }
+        }
+        /* iPhone-Querformat (~844×390): Noten groß und vollständig, Karte kompakt, Zahlenleiste bleibt sichtbar. */
+        @media ${WIDE_MQ} and (max-height: 500px) {
+          .page.tool:not(.stage) .rud-wrap.rud-tool { padding-bottom: 80px; }
+          .page.tool:not(.stage) .rud-tool .staff-card { padding: 6px 10px 4px; }
+          .page.tool:not(.stage) .rud-tool .rud-staff-box {
+            flex: 0 0 auto;
+            height: 104px;
+            min-height: 104px;
+            max-height: 104px;
+          }
+          .page.tool:not(.stage) .rud-tool .staff-card .rud-staff-box svg { height: 104px; max-height: 104px; }
+          .page.tool:not(.stage) .rud-tool .rud-title { margin-bottom: 2px; padding-bottom: 4px; }
+          .page.tool:not(.stage) .rud-tool .rud-title-kicker { margin-bottom: 1px; }
+          .page.tool:not(.stage) .rud-tool .rud-title-name { font-size: 18px; line-height: 1.05; -webkit-line-clamp: 1; }
+          .page.tool:not(.stage) .rud-tool .beat-track { margin-top: 2px; }
+          .page.tool:not(.stage) .rud-tool .beat-cells span { padding: 3px 0; font-size: 16px; }
+          .page.tool:not(.stage) .rud-tool .beat-loop { margin-top: 2px; font-size: 12px; }
+          .page.tool:not(.stage) .rud-tool .rud-picks-land { margin-top: 4px; }
+          .page.tool:not(.stage) .rud-tool .rud-picks-land .rud-pick,
+          .page.tool:not(.stage) .rud-tool .rud-picks-land .rud-random { min-height: 40px; }
+          .page.tool:not(.stage) .rud-tool .rud-title-row { padding-right: 66px; }
+          .page.tool:not(.stage) .rud-tool .rud-info { top: 18px; right: 8px; }
         }
         .rud-random { position: fixed; right: 16px; bottom: 96px; z-index: 30; display: block; width: fit-content; margin: 0; min-width: 84px; min-height: 52px; padding: 0 18px; border: 0; border-radius: 999px; background: #5cc8b8; color: #06120f; font: 800 17px Figtree, sans-serif; box-shadow: 0 8px 22px rgba(92,200,184,.35); pointer-events: auto; }
         @media (orientation: landscape) {

@@ -58,3 +58,15 @@ test("Click-Trainer und Rhythmuspyramide: rechte Spalte beginnt oben, Rad bleibt
   assert.match(basePyr, /\.pyr-lead \{[^}]*margin:\s*8px 0 10px/s);
   assert.match(basePyr, /\.pyr-dock \{ position: fixed; left: 0; right: 0; bottom: 0;/);
 });
+
+test("Rudiments: rechte Spalte beginnt oben, Journal-Knöpfe bleiben eine Zeile links", () => {
+  assert.match(dial, /\.page\.tool\.view-rudiments:has\(\.sf-land\) \.top \{[^}]*position:\s*absolute/s);
+  assert.match(dial, /grid-template-areas:\s*"back title"\s*"bar bar"/);
+  assert.match(dial, /\.page\.tool\.view-rudiments:has\(\.sf-land\) \.jr-bar \{[^}]*flex-wrap:\s*nowrap/s);
+  assert.match(dial, /\.page\.tool\.view-rudiments:has\(\.sf-land\) \.top-right \{[^}]*position:\s*fixed/s);
+  assert.match(dial, /\.page\.tool\.view-rudiments:has\(\.sf-land\) \.top-back \{[^}]*pointer-events:\s*auto/s);
+  const compact = dial.split("(max-height: 500px)")[1];
+  assert.match(compact, /\.page\.tool\.view-rudiments:not\(\.stage\):has\(\.sf-land\) \{[^}]*--sf-header-stack:\s*108px/s);
+  assert.match(dial, /--sf-header-stack:\s*145px/);
+  assert.doesNotMatch(baseTop, /view-rudiments/);
+});
