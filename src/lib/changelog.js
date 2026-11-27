@@ -7,6 +7,12 @@ export const CHANGELOG = [
   {
     date: "2026-11-26",
     items: [
+      { de: "Querformat: „Zurück“ sitzt klar neben der Dynamic Island und hat eine größere Tippfläche. Der Übungstitel rückt ein Stück mit, damit daneben Luft bleibt. Hochkant unverändert.",
+        en: "Landscape: “Back” sits clear of the Dynamic Island and has a larger tap area. The exercise title shifts along so there is room beside the button. In portrait nothing changes." },
+      { de: "Click-Trainer und Rhythmuspyramide: Im Querformat beginnt die rechte Spalte oben, neben Zurück und dem Titel. Stufen und Einstellungen passen auf dem iPhone, ohne zu scrollen. Das Fragezeichen oben rechts bleibt frei. Das SpinDial bleibt in der Mitte der linken Hälfte.",
+        en: "Click Trainer and Rhythm Pyramid: in landscape the right-hand column starts at the top, beside Back and the title. Stages and settings fit on iPhone without scrolling. The question mark at the top right stays clear. The SpinDial stays centred in the left half." },
+      { de: "Lexikon: Im Querformat steht der Titel in der Kopfzeile neben Zurück, mit Abstand zur Buchstabenleiste. Begriffe, Überschrift und Erklärung sind etwas größer. Die Buchstabenleiste bleibt eine Zeile, und das Bild bei „Achtel“ bleibt ganz sichtbar.",
+        en: "Glossary: in landscape the title sits in the header beside Back, with space above the letter bar. Terms, the heading and the explanation are a little larger. The letter bar stays one row, and the picture for “Eighth note” stays fully visible." },
       { de: "Lexikon: Im Querformat liegt die Buchstabenleiste in einer Zeile über beiden Spalten. Darunter bleiben Suche und Begriffsliste links, die Erklärung rechts. Auf kurzem Querformat ist die Erklärung kompakter, damit das Bild - zum Beispiel bei „Achtel“ - vollständig sichtbar bleibt. Hochkant bleibt die gewohnte Liste.",
         en: "Glossary: in landscape the letter bar sits in a single row above both columns. Below that, search and the term list stay on the left and the explanation on the right. On a short landscape screen the explanation is more compact, so the picture - for example on “Eighth note” - stays fully visible. In portrait the familiar list stays as it is." },
       { de: "Journal: An Hausaufgaben und Karteikarten kannst du jetzt eine kurze Notiz festhalten – zum Beispiel das Zieltempo oder worauf du achten willst. Steht nichts drin, bleibt die Liste aufgeräumt; tipp einfach auf „+ Notiz“.",

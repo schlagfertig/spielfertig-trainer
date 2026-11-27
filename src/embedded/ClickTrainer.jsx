@@ -272,7 +272,7 @@ export default function ClickTrainer({ preset = null } = {}) {
   return (
     <div className="ct-wrap sf-land">
       <div className="ct-settings">
-      <div className="seg" style={{ margin: "8px 0 12px", maxWidth: "100%" }}>
+      <div className="seg ct-modes">
         <button type="button" className={mode === "hold" ? "on" : ""} onClick={() => pickMode("hold")}>{t("Tempo halten")}</button>
         <button type="button" className={ramp ? "on" : ""} onClick={() => pickMode("ramp")}>{t("Tempo steigern")}</button>
         <button
@@ -367,6 +367,7 @@ export default function ClickTrainer({ preset = null } = {}) {
         .page.tool:has(.ct-wrap) { display: flex; flex-direction: column; }
         .page.tool:has(.ct-wrap) .main { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
         .ct-wrap { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; max-width: 100%; }
+        .ct-modes { margin: 8px 0 12px; max-width: 100%; box-sizing: border-box; }
         .ct-settings { display: contents; }
         /* Kreis mittig im freien Raum unter der Einstellung */
         .ct-stage {
@@ -473,13 +474,17 @@ export default function ClickTrainer({ preset = null } = {}) {
             display: grid;
             grid-template-columns: minmax(0, 1fr);
             grid-template-rows: minmax(0, 1fr);
-            align-items: center;
+            align-items: start;
+            align-content: start;
             min-height: 0;
           }
-          /* Modus-Knöpfe in einer Reihe: kurze Labels bleiben schmal, lange bekommen den Rest. */
+          /* Modusleiste lässt rechts Platz für das feste ?. Der Block beginnt oben, nicht mittig. */
+          .ct-modes { min-height: 48px; }
+          /* Modus-Knöpfe in einer Reihe: kurze Labels bleiben schmal, lange bekommen den Rest.
+             56 px rechts bleiben frei, damit die Leiste nicht unter das ? läuft. */
           .ct-settings > .seg {
             flex-wrap: nowrap;
-            width: 100%;
+            width: calc(100% - 56px);
             box-sizing: border-box;
           }
           .ct-settings > .seg button {
@@ -496,7 +501,8 @@ export default function ClickTrainer({ preset = null } = {}) {
             flex-direction: column;
             grid-column: 1;
             grid-row: 1;
-            align-self: center;
+            align-self: start;
+            justify-content: flex-start;
             width: 100%;
             max-width: none;
             box-sizing: border-box;
@@ -512,7 +518,7 @@ export default function ClickTrainer({ preset = null } = {}) {
           }
           .ct-wrap:has(.nc-dock) {
             grid-template-rows: auto auto;
-            align-content: safe center;
+            align-content: start;
             align-items: start;
           }
           .ct-wrap:has(.nc-dock) .ct-settings {
@@ -555,9 +561,10 @@ export default function ClickTrainer({ preset = null } = {}) {
             grid-row: 1 / -1;
           }
         }
-        /* Kurzes iPhone-Querformat: enger, kleineres Rad, rechte Spalte scrollt bei Bedarf. */
+        /* Kurzes iPhone-Querformat: enger, kleineres Rad. Die rechte Spalte beginnt oben und soll ohne Scrollen passen. */
         @media ${WIDE_MQ} and (max-height: 500px) {
-          .ct-settings > .seg { margin: 0 0 6px; }
+          .ct-modes { margin: 0 0 6px; min-height: 48px; }
+          .ct-settings > .seg { margin: 0 0 6px; width: calc(100% - 56px); }
           .ct-settings .panel { padding: 10px 12px; margin-bottom: 6px; }
           .ct-settings .panel p { margin-top: 8px; }
           .ct-adv-slot { padding: 4px 0 env(safe-area-inset-bottom, 0px); }
