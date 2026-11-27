@@ -234,8 +234,8 @@ export const RUDIMENT_INFO = {
       en: "Combines the drag motion with the paradiddle, without a separate grace note before it." },
   ),
   36: info(
-    { de: "Paradiddle mit Drag auf einem der ersten Schläge, die zweite Note bleibt eine Achtel.",
-      en: "A paradiddle with a drag on one of the first strokes; the second note stays an eighth." },
+    { de: "Paradiddle mit Drag, im 4/4: betonte Achtel, Sechzehntel mit Drag und drei Sechzehntel, dann Achtelpause. Rechts auf 1 und 2, links auf 3 und 4.",
+      en: "A paradiddle with a drag, in 4/4: accented eighth, a sixteenth with a drag and three sixteenths, then an eighth rest. Right hand on 1 and 2, left hand on 3 and 4." },
     { de: "Drag und Paradiddle in einer Figur. Der Drag bleibt Verzierung, nicht der laute Schlag.",
       en: "Drag and paradiddle in one figure. The drag stays an ornament, not the loud stroke." },
   ),
