@@ -5,6 +5,13 @@
 
 export const CHANGELOG = [
   {
+    date: "2026-11-27",
+    items: [
+      { de: "Rudiments: Im iPhone-Querformat sind Noten und R/L wieder groß und vollständig in der Karte. Info und der Auswahlpfeil sitzen nebeneinander. Die Karte beginnt direkt unter Drucken und Fokus-Mode, die Zahlenleiste bleibt sichtbar. Die Knöpfe für Hausaufgaben und Karteikasten stehen links in einer Zeile, das SpinDial und Clip haben darunter Luft. Hochkant unverändert.",
+        en: "Rudiments: on iPhone in landscape the notes and R/L are large and complete in the card again. Info and the menu arrow sit side by side. The card starts right under Print and Focus mode, and the number strip stays visible. Homework and card-box buttons sit on the left in one row, with room under the SpinDial and Clip. In portrait nothing changes." },
+    ],
+  },
+  {
     date: "2026-11-26",
     items: [
       { de: "Querformat: „Zurück“ sitzt klar neben der Dynamic Island und hat eine größere Tippfläche. Der Übungstitel rückt ein Stück mit, damit daneben Luft bleibt. Hochkant unverändert.",

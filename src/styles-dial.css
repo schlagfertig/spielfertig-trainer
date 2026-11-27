@@ -37,7 +37,8 @@
   /* Click-Trainer und Rhythmuspyramide: die Kopfzeile belegt nur die linke Hälfte
      (Zurück, Titel, ggf. „Zu Hausaufgaben“). Die rechte Spalte beginnt dadurch oben,
      neben dieser Zeile. Das ? bleibt fest oben rechts und fängt keine Klicks der Steuerung ab.
-     Rudiments behält die Kopfzeile über der ganzen Breite. Das SpinDial bleibt bei 25vw. */
+     Das SpinDial bleibt bei 25vw. Rudiments folgt darunter mit demselben Muster;
+     Drucken und Fokus-Mode liegen dort mit dem ? oben rechts. */
   .page.tool.view-click:has(.sf-land),
   .page.tool.view-pyramid:has(.sf-land) {
     position: relative;
@@ -99,6 +100,78 @@
     z-index: 40;
     margin: 0;
     pointer-events: auto;
+  }
+  /* Rudiments: Zurück und Titel links, die beiden Journal-Knöpfe darunter in einer Zeile
+     (nicht gestapelt, sonst wird die ganze Kopfzeile hoch und die Notenkarte rutscht nach unten).
+     Drucken, Fokus-Mode und ? bleiben oben rechts, die Karte beginnt direkt darunter. */
+  .page.tool.view-rudiments:has(.sf-land) {
+    position: relative;
+  }
+  .page.tool.view-rudiments:has(.sf-land) .top {
+    position: absolute;
+    z-index: 25;
+    top: var(--sf-page-pad-top);
+    left: var(--sf-page-pad-x);
+    width: calc(var(--sf-land-content-left) - var(--sf-page-pad-x) - 8px);
+    right: auto;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: "back title" "bar bar";
+    align-items: center;
+    column-gap: 10px;
+    row-gap: 4px;
+    padding: 0;
+    margin: 0;
+    min-height: 0;
+    pointer-events: none;
+    background: transparent !important;
+    border: 0;
+  }
+  .page.tool.view-rudiments:has(.sf-land) .top-row { display: contents; }
+  .page.tool.view-rudiments:has(.sf-land) .top-back {
+    grid-area: back;
+    pointer-events: auto;
+  }
+  .page.tool.view-rudiments:has(.sf-land) .top-title {
+    grid-area: title;
+    pointer-events: none;
+    width: auto;
+    max-width: 100%;
+    margin: 0 0 0 8px;
+    font-size: 22px;
+    line-height: 1.05;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .page.tool.view-rudiments:has(.sf-land) .jr-bar {
+    grid-area: bar;
+    pointer-events: auto;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+    width: auto;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0 0 0 max(0px, calc(env(safe-area-inset-left, 0px) - var(--sf-page-pad-x)));
+  }
+  .page.tool.view-rudiments:has(.sf-land) .jr-pill {
+    flex: 0 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+  }
+  .page.tool.view-rudiments:has(.sf-land) .top-right {
+    position: fixed;
+    top: var(--sf-page-pad-top);
+    right: max(8px, env(safe-area-inset-right, 0px));
+    z-index: 40;
+    margin: 0;
+    pointer-events: auto;
+  }
+  /* Die Karte rückt unter Drucken / Fokus / ?, nicht unter die Journal-Zeile. */
+  .page.tool.view-rudiments:has(.sf-land) .staff-card {
+    margin-top: 44px;
   }
   /* Rechte Hälfte: Noten und Einstellungen nutzen den gewonnenen Platz, ohne 880px-Deckel. */
   .page.tool:has(.sf-land) .main {
@@ -226,4 +299,17 @@
   .page.tool.view-pyramid:has(.sf-land) .top-title {
     font-size: 18px;
   }
+  /* Kurzes iPhone: Journal-Zeile bleibt flach, das Rad rückt nach oben, unter Clip bleibt Luft.
+     Der große Zurück-Knopf (styles-top.css) bleibt unverändert. */
+  .page.tool.view-rudiments:not(.stage):has(.sf-land) {
+    --sf-header-stack: 108px;
+    --sf-dial-slot-h: 4px;
+    --sf-dial-clip-mt: 16px;
+  }
+  .page.tool.view-rudiments:has(.sf-land) .top-title { font-size: 18px; }
+  .page.tool.view-rudiments:not(.stage):has(.sf-land) .sf-dial-col {
+    justify-content: flex-start;
+    padding-top: 2px;
+  }
+  .page.tool.view-rudiments:has(.sf-land) .staff-card { margin-top: 46px; }
 }
