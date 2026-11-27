@@ -6,6 +6,9 @@ Wiederherstellungen, Refactorings) ist weggelassen. Commits in Klammern (Kurz-SH
 
 ## 26.11.2026
 
+- Querformat: „Zurück“ sitzt klar neben der Dynamic Island und hat eine größere Tippfläche. Der Übungstitel rückt ein Stück mit, damit daneben Luft bleibt. Hochkant unverändert.
+- Click-Trainer und Rhythmuspyramide: Im Querformat beginnt die rechte Spalte oben, neben Zurück und dem Titel. Stufen und Einstellungen passen auf dem iPhone, ohne zu scrollen. Das Fragezeichen oben rechts bleibt frei. Das SpinDial bleibt in der Mitte der linken Hälfte.
+- Lexikon: Im Querformat steht der Titel in der Kopfzeile neben Zurück, mit Abstand zur Buchstabenleiste. Begriffe, Überschrift und Erklärung sind etwas größer. Die Buchstabenleiste bleibt eine Zeile, und das Bild bei „Achtel“ bleibt ganz sichtbar.
 - Lexikon: Im Querformat liegt die Buchstabenleiste in einer Zeile über beiden Spalten. Darunter bleiben Suche und Begriffsliste links, die Erklärung rechts. Auf kurzem Querformat ist die Erklärung kompakter, damit das Bild – zum Beispiel bei „Achtel“ – vollständig sichtbar bleibt. Hochkant bleibt die gewohnte Liste.
 - Journal: An Hausaufgaben und Karteikarten kannst du jetzt eine kurze Notiz festhalten – zum Beispiel das Zieltempo oder worauf du achten willst. Steht nichts drin, bleibt die Liste aufgeräumt; tipp einfach auf „+ Notiz“.
 - Rhythmuspyramide: Im Querformat sitzt das SpinDial in der Mitte der linken Bildschirmhälfte, in derselben Größe wie im Click-Trainer, mit ±5 über ±10 daneben. Die Noten und die Einstellungen nutzen die rechte Hälfte, der Clip-Knopf liegt unter dem Rad. Hochkant bleibt alles wie bisher.

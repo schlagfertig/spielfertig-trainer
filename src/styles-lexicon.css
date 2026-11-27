@@ -62,6 +62,7 @@
    darunter links Verzeichnis, rechts die kompakte Erklärung mit Bild. */
 @media (min-width: 640px) and (orientation: landscape) {
   .page.tool.view-lexicon {
+    --sf-tool-pad-x: max(12px, env(safe-area-inset-left, 0px));
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -71,29 +72,48 @@
     padding-left: max(12px, env(safe-area-inset-left, 0px));
     padding-right: max(12px, env(safe-area-inset-right, 0px));
   }
-  /* Hochkant klebt nur die Knopfzeile; quer bleibt die ganze Kopfzeile fest oben, aber flach.
-     Höhere Spezifität als display:contents in styles.css, sonst hat die Kopfzeile keinen Kasten. */
+  /* „LEXIKON“ steht in der Kopfzeile neben Zurück, mit Abstand zur Buchstabenleiste.
+     Seitenabstand enthält die Dynamic Island schon, deshalb kein zweites Einrücken. */
   body .page.tool.view-lexicon .top {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
     flex-shrink: 0;
-    gap: 1px;
-    padding: 0 0 2px;
+    gap: 6px 10px;
+    padding: 0 0 10px;
   }
   .page.tool.view-lexicon .top-row {
+    display: contents;
     position: static;
     box-shadow: none;
     background: transparent;
     padding: 0;
   }
+  .page.tool.view-lexicon .top-right { order: 2; }
   .page.tool.view-lexicon .top .ghost,
   .page.tool.view-lexicon .top .help-dot {
     min-height: 36px;
     height: 36px;
     padding: 4px 12px;
   }
-  .page.tool.view-lexicon .top .help-dot { width: 36px; padding: 0; }
-  .page.tool.view-lexicon .top-title { font-size: 20px; line-height: 1.05; }
+  .page.tool.view-lexicon .top .top-back {
+    min-height: 48px;
+    height: auto;
+    padding: 10px 16px;
+    font-size: 16px;
+  }
+  .page.tool.view-lexicon .top .help-dot { width: 40px; min-height: 40px; height: 40px; padding: 0; }
+  .page.tool.view-lexicon .top-title {
+    order: 1;
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    margin-left: 8px;
+    font-size: 24px;
+    line-height: 1.05;
+    white-space: nowrap;
+  }
   .page.tool.view-lexicon .main {
     flex: 1 1 auto;
     min-height: 0;
@@ -187,7 +207,7 @@
     border-radius: 8px;
     color: var(--txt, #f4f7f6);
     padding: 10px 10px 10px 12px;
-    font: 700 16px/1.25 Figtree, sans-serif;
+    font: 700 17px/1.3 Figtree, sans-serif;
     cursor: pointer;
   }
   .lex-term + .lex-term,
@@ -209,28 +229,29 @@
   }
   .lex-detail-title {
     margin: 0 0 6px;
-    font: 800 24px/1.1 Figtree, sans-serif;
+    font: 800 25px/1.1 Figtree, sans-serif;
     color: var(--txt, #f4f7f6);
   }
   .lex-detail .lex-body {
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.4;
     margin: 0 0 8px;
   }
+  /* Das Bild füllt die restliche Zeile und bleibt vollständig sichtbar (contain). */
   .lex-detail .lex-fig {
-    min-height: 112px;
+    position: relative;
+    min-height: 120px;
     margin: 0;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
     overflow: hidden;
   }
   .lex-detail .lex-fig img {
+    position: absolute;
+    inset: 0;
     display: block;
-    width: auto;
-    height: auto;
+    width: 100%;
+    height: 100%;
     max-width: 100%;
-    max-height: min(520px, calc(100dvh - 210px));
+    max-height: 520px;
     object-fit: contain;
     object-position: top center;
     border-radius: 12px;
@@ -243,25 +264,30 @@
     padding-top: max(4px, env(safe-area-inset-top, 0px));
     padding-bottom: max(4px, env(safe-area-inset-bottom, 0px));
   }
-  body .page.tool.view-lexicon .top { padding: 0; gap: 0; }
-  .page.tool.view-lexicon .top .ghost,
+  body .page.tool.view-lexicon .top { padding: 0 0 8px; gap: 4px 8px; }
   .page.tool.view-lexicon .top .help-dot {
-    min-height: 32px;
-    height: 32px;
-    font-size: 14px;
+    min-height: 40px;
+    height: 40px;
+    width: 40px;
+    font-size: 16px;
   }
-  .page.tool.view-lexicon .top .help-dot { width: 32px; }
-  .page.tool.view-lexicon .top-title { font-size: 17px; }
+  .page.tool.view-lexicon .top .top-back {
+    min-height: 48px;
+    height: auto;
+    padding: 8px 16px;
+    font-size: 16px;
+  }
+  .page.tool.view-lexicon .top-title { font-size: 22px; margin-left: 8px; }
   .lex-col.is-index { padding-right: 12px; }
   .lex-col.is-detail { padding-left: 12px; }
   .lex.is-wide .lex-search { padding: 8px 12px; margin-bottom: 6px; }
   .lex.is-wide > .lex-az { gap: 2px; margin-bottom: 4px; }
   .lex.is-wide > .lex-az button { height: 26px; min-width: 0; font-size: 12px; }
   .lex-index .lex-letter { padding: 4px 0 2px; }
-  .lex-term { padding: 7px 8px 7px 10px; font-size: 15px; }
+  .lex-term { padding: 8px 10px 8px 12px; font-size: 17px; }
   .lex-detail { padding-bottom: 4px; }
-  .lex-detail-title { font-size: 18px; margin-bottom: 4px; }
-  .lex-detail .lex-body { font-size: 14px; line-height: 1.35; margin-bottom: 6px; }
-  .lex-detail .lex-fig { min-height: 96px; }
+  .lex-detail-title { font-size: 21px; margin-bottom: 4px; }
+  .lex-detail .lex-body { font-size: 16px; line-height: 1.4; margin-bottom: 6px; }
+  .lex-detail .lex-fig { min-height: 108px; }
   .lex-detail .lex-fig img { border-radius: 10px; }
 }
