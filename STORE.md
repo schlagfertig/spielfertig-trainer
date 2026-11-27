@@ -120,5 +120,5 @@ GitHub → Actions → „iOS TestFlight“ (`.github/workflows/ios-testflight.y
 
 - Secrets: `ASC_KEY_P8` (Inhalt der Datei `AuthKey_<ID>.p8`, Zeilenumbrüche egal), `ASC_KEY_ID`, `ASC_ISSUER_ID`. App-Store-Connect-API-Schlüssel (Team-Schlüssel, Rolle App-Manager).
 - Signatur: `scripts/iosSigning.mjs` legt pro Lauf ein Verteilungs-Zertifikat und ein App-Store-Profil an (kein Zertifikat als Secret nötig, kein Gerät nötig). Beides bleibt bis zum nächsten Lauf. Der nächste Lauf löscht ältere Profile mit dem Namen „Schlagfertig CI …“ und widerruft nur deren Zertifikate — das Zertifikat am Ende des laufenden Builds zu löschen lehnt Apple ab (ITMS-90721). Apple setzt den Zertifikatsnamen auf den Team-Namen, der CI-Marker steht deshalb im Profilnamen.
-- Version `1.6`, Build-Nummer = Run-Nummer. `ITSAppUsesNonExemptEncryption = false` (keine Export-Frage in TestFlight).
+- Version `1.6.1`, Build-Nummer = Run-Nummer. `ITSAppUsesNonExemptEncryption = false` (keine Export-Frage in TestFlight).
 - Ergebnis: Build in App Store Connect → TestFlight, dazu Artefakt `schlagfertig-ios-ipa`.
