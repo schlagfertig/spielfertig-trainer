@@ -95,6 +95,21 @@ test("Rudiments: im Querformat liegt Clip unter dem SpinDial in der linken Spalt
   assert.match(wide, /\.page\.tool\.view-rudiments \.clip-fab:not\(\.clip-inline\) \{ display:\s*none/);
 });
 
+test("Rudiments: im kurzen Querformat behält die Notenfläche eine echte Höhe und Info liegt neben dem Pfeil", () => {
+  const short = rud.split("@media ${WIDE_MQ} and (max-height: 500px)")[1];
+  assert.ok(short, "kurzer Querformat-Block fehlt");
+  assert.match(short, /\.rud-staff-box \{[^}]*min-height:\s*104px/s);
+  assert.match(short, /\.rud-staff-box \{[^}]*height:\s*104px/s);
+  assert.match(short, /\.rud-staff-box \{[^}]*flex:\s*0 0 auto/s);
+  assert.match(short, /\.rud-title-row \{[^}]*padding-right:\s*66px/s);
+  assert.match(short, /\.rud-info \{[^}]*top:\s*18px/s);
+  const wide = rud.split("@media ${WIDE_MQ}")[1].split("@media ${WIDE_MQ} and")[0];
+  assert.match(wide, /\.rud-staff-box \{[^}]*min-height:\s*112px/s);
+  assert.doesNotMatch(wide, /\.rud-staff-box \{[^}]*min-height:\s*0/s);
+  const base = rud.split("@media (orientation: landscape)")[0];
+  assert.match(base, /\.rud-staff-box \{ height: 150px;/);
+});
+
 test("Rudiments: Hochkant behält die eine Reihe −10 −5 Rad +5 +10 und Ziel/Klang über dem Rad", () => {
   const base = rud.split("@media (orientation: landscape)")[0];
   assert.equal(base.includes("grid-template-areas"), false);
