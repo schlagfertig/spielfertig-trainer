@@ -300,7 +300,8 @@ export function RudimentStaff({ rud, playingT = -1, handwritten, svgId, hideTime
   const pack = hideTime ? 0.92 : 1;
   const cluster = 8;
   const soloWhole = sounded.length === 1 && !!(sounded[0].whole || (sounded[0].dur >= 8 && sounded[0].roll));
-  const spanEnd = sounded.reduce((m, nt) => Math.max(m, (nt.t || 0) + (nt.dur || 1)), 0);
+  // Pausen zählen mit: eine schließende Achtelpause füllt den Takt, statt die Figur zu zentrieren.
+  const spanEnd = notes.reduce((m, nt) => Math.max(m, (nt.t || 0) + (nt.dur || 1)), 0);
   const tShift = Math.max(0, steps - spanEnd) / 2;
   // Unter-Balkengruppen (nt.sub): Hauptbalken läuft durch, Nebenbalken + Tuplet-Ziffer je Untergruppe.
   // Vor jeder neuen Untergruppe mit Vorschlag etwas Luft, damit die Vorschlagsnote nicht gedrängt wirkt.

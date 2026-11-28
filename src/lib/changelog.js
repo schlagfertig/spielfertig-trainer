@@ -9,6 +9,8 @@ export const CHANGELOG = [
     items: [
       { de: "Rudiments: Im iPhone-Querformat sind Noten und R/L wieder groß und vollständig in der Karte. Info und der Auswahlpfeil sitzen nebeneinander. Die Karte beginnt direkt unter Drucken und Fokus-Mode, die Zahlenleiste bleibt sichtbar. Die Knöpfe für Hausaufgaben und Karteikasten stehen links in einer Zeile, das SpinDial und Clip haben darunter Luft. Hochkant unverändert.",
         en: "Rudiments: on iPhone in landscape the notes and R/L are large and complete in the card again. Info and the menu arrow sit side by side. The card starts right under Print and Focus mode, and the number strip stays visible. Homework and card-box buttons sit on the left in one row, with room under the SpinDial and Clip. In portrait nothing changes." },
+      { de: "Rudiments: Drag Paradiddle #1 (Nr. 36) steht jetzt in einem 4/4-Takt. Die großen Zählzeiten unter den Noten sind weg, die Noten nutzen den Platz. Andere Übungen bleiben wie sie sind.",
+        en: "Rudiments: Drag Paradiddle #1 (no. 36) is now one bar of 4/4. The large beat numbers under the notes are gone, and the notes use that space. Other exercises stay as they are." },
     ],
   },
   {
