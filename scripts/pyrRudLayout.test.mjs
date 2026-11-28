@@ -98,8 +98,8 @@ test("Rudiments: im Querformat liegt Clip unter dem SpinDial in der linken Spalt
 test("Rudiments: im kurzen Querformat behält die Notenfläche eine echte Höhe und Info liegt neben dem Pfeil", () => {
   const short = rud.split("@media ${WIDE_MQ} and (max-height: 500px)")[1];
   assert.ok(short, "kurzer Querformat-Block fehlt");
-  assert.match(short, /\.rud-staff-box \{[^}]*min-height:\s*104px/s);
-  assert.match(short, /\.rud-staff-box \{[^}]*height:\s*104px/s);
+  assert.match(short, /\.rud-staff-box \{[^}]*min-height:\s*128px/s);
+  assert.match(short, /\.rud-staff-box \{[^}]*height:\s*128px/s);
   assert.match(short, /\.rud-staff-box \{[^}]*flex:\s*0 0 auto/s);
   assert.match(short, /\.rud-title-row \{[^}]*padding-right:\s*66px/s);
   assert.match(short, /\.rud-info \{[^}]*top:\s*18px/s);
