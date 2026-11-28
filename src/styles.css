@@ -377,33 +377,6 @@ body.metro-gesturing .rud-metro .metro-face { overflow: visible; }
 .staff-card svg { max-width: 100%; height: auto; }
 .staff-label { font-size: 18px; font-weight: 800; color: #334; margin-bottom: 6px; }
 .staff-hint { margin-top: 8px; font-size: 14px; color: #6a7378; }
-.beat-track {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-  min-width: 0;
-}
-.beat-cells {
-  display: flex;
-  flex: 1;
-  min-width: 0;
-  gap: 6px;
-}
-.beat-cells span {
-  flex: 1;
-  min-width: 0;
-  text-align: center;
-  font: 800 20px/1.1 "Space Mono", ui-monospace, monospace;
-  color: #8a969c;
-  background: #eef1f2;
-  border-radius: 8px;
-  padding: 8px 0;
-}
-.beat-cells span.on {
-  color: #06120f;
-  background: #e8b84b;
-}
 .beat-loop {
   flex: 0 0 auto;
   font: 800 14px Figtree, sans-serif;
