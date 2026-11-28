@@ -368,6 +368,7 @@ export default function ClickTrainer({ preset = null } = {}) {
         .page.tool:has(.ct-wrap) .main { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
         .ct-wrap { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; max-width: 100%; }
         .ct-modes { margin: 8px 0 12px; max-width: 100%; box-sizing: border-box; }
+        .ct-modes button { min-height: 44px; touch-action: manipulation; }
         .ct-settings { display: contents; }
         /* Kreis mittig im freien Raum unter der Einstellung */
         .ct-stage {
@@ -478,23 +479,35 @@ export default function ClickTrainer({ preset = null } = {}) {
             align-content: start;
             min-height: 0;
           }
-          /* Modusleiste lässt rechts Platz für das feste ?. Der Block beginnt oben, nicht mittig. */
-          .ct-modes { min-height: 48px; }
-          /* Modus-Knöpfe in einer Reihe: kurze Labels bleiben schmal, lange bekommen den Rest.
-             56 px rechts bleiben frei, damit die Leiste nicht unter das ? läuft. */
+          /* Modusleiste beginnt oben. Rechts bleibt Platz für das feste ?, inklusive Safe Area:
+             Die Leiste reservierte bisher starr 56 px ab der Inhaltskante. Auf dem iPhone im
+             Querformat sitzt das ? aber um safe-area-inset-right (oft ~47–59 px) plus seine
+             44 px Breite weiter links — und liegt dadurch auf NoClick. Taps dort öffnen die
+             Hilfe, der Modus wechselt nicht. */
+          .ct-modes { min-height: 44px; }
           .ct-settings > .seg {
             flex-wrap: nowrap;
-            width: calc(100% - 56px);
+            width: auto;
+            max-width: 100%;
+            margin-right: calc(
+              max(0px, max(8px, env(safe-area-inset-right, 0px)) + 44px - var(--sf-page-pad-x, 12px))
+              + 10px
+            );
             box-sizing: border-box;
           }
           .ct-settings > .seg button {
             flex: 1 1 auto;
             min-width: 0;
-            padding: 8px 5px;
+            min-height: 44px;
+            padding: 0 8px;
             font-size: 13px;
-            line-height: 1.2;
+            line-height: 1.15;
             white-space: nowrap;
             text-align: center;
+            touch-action: manipulation;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
           }
           .ct-settings {
             display: flex;
@@ -563,8 +576,8 @@ export default function ClickTrainer({ preset = null } = {}) {
         }
         /* Kurzes iPhone-Querformat: enger, kleineres Rad. Die rechte Spalte beginnt oben und soll ohne Scrollen passen. */
         @media ${WIDE_MQ} and (max-height: 500px) {
-          .ct-modes { margin: 0 0 6px; min-height: 48px; }
-          .ct-settings > .seg { margin: 0 0 6px; width: calc(100% - 56px); }
+          .ct-modes { margin: 0 0 6px; min-height: 44px; }
+          .ct-settings > .seg { margin-top: 0; margin-bottom: 6px; }
           .ct-settings .panel { padding: 10px 12px; margin-bottom: 6px; }
           .ct-settings .panel p { margin-top: 8px; }
           .ct-adv-slot { padding: 4px 0 env(safe-area-inset-bottom, 0px); }

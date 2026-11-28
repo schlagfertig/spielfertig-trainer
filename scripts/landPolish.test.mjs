@@ -49,7 +49,10 @@ test("Click-Trainer und Rhythmuspyramide: rechte Spalte beginnt oben, Rad bleibt
   assert.match(head, /\.top-back,\s*\.page\.tool\.view-pyramid:has\(\.sf-land\) \.top-back \{[^}]*pointer-events:\s*auto/s);
   const wideClick = click.split("@media ${WIDE_MQ}")[1].split("@media ${WIDE_MQ} and")[0];
   assert.match(wideClick, /align-self:\s*start/);
-  assert.match(wideClick, /\.ct-settings > \.seg \{[^}]*width:\s*calc\(100% - 56px\)/s);
+  assert.match(wideClick, /\.ct-settings > \.seg \{[^}]*margin-right:\s*calc\(/s);
+  assert.match(wideClick, /env\(safe-area-inset-right,\s*0px\)/);
+  assert.match(wideClick, /\.ct-settings > \.seg button \{[^}]*min-height:\s*44px/s);
+  assert.doesNotMatch(wideClick, /width:\s*calc\(100% - 56px\)/);
   assert.doesNotMatch(wideClick, /align-self:\s*center/);
   const widePyr = pyr.split("@media ${WIDE_MQ}")[1].split("@media ${WIDE_MQ} and")[0];
   assert.match(widePyr, /\.pyr-lead \{[^}]*margin:\s*2px 56px 8px 0/s);

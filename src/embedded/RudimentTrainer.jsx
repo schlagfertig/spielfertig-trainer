@@ -110,9 +110,6 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
   const hearRef = useRef(hear); hearRef.current = hear;
   const rud = RUDIMENTS.find((r) => r.id === sel) || RUDIMENTS[0];
   usePracticeTrack({ ex: "rudiments", item: rud.id, label: String(rud.label || "").replace(/^\d+\.\s*/, ""), playing, bpm });
-  const meterNow = meterPulse(rud.time);
-  const beatsInBar = Math.max(1, Math.round(meterNow.bar / meterNow.pulse));
-  const beatN = playT < 0 ? -1 : Math.floor((playT + 1e-4) / meterNow.pulse) % beatsInBar;
   const goal = GOALS.find((g) => g.id === goalId) || GOALS[0];
   const compact = useShortScreen() && !stage;
   const lowLand = useLowLandscape();
@@ -341,7 +338,9 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           border-radius: 999px; padding: 3px 12px; font: 800 13px/1.2 Figtree, sans-serif;
         }
         .staff-card { position: relative; }
-        /* Paket C: alle Rudiment-Karten gleich groß - feste Notenfläche, die Noten passen sich ein */
+        /* Paket C: alle Rudiment-Karten gleich groß - feste Notenfläche, die Noten passen sich ein.
+           Hochkant bleibt die Höhe, damit Loop über Ziel/Klang sitzt. Quer nutzt der wegfallende
+           Zählzeiten-Platz die Notenfläche. */
         .rud-staff-box { height: 150px; display: flex; align-items: center; justify-content: center; }
         .staff-card .rud-staff-box svg { width: 100%; height: 100%; max-height: 100%; }
         .rud-wrap.rud-short .rud-staff-box { height: 112px; }
@@ -436,10 +435,7 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
             pointer-events: auto;
           }
           .page.tool .rud-tool .rud-title { flex: 0 0 auto; height: auto; min-height: 0; margin-bottom: 4px; padding-bottom: 4px; }
-          .page.tool .rud-tool .beat-track, .page.tool .rud-tool .beat-loop { flex: 0 0 auto; }
-          .page.tool .rud-tool .beat-track { margin-top: 4px; }
-          .page.tool .rud-tool .beat-cells span { padding: 4px 0; font-size: 17px; }
-          .page.tool .rud-tool .beat-loop { margin-top: 4px; }
+          .page.tool .rud-tool .beat-loop { flex: 0 0 auto; margin-top: 4px; }
           /* Zahlenleiste nur unter der Notenspalte, nicht unter dem Rad. */
           .page.tool.view-rudiments .rud-nav { left: var(--sf-land-content-left); right: 0; width: auto; }
           /* Der feste Clip-Knopf aus der App-Hülle weicht dem Clip unter dem Rad. */
@@ -455,16 +451,14 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
           .page.tool:not(.stage) .rud-tool .staff-card { padding: 6px 10px 4px; }
           .page.tool:not(.stage) .rud-tool .rud-staff-box {
             flex: 0 0 auto;
-            height: 104px;
-            min-height: 104px;
-            max-height: 104px;
+            height: 128px;
+            min-height: 128px;
+            max-height: 128px;
           }
-          .page.tool:not(.stage) .rud-tool .staff-card .rud-staff-box svg { height: 104px; max-height: 104px; }
+          .page.tool:not(.stage) .rud-tool .staff-card .rud-staff-box svg { height: 128px; max-height: 128px; }
           .page.tool:not(.stage) .rud-tool .rud-title { margin-bottom: 2px; padding-bottom: 4px; }
           .page.tool:not(.stage) .rud-tool .rud-title-kicker { margin-bottom: 1px; }
           .page.tool:not(.stage) .rud-tool .rud-title-name { font-size: 18px; line-height: 1.05; -webkit-line-clamp: 1; }
-          .page.tool:not(.stage) .rud-tool .beat-track { margin-top: 2px; }
-          .page.tool:not(.stage) .rud-tool .beat-cells span { padding: 3px 0; font-size: 16px; }
           .page.tool:not(.stage) .rud-tool .beat-loop { margin-top: 2px; font-size: 12px; }
           .page.tool:not(.stage) .rud-tool .rud-picks-land { margin-top: 4px; }
           .page.tool:not(.stage) .rud-tool .rud-picks-land .rud-pick,
@@ -509,14 +503,6 @@ export default function RudimentTrainer({ printOpen = false, onPrintClose, stage
             <div className="rud-staff-box">
               <RudimentStaff rud={rud} playingT={playT} svgId="rud-live" />
             </div>
-            <div className="beat-track">
-              <div className="beat-cells">
-                {Array.from({ length: beatsInBar }, (_, i) => (
-                  <span key={i} className={playing && beatN === i ? "on" : ""}>{i + 1}</span>
-                ))}
-              </div>
-            </div>
-            {/* Loop-Anzeige unter den Zählzeiten (Paket C) */}
             <div className={playing ? "beat-loop on" : "beat-loop"} aria-live="polite">
               {playing && goal.sec ? fmt(leftSec) : playing ? `Loop ${loopN}${goal.loops ? " / " + goal.loops : ""}` : "Loop -"}
             </div>
