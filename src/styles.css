@@ -884,13 +884,53 @@ body:has(.page.view-lexicon), body:has(.page.view-lexicon) #root, .page.tool.vie
 
 /* Rudiment-Würfel (Labs) */
 .ed-link { margin: 0 0 12px; border-color: rgba(92, 200, 184, 0.55); background: rgba(92, 200, 184, 0.06); }
-.ed-setup { padding: 12px; border-radius: 14px; display: grid; gap: 10px; }
-.ed-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.ed-lab { min-width: 64px; color: var(--dim, #8a969c); font: 700 14px Figtree, sans-serif; }
-.ed-seg { flex: 1; display: flex; }
-.ed-seg button { flex: 1; min-height: 40px; }
-.ed-roll { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 54px; font: 800 20px Oswald, sans-serif; letter-spacing: 0.04em; border-color: var(--teal, #5cc8b8); }
-.ed-die { font-size: 26px; }
+.ed-setup { padding: 10px; border-radius: 14px; display: grid; gap: 8px; }
+/* Drei Einstellungen in einer Zeile, Beschriftung über den Chips — nie daneben, wo die Leiste sie zudeckt.
+   Schmal: Länge und Takt nebeneinander, Stufe (drei Wörter) darunter in voller Breite. */
+.ed-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1.85fr) minmax(0, 0.95fr);
+  gap: 8px 10px;
+  align-items: stretch;
+}
+.ed-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ed-lab {
+  min-width: 0;
+  color: var(--dim, #8a969c);
+  font: 800 11px/1.2 Figtree, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.ed-seg { display: flex; width: 100%; min-width: 0; }
+.ed-seg button {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  padding: 4px 6px;
+  font-size: 14px;
+  line-height: 1.1;
+  white-space: nowrap;
+  touch-action: manipulation;
+}
+.ed-roll {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  font: 800 16px/1 Oswald, sans-serif;
+  letter-spacing: 0.03em;
+  border-color: var(--teal, #5cc8b8);
+}
+.ed-die { font-size: 20px; line-height: 1; }
+@media (max-width: 520px) {
+  .ed-fields { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
+  .ed-field-len { grid-column: 1; grid-row: 1; }
+  .ed-field-meter { grid-column: 2; grid-row: 1; }
+  .ed-field-level { grid-column: 1 / -1; grid-row: 2; }
+}
 .ed-bars { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 6px; }
 /* Kompakte Takt-Kacheln: Kopfzeile flach, Notenbild eng zugeschnitten (siehe tightenStaves). */
 .ed-bar { background: #fff; border-radius: 10px; padding: 4px 6px 4px; border: 2px solid transparent; transition: border-color .15s, transform .3s; min-width: 0; }

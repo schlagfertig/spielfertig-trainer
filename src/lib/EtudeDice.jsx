@@ -72,9 +72,9 @@ function SoundBtn({ on, metro, label, onClick }) {
   );
 }
 
-function Seg({ value, options, onChange, label }) {
+function Seg({ value, options, onChange, label, field }) {
   return (
-    <div className="ed-row">
+    <div className={`ed-field ed-field-${field}`}>
       <span className="ed-lab">{label}</span>
       <div className="seg ed-seg" role="radiogroup" aria-label={label}>
         {options.map((o) => (
@@ -205,9 +205,11 @@ export default function EtudeDice() {
         ? t("Würfel dir aus den 40 Rudiments deine eigene Übung - jedes Mal neu, Takt für Takt.")
         : t("Kostenlos würfelst du nur aus sechs Rudiments: Single Stroke Roll, Double Stroke Open Roll, Single Paradiddle, Flam, Flam Tap und Drag. 6/8 gehört zur vollen App.")}</p>
       <div className="panel ed-setup">
-        <Seg label={t("Länge")} value={bars} onChange={setBars} options={LENGTHS.map((n) => ({ id: n, label: t("{n} Takte", { n }) }))} />
-        <Seg label={t("Stufe")} value={level} onChange={setLevel} options={LEVELS.map((l) => ({ id: l.id, label: t(l.label) }))} />
-        <Seg label={t("Takt")} value={meter} onChange={pickMeter} options={METERS.map((m) => ({ id: m, label: m }))} />
+        <div className="ed-fields">
+          <Seg field="len" label={t("Länge")} value={bars} onChange={setBars} options={LENGTHS.map((n) => ({ id: n, label: t("{n} Takte", { n }) }))} />
+          <Seg field="level" label={t("Stufe")} value={level} onChange={setLevel} options={LEVELS.map((l) => ({ id: l.id, label: t(l.label) }))} />
+          <Seg field="meter" label={t("Takt")} value={meter} onChange={pickMeter} options={METERS.map((m) => ({ id: m, label: m }))} />
+        </div>
         <button type="button" className="card ed-roll" onClick={roll}>
           <span className="ed-die" aria-hidden="true">🎲</span>
           <span>{etude ? t("Nochmal würfeln") : t("Würfeln")}</span>
